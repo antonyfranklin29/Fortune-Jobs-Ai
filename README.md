@@ -80,3 +80,5 @@ Real jobs being scraped and matched successfully.
 
 Built with passion by Franklin Antony
 Zero coding experience. Pure determination.
+
+
