@@ -390,6 +390,38 @@ function hidePollingBar() {
 }
 
 // ═══════════════════════════════════════
+// SANITIZE JOB DATA FROM SUPABASE
+// Safety net for upstream (Claude/Make.com) formatting slips: strips
+// markdown code fences (```json ... ```) and stray backticks from every
+// string field, and — if the JSON parser step ever fails entirely and the
+// whole raw (possibly fenced) JSON blob lands in job_title — recovers the
+// real fields from it instead of showing garbage.
+// ═══════════════════════════════════════
+function stripCodeFence(value) {
+  if (typeof value !== 'string') return value;
+  return value
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```\s*$/i, '')
+    .replace(/^`+|`+$/g, '')
+    .trim();
+}
+
+function sanitizeJobRow(row) {
+  const cleaned = {};
+  for (const key of Object.keys(row)) {
+    cleaned[key] = stripCodeFence(row[key]);
+  }
+  if (typeof cleaned.job_title === 'string' && /^\{[\s\S]*\}$/.test(cleaned.job_title)) {
+    try {
+      const parsed = JSON.parse(cleaned.job_title);
+      return Object.assign({}, cleaned, parsed);
+    } catch (e) { /* not valid JSON — leave the cleaned row as-is */ }
+  }
+  return cleaned;
+}
+
+// ═══════════════════════════════════════
 // FETCH JOBS FROM SUPABASE
 // When sinceISO is given, only rows created after this search started are
 // requested (so a previous search's leftover rows can never be shown).
@@ -419,8 +451,13 @@ async function fetchJobs(signal, sinceISO) {
     const rows = await res.json();
     if (!rows || rows.length === 0) return null;
 
+    // Safety net: Claude/Make.com can occasionally leak markdown code
+    // fences or backticks into the stored fields. Clean every row before
+    // using it so a formatting slip upstream never breaks the display.
+    const cleanedRows = rows.map(sanitizeJobRow);
+
     // Filter out "No matching jobs found" rows
-    const validJobs = rows.filter(r =>
+    const validJobs = cleanedRows.filter(r =>
       r.job_title &&
       r.job_title !== 'No matching jobs found' &&
       r.job_title !== 'N/A' &&
