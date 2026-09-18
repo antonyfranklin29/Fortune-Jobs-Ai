@@ -332,6 +332,9 @@ const FALLBACK_AFTER_MS = 100000; // If no row newer than sinceISO shows up with
                                    // fall back to the latest valid row regardless of its timestamp —
                                    // guards against a created_at timezone/type mismatch permanently
                                    // hiding a real result.
+const EXPECTED_JOB_COUNT   = 5;   // Make.com's Iterator inserts up to this many rows one at a time
+const STABILIZE_DELAY_MS   = 5000;  // Wait this long between "is the row count still growing?" checks
+const STABILIZE_MAX_CHECKS = 3;     // Give up waiting after this many checks and show what we have
 
 // ═══════════════════════════════════════
 // STATE
@@ -345,6 +348,7 @@ let searchStartTime   = null;
 let searchGeneration  = 0;      // bumped on every new search; lets stale async work detect it's obsolete
 let activePollFn      = null;   // the in-flight poll() closure, so we can re-run it on tab focus
 let activeAbortCtrl   = null;   // aborts an in-flight Supabase request when a new search starts
+let pollInFlight      = false;  // true while a poll cycle (including its stabilization wait) is running
 
 // ═══════════════════════════════════════
 // LOADING ANIMATION
@@ -489,6 +493,7 @@ function stopPolling() {
   if (initialWaitTimer) { clearTimeout(initialWaitTimer); initialWaitTimer = null; }
   if (activeAbortCtrl)  { activeAbortCtrl.abort(); activeAbortCtrl = null; }
   activePollFn = null;
+  pollInFlight = false;
   hidePollingBar();
 }
 
@@ -500,33 +505,69 @@ function stopPolling() {
 // that started it, so a late/slow response from an old search can never
 // overwrite what a newer search is showing.
 // ═══════════════════════════════════════
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Make.com's Iterator writes the top-5 jobs as separate rows one at a time,
+// so a poll can land mid-batch and see only 2-3 rows. Re-check a few times,
+// spaced out, and only finalize once the row count stops growing (or hits
+// EXPECTED_JOB_COUNT) — otherwise a partial batch could get displayed and
+// polling would stop before the rest of the rows ever arrive.
+async function waitForStableResults(initialJobs, sinceISO, generation) {
+  let jobs = initialJobs;
+  for (let i = 0; i < STABILIZE_MAX_CHECKS; i++) {
+    if (jobs.length >= EXPECTED_JOB_COUNT) return jobs;
+
+    await sleep(STABILIZE_DELAY_MS);
+    if (generation !== searchGeneration) return null; // superseded while waiting
+
+    const recheck = await fetchJobs(activeAbortCtrl ? activeAbortCtrl.signal : undefined, sinceISO);
+    if (generation !== searchGeneration) return null; // superseded while the fetch was in flight
+
+    if (!recheck || recheck.length <= jobs.length) return jobs; // stopped growing — done
+    jobs = recheck; // still growing — check again
+  }
+  return jobs; // stop waiting after a few checks; show whatever we have
+}
+
 function startPolling(search, generation, sinceISO) {
   showPollingBar();
   const pollingStartedAt = Date.now();
 
   const poll = async () => {
     if (generation !== searchGeneration) return; // superseded by a newer search
+    if (pollInFlight) return; // a poll (possibly mid-stabilization) is already running
 
-    activeAbortCtrl = new AbortController();
-    let jobs = await fetchJobs(activeAbortCtrl.signal, sinceISO);
+    pollInFlight = true;
+    try {
+      activeAbortCtrl = new AbortController();
+      let jobs = await fetchJobs(activeAbortCtrl.signal, sinceISO);
 
-    if (generation !== searchGeneration) return; // superseded while the fetch was in flight
+      if (generation !== searchGeneration) return; // superseded while the fetch was in flight
 
-    // Nothing newer than this search's start time yet. After giving it a
-    // fair chance, fall back to the latest valid row regardless of its
-    // timestamp — this guarantees a result is never permanently hidden by
-    // a created_at timezone/type quirk on the Supabase side.
-    if (!jobs && Date.now() - pollingStartedAt > FALLBACK_AFTER_MS) {
-      jobs = await fetchJobs(activeAbortCtrl.signal, null);
-      if (generation !== searchGeneration) return;
+      // Nothing newer than this search's start time yet. After giving it a
+      // fair chance, fall back to the latest valid row regardless of its
+      // timestamp — this guarantees a result is never permanently hidden by
+      // a created_at timezone/type quirk on the Supabase side.
+      if (!jobs && Date.now() - pollingStartedAt > FALLBACK_AFTER_MS) {
+        jobs = await fetchJobs(activeAbortCtrl.signal, null);
+        if (generation !== searchGeneration) return;
+      }
+
+      if (jobs && jobs.length > 0) {
+        const stableJobs = await waitForStableResults(jobs, sinceISO, generation);
+        if (generation !== searchGeneration) return; // superseded while stabilizing
+        if (stableJobs && stableJobs.length > 0) {
+          stopPolling();
+          showJobCards(stableJobs, search);
+          return;
+        }
+      }
+      pollingTimer = setTimeout(poll, POLL_INTERVAL_MS);
+    } finally {
+      pollInFlight = false;
     }
-
-    if (jobs && jobs.length > 0) {
-      stopPolling();
-      showJobCards(jobs, search);
-      return;
-    }
-    pollingTimer = setTimeout(poll, POLL_INTERVAL_MS);
   };
 
   activePollFn = poll;
@@ -554,7 +595,7 @@ function startPolling(search, generation, sinceISO) {
 // Browsers throttle/pause timers in background tabs, which can silently
 // delay a scheduled poll. Re-check immediately when the tab regains focus.
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && activePollFn && pollingTimer) {
+  if (document.visibilityState === 'visible' && activePollFn && pollingTimer && !pollInFlight) {
     clearTimeout(pollingTimer);
     pollingTimer = null;
     activePollFn();
