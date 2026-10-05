@@ -7,12 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy:#0F172A;--navy-2:#1E293B;--navy-3:#334155;
-  --gold:#D4A843;--gold-light:#F0C96A;--gold-pale:#FBF3E0;
-  --white:#FFFFFF;--gray-100:#F1F5F9;--gray-200:#E2E8F0;
-  --gray-400:#94A3B8;--gray-600:#475569;--green:#10B981;
-  --font-display:'Playfair Display',Georgia,serif;
-  --font-body:'DM Sans',sans-serif;
+--navy:#0F172A;--navy-2:#1E293B;--navy-3:#334155;
+--gold:#D4A843;--gold-light:#F0C96A;--gold-pale:#FBF3E0;
+--white:#FFFFFF;--gray-100:#F1F5F9;--gray-200:#E2E8F0;
+--gray-400:#94A3B8;--gray-600:#475569;--green:#10B981;
+--font-display:'Playfair Display',Georgia,serif;
+--font-body:'DM Sans',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--font-body);background:var(--white);color:var(--navy);line-height:1.6;}
@@ -24,12 +24,21 @@ nav{background:var(--white);border-bottom:1px solid var(--gray-200);padding:0 64
 .nav-links a{text-decoration:none;color:var(--gray-600);font-size:14px;transition:color 0.2s;}
 .nav-links a:hover{color:var(--navy);}
 .nav-cta{background:var(--gold);color:var(--navy);border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font-body);}
-.hero{background:var(--navy);padding:100px 64px 80px;text-align:center;position:relative;overflow:hidden;}
+.hero{background:var(--navy);padding:80px 64px 72px;text-align:center;position:relative;overflow:hidden;}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(212,168,67,0.12);border:1px solid rgba(212,168,67,0.25);color:var(--gold-light);font-size:12px;font-weight:500;padding:6px 14px;border-radius:20px;margin-bottom:28px;}
 .hero h1{font-family:var(--font-display);font-size:clamp(36px,5vw,60px);font-weight:800;color:var(--white);line-height:1.1;margin-bottom:20px;}
 .hero h1 span{color:var(--gold);}
-.hero p{font-size:18px;color:var(--gray-400);max-width:560px;margin:0 auto 40px;font-weight:300;}
-.search-bar{display:flex;max-width:620px;margin:0 auto 24px;background:var(--white);border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px rgba(212,168,67,0.3);}
+.hero p{font-size:18px;color:var(--gray-400);max-width:560px;margin:0 auto 36px;font-weight:300;}
+
+/* ── MODE TOGGLE ── */
+.mode-toggle{display:inline-flex;background:rgba(255,255,255,0.07);border:1px solid rgba(212,168,67,0.2);border-radius:12px;padding:4px;margin-bottom:28px;gap:4px;}
+.mode-btn{background:transparent;border:none;padding:10px 24px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-body);color:var(--gray-400);transition:all 0.2s;display:flex;align-items:center;gap:7px;}
+.mode-btn.active{background:var(--gold);color:var(--navy);}
+.mode-btn:not(.active):hover{color:var(--white);}
+.mode-desc{font-size:12px;color:var(--gray-400);margin-bottom:24px;min-height:18px;transition:all 0.2s;}
+.mode-desc span{color:var(--gold-light);}
+
+.search-bar{display:flex;max-width:620px;margin:0 auto 20px;background:var(--white);border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px rgba(212,168,67,0.3);}
 .search-bar input{flex:1;border:none;outline:none;padding:16px 20px;font-size:15px;font-family:var(--font-body);color:var(--navy);}
 .search-bar input::placeholder{color:var(--gray-400);}
 .search-bar button{background:var(--gold);color:var(--navy);border:none;padding:16px 28px;font-size:15px;font-weight:500;cursor:pointer;font-family:var(--font-body);white-space:nowrap;}
@@ -97,6 +106,7 @@ footer{background:#080E1A;padding:48px 64px 32px;}
 .loading-overlay.active{display:flex;}
 .loading-spinner{width:56px;height:56px;border:3px solid rgba(212,168,67,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
+.loading-mode-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(212,168,67,0.12);border:1px solid rgba(212,168,67,0.25);color:var(--gold-light);font-size:12px;font-weight:500;padding:5px 14px;border-radius:20px;margin-bottom:8px;}
 .loading-steps{display:flex;flex-direction:column;gap:12px;}
 .loading-step{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--gray-400);transition:color 0.3s;}
 .loading-step.active{color:var(--gold);}
@@ -105,7 +115,7 @@ footer{background:#080E1A;padding:48px 64px 32px;}
 .loading-step.active .step-dot{background:var(--gold);}
 .loading-step.done .step-dot{background:var(--green);}
 
-/* POLLING STATUS BAR — shows after loading screen closes */
+/* POLLING STATUS BAR */
 .polling-bar{display:none;background:var(--navy-2);padding:16px 32px;text-align:center;border-bottom:1px solid var(--navy-3);}
 .polling-bar.active{display:block;}
 .polling-bar p{color:var(--gold-light);font-size:14px;}
@@ -117,7 +127,11 @@ footer{background:#080E1A;padding:48px 64px 32px;}
 .results-section.active{display:block;}
 .results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;flex-wrap:wrap;gap:16px;}
 .results-title{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--navy);}
+.results-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .results-count{font-size:13px;color:var(--gray-400);margin-top:4px;}
+.results-mode-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;margin-top:4px;}
+.results-mode-badge.live{background:rgba(16,185,129,0.1);color:var(--green);border:1px solid rgba(16,185,129,0.2);}
+.results-mode-badge.quick{background:rgba(212,168,67,0.1);color:var(--gold);border:1px solid rgba(212,168,67,0.25);}
 .jobs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
 .job-card{background:var(--white);border:1px solid var(--gray-200);border-radius:16px;padding:24px;transition:all 0.2s;display:flex;flex-direction:column;}
 .job-card:hover{border-color:var(--gold);box-shadow:0 4px 24px rgba(212,168,67,0.12);transform:translateY(-2px);}
@@ -140,12 +154,14 @@ footer{background:#080E1A;padding:48px 64px 32px;}
 .retry-btn:hover{background:var(--gold-light);}
 
 @media(max-width:768px){
-  nav{padding:0 20px;}.hero{padding:60px 20px;}.stats{padding:24px 20px;gap:32px;}
-  .how-it-works,.categories,.why-us,.testimonials,.cta-section{padding:64px 20px;}
-  .steps-grid,.categories-grid,.why-grid,.testimonials-grid{grid-template-columns:1fr;}
-  footer{padding:40px 20px 24px;}.results-section{padding:32px 20px;}
-  .search-bar{flex-direction:column;border-radius:12px;}.search-bar button{border-radius:0 0 12px 12px;}
-  .nav-links{display:none;}.jobs-grid{grid-template-columns:1fr;}
+nav{padding:0 20px;}.hero{padding:60px 20px;}.stats{padding:24px 20px;gap:32px;}
+.how-it-works,.categories,.why-us,.testimonials,.cta-section{padding:64px 20px;}
+.steps-grid,.categories-grid,.why-grid,.testimonials-grid{grid-template-columns:1fr;}
+footer{padding:40px 20px 24px;}.results-section{padding:32px 20px;}
+.search-bar{flex-direction:column;border-radius:12px;}.search-bar button{border-radius:0 0 12px 12px;}
+.nav-links{display:none;}.jobs-grid{grid-template-columns:1fr;}
+.mode-toggle{flex-direction:column;width:100%;max-width:320px;}
+.mode-btn{justify-content:center;}
 }
 </style>
 </head>
@@ -155,15 +171,12 @@ footer{background:#080E1A;padding:48px 64px 32px;}
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
   <div style="text-align:center">
+    <div class="loading-mode-badge" id="loadingModeBadge">⚡ Quick Match</div>
     <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:8px">Finding your perfect job...</div>
-    <div style="font-size:13px;color:#94A3B8;margin-bottom:24px">This takes about 2 minutes. Please wait!</div>
+    <div style="font-size:13px;color:#94A3B8;margin-bottom:24px" id="loadingSubtext">Checking pre-matched jobs — usually ready in 10–30 seconds!</div>
   </div>
-  <div class="loading-steps">
-    <div class="loading-step active" id="step1"><div class="step-dot"></div>Reading your search...</div>
-    <div class="loading-step" id="step2"><div class="step-dot"></div>Claude AI extracting job title...</div>
-    <div class="loading-step" id="step3"><div class="step-dot"></div>Apify scraping Indeed for real jobs...</div>
-    <div class="loading-step" id="step4"><div class="step-dot"></div>Claude AI picking your best match...</div>
-    <div class="loading-step" id="step5"><div class="step-dot"></div>Saving your result...</div>
+  <div class="loading-steps" id="loadingSteps">
+    <!-- Steps injected by JS based on mode -->
   </div>
 </div>
 
@@ -198,7 +211,21 @@ footer{background:#080E1A;padding:48px 64px 32px;}
 <section class="hero">
   <div class="hero-badge">✦ AI-Powered Job Matching</div>
   <h1>Find Your <span>Dream Job</span><br>with AI</h1>
-  <p>Type a job title — our AI scrapes real jobs from Indeed, picks the best match for you, and shows it instantly.</p>
+  <p>Type a job title — our AI picks the best matches for you and shows them instantly.</p>
+
+  <!-- MODE TOGGLE -->
+  <div class="mode-toggle" id="modeToggle">
+    <button class="mode-btn active" id="btnQuick" onclick="setMode('quick')">
+      ⚡ Quick Match
+    </button>
+    <button class="mode-btn" id="btnLive" onclick="setMode('live')">
+      🔴 Live Search
+    </button>
+  </div>
+  <div class="mode-desc" id="modeDesc">
+    <span>⚡ Quick Match</span> — instant results from pre-scraped jobs (fastest)
+  </div>
+
   <div class="search-bar">
     <input type="text" id="jobSearchInput" placeholder="e.g. Data Analyst, Software Engineer, Marketing Manager..."/>
     <button onclick="handleSearch()">Find My Job →</button>
@@ -224,12 +251,12 @@ footer{background:#080E1A;padding:48px 64px 32px;}
 <!-- HOW IT WORKS -->
 <section class="how-it-works">
   <div class="section-eyebrow">How It Works</div>
-  <h2 class="section-title">Three steps to your next job</h2>
-  <p class="section-sub">No manual searching. No wasted time. Just your perfect job, found by AI.</p>
+  <h2 class="section-title">Two ways to find your job</h2>
+  <p class="section-sub">Choose Quick Match for instant results, or Live Search to scrape Indeed right now.</p>
   <div class="steps-grid">
-    <div class="step-card"><div class="step-num">1</div><h3>Type or Upload</h3><p>Type your desired job title or upload your resume PDF. Takes less than 10 seconds.</p></div>
-    <div class="step-card"><div class="step-num">2</div><h3>AI Scrapes & Matches</h3><p>Claude AI sends your search to Indeed, scrapes real live jobs, and picks the single best match for you.</p></div>
-    <div class="step-card"><div class="step-num">3</div><h3>Apply Instantly</h3><p>See your top matched job with the exact reason it was chosen and a direct Apply Now link.</p></div>
+    <div class="step-card"><div class="step-num">1</div><h3>Pick Your Mode</h3><p>Use <strong>⚡ Quick Match</strong> for instant results from pre-scraped jobs, or <strong>🔴 Live Search</strong> to scrape Indeed live right now.</p></div>
+    <div class="step-card"><div class="step-num">2</div><h3>AI Matches You</h3><p>Claude AI reads your search and picks the top 5 best-matching jobs — with a reason for each match.</p></div>
+    <div class="step-card"><div class="step-num">3</div><h3>Apply Instantly</h3><p>See your top matched jobs with the exact reason each was chosen and a direct Apply Now link.</p></div>
   </div>
 </section>
 
@@ -254,9 +281,9 @@ footer{background:#080E1A;padding:48px 64px 32px;}
   <h2 class="section-title">Smarter than manual searching</h2>
   <p class="section-sub">Stop spending hours scrolling LinkedIn. Let AI do the work.</p>
   <div class="why-grid">
-    <div class="why-card"><div class="why-icon">🤖</div><h3>Real AI Matching</h3><p>Claude AI reads your search, scrapes real live jobs from Indeed, and picks the best match — not just keywords.</p></div>
-    <div class="why-card"><div class="why-icon">📋</div><h3>Real Jobs from Indeed</h3><p>We scrape Indeed in real time so every job is live, current and actually available when you see it.</p></div>
-    <div class="why-card"><div class="why-icon">🎯</div><h3>One Perfect Match</h3><p>Instead of 100 random results, we give you the single best job with the exact reason it was chosen for you.</p></div>
+    <div class="why-card"><div class="why-icon">⚡</div><h3>Quick Match Mode</h3><p>Get instant results from our nightly-scraped database of 200+ fresh jobs across 20 categories. No waiting.</p></div>
+    <div class="why-card"><div class="why-icon">🔴</div><h3>Live Search Mode</h3><p>Trigger a real-time scrape of Indeed right now. Takes 2 minutes but gets you the absolute freshest listings.</p></div>
+    <div class="why-card"><div class="why-icon">🤖</div><h3>Claude AI Matching</h3><p>Claude AI reads your search, understands context, picks your top 5 matches, and explains exactly why each one fits.</p></div>
   </div>
 </section>
 
@@ -266,8 +293,8 @@ footer{background:#080E1A;padding:48px 64px 32px;}
   <h2 class="section-title">People are finding jobs faster</h2>
   <p class="section-sub">Real results from real job seekers who used Fortune Jobs AI.</p>
   <div class="testimonials-grid">
-    <div class="testimonial-card"><div class="stars">★★★★★</div><p class="testimonial-text">"I typed Data Analyst and within 2 minutes had a perfectly matched role from Indeed. Got an interview the same week!"</p><div class="testimonial-author"><div class="author-avatar" style="background:#FBF3E0">SM</div><div><div class="author-name">Sarah Mitchell</div><div class="author-role">Data Analyst, Chicago IL</div></div></div></div>
-    <div class="testimonial-card"><div class="stars">★★★★★</div><p class="testimonial-text">"As an OPT student I struggled to find the right jobs. Fortune Jobs AI found me a real Indeed listing that matched perfectly."</p><div class="testimonial-author"><div class="author-avatar" style="background:#E6F4F0">AK</div><div><div class="author-name">Arjun Kumar</div><div class="author-role">Software Engineer, Austin TX</div></div></div></div>
+    <div class="testimonial-card"><div class="stars">★★★★★</div><p class="testimonial-text">"I used Quick Match and got 5 perfectly matched Data Analyst roles in seconds. Got an interview the same week!"</p><div class="testimonial-author"><div class="author-avatar" style="background:#FBF3E0">SM</div><div><div class="author-name">Sarah Mitchell</div><div class="author-role">Data Analyst, Chicago IL</div></div></div></div>
+    <div class="testimonial-card"><div class="stars">★★★★★</div><p class="testimonial-text">"Live Search found me a Software Engineer role posted that same morning. The AI matched it perfectly to my background."</p><div class="testimonial-author"><div class="author-avatar" style="background:#E6F4F0">AK</div><div><div class="author-name">Arjun Kumar</div><div class="author-role">Software Engineer, Austin TX</div></div></div></div>
     <div class="testimonial-card"><div class="stars">★★★★★</div><p class="testimonial-text">"The AI explained exactly WHY the job matched me. That reason alone helped me write a better cover letter. Got hired!"</p><div class="testimonial-author"><div class="author-avatar" style="background:#E6EEF5">JR</div><div><div class="author-name">Jessica Rivera</div><div class="author-role">Marketing Manager, New York NY</div></div></div></div>
   </div>
 </section>
@@ -286,8 +313,11 @@ footer{background:#080E1A;padding:48px 64px 32px;}
 <section class="results-section" id="resultsSection">
   <div class="results-header">
     <div>
-      <div class="results-title" id="resultsTitle">Your Best Matched Job</div>
-      <div class="results-count" id="resultsCount">AI selected from real Indeed listings</div>
+      <div class="results-title" id="resultsTitle">Your Best Matched Jobs</div>
+      <div class="results-meta">
+        <div class="results-count" id="resultsCount">AI selected from real Indeed listings</div>
+        <div class="results-mode-badge quick" id="resultsModeBadge">⚡ Quick Match</div>
+      </div>
     </div>
   </div>
   <div class="jobs-grid" id="jobsGrid"></div>
@@ -315,125 +345,143 @@ footer{background:#080E1A;padding:48px 64px 32px;}
 
 <script>
 // ═══════════════════════════════════════
-// YOUR KEYS — already filled in!
+// WEBHOOK URLs — one per mode
 // ═══════════════════════════════════════
-const WEBHOOK_URL  = 'https://hook.us2.make.com/nx71muhgk5j6mvou21zrcvm9dhje8it4';
+const WEBHOOK_URL_LIVE  = 'https://hook.us2.make.com/nx71muhgk5j6mvou21zrcvm9dhje8it4';
+const WEBHOOK_URL_QUICK = 'https://hook.us2.make.com/nx71muhgk5j6mvou21zrcvm9dhje8it4';
+
 const SUPABASE_URL = 'https://hqgakkcxcyspqhnlnscv.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxZ2Fra2N4Y3lzcHFobmxuc2N2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1ODk2NjEsImV4cCI6MjA5MDE2NTY2MX0.6KMFrVZtp0Qfb3qlvZCQfSmK0HQX0W3oA0pAGimHVik';
 
 // ═══════════════════════════════════════
+// MODE STATE
+// ═══════════════════════════════════════
+let currentMode = 'quick'; // 'quick' or 'live'
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('btnQuick').classList.toggle('active', mode === 'quick');
+  document.getElementById('btnLive').classList.toggle('active', mode === 'live');
+  if (mode === 'quick') {
+    document.getElementById('modeDesc').innerHTML = '<span>⚡ Quick Match</span> — instant results from pre-scraped jobs (fastest)';
+  } else {
+    document.getElementById('modeDesc').innerHTML = '<span>🔴 Live Search</span> — scrapes Indeed right now for the freshest listings (~2 min)';
+  }
+}
+
+// ═══════════════════════════════════════
 // SETTINGS
 // ═══════════════════════════════════════
-const INITIAL_WAIT_MS   = 120000; // Wait 2 mins before first check
-const POLL_INTERVAL_MS  = 20000;  // Then check every 20 seconds
-const MAX_WAIT_MS       = 300000; // Stop after 5 minutes total (from when polling starts)
-const CLOCK_SKEW_MS     = 5000;   // Small backward buffer for clock drift between browser & Supabase
-const FALLBACK_AFTER_MS = 100000; // If no row newer than sinceISO shows up within ~100s of polling,
-                                   // fall back to the latest valid row regardless of its timestamp —
-                                   // guards against a created_at timezone/type mismatch permanently
-                                   // hiding a real result.
-const EXPECTED_JOB_COUNT   = 5;   // Make.com's Iterator inserts up to this many rows one at a time
-const STABILIZE_DELAY_MS   = 5000;  // Wait this long between "is the row count still growing?" checks
-const STABILIZE_MAX_CHECKS = 3;     // Give up waiting after this many checks and show what we have
+const INITIAL_WAIT_QUICK = 15000;  // Quick: wait 15s before first poll
+const INITIAL_WAIT_LIVE  = 120000; // Live: wait 2 min before first poll
+const POLL_INTERVAL_MS   = 20000;
+const MAX_WAIT_MS        = 300000;
+const CLOCK_SKEW_MS      = 5000;
+const FALLBACK_AFTER_MS  = 100000;
+const EXPECTED_JOB_COUNT = 5;
+const STABILIZE_DELAY_MS = 5000;
+const STABILIZE_MAX_CHECKS = 3;
 
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
-let currentSearch     = '';
-let pollingTimer      = null;   // setTimeout handle for the next poll
-let timeoutTimer      = null;   // setTimeout handle for the overall give-up timer
-let initialWaitTimer  = null;   // setTimeout handle for the initial 2 min wait
-let loadingIntervalId = null;   // setInterval handle for the loading step animation
-let searchStartTime   = null;
-let searchGeneration  = 0;      // bumped on every new search; lets stale async work detect it's obsolete
-let activePollFn      = null;   // the in-flight poll() closure, so we can re-run it on tab focus
-let activeAbortCtrl   = null;   // aborts an in-flight Supabase request when a new search starts
-let pollInFlight      = false;  // true while a poll cycle (including its stabilization wait) is running
+let currentSearch = '';
+let pollingTimer = null;
+let timeoutTimer = null;
+let initialWaitTimer = null;
+let loadingIntervalId = null;
+let searchGeneration = 0;
+let activePollFn = null;
+let activeAbortCtrl = null;
+let pollInFlight = false;
 
 // ═══════════════════════════════════════
 // LOADING ANIMATION
 // ═══════════════════════════════════════
-function showLoading() {
+const STEPS_QUICK = [
+  'Reading your search...',
+  'Claude AI scanning pre-scraped jobs...',
+  'Ranking best matches...',
+  'Preparing your results...',
+  'Almost done...'
+];
+const STEPS_LIVE = [
+  'Reading your search...',
+  'Claude AI extracting job title...',
+  'Apify scraping Indeed for real jobs...',
+  'Claude AI picking your best matches...',
+  'Saving your results...'
+];
+
+function showLoading(mode) {
   if (loadingIntervalId) { clearInterval(loadingIntervalId); loadingIntervalId = null; }
+
+  const steps = mode === 'quick' ? STEPS_QUICK : STEPS_LIVE;
+  const waitMs = mode === 'quick' ? INITIAL_WAIT_QUICK : INITIAL_WAIT_LIVE;
+
+  // Badge + subtext
+  document.getElementById('loadingModeBadge').textContent = mode === 'quick' ? '⚡ Quick Match' : '🔴 Live Search';
+  document.getElementById('loadingSubtext').textContent = mode === 'quick'
+    ? 'Checking pre-matched jobs — usually ready in 10–30 seconds!'
+    : 'Scraping Indeed live — this takes about 2 minutes. Please wait!';
+
+  // Build step elements
+  const stepsContainer = document.getElementById('loadingSteps');
+  stepsContainer.innerHTML = steps.map((s, i) =>
+    `<div class="loading-step${i===0?' active':''}" id="lstep${i}"><div class="step-dot"></div>${s}</div>`
+  ).join('');
+
   document.getElementById('loadingOverlay').classList.add('active');
-  const steps = ['step1','step2','step3','step4','step5'];
+
   let i = 0;
   loadingIntervalId = setInterval(() => {
     if (i > 0) {
-      document.getElementById(steps[i-1]).classList.remove('active');
-      document.getElementById(steps[i-1]).classList.add('done');
+      document.getElementById(`lstep${i-1}`).classList.remove('active');
+      document.getElementById(`lstep${i-1}`).classList.add('done');
     }
     if (i < steps.length) {
-      document.getElementById(steps[i]).classList.add('active');
+      if (document.getElementById(`lstep${i}`)) {
+        document.getElementById(`lstep${i}`).classList.add('active');
+      }
       i++;
     } else {
       clearInterval(loadingIntervalId);
       loadingIntervalId = null;
     }
-  }, INITIAL_WAIT_MS / 5);
+  }, waitMs / steps.length);
 }
 
 function hideLoading() {
   if (loadingIntervalId) { clearInterval(loadingIntervalId); loadingIntervalId = null; }
   document.getElementById('loadingOverlay').classList.remove('active');
-  ['step1','step2','step3','step4','step5'].forEach(s => {
-    document.getElementById(s).classList.remove('active','done');
-  });
-  document.getElementById('step1').classList.add('active');
 }
 
 // ═══════════════════════════════════════
-// POLLING STATUS BAR
+// POLLING BAR
 // ═══════════════════════════════════════
-function showPollingBar() {
-  document.getElementById('pollingBar').classList.add('active');
-}
-
-function hidePollingBar() {
-  document.getElementById('pollingBar').classList.remove('active');
-}
+function showPollingBar() { document.getElementById('pollingBar').classList.add('active'); }
+function hidePollingBar() { document.getElementById('pollingBar').classList.remove('active'); }
 
 // ═══════════════════════════════════════
-// SANITIZE JOB DATA FROM SUPABASE
-// Safety net for upstream (Claude/Make.com) formatting slips: strips
-// markdown code fences (```json ... ```) and stray backticks from every
-// string field, and — if the JSON parser step ever fails entirely and the
-// whole raw (possibly fenced) JSON blob lands in job_title — recovers the
-// real fields from it instead of showing garbage.
+// SANITIZE JOB DATA
 // ═══════════════════════════════════════
 function stripCodeFence(value) {
   if (typeof value !== 'string') return value;
-  return value
-    .trim()
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```\s*$/i, '')
-    .replace(/^`+|`+$/g, '')
-    .trim();
+  return value.trim()
+    .replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '')
+    .replace(/^`+|`+$/g, '').trim();
 }
-
 function sanitizeJobRow(row) {
   const cleaned = {};
-  for (const key of Object.keys(row)) {
-    cleaned[key] = stripCodeFence(row[key]);
-  }
+  for (const key of Object.keys(row)) cleaned[key] = stripCodeFence(row[key]);
   if (typeof cleaned.job_title === 'string' && /^\{[\s\S]*\}$/.test(cleaned.job_title)) {
-    try {
-      const parsed = JSON.parse(cleaned.job_title);
-      return Object.assign({}, cleaned, parsed);
-    } catch (e) { /* not valid JSON — leave the cleaned row as-is */ }
+    try { return Object.assign({}, cleaned, JSON.parse(cleaned.job_title)); } catch(e) {}
   }
   return cleaned;
 }
 
 // ═══════════════════════════════════════
 // FETCH JOBS FROM SUPABASE
-// When sinceISO is given, only rows created after this search started are
-// requested (so a previous search's leftover rows can never be shown).
-// Caching is explicitly disabled via fetch options (NOT a query-string
-// param — Supabase's PostgREST treats any unrecognized query param as a
-// filter on a column of that name, so a "?_=<timestamp>" cache-buster
-// would be read as "column _ equals <timestamp>" and fail with a 400 on
-// every request, which is why results could stop appearing entirely).
 // ═══════════════════════════════════════
 async function fetchJobs(signal, sinceISO) {
   try {
@@ -441,43 +489,19 @@ async function fetchJobs(signal, sinceISO) {
     const url = `${SUPABASE_URL}/rest/v1/job_matches`
       + `?select=job_title,company,location,salary,apply_url,match_reason,match_score,created_at`
       + `&order=created_at.desc&limit=5${filter}`;
-
     const res = await fetch(url, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Cache-Control': 'no-cache'
-      },
-      cache: 'no-store',
-      signal
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Cache-Control': 'no-cache' },
+      cache: 'no-store', signal
     });
     if (!res.ok) return null;
     const rows = await res.json();
     if (!rows || rows.length === 0) return null;
-
-    // Safety net: Claude/Make.com can occasionally leak markdown code
-    // fences or backticks into the stored fields. Clean every row before
-    // using it so a formatting slip upstream never breaks the display.
-    const cleanedRows = rows.map(sanitizeJobRow);
-
-    // Filter out "No matching jobs found" rows
-    const validJobs = cleanedRows.filter(r =>
-      r.job_title &&
-      r.job_title !== 'No matching jobs found' &&
-      r.job_title !== 'N/A' &&
-      r.company !== 'N/A'
+    const cleaned = rows.map(sanitizeJobRow).filter(r =>
+      r.job_title && r.job_title !== 'No matching jobs found' && r.job_title !== 'N/A' && r.company !== 'N/A'
     );
-
-    if (validJobs.length === 0) return null;
-
-    // Sort by match_score highest first
-    validJobs.sort((a, b) => {
-      const scoreA = parseInt(a.match_score) || 0;
-      const scoreB = parseInt(b.match_score) || 0;
-      return scoreB - scoreA;
-    });
-
-    return validJobs;
+    if (cleaned.length === 0) return null;
+    cleaned.sort((a, b) => (parseInt(b.match_score)||0) - (parseInt(a.match_score)||0));
+    return cleaned;
   } catch(e) {
     if (e.name !== 'AbortError') console.error('Supabase error:', e);
     return null;
@@ -497,146 +521,120 @@ function stopPolling() {
   hidePollingBar();
 }
 
-// ═══════════════════════════════════════
-// START AUTO POLLING
-// Checks Supabase every 20 seconds automatically using a self-scheduling
-// timer (instead of setInterval) so a slow request can never overlap with
-// the next one. Every check is tagged with the generation of the search
-// that started it, so a late/slow response from an old search can never
-// overwrite what a newer search is showing.
-// ═══════════════════════════════════════
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// Make.com's Iterator writes the top-5 jobs as separate rows one at a time,
-// so a poll can land mid-batch and see only 2-3 rows. Re-check a few times,
-// spaced out, and only finalize once the row count stops growing (or hits
-// EXPECTED_JOB_COUNT) — otherwise a partial batch could get displayed and
-// polling would stop before the rest of the rows ever arrive.
 async function waitForStableResults(initialJobs, sinceISO, generation) {
   let jobs = initialJobs;
   for (let i = 0; i < STABILIZE_MAX_CHECKS; i++) {
     if (jobs.length >= EXPECTED_JOB_COUNT) return jobs;
-
     await sleep(STABILIZE_DELAY_MS);
-    if (generation !== searchGeneration) return null; // superseded while waiting
-
+    if (generation !== searchGeneration) return null;
     const recheck = await fetchJobs(activeAbortCtrl ? activeAbortCtrl.signal : undefined, sinceISO);
-    if (generation !== searchGeneration) return null; // superseded while the fetch was in flight
-
-    if (!recheck || recheck.length <= jobs.length) return jobs; // stopped growing — done
-    jobs = recheck; // still growing — check again
+    if (generation !== searchGeneration) return null;
+    if (!recheck || recheck.length <= jobs.length) return jobs;
+    jobs = recheck;
   }
-  return jobs; // stop waiting after a few checks; show whatever we have
+  return jobs;
 }
 
-function startPolling(search, generation, sinceISO) {
+// ═══════════════════════════════════════
+// START AUTO POLLING
+// ═══════════════════════════════════════
+function startPolling(search, generation, sinceISO, mode) {
   showPollingBar();
   const pollingStartedAt = Date.now();
 
   const poll = async () => {
-    if (generation !== searchGeneration) return; // superseded by a newer search
-    if (pollInFlight) return; // a poll (possibly mid-stabilization) is already running
-
+    if (generation !== searchGeneration) return;
+    if (pollInFlight) return;
     pollInFlight = true;
     try {
       activeAbortCtrl = new AbortController();
       let jobs = await fetchJobs(activeAbortCtrl.signal, sinceISO);
-
-      if (generation !== searchGeneration) return; // superseded while the fetch was in flight
-
-      // Nothing newer than this search's start time yet. After giving it a
-      // fair chance, fall back to the latest valid row regardless of its
-      // timestamp — this guarantees a result is never permanently hidden by
-      // a created_at timezone/type quirk on the Supabase side.
+      if (generation !== searchGeneration) return;
       if (!jobs && Date.now() - pollingStartedAt > FALLBACK_AFTER_MS) {
         jobs = await fetchJobs(activeAbortCtrl.signal, null);
         if (generation !== searchGeneration) return;
       }
-
       if (jobs && jobs.length > 0) {
         const stableJobs = await waitForStableResults(jobs, sinceISO, generation);
-        if (generation !== searchGeneration) return; // superseded while stabilizing
+        if (generation !== searchGeneration) return;
         if (stableJobs && stableJobs.length > 0) {
           stopPolling();
-          showJobCards(stableJobs, search);
+          showJobCards(stableJobs, search, mode);
           return;
         }
       }
       pollingTimer = setTimeout(poll, POLL_INTERVAL_MS);
-    } finally {
-      pollInFlight = false;
-    }
+    } finally { pollInFlight = false; }
   };
 
   activePollFn = poll;
-  poll(); // first check happens immediately, then every POLL_INTERVAL_MS
+  poll();
 
-  // Safety stop after 5 minutes of polling
   timeoutTimer = setTimeout(() => {
     if (generation !== searchGeneration) return;
     stopPolling();
-    const section = document.getElementById('resultsSection');
-    document.getElementById('resultsTitle').textContent = `Search timed out`;
+    document.getElementById('resultsTitle').textContent = 'Search timed out';
     document.getElementById('resultsCount').textContent = 'Please try searching again';
-    section.classList.add('active');
+    document.getElementById('resultsSection').classList.add('active');
     document.getElementById('jobsGrid').innerHTML = `
       <div class="empty-state">
         <div class="icon">⏱️</div>
         <h3>Search took too long</h3>
-        <p>Something went wrong with the search. Please try again.</p>
+        <p>Something went wrong. Please try again.</p>
         <button class="retry-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">Try Again ↑</button>
       </div>`;
-    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, MAX_WAIT_MS);
 }
 
-// Browsers throttle/pause timers in background tabs, which can silently
-// delay a scheduled poll. Re-check immediately when the tab regains focus.
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && activePollFn && pollingTimer && !pollInFlight) {
-    clearTimeout(pollingTimer);
-    pollingTimer = null;
+    clearTimeout(pollingTimer); pollingTimer = null;
     activePollFn();
   }
 });
 
 // ═══════════════════════════════════════
-// SHOW JOB CARDS ON SCREEN
+// SHOW JOB CARDS
 // ═══════════════════════════════════════
-function showJobCards(jobs, search) {
+function showJobCards(jobs, search, mode) {
   const section = document.getElementById('resultsSection');
-  const grid    = document.getElementById('jobsGrid');
+  document.getElementById('resultsTitle').textContent = `Best Matches for "${search}"`;
+  document.getElementById('resultsCount').textContent =
+    `${jobs.length} AI-matched job${jobs.length > 1 ? 's' : ''} from Indeed · Just now`;
 
-  document.getElementById('resultsTitle').textContent  = `Best Matches for "${search}"`;
-  document.getElementById('resultsCount').textContent  = `${jobs.length} AI-matched job${jobs.length > 1 ? 's' : ''} from Indeed · Just now`;
+  const badge = document.getElementById('resultsModeBadge');
+  if (mode === 'live') {
+    badge.className = 'results-mode-badge live';
+    badge.textContent = '🔴 Live Search';
+  } else {
+    badge.className = 'results-mode-badge quick';
+    badge.textContent = '⚡ Quick Match';
+  }
+
   section.classList.add('active');
-
-  // Clear old results first
-  grid.innerHTML = '';
-
-  grid.innerHTML = jobs.map(job => {
-    const letter   = (job.company && job.company.length > 0) ? job.company[0].toUpperCase() : '?';
+  document.getElementById('jobsGrid').innerHTML = jobs.map(job => {
+    const letter = (job.company && job.company.length > 0) ? job.company[0].toUpperCase() : '?';
     const applyUrl = (job.apply_url && job.apply_url.startsWith('http')) ? job.apply_url : '#';
-    const score    = job.match_score || '90';
+    const score = job.match_score || '90';
     return `
-    <div class="job-card">
-      <div class="job-card-top">
-        <div class="company-logo">${safe(letter)}</div>
-        <div class="match-badge">✓ ${safe(score)}% match</div>
-      </div>
-      <div class="job-title">${safe(job.job_title)}</div>
-      <div class="job-company">${safe(job.company || 'Company')}</div>
-      <div class="job-location">📍 ${safe(job.location || 'Location not listed')}</div>
-      ${job.match_reason ? `<div class="job-reason">💡 ${safe(job.match_reason)}</div>` : ''}
-      <div class="job-footer">
-        <div class="job-salary">${safe(job.salary || 'Salary not listed')}</div>
-        <a href="${applyUrl}" class="apply-btn" target="_blank" rel="noopener">Apply Now →</a>
-      </div>
-    </div>`;
+      <div class="job-card">
+        <div class="job-card-top">
+          <div class="company-logo">${safe(letter)}</div>
+          <div class="match-badge">✓ ${safe(score)}% match</div>
+        </div>
+        <div class="job-title">${safe(job.job_title)}</div>
+        <div class="job-company">${safe(job.company || 'Company')}</div>
+        <div class="job-location">📍 ${safe(job.location || 'Location not listed')}</div>
+        ${job.match_reason ? `<div class="job-reason">💡 ${safe(job.match_reason)}</div>` : ''}
+        <div class="job-footer">
+          <div class="job-salary">${safe(job.salary || 'Salary not listed')}</div>
+          <a href="${applyUrl}" class="apply-btn" target="_blank" rel="noopener">Apply Now →</a>
+        </div>
+      </div>`;
   }).join('');
-
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -645,52 +643,43 @@ function safe(s) {
 }
 
 // ═══════════════════════════════════════
-// MAIN SEARCH FUNCTION
+// MAIN SEARCH
 // ═══════════════════════════════════════
 async function handleSearch() {
   const input = document.getElementById('jobSearchInput').value.trim();
   if (!input) { alert('Please type a job title first!'); return; }
 
-  // Cancel any previous search's polling/timers so it can never interfere
   stopPolling();
+  const mode = currentMode;
   const myGeneration = ++searchGeneration;
 
-  // Clear old results immediately so a previous search's jobs never linger
   document.getElementById('jobsGrid').innerHTML = '';
   document.getElementById('resultsSection').classList.remove('active');
 
-  currentSearch   = input;
-  searchStartTime = Date.now();
-  // Only rows created after this moment (minus a small clock-drift buffer)
-  // will ever be accepted as results for this search.
-  const sinceISO  = new Date(searchStartTime - CLOCK_SKEW_MS).toISOString();
+  currentSearch = input;
+  const searchStartTime = Date.now();
+  const sinceISO = new Date(searchStartTime - CLOCK_SKEW_MS).toISOString();
 
-  // Show loading animation
-  showLoading();
+  showLoading(mode);
 
-  // Send search to Make.com webhook
+  const webhookUrl = mode === 'live' ? WEBHOOK_URL_LIVE : WEBHOOK_URL_QUICK;
   try {
-    await fetch(WEBHOOK_URL, {
+    await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: input }),
+      body: JSON.stringify({ text: input, mode: mode }),
       mode: 'no-cors'
     });
   } catch(e) { /* no-cors expected */ }
 
-  // After initial wait, hide loading and start auto-polling
+  const initialWait = mode === 'quick' ? INITIAL_WAIT_QUICK : INITIAL_WAIT_LIVE;
   initialWaitTimer = setTimeout(() => {
-    if (myGeneration !== searchGeneration) return; // a newer search took over
+    if (myGeneration !== searchGeneration) return;
     hideLoading();
-
-    // Start automatic polling — checks every 20 seconds by itself!
-    startPolling(input, myGeneration, sinceISO);
-  }, INITIAL_WAIT_MS);
+    startPolling(input, myGeneration, sinceISO, mode);
+  }, initialWait);
 }
 
-// ═══════════════════════════════════════
-// OTHER SEARCH ENTRY POINTS
-// ═══════════════════════════════════════
 async function handleSearchCta() {
   const input = document.getElementById('ctaSearchInput').value.trim();
   if (!input) { alert('Please type a job title!'); return; }
@@ -712,10 +701,9 @@ function handleResumeUpload(input) {
   }
 }
 
-// Enter key support
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.activeElement.id === 'jobSearchInput') handleSearch();
-  if (e.key === 'Enter' && document.activeElement.id === 'ctaSearchInput')  handleSearchCta();
+  if (e.key === 'Enter' && document.activeElement.id === 'ctaSearchInput') handleSearchCta();
 });
 </script>
 </body>
