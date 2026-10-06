@@ -172,17 +172,14 @@ footer{padding:40px 20px 24px;}.results-section{padding:32px 20px;}
   <div class="loading-spinner"></div>
   <div style="text-align:center">
     <div class="loading-mode-badge" id="loadingModeBadge">⚡ Quick Match</div>
-    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:8px">Finding your perfect job...</div>
-    <div style="font-size:13px;color:#94A3B8;margin-bottom:24px" id="loadingSubtext">Checking pre-matched jobs — usually ready in 10–30 seconds!</div>
-  </div>
-  <div class="loading-steps" id="loadingSteps">
-    <!-- Steps injected by JS based on mode -->
+    <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:12px" id="loadingMainText">Getting jobs for you . . .</div>
+    <div style="font-size:13px;color:#94A3B8;" id="loadingSubtext"></div>
   </div>
 </div>
 
 <!-- POLLING STATUS BAR -->
 <div class="polling-bar" id="pollingBar">
-  <p>Searching for your matching jobs<span class="polling-dots"></span> &nbsp;|&nbsp; Checking every 20 seconds automatically</p>
+  <p id="pollingBarText">Getting jobs for you . . .</p>
 </div>
 
 <!-- NAV -->
@@ -236,7 +233,7 @@ footer{padding:40px 20px 24px;}.results-section{padding:32px 20px;}
       Upload Resume (PDF)
     </button>
     <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" style="display:none" onchange="handleResumeUpload(this)"/>
-    <span class="hero-note">Free to use · No sign up · Real jobs from Indeed</span>
+    <span class="hero-note">Free to use · No sign up · Real jobs</span>
   </div>
 </section>
 
@@ -398,57 +395,31 @@ let pollInFlight = false;
 // ═══════════════════════════════════════
 // LOADING ANIMATION
 // ═══════════════════════════════════════
-const STEPS_QUICK = [
-  'Reading your search...',
-  'Claude AI scanning pre-scraped jobs...',
-  'Ranking best matches...',
-  'Preparing your results...',
-  'Almost done...'
-];
-const STEPS_LIVE = [
-  'Reading your search...',
-  'Claude AI extracting job title...',
-  'Apify scraping Indeed for real jobs...',
-  'Claude AI picking your best matches...',
-  'Saving your results...'
-];
-
 function showLoading(mode) {
   if (loadingIntervalId) { clearInterval(loadingIntervalId); loadingIntervalId = null; }
 
-  const steps = mode === 'quick' ? STEPS_QUICK : STEPS_LIVE;
   const waitMs = mode === 'quick' ? INITIAL_WAIT_QUICK : INITIAL_WAIT_LIVE;
 
-  // Badge + subtext
   document.getElementById('loadingModeBadge').textContent = mode === 'quick' ? '⚡ Quick Match' : '🔴 Live Search';
-  document.getElementById('loadingSubtext').textContent = mode === 'quick'
-    ? 'Checking pre-matched jobs — usually ready in 10–30 seconds!'
-    : 'Scraping Indeed live — this takes about 2 minutes. Please wait!';
+  document.getElementById('loadingSubtext').textContent = '';
 
-  // Build step elements
-  const stepsContainer = document.getElementById('loadingSteps');
-  stepsContainer.innerHTML = steps.map((s, i) =>
-    `<div class="loading-step${i===0?' active':''}" id="lstep${i}"><div class="step-dot"></div>${s}</div>`
-  ).join('');
+  let secondsLeft = Math.ceil(waitMs / 1000);
+  const subtextEl = document.getElementById('loadingSubtext');
+  const pollingTextEl = document.getElementById('pollingBarText');
+
+  function updateTimer() {
+    const mins = Math.floor(secondsLeft / 60);
+    const secs = secondsLeft % 60;
+    const timeStr = mins > 0 ? `${mins}:${secs.toString().padStart(2,'0')}` : `${secs}s`;
+    const msg = `Getting jobs for you in (${timeStr}) . . .`;
+    subtextEl.textContent = msg;
+    if (pollingTextEl) pollingTextEl.textContent = msg;
+    if (secondsLeft > 0) secondsLeft--;
+  }
+  updateTimer();
+  loadingIntervalId = setInterval(updateTimer, 1000);
 
   document.getElementById('loadingOverlay').classList.add('active');
-
-  let i = 0;
-  loadingIntervalId = setInterval(() => {
-    if (i > 0) {
-      document.getElementById(`lstep${i-1}`).classList.remove('active');
-      document.getElementById(`lstep${i-1}`).classList.add('done');
-    }
-    if (i < steps.length) {
-      if (document.getElementById(`lstep${i}`)) {
-        document.getElementById(`lstep${i}`).classList.add('active');
-      }
-      i++;
-    } else {
-      clearInterval(loadingIntervalId);
-      loadingIntervalId = null;
-    }
-  }, waitMs / steps.length);
 }
 
 function hideLoading() {
@@ -596,7 +567,7 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-// ═══════════════════════════════════════
+// ══════════════════════════════════════
 // SHOW JOB CARDS
 // ═══════════════════════════════════════
 function showJobCards(jobs, search, mode) {
