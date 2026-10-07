@@ -34,7 +34,7 @@ nav{background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);-webkit-backdro
 .nav-cta:hover{background:var(--navy-3);}
 
 /* ── HERO ── */
-.hero{background:var(--navy);padding:88px 64px 80px;text-align:center;position:relative;overflow:hidden;}
+.hero{background:var(--navy);padding:88px 64px 80px;text-align:center;position:relative;overflow:hidden;overflow:clip visible;z-index:2;}
 .hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(212,168,67,0.12) 0%,transparent 70%);pointer-events:none;}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(212,168,67,0.1);border:1px solid rgba(212,168,67,0.22);color:var(--gold-light);font-size:12px;font-weight:600;padding:5px 14px;border-radius:40px;margin-bottom:28px;letter-spacing:0.02em;text-transform:uppercase;}
 .hero h1{font-size:clamp(36px,5vw,58px);font-weight:800;color:var(--white);line-height:1.1;margin-bottom:18px;letter-spacing:-1.5px;}
@@ -78,6 +78,13 @@ nav{background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);-webkit-backdro
 .filter-pill select:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 .filter-pill select.set{background-color:rgba(212,168,67,0.14);border-color:rgba(212,168,67,0.55);color:var(--gold-light);}
 .filter-pill select option{color:var(--navy);background:var(--white);}
+.pill-input{background:rgba(255,255,255,0.06) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M3 14V3h6v11 M9 7h4v7 M5 5.5h2 M5 8h2 M5 10.5h2 M2 14h12' stroke='%2394A3B8' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 13px center;border:1px solid rgba(255,255,255,0.16);color:#E2E8F0;border-radius:40px;padding:8px 15px 8px 34px;font-size:13px;font-weight:500;font-family:var(--font);width:170px;outline:none;transition:all 0.15s;}
+.pill-input::placeholder{color:#E2E8F0;opacity:1;}
+.pill-input:hover{border-color:rgba(255,255,255,0.32);background-color:rgba(255,255,255,0.1);}
+.pill-input:focus{border-color:var(--gold);background-color:rgba(255,255,255,0.1);}
+.pill-input:focus::placeholder{color:var(--gray-500);}
+.pill-input.set{background-color:rgba(212,168,67,0.14);border-color:rgba(212,168,67,0.55);color:var(--gold-light);}
+.filter-pill .city-list{top:calc(100% + 6px);left:0;min-width:260px;}
 .filter-reset{background:none;border:none;color:var(--gray-400);font-size:13px;font-weight:500;font-family:var(--font);cursor:pointer;padding:8px 6px;text-decoration:underline;text-underline-offset:3px;display:none;}
 .filter-reset:hover{color:var(--white);}
 .filter-reset.show{display:inline-block;}
@@ -239,8 +246,9 @@ footer{padding:40px 20px 24px;}
 .sb-field.loc{border-left:none;border-top:1px solid var(--gray-200);}
 .search-bar button{border-radius:0 0 var(--radius-lg) var(--radius-lg);}
 .filters{display:grid;grid-template-columns:1fr 1fr;}
-.filter-pill select{width:100%;max-width:none;}
-.filter-pill.wide{grid-column:1/-1;}
+.filter-pill select,.pill-input{width:100%;max-width:none;}
+.filter-pill .city-list{width:100%;}
+.filter-pill.wide,.filter-pill.wide-phone{grid-column:1/-1;}
 .filter-reset{grid-column:1/-1;}
 .nav-links{display:none;}
 .jobs-grid{grid-template-columns:1fr;}
@@ -399,6 +407,11 @@ footer{padding:40px 20px 24px;}
           <option value="remote">Remote</option>
           <option value="hybrid">Hybrid</option>
         </select>
+      </div>
+      <div class="filter-pill wide-phone">
+        <input type="text" id="filterCompany" class="pill-input" placeholder="Company" aria-label="Company"
+               autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="companyList"/>
+        <ul class="city-list" id="companyList" role="listbox" aria-label="Company suggestions"></ul>
       </div>
       <button class="filter-reset" id="filterReset" type="button" onclick="resetFilters()">Reset filters</button>
     </div>
@@ -879,7 +892,7 @@ async function handleSearch() {
 // FILTERS — sent to Make.com with every search
 // ═══════════════════════════════════════
 let currentFilterSummary = '';
-const FILTER_IDS = ['filterCountry','filterDate','filterExperience','filterJobType','filterWorkMode'];
+const FILTER_IDS = ['filterCountry','filterDate','filterExperience','filterJobType','filterWorkMode','filterCompany'];
 
 function getFilters() {
   const val = id => document.getElementById(id).value;
@@ -895,14 +908,15 @@ function getFilters() {
     date_posted:  val('filterDate'),             // max age in days, '' = any time
     experience:   val('filterExperience'),
     job_type:     val('filterJobType'),
-    work_mode:    val('filterWorkMode')
+    work_mode:    val('filterWorkMode'),
+    company:      val('filterCompany').trim()
   };
 }
 
 function filterSummary(f) {
   const place = [f.location, f.country_name].filter(Boolean).join(', ');
   const label = id => { const s = document.getElementById(id); return s.value ? s.options[s.selectedIndex].text : ''; };
-  return [place && `📍 ${place}`, label('filterWorkMode'), label('filterJobType'), label('filterExperience'), label('filterDate')]
+  return [place && `📍 ${place}`, f.company && `🏢 ${f.company}`, label('filterWorkMode'), label('filterJobType'), label('filterExperience'), label('filterDate')]
     .filter(Boolean).join(' · ');
 }
 
@@ -910,8 +924,9 @@ function refreshFilterUI() {
   let any = document.getElementById('locationInput').value.trim() !== '';
   FILTER_IDS.forEach(id => {
     const s = document.getElementById(id);
-    s.classList.toggle('set', s.value !== '');
-    if (s.value) any = true;
+    const has = s.value.trim() !== '';
+    s.classList.toggle('set', has);
+    if (has) any = true;
   });
   document.getElementById('filterReset').classList.toggle('show', any);
 }
@@ -1130,7 +1145,7 @@ function positionTitleList() {
   if (window.innerWidth <= 768) {
     titleList.style.left = '0px';
     titleList.style.width = '100%';
-    titleList.style.top = `${field.bottom - wrap.top + 6}px`;
+    titleList.style.top = `${bar.bottom - wrap.top + 6}px`;   // below the whole bar so the location box stays tappable
   } else {
     titleList.style.left = `${field.left - wrap.left}px`;
     titleList.style.width = `${Math.max(field.width, 340)}px`;
@@ -1203,6 +1218,82 @@ titleList.addEventListener('click', e => {
 });
 titleInput.addEventListener('blur', () => setTimeout(closeTitleList, 120));
 window.addEventListener('resize', () => { if (titleList.classList.contains('open')) positionTitleList(); });
+
+// ═══════════════════════════════════════
+// COMPANY FILTER — type any company; suggestions from job-titles.js
+// ═══════════════════════════════════════
+const companyInput = document.getElementById('filterCompany');
+const companyList  = document.getElementById('companyList');
+let companyItems = [];
+let companyActive = -1;
+
+function matchCompanies(q) {
+  const list = (window.JOB_SUGGESTIONS && window.JOB_SUGGESTIONS.companies) || [];
+  const fq = fold(q);
+  const hits = [];
+  list.forEach((name, pos) => {
+    const f = fold(name);
+    if (f.startsWith(fq)) hits.push({ name, rank: 0, pos, at: 0 });
+    else {
+      const m = f.search(new RegExp(`[\\s\\-&.]${fq.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+      if (m >= 0) hits.push({ name, rank: 1, pos, at: m + 1 });
+    }
+  });
+  return hits.sort((a, b) => a.rank - b.rank || a.pos - b.pos).slice(0, 6).map(h => ({ ...h, len: fq.length }));
+}
+
+function closeCompanyList() {
+  companyList.classList.remove('open');
+  companyInput.setAttribute('aria-expanded', 'false');
+  companyActive = -1;
+}
+
+function renderCompanies() {
+  if (!companyItems.length) { closeCompanyList(); return; }
+  companyList.innerHTML = companyItems.map((c, i) => `
+    <li role="option" id="company-${i}" data-i="${i}" aria-selected="false">
+      <svg class="pin" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">${TITLE_KIND.c.icon}</svg>
+      <span class="city-name" style="font-weight:500">${escHtml(c.name.slice(0, c.at))}<b>${escHtml(c.name.slice(c.at, c.at + c.len))}</b>${escHtml(c.name.slice(c.at + c.len))}</span>
+    </li>`).join('');
+  companyList.classList.add('open');
+  companyInput.setAttribute('aria-expanded', 'true');
+}
+
+function pickCompany(i) {
+  const c = companyItems[i];
+  if (!c) return;
+  companyInput.value = c.name;
+  closeCompanyList();
+  refreshFilterUI();
+}
+
+companyInput.addEventListener('input', () => {
+  refreshFilterUI();
+  const q = companyInput.value.trim();
+  if (q.length < 1) { closeCompanyList(); return; }
+  companyItems = matchCompanies(q);
+  renderCompanies();
+});
+companyInput.addEventListener('keydown', e => {
+  const open = companyList.classList.contains('open');
+  if (open && e.key === 'ArrowDown') { e.preventDefault(); companyActive = (companyActive + 1) % companyItems.length; }
+  else if (open && e.key === 'ArrowUp') { e.preventDefault(); companyActive = (companyActive - 1 + companyItems.length) % companyItems.length; }
+  else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (open && companyActive >= 0) pickCompany(companyActive); else { closeCompanyList(); companyInput.blur(); }
+    return;
+  }
+  else if (e.key === 'Escape') { closeCompanyList(); return; }
+  else return;
+  companyList.querySelectorAll('li').forEach((li, k) => { li.classList.toggle('active', k === companyActive); li.setAttribute('aria-selected', k === companyActive); });
+  companyInput.setAttribute('aria-activedescendant', `company-${companyActive}`);
+});
+companyList.addEventListener('mousedown', e => e.preventDefault());
+companyList.addEventListener('click', e => {
+  const li = e.target.closest('li[role="option"]');
+  if (li) pickCompany(+li.dataset.i);
+});
+companyInput.addEventListener('blur', () => setTimeout(closeCompanyList, 120));
 
 async function handleSearchCta() {
   const input = document.getElementById('ctaSearchInput').value.trim();
