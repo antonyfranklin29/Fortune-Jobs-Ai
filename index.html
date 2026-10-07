@@ -49,10 +49,25 @@ nav{background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);-webkit-backdro
 .mode-desc{font-size:13px;color:var(--gray-500);margin-bottom:22px;min-height:18px;transition:all 0.2s;}
 .mode-desc span{color:var(--gold-light);font-weight:500;}
 
-.search-wrapper{max-width:640px;margin:0 auto 20px;}
+.search-wrapper{max-width:780px;margin:0 auto 20px;}
 .search-bar{display:flex;background:var(--white);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 0 0 1.5px rgba(212,168,67,0.35),var(--shadow-md);}
-.search-bar input{flex:1;border:none;outline:none;padding:16px 20px;font-size:15px;font-family:var(--font);color:var(--navy);font-weight:400;}
+.sb-field{flex:1;display:flex;align-items:center;gap:10px;padding:0 0 0 18px;min-width:0;}
+.sb-field.loc{flex:0.85;border-left:1px solid var(--gray-200);}
+.sb-field svg{flex-shrink:0;color:var(--gray-400);}
+.search-bar input{flex:1;min-width:0;border:none;outline:none;padding:16px 16px 16px 0;font-size:15px;font-family:var(--font);color:var(--navy);font-weight:400;background:transparent;}
 .search-bar input::placeholder{color:var(--gray-400);}
+
+/* ── FILTERS (LinkedIn-style) ── */
+.filters{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin-top:14px;}
+.filter-pill{position:relative;}
+.filter-pill select{appearance:none;-webkit-appearance:none;background:rgba(255,255,255,0.06) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2394A3B8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 13px center;border:1px solid rgba(255,255,255,0.16);color:#E2E8F0;border-radius:40px;padding:8px 32px 8px 15px;font-size:13px;font-weight:500;font-family:var(--font);cursor:pointer;transition:all 0.15s;max-width:230px;text-overflow:ellipsis;}
+.filter-pill select:hover{border-color:rgba(255,255,255,0.32);background-color:rgba(255,255,255,0.1);}
+.filter-pill select:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.filter-pill select.set{background-color:rgba(212,168,67,0.14);border-color:rgba(212,168,67,0.55);color:var(--gold-light);}
+.filter-pill select option{color:var(--navy);background:var(--white);}
+.filter-reset{background:none;border:none;color:var(--gray-400);font-size:13px;font-weight:500;font-family:var(--font);cursor:pointer;padding:8px 6px;text-decoration:underline;text-underline-offset:3px;display:none;}
+.filter-reset:hover{color:var(--white);}
+.filter-reset.show{display:inline-block;}
 .search-bar button{background:var(--gold);color:var(--navy);border:none;padding:16px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;letter-spacing:-0.1px;transition:background 0.15s;}
 .search-bar button:hover{background:var(--gold-light);}
 .hero-actions{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;}
@@ -178,7 +193,16 @@ footer{background:#080E1A;padding:52px 64px 32px;}
 .empty-state p{font-size:14px;color:var(--gray-400);margin-bottom:24px;line-height:1.8;max-width:380px;margin-left:auto;margin-right:auto;}
 .retry-btn{background:var(--gold);color:var(--navy);border:none;padding:12px 28px;border-radius:var(--radius-md);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);transition:background 0.15s;}
 .retry-btn:hover{background:var(--gold-light);}
-.upsell-card{grid-column:1/-1;background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);border:1px solid rgba(212,168,67,0.35);border-radius:var(--radius-xl);padding:32px 28px;text-align:center;box-shadow:var(--shadow-sm);}
+.locked-wrap{grid-column:1/-1;position:relative;margin-top:4px;min-height:420px;}
+.locked-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(296px,1fr));gap:18px;filter:blur(5px);opacity:0.55;pointer-events:none;user-select:none;}
+.ghost-line{height:10px;border-radius:6px;background:var(--gray-200);margin-bottom:10px;}
+.ghost-line.lg{height:14px;width:75%;background:var(--gray-400);}
+.ghost-line.md{width:55%;}
+.ghost-line.sm{width:40%;}
+.ghost-box{height:48px;border-radius:var(--radius-sm);background:var(--gray-100);margin:14px 0;}
+.locked-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
+.upsell-card{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);border:1px solid rgba(212,168,67,0.35);border-radius:var(--radius-xl);padding:32px 28px;text-align:center;box-shadow:0 12px 40px rgba(10,15,28,0.25);max-width:560px;width:100%;}
+.lock-icon{font-size:26px;margin-bottom:8px;}
 .upsell-badge{display:inline-block;background:rgba(212,168,67,0.12);border:1px solid rgba(212,168,67,0.3);color:var(--gold-light);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:4px 14px;border-radius:40px;margin-bottom:14px;}
 .upsell-card h3{font-size:22px;font-weight:800;color:var(--white);letter-spacing:-0.4px;margin-bottom:10px;}
 .upsell-card p{font-size:14px;color:var(--gray-400);line-height:1.7;max-width:520px;margin:0 auto 20px;}
@@ -199,7 +223,12 @@ nav{padding:0 20px;}
 footer{padding:40px 20px 24px;}
 .results-section{padding:32px 20px 56px;}
 .search-bar{flex-direction:column;border-radius:var(--radius-lg);}
+.sb-field.loc{border-left:none;border-top:1px solid var(--gray-200);}
 .search-bar button{border-radius:0 0 var(--radius-lg) var(--radius-lg);}
+.filters{display:grid;grid-template-columns:1fr 1fr;}
+.filter-pill select{width:100%;max-width:none;}
+.filter-pill.wide{grid-column:1/-1;}
+.filter-reset{grid-column:1/-1;}
 .nav-links{display:none;}
 .jobs-grid{grid-template-columns:1fr;}
 .mode-toggle{flex-direction:column;width:100%;max-width:300px;}
@@ -251,7 +280,7 @@ footer{padding:40px 20px 24px;}
 <section class="hero">
   <div class="hero-badge">✦ AI-Powered Job Matching</div>
   <h1>Find Your <span>Dream Job</span><br>with AI</h1>
-  <p class="hero-sub-text">Type a job title — our AI picks the best matches for you and shows them instantly.</p>
+  <p class="hero-sub-text">Type a job title and where you want to work, anywhere in the world. Our AI picks the best matches for you.</p>
 
   <!-- MODE TOGGLE -->
   <div class="mode-toggle" id="modeToggle">
@@ -268,8 +297,93 @@ footer{padding:40px 20px 24px;}
 
   <div class="search-wrapper">
     <div class="search-bar">
-      <input type="text" id="jobSearchInput" placeholder="e.g. Data Analyst, Software Engineer, Marketing Manager..."/>
+      <label class="sb-field">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input type="text" id="jobSearchInput" aria-label="Job title or keyword" placeholder="Job title, skill or company"/>
+      </label>
+      <label class="sb-field loc">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 15s5-4.6 5-8.5A5 5 0 0 0 3 6.5C3 10.4 8 15 8 15z" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="6.5" r="1.8" stroke="currentColor" stroke-width="1.6"/></svg>
+        <input type="text" id="locationInput" aria-label="Location" placeholder="City, state or region"/>
+      </label>
       <button onclick="handleSearch()">Find My Job →</button>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters" id="filters">
+      <div class="filter-pill wide">
+        <select id="filterCountry" aria-label="Country">
+          <option value="">🌍 Any country</option>
+          <option value="us">🇺🇸 United States</option>
+          <option value="ca">🇨🇦 Canada</option>
+          <option value="gb">🇬🇧 United Kingdom</option>
+          <option value="in">🇮🇳 India</option>
+          <option value="au">🇦🇺 Australia</option>
+          <option value="nz">🇳🇿 New Zealand</option>
+          <option value="ie">🇮🇪 Ireland</option>
+          <option value="de">🇩🇪 Germany</option>
+          <option value="fr">🇫🇷 France</option>
+          <option value="nl">🇳🇱 Netherlands</option>
+          <option value="es">🇪🇸 Spain</option>
+          <option value="it">🇮🇹 Italy</option>
+          <option value="ch">🇨🇭 Switzerland</option>
+          <option value="be">🇧🇪 Belgium</option>
+          <option value="se">🇸🇪 Sweden</option>
+          <option value="pl">🇵🇱 Poland</option>
+          <option value="ae">🇦🇪 United Arab Emirates</option>
+          <option value="sa">🇸🇦 Saudi Arabia</option>
+          <option value="qa">🇶🇦 Qatar</option>
+          <option value="sg">🇸🇬 Singapore</option>
+          <option value="my">🇲🇾 Malaysia</option>
+          <option value="ph">🇵🇭 Philippines</option>
+          <option value="jp">🇯🇵 Japan</option>
+          <option value="hk">🇭🇰 Hong Kong</option>
+          <option value="za">🇿🇦 South Africa</option>
+          <option value="ng">🇳🇬 Nigeria</option>
+          <option value="mx">🇲🇽 Mexico</option>
+          <option value="br">🇧🇷 Brazil</option>
+          <option value="ar">🇦🇷 Argentina</option>
+        </select>
+      </div>
+      <div class="filter-pill">
+        <select id="filterDate" aria-label="Date posted">
+          <option value="">Date posted</option>
+          <option value="1">Past 24 hours</option>
+          <option value="3">Past 3 days</option>
+          <option value="7">Past week</option>
+          <option value="14">Past 2 weeks</option>
+          <option value="30">Past month</option>
+        </select>
+      </div>
+      <div class="filter-pill">
+        <select id="filterExperience" aria-label="Experience level">
+          <option value="">Experience level</option>
+          <option value="internship">Internship</option>
+          <option value="entry">Entry level</option>
+          <option value="associate">Associate</option>
+          <option value="mid_senior">Mid-Senior level</option>
+          <option value="director">Director</option>
+          <option value="executive">Executive</option>
+        </select>
+      </div>
+      <div class="filter-pill">
+        <select id="filterJobType" aria-label="Job type">
+          <option value="">Job type</option>
+          <option value="fulltime">Full-time</option>
+          <option value="parttime">Part-time</option>
+          <option value="contract">Contract</option>
+          <option value="temporary">Temporary</option>
+          <option value="internship">Internship</option>
+        </select>
+      </div>
+      <div class="filter-pill">
+        <select id="filterWorkMode" aria-label="On-site or remote">
+          <option value="">On-site / Remote</option>
+          <option value="onsite">On-site</option>
+          <option value="remote">Remote</option>
+          <option value="hybrid">Hybrid</option>
+        </select>
+      </div>
+      <button class="filter-reset" id="filterReset" type="button" onclick="resetFilters()">Reset filters</button>
     </div>
   </div>
   <div class="hero-actions">
@@ -422,8 +536,9 @@ const POLL_INTERVAL_MS   = 20000;
 const MAX_WAIT_MS        = 300000;
 const CLOCK_SKEW_MS      = 5000;
 const FALLBACK_AFTER_MS  = 100000;
-const EXPECTED_JOB_COUNT = 5;   // rows to wait for before showing results
-const FREE_RESULTS = 10;        // free job cards per search
+const FREE_RESULTS = 10;        // free job cards per search (Quick + Live)
+const EXPECTED_JOB_COUNT = FREE_RESULTS; // rows to wait for before showing results
+const LOCKED_PREVIEW_CARDS = 3; // blurred placeholder cards shown after the free results
 const PRO_CHECKOUT_URL = '';    // paste your Stripe/payment link here when ready
 const STABILIZE_DELAY_MS = 5000;
 const STABILIZE_MAX_CHECKS = 3;
@@ -619,11 +734,14 @@ document.addEventListener('visibilitychange', () => {
 // ══════════════════════════════════════
 // SHOW JOB CARDS
 // ═══════════════════════════════════════
-function showJobCards(jobs, search, mode) {
+function showJobCards(allJobs, search, mode) {
   const section = document.getElementById('resultsSection');
+  const jobs = allJobs.slice(0, FREE_RESULTS);
+  const showLocked = jobs.length >= FREE_RESULTS;
   document.getElementById('resultsTitle').textContent = `Best Matches for "${search}"`;
   document.getElementById('resultsCount').textContent =
-    `${jobs.length} AI-matched job${jobs.length > 1 ? 's' : ''} from Indeed · Just now`;
+    `${jobs.length} AI-matched job${jobs.length > 1 ? 's' : ''} from Indeed · Just now`
+    + (currentFilterSummary ? ` · ${currentFilterSummary}` : '');
   const badge = document.getElementById('resultsModeBadge');
   if (mode === 'live') {
     badge.className = 'results-mode-badge live';
@@ -653,22 +771,44 @@ function showJobCards(jobs, search, mode) {
           <a href="${applyUrl}" class="apply-btn" target="_blank" rel="noopener">Apply Now →</a>
         </div>
       </div>`;
-  }).join('') + upsellCardHtml();
+  }).join('') + (showLocked ? lockedSectionHtml() : '');
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function upsellCardHtml() {
+// Placeholder cards only — no real job data is ever sent to free users here.
+function lockedSectionHtml() {
+  const ghost = `
+    <div class="job-card">
+      <div class="job-card-top">
+        <div class="company-logo">•</div>
+        <div class="match-badge">✓ ••% match</div>
+      </div>
+      <div class="ghost-line lg"></div>
+      <div class="ghost-line md"></div>
+      <div class="ghost-line sm"></div>
+      <div class="ghost-box"></div>
+      <div class="job-footer">
+        <div class="ghost-line sm" style="margin:0"></div>
+        <span class="apply-btn">Apply Now →</span>
+      </div>
+    </div>`;
   const btn = PRO_CHECKOUT_URL
     ? `<a href="${PRO_CHECKOUT_URL}" class="upsell-btn" target="_blank" rel="noopener">Upgrade to Pro →</a>`
     : `<span class="upsell-btn soon">Pro launching soon</span>`;
   return `
-    <div class="upsell-card">
-      <div class="upsell-badge">✦ Fortune Jobs AI Pro</div>
-      <h3>Want more matches?</h3>
-      <p>You've seen your ${FREE_RESULTS} free results. Pro gives you 50+ live-scraped job matches per search, pulled from Indeed the moment you search, each with the reason it fits you.</p>
-      <div class="upsell-price">$7.99 <span>/ month</span></div>
-      <div style="margin-top:16px">${btn}</div>
-      <div class="upsell-note">Cancel anytime.</div>
+    <div class="locked-wrap">
+      <div class="locked-grid" aria-hidden="true">${ghost.repeat(LOCKED_PREVIEW_CARDS)}</div>
+      <div class="locked-overlay">
+        <div class="upsell-card">
+          <div class="lock-icon">🔒</div>
+          <div class="upsell-badge">✦ Fortune Jobs AI Pro</div>
+          <h3>Unlock 50+ more matches</h3>
+          <p>You've seen your ${FREE_RESULTS} free results. Pro shows you 50+ job matches per search in both Quick Match and Live Search, each with the reason it fits you.</p>
+          <div class="upsell-price">$7.99 <span>/ month + tax</span></div>
+          <div style="margin-top:16px">${btn}</div>
+          <div class="upsell-note">Cancel anytime.</div>
+        </div>
+      </div>
     </div>`;
 }
 
@@ -697,11 +837,13 @@ async function handleSearch() {
   showLoading(mode);
 
   const webhookUrl = mode === 'live' ? WEBHOOK_URL_LIVE : WEBHOOK_URL_QUICK;
+  const filters = getFilters();
+  currentFilterSummary = filterSummary(filters);
   try {
     await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: input, mode: mode }),
+      body: JSON.stringify({ text: input, mode: mode, results_limit: FREE_RESULTS, ...filters }),
       mode: 'no-cors'
     });
   } catch(e) { /* no-cors expected */ }
@@ -713,6 +855,52 @@ async function handleSearch() {
     startPolling(input, myGeneration, sinceISO, mode);
   }, initialWait);
 }
+
+// ═══════════════════════════════════════
+// FILTERS — sent to Make.com with every search
+// ═══════════════════════════════════════
+let currentFilterSummary = '';
+const FILTER_IDS = ['filterCountry','filterDate','filterExperience','filterJobType','filterWorkMode'];
+
+function getFilters() {
+  const val = id => document.getElementById(id).value;
+  const sel = id => { const s = document.getElementById(id); return s.value ? s.options[s.selectedIndex].text.replace(/^\S+\s(?=[A-Z])/u, '') : ''; };
+  return {
+    location:     document.getElementById('locationInput').value.trim(),
+    country:      val('filterCountry'),          // ISO code, '' = any country
+    country_name: val('filterCountry') ? sel('filterCountry') : '',
+    date_posted:  val('filterDate'),             // max age in days, '' = any time
+    experience:   val('filterExperience'),
+    job_type:     val('filterJobType'),
+    work_mode:    val('filterWorkMode')
+  };
+}
+
+function filterSummary(f) {
+  const place = [f.location, f.country_name].filter(Boolean).join(', ');
+  const label = id => { const s = document.getElementById(id); return s.value ? s.options[s.selectedIndex].text : ''; };
+  return [place && `📍 ${place}`, label('filterWorkMode'), label('filterJobType'), label('filterExperience'), label('filterDate')]
+    .filter(Boolean).join(' · ');
+}
+
+function refreshFilterUI() {
+  let any = document.getElementById('locationInput').value.trim() !== '';
+  FILTER_IDS.forEach(id => {
+    const s = document.getElementById(id);
+    s.classList.toggle('set', s.value !== '');
+    if (s.value) any = true;
+  });
+  document.getElementById('filterReset').classList.toggle('show', any);
+}
+
+function resetFilters() {
+  FILTER_IDS.forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('locationInput').value = '';
+  refreshFilterUI();
+}
+
+FILTER_IDS.forEach(id => document.getElementById(id).addEventListener('change', refreshFilterUI));
+document.getElementById('locationInput').addEventListener('input', refreshFilterUI);
 
 async function handleSearchCta() {
   const input = document.getElementById('ctaSearchInput').value.trim();
@@ -736,7 +924,7 @@ function handleResumeUpload(input) {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.activeElement.id === 'jobSearchInput') handleSearch();
+  if (e.key === 'Enter' && (document.activeElement.id === 'jobSearchInput' || document.activeElement.id === 'locationInput')) handleSearch();
   if (e.key === 'Enter' && document.activeElement.id === 'ctaSearchInput') handleSearchCta();
 });
 </script>
