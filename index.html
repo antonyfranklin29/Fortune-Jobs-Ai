@@ -57,6 +57,19 @@ nav{background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);-webkit-backdro
 .search-bar input{flex:1;min-width:0;border:none;outline:none;padding:16px 16px 16px 0;font-size:15px;font-family:var(--font);color:var(--navy);font-weight:400;background:transparent;}
 .search-bar input::placeholder{color:var(--gray-400);}
 
+/* ── CITY AUTOCOMPLETE ── */
+.search-wrapper{position:relative;}
+.city-list{position:absolute;z-index:60;margin:0;padding:6px;list-style:none;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);text-align:left;max-height:320px;overflow-y:auto;display:none;}
+.city-list.open{display:block;}
+.city-list li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;color:var(--navy);font-size:14px;line-height:1.35;}
+.city-list li .pin{flex-shrink:0;color:var(--gray-400);}
+.city-list li .city-name{font-weight:600;}
+.city-list li .city-name b{color:var(--gold);font-weight:700;}
+.city-list li .city-region{display:block;font-size:12px;color:var(--gray-500);font-weight:400;}
+.city-list li .city-flag{margin-left:auto;font-size:16px;}
+.city-list li.active,.city-list li:hover{background:var(--gold-pale);}
+.city-list li.city-empty{color:var(--gray-500);cursor:default;background:none;font-size:13px;}
+
 /* ── FILTERS (LinkedIn-style) ── */
 .filters{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin-top:14px;}
 .filter-pill{position:relative;}
@@ -303,10 +316,12 @@ footer{padding:40px 20px 24px;}
       </label>
       <label class="sb-field loc">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 15s5-4.6 5-8.5A5 5 0 0 0 3 6.5C3 10.4 8 15 8 15z" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="6.5" r="1.8" stroke="currentColor" stroke-width="1.6"/></svg>
-        <input type="text" id="locationInput" aria-label="Location" placeholder="City, state or region"/>
+        <input type="text" id="locationInput" aria-label="Location" placeholder="City, state or region"
+               autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cityList"/>
       </label>
       <button onclick="handleSearch()">Find My Job →</button>
     </div>
+    <ul class="city-list" id="cityList" role="listbox" aria-label="City suggestions"></ul>
 
     <!-- FILTERS -->
     <div class="filters" id="filters">
@@ -867,6 +882,10 @@ function getFilters() {
   const sel = id => { const s = document.getElementById(id); return s.value ? s.options[s.selectedIndex].text.replace(/^\S+\s(?=[A-Z])/u, '') : ''; };
   return {
     location:     document.getElementById('locationInput').value.trim(),
+    city:         (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.name : '',
+    region:       (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.region : '',
+    latitude:     (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lat : null,
+    longitude:    (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lng : null,
     country:      val('filterCountry'),          // ISO code, '' = any country
     country_name: val('filterCountry') ? sel('filterCountry') : '',
     date_posted:  val('filterDate'),             // max age in days, '' = any time
@@ -896,11 +915,157 @@ function refreshFilterUI() {
 function resetFilters() {
   FILTER_IDS.forEach(id => { document.getElementById(id).value = ''; });
   document.getElementById('locationInput').value = '';
+  if (typeof selectedCity !== 'undefined') { selectedCity = null; cityItems = []; closeCityList(); }
   refreshFilterUI();
 }
 
 FILTER_IDS.forEach(id => document.getElementById(id).addEventListener('change', refreshFilterUI));
 document.getElementById('locationInput').addEventListener('input', refreshFilterUI);
+
+// ═══════════════════════════════════════
+// CITY AUTOCOMPLETE — worldwide, free (Open-Meteo geocoding, no key)
+// ═══════════════════════════════════════
+const CITY_API = 'https://geocoding-api.open-meteo.com/v1/search';
+const CITY_MIN_CHARS = 2;
+const CITY_MAX_SHOWN = 8;
+let selectedCity = null;      // set when the user picks a suggestion
+let cityItems = [];
+let cityActive = -1;
+let cityTimer = null;
+let cityReqId = 0;
+const cityCache = new Map();
+
+const cityInput = document.getElementById('locationInput');
+const cityList  = document.getElementById('cityList');
+
+const fold = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const flagOf = cc => cc && cc.length === 2
+  ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65)) : '';
+const escHtml = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+async function fetchCities(q, country) {
+  const key = `${country}|${fold(q)}`;
+  if (cityCache.has(key)) return cityCache.get(key);
+  const url = `${CITY_API}?name=${encodeURIComponent(q)}&count=30&language=en&format=json`
+    + (country ? `&countryCode=${country.toUpperCase()}` : '');
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('city lookup failed');
+  const data = await res.json();
+  const fq = fold(q);
+  const seen = new Set();
+  const all = (data.results || [])
+    .filter(r => fold(r.name).startsWith(fq))                 // only cities that START with what was typed
+    .filter(r => { const k = `${r.name}|${r.admin1}|${r.country_code}`; if (seen.has(k)) return false; seen.add(k); return true; })
+    .sort((a, b) => (b.population || 0) - (a.population || 0));
+  const big = all.filter(r => (r.population || 0) >= 5000 || /^PPL(A|C)/.test(r.feature_code || ''));
+  const list = (big.length >= 3 ? big : all).slice(0, CITY_MAX_SHOWN);
+  cityCache.set(key, list);
+  return list;
+}
+
+function cityLabel(r) {
+  return [r.name, r.admin1 && r.admin1 !== r.name ? r.admin1 : null].filter(Boolean).join(', ');
+}
+
+function positionCityList() {
+  const wrap = cityInput.closest('.search-wrapper').getBoundingClientRect();
+  const field = cityInput.closest('.sb-field').getBoundingClientRect();
+  const bar = cityInput.closest('.search-bar').getBoundingClientRect();
+  if (window.innerWidth <= 768) {
+    cityList.style.left = '0px';
+    cityList.style.width = '100%';
+    cityList.style.top = `${field.bottom - wrap.top + 6}px`;
+  } else {
+    cityList.style.left = `${field.left - wrap.left}px`;
+    cityList.style.width = `${Math.max(field.width, 320)}px`;
+    cityList.style.top = `${bar.bottom - wrap.top + 6}px`;
+  }
+}
+
+function openCityList(html) {
+  cityList.innerHTML = html;
+  positionCityList();
+  cityList.classList.add('open');
+  cityInput.setAttribute('aria-expanded', 'true');
+}
+
+function closeCityList() {
+  cityList.classList.remove('open');
+  cityInput.setAttribute('aria-expanded', 'false');
+  cityInput.removeAttribute('aria-activedescendant');
+  cityActive = -1;
+}
+
+function renderCities(q) {
+  if (!cityItems.length) {
+    openCityList(`<li class="city-empty">No cities found for “${escHtml(q)}” — you can still search with what you typed.</li>`);
+    return;
+  }
+  const n = q.length;
+  openCityList(cityItems.map((r, i) => `
+    <li role="option" id="city-${i}" data-i="${i}" aria-selected="false">
+      <svg class="pin" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 15s5-4.6 5-8.5A5 5 0 0 0 3 6.5C3 10.4 8 15 8 15z" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="6.5" r="1.8" stroke="currentColor" stroke-width="1.6"/></svg>
+      <span>
+        <span class="city-name"><b>${escHtml(r.name.slice(0, n))}</b>${escHtml(r.name.slice(n))}</span>
+        <span class="city-region">${escHtml([r.admin1 !== r.name ? r.admin1 : '', r.country].filter(Boolean).join(', '))}</span>
+      </span>
+      <span class="city-flag" aria-hidden="true">${flagOf(r.country_code)}</span>
+    </li>`).join(''));
+}
+
+function setCityActive(i) {
+  const lis = cityList.querySelectorAll('li[role="option"]');
+  if (!lis.length) return;
+  cityActive = (i + lis.length) % lis.length;
+  lis.forEach((li, k) => { li.classList.toggle('active', k === cityActive); li.setAttribute('aria-selected', k === cityActive); });
+  lis[cityActive].scrollIntoView({ block: 'nearest' });
+  cityInput.setAttribute('aria-activedescendant', `city-${cityActive}`);
+}
+
+function pickCity(i) {
+  const r = cityItems[i];
+  if (!r) return;
+  selectedCity = { label: cityLabel(r), name: r.name, region: r.admin1 || '', country_code: (r.country_code || '').toLowerCase(), lat: r.latitude, lng: r.longitude };
+  cityInput.value = selectedCity.label;
+  const countrySel = document.getElementById('filterCountry');
+  if ([...countrySel.options].some(o => o.value === selectedCity.country_code)) countrySel.value = selectedCity.country_code;
+  refreshFilterUI();
+  closeCityList();
+}
+
+cityInput.addEventListener('input', () => {
+  selectedCity = null;
+  clearTimeout(cityTimer);
+  const q = cityInput.value.trim();
+  if (q.length < CITY_MIN_CHARS) { closeCityList(); return; }
+  cityTimer = setTimeout(async () => {
+    const myReq = ++cityReqId;
+    try {
+      const results = await fetchCities(q, document.getElementById('filterCountry').value);
+      if (myReq !== cityReqId || cityInput.value.trim() !== q) return;   // a newer keystroke won
+      cityItems = results;
+      renderCities(q);
+    } catch (e) { closeCityList(); }                                   // lookup down: plain text still works
+  }, 200);
+});
+
+cityInput.addEventListener('keydown', e => {
+  if (!cityList.classList.contains('open') || !cityItems.length) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); setCityActive(cityActive + 1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); setCityActive(cityActive - 1); }
+  else if (e.key === 'Enter' && cityActive >= 0) { e.preventDefault(); e.stopPropagation(); pickCity(cityActive); }
+  else if (e.key === 'Escape') { closeCityList(); }
+});
+
+cityList.addEventListener('mousedown', e => e.preventDefault());       // keep focus in the input
+cityList.addEventListener('click', e => {
+  const li = e.target.closest('li[role="option"]');
+  if (li) pickCity(+li.dataset.i);
+});
+cityInput.addEventListener('blur', () => setTimeout(closeCityList, 120));
+cityInput.addEventListener('focus', () => { if (cityItems.length && cityInput.value.trim().length >= CITY_MIN_CHARS && !selectedCity) renderCities(cityInput.value.trim()); });
+window.addEventListener('resize', () => { if (cityList.classList.contains('open')) positionCityList(); });
+document.getElementById('filterCountry').addEventListener('change', () => { cityCache.clear(); });
 
 async function handleSearchCta() {
   const input = document.getElementById('ctaSearchInput').value.trim();
