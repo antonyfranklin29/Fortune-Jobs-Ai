@@ -669,7 +669,7 @@ async function handleSearch() {
 
   showLoading(mode);
 
-  const webhookUrl = mode === 'live' ? WEBHOOK_URL_LIVE 3: WEBHOOK_URL_QUICK;
+  const webhookUrl = mode === 'live' ? WEBHOOK_URL_LIVE : WEBHOOK_URL_QUICK;
   try {
     await fetch(webhookUrl, {
       method: 'POST',
