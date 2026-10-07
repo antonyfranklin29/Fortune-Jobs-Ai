@@ -312,7 +312,8 @@ footer{padding:40px 20px 24px;}
     <div class="search-bar">
       <label class="sb-field">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-        <input type="text" id="jobSearchInput" aria-label="Job title or keyword" placeholder="Job title, skill or company"/>
+        <input type="text" id="jobSearchInput" aria-label="Job title or keyword" placeholder="Job title, skill or company"
+               autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="titleList"/>
       </label>
       <label class="sb-field loc">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 15s5-4.6 5-8.5A5 5 0 0 0 3 6.5C3 10.4 8 15 8 15z" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="6.5" r="1.8" stroke="currentColor" stroke-width="1.6"/></svg>
@@ -322,6 +323,7 @@ footer{padding:40px 20px 24px;}
       <button onclick="handleSearch()">Find My Job →</button>
     </div>
     <ul class="city-list" id="cityList" role="listbox" aria-label="City suggestions"></ul>
+    <ul class="city-list" id="titleList" role="listbox" aria-label="Job title suggestions"></ul>
 
     <!-- FILTERS -->
     <div class="filters" id="filters">
@@ -516,6 +518,7 @@ footer{padding:40px 20px 24px;}
   </div>
 </footer>
 
+<script src="job-titles.js" defer></script>
 <script>
 // ═══════════════════════════════════════
 // WEBHOOK URLs — one per mode
@@ -839,6 +842,7 @@ async function handleSearch() {
   if (!input) { alert('Please type a job title first!'); return; }
 
   stopPolling();
+  closeTitleList(); closeCityList();
   const mode = currentMode;
   const myGeneration = ++searchGeneration;
 
@@ -1066,6 +1070,139 @@ cityInput.addEventListener('blur', () => setTimeout(closeCityList, 120));
 cityInput.addEventListener('focus', () => { if (cityItems.length && cityInput.value.trim().length >= CITY_MIN_CHARS && !selectedCity) renderCities(cityInput.value.trim()); });
 window.addEventListener('resize', () => { if (cityList.classList.contains('open')) positionCityList(); });
 document.getElementById('filterCountry').addEventListener('change', () => { cityCache.clear(); });
+
+// ═══════════════════════════════════════
+// JOB TITLE / SKILL / COMPANY AUTOCOMPLETE (list lives in job-titles.js)
+// ═══════════════════════════════════════
+const TITLE_MAX_SHOWN = 10;
+const titleInput = document.getElementById('jobSearchInput');
+const titleList  = document.getElementById('titleList');
+let titleIndex = null;        // built once, on first keystroke
+let titleItems = [];
+let titleActive = -1;
+
+const TITLE_KIND = {
+  t: { label: 'Job title', icon: '<path d="M2.5 5.5h11v8h-11z M6 5.5V3.5h4v2" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' },
+  s: { label: 'Skill',     icon: '<path d="M8 2l1.6 3.6L13.5 6l-2.9 2.6.8 3.9L8 10.6 4.6 12.5l.8-3.9L2.5 6l3.9-.4z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>' },
+  c: { label: 'Company',   icon: '<path d="M3 14V3h6v11 M9 7h4v7 M5 5.5h2 M5 8h2 M5 10.5h2 M2 14h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' }
+};
+
+function buildTitleIndex() {
+  const src = window.JOB_SUGGESTIONS;
+  if (!src) return null;
+  const all = [];
+  [['t', src.titles], ['s', src.skills], ['c', src.companies]].forEach(([k, arr]) =>
+    (arr || []).forEach((text, pos) => {     // list order = popularity order
+      const f = fold(text);
+      all.push({ text, kind: k, pos, f, starts: [0, ...[...f.matchAll(/[\s\-/&(.]+/g)].map(m => m.index + m[0].length)] });
+    }));
+  return all;
+}
+
+function matchTitles(q) {
+  if (!titleIndex) titleIndex = buildTitleIndex();
+  if (!titleIndex) return [];
+  const fq = fold(q).replace(/\s+/g, ' ');
+  const out = [];
+  for (const it of titleIndex) {
+    let rank = -1, at = -1;
+    if (it.f.startsWith(fq)) { rank = 0; at = 0; }                               // "power bi" -> "Power BI Developer"
+    else {
+      const s = it.starts.find(p => p > 0 && it.f.startsWith(fq, p));
+      if (s !== undefined) { rank = 1; at = s; }                                   // "power bi" -> "Senior Power BI Developer"
+    }
+    if (rank < 0) continue;
+    out.push({ ...it, rank, at, len: fq.length });
+  }
+  out.sort((a, b) => a.rank - b.rank || a.pos - b.pos);
+  const titles = out.filter(x => x.kind === 't');
+  const others = out.filter(x => x.kind !== 't' && x.rank === 0).slice(0, 2);   // keep room for a matching skill/company
+  const shown = titles.slice(0, TITLE_MAX_SHOWN - others.length).concat(others);
+  return shown.length < TITLE_MAX_SHOWN
+    ? shown.concat(out.filter(x => !shown.includes(x)).slice(0, TITLE_MAX_SHOWN - shown.length))
+    : shown;
+}
+
+function positionTitleList() {
+  const wrap = titleInput.closest('.search-wrapper').getBoundingClientRect();
+  const field = titleInput.closest('.sb-field').getBoundingClientRect();
+  const bar = titleInput.closest('.search-bar').getBoundingClientRect();
+  if (window.innerWidth <= 768) {
+    titleList.style.left = '0px';
+    titleList.style.width = '100%';
+    titleList.style.top = `${field.bottom - wrap.top + 6}px`;
+  } else {
+    titleList.style.left = `${field.left - wrap.left}px`;
+    titleList.style.width = `${Math.max(field.width, 340)}px`;
+    titleList.style.top = `${bar.bottom - wrap.top + 6}px`;
+  }
+}
+
+function closeTitleList() {
+  titleList.classList.remove('open');
+  titleInput.setAttribute('aria-expanded', 'false');
+  titleInput.removeAttribute('aria-activedescendant');
+  titleActive = -1;
+}
+
+function renderTitles() {
+  if (!titleItems.length) { closeTitleList(); return; }
+  titleList.innerHTML = titleItems.map((it, i) => {
+    const a = it.at, b = it.at + it.len;
+    const k = TITLE_KIND[it.kind];
+    return `
+    <li role="option" id="title-${i}" data-i="${i}" aria-selected="false">
+      <svg class="pin" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">${k.icon}</svg>
+      <span>
+        <span class="city-name" style="font-weight:500">${escHtml(it.text.slice(0, a))}<b>${escHtml(it.text.slice(a, b))}</b>${escHtml(it.text.slice(b))}</span>
+        <span class="city-region">${k.label}</span>
+      </span>
+    </li>`;
+  }).join('');
+  positionTitleList();
+  titleList.classList.add('open');
+  titleInput.setAttribute('aria-expanded', 'true');
+}
+
+function setTitleActive(i) {
+  const lis = titleList.querySelectorAll('li[role="option"]');
+  if (!lis.length) return;
+  titleActive = (i + lis.length) % lis.length;
+  lis.forEach((li, k) => { li.classList.toggle('active', k === titleActive); li.setAttribute('aria-selected', k === titleActive); });
+  lis[titleActive].scrollIntoView({ block: 'nearest' });
+  titleInput.setAttribute('aria-activedescendant', `title-${titleActive}`);
+}
+
+function pickTitle(i) {
+  const it = titleItems[i];
+  if (!it) return;
+  titleInput.value = it.text;
+  closeTitleList();
+  if (!cityInput.value.trim()) cityInput.focus();     // next step, like LinkedIn: where?
+}
+
+titleInput.addEventListener('input', () => {
+  const q = titleInput.value.trim();
+  if (q.length < 2) { closeTitleList(); return; }
+  titleItems = matchTitles(q);
+  renderTitles();
+});
+
+titleInput.addEventListener('keydown', e => {
+  if (!titleList.classList.contains('open')) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); setTitleActive(titleActive + 1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); setTitleActive(titleActive - 1); }
+  else if (e.key === 'Enter' && titleActive >= 0) { e.preventDefault(); e.stopPropagation(); pickTitle(titleActive); }
+  else if (e.key === 'Escape') { closeTitleList(); }
+});
+
+titleList.addEventListener('mousedown', e => e.preventDefault());
+titleList.addEventListener('click', e => {
+  const li = e.target.closest('li[role="option"]');
+  if (li) pickTitle(+li.dataset.i);
+});
+titleInput.addEventListener('blur', () => setTimeout(closeTitleList, 120));
+window.addEventListener('resize', () => { if (titleList.classList.contains('open')) positionTitleList(); });
 
 async function handleSearchCta() {
   const input = document.getElementById('ctaSearchInput').value.trim();
