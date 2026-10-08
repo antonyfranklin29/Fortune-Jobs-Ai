@@ -626,10 +626,20 @@ let pollInFlight = false;
 function showLoading(mode) {
   if (loadingIntervalId) { clearInterval(loadingIntervalId); loadingIntervalId = null; }
 
-  const waitMs = mode === 'quick' ? INITIAL_WAIT_QUICK : INITIAL_WAIT_LIVE;
-
   document.getElementById('loadingModeBadge').textContent = mode === 'quick' ? '⚡ Quick Match' : '🔴 Live Search';
   document.getElementById('loadingSubtext').textContent = '';
+
+  // Quick Match reads the database directly and comes back in well under a
+  // second, so it gets a simple "searching" line instead of a countdown.
+  if (mode === 'quick') {
+    document.getElementById('loadingSubtext').textContent = 'Searching saved jobs…';
+    const bar = document.getElementById('pollingBarText');
+    if (bar) bar.textContent = 'Searching saved jobs…';
+    document.getElementById('loadingOverlay').classList.add('active');
+    return;
+  }
+
+  const waitMs = INITIAL_WAIT_LIVE;
 
   let secondsLeft = Math.ceil(waitMs / 1000);
   const subtextEl = document.getElementById('loadingSubtext');
@@ -709,6 +719,119 @@ async function fetchJobs(signal, sinceISO, searchId) {
     if (e.name !== 'AbortError') console.error('Supabase error:', e);
     return null;
   }
+}
+
+// ═══════════════════════════════════════
+// QUICK MATCH — reads pre-scraped jobs straight from Supabase.
+// No webhook, no Make.com queue, no polling: the browser asks the database
+// and ranks the answer itself. That is what lets many people search at once.
+// ═══════════════════════════════════════
+const QUICK_CANDIDATE_LIMIT = 300;
+const STOPWORDS = new Set(['a','an','and','the','of','for','to','in','on','at','with','or','jobs','job','role','roles','position','positions','senior','junior','sr','jr']);
+
+function queryTokens(text) {
+  return (text || '').toLowerCase()
+    .replace(/[^a-z0-9+#.\s-]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length >= 2 && !STOPWORDS.has(t));
+}
+
+// Build the PostgREST URL. Hard filters go to the server; everything else is
+// scored on the client so a narrow filter never returns an empty page.
+function quickMatchUrl(tokens, filters, relaxed) {
+  const p = [
+    'select=job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category',
+    `limit=${QUICK_CANDIDATE_LIMIT}`
+  ];
+  if (tokens.length) {
+    const ors = tokens.map(t => `search_text.ilike.*${encodeURIComponent(t).replace(/\*/g, '')}*`);
+    p.push(`or=(${ors.join(',')})`);
+  }
+  if (!relaxed) {
+    if (filters.job_type)  p.push(`employment_type=eq.${encodeURIComponent(filters.job_type)}`);
+    if (filters.work_mode) p.push(`work_mode=eq.${encodeURIComponent(filters.work_mode)}`);
+    if (filters.date_posted) {
+      const since = new Date(Date.now() - parseInt(filters.date_posted, 10) * 86400000).toISOString();
+      p.push(`posted_at=gte.${encodeURIComponent(since)}`);
+    }
+    if (filters.company) p.push(`company=ilike.*${encodeURIComponent(filters.company)}*`);
+  }
+  return `${SUPABASE_URL}/rest/v1/pre_scraped_jobs?${p.join('&')}`;
+}
+
+// Score a listing against what the person actually asked for.
+function scoreJob(job, tokens, phrase, filters) {
+  const title = (job.job_title || '').toLowerCase();
+  const loc   = (job.location  || '').toLowerCase();
+  const co    = (job.company   || '').toLowerCase();
+  let score = 0;
+  const why = [];
+
+  if (phrase && title.includes(phrase)) { score += 55; why.push(`title matches "${job.job_title}"`); }
+  const hitsInTitle = tokens.filter(t => title.includes(t));
+  score += hitsInTitle.length * 14;
+  if (tokens.length && hitsInTitle.length === tokens.length && !why.length) why.push('matches every keyword you searched');
+  score += tokens.filter(t => co.includes(t)).length * 3;
+
+  const wantedCity = (filters.city || filters.location || '').toLowerCase().split(',')[0].trim();
+  if (wantedCity && loc.includes(wantedCity)) { score += 30; why.push(`in ${job.location}`); }
+  else if (wantedCity && job.is_remote)       { score += 18; why.push('remote, so location is open'); }
+
+  if (filters.work_mode && job.work_mode === filters.work_mode) { score += 12; why.push(`${filters.work_mode} role`); }
+  if (filters.job_type && job.employment_type === filters.job_type) score += 8;
+  if (job.salary) { score += 6; why.push(`pay listed at ${job.salary}`); }
+
+  if (job.posted_at) {
+    const days = (Date.now() - new Date(job.posted_at).getTime()) / 86400000;
+    if (days <= 1) { score += 14; why.push('posted today'); }
+    else if (days <= 3)  score += 9;
+    else if (days <= 7)  score += 5;
+    else if (days > 30)  score -= 6;
+  }
+
+  return {
+    score,
+    reason: why.length ? why.slice(0, 3).join('; ').replace(/^./, c => c.toUpperCase()) + '.'
+                       : 'Related to your search.'
+  };
+}
+
+async function fetchQuickMatches(input, filters, signal) {
+  const tokens = queryTokens(input);
+  const phrase = input.trim().toLowerCase();
+
+  const run = async relaxed => {
+    const res = await fetch(quickMatchUrl(tokens, filters, relaxed), {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+      signal
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  };
+
+  // Try with the person's filters; if that leaves too little, widen rather
+  // than show an empty page.
+  let rows = await run(false);
+  if (!rows || rows.length < FREE_RESULTS) {
+    const wider = await run(true);
+    if (wider && wider.length > (rows ? rows.length : 0)) rows = wider;
+  }
+  if (!rows || !rows.length) return [];
+
+  const seen = new Set();
+  return rows
+    .filter(r => { const k = r.apply_url; if (!k || seen.has(k)) return false; seen.add(k); return true; })
+    .map(r => {
+      const { score, reason } = scoreJob(r, tokens, phrase, filters);
+      return {
+        job_title: r.job_title, company: r.company, location: r.location,
+        salary: r.salary || 'Not listed', apply_url: r.apply_url,
+        match_reason: reason,
+        match_score: String(Math.max(42, Math.min(99, 42 + score))),
+        created_at: r.posted_at
+      };
+    })
+    .sort((a, b) => parseInt(b.match_score) - parseInt(a.match_score));
 }
 
 // ═══════════════════════════════════════
@@ -903,6 +1026,27 @@ function safe(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+// Shown when the pre-scraped set has nothing for this search.
+function showQuickMatchEmpty(search, filters) {
+  const section = document.getElementById('resultsSection');
+  document.getElementById('resultsTitle').textContent = `No quick matches for "${search}"`;
+  document.getElementById('resultsCount').textContent =
+    'Quick Match looks through jobs we collected earlier, so it can miss newer or more unusual roles.';
+  const badge = document.getElementById('resultsModeBadge');
+  badge.className = 'results-mode-badge quick';
+  badge.textContent = '\u26a1 Quick Match';
+  section.classList.add('active');
+  shownJobs = [];
+  document.getElementById('jobsGrid').innerHTML = `
+    <div class="empty-state">
+      <div class="icon">\u{1F50E}</div>
+      <h3>Nothing saved for this one yet</h3>
+      <p>Try Live Search — it scrapes Indeed right now and takes about two minutes.</p>
+      <button class="retry-btn" onclick="setMode('live');window.scrollTo({top:0,behavior:'smooth'});">Switch to Live Search \u2191</button>
+    </div>`;
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 // ═══════════════════════════════════════
 // MAIN SEARCH
 // ═══════════════════════════════════════
@@ -924,14 +1068,34 @@ async function handleSearch() {
   const searchId = newSearchId();
   currentSearchId = searchId;
 
-  showLoading(mode);
-
-  const webhookUrl = mode === 'live' ? WEBHOOK_URL_LIVE : WEBHOOK_URL_QUICK;
   const filters = getFilters();
   currentFilterSummary = filterSummary(filters);
   rememberSearch(input, mode, filters);                // history + saved filters (signed-in only)
+
+  // ── Quick Match: read the database directly. ──────────────────────────
+  // Nothing is written and nothing queues, so any number of people can do
+  // this at the same time and each gets their own answer straight away.
+  if (mode === 'quick') {
+    showLoading(mode);
+    activeAbortCtrl = new AbortController();
+    let jobs = [];
+    try {
+      jobs = await fetchQuickMatches(input, filters, activeAbortCtrl.signal);
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      console.error('Quick Match error:', e);
+    }
+    if (myGeneration !== searchGeneration) return;
+    hideLoading();
+    if (jobs.length) { showJobCards(jobs, input, mode); }
+    else { showQuickMatchEmpty(input, filters); }
+    return;
+  }
+
+  // ── Live Search: scrape Indeed now, through Make.com. ─────────────────
+  showLoading(mode);
   try {
-    await fetch(webhookUrl, {
+    await fetch(WEBHOOK_URL_LIVE, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: input, mode: mode, search_id: searchId, results_limit: FREE_RESULTS, ...filters, ...accountPayload() }),
@@ -939,12 +1103,11 @@ async function handleSearch() {
     });
   } catch(e) { /* no-cors expected */ }
 
-  const initialWait = mode === 'quick' ? INITIAL_WAIT_QUICK : INITIAL_WAIT_LIVE;
   initialWaitTimer = setTimeout(() => {
     if (myGeneration !== searchGeneration) return;
     hideLoading();
     startPolling(input, myGeneration, sinceISO, mode, searchId);
-  }, initialWait);
+  }, INITIAL_WAIT_LIVE);
 }
 
 // ═══════════════════════════════════════
