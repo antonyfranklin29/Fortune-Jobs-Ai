@@ -1,0 +1,5 @@
+# Fortune Jobs AI — pre-launch.
+# The site is not ready for public traffic yet, so no crawler should index it.
+# Remove this file (or replace the Disallow with "Allow: /") on launch day.
+User-agent: *
+Disallow: /

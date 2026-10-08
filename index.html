@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- PRE-LAUNCH: keep the site out of search results. Delete this line on launch day. -->
+<meta name="robots" content="noindex, nofollow">
 <title>Fortune Jobs AI — Your AI Job Search Assistant</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -595,6 +597,16 @@ const PRO_CHECKOUT_URL = '';    // paste your Stripe/payment link here when read
 const STABILIZE_DELAY_MS = 5000;
 const STABILIZE_MAX_CHECKS = 3;
 
+// Every search gets its own id. It travels to Make.com, is written onto each
+// job row, and is what we filter on — so two people searching at the same
+// moment never see each other's results.
+let currentSearchId = '';
+function newSearchId() {
+  const rand = (crypto && crypto.randomUUID) ? crypto.randomUUID()
+             : Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  return `s_${Date.now().toString(36)}_${rand.replace(/-/g, '').slice(0, 12)}`;
+}
+
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
@@ -670,9 +682,13 @@ function sanitizeJobRow(row) {
 // ═══════════════════════════════════════
 // FETCH JOBS FROM SUPABASE
 // ═══════════════════════════════════════
-async function fetchJobs(signal, sinceISO) {
+async function fetchJobs(signal, sinceISO, searchId) {
   try {
-    const filter = sinceISO ? `&created_at=gt.${encodeURIComponent(sinceISO)}` : '';
+    // Prefer an exact search_id match. Until Make.com stamps rows with it we
+    // fall back to "rows created since this search started".
+    const filter = searchId
+      ? `&search_id=eq.${encodeURIComponent(searchId)}`
+      : (sinceISO ? `&created_at=gt.${encodeURIComponent(sinceISO)}` : '');
     const url = `${SUPABASE_URL}/rest/v1/job_matches`
       + `?select=job_title,company,location,salary,apply_url,match_reason,match_score,created_at`
       + `&order=created_at.desc&limit=${FREE_RESULTS}${filter}`;
@@ -710,13 +726,13 @@ function stopPolling() {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-async function waitForStableResults(initialJobs, sinceISO, generation) {
+async function waitForStableResults(initialJobs, sinceISO, generation, searchId) {
   let jobs = initialJobs;
   for (let i = 0; i < STABILIZE_MAX_CHECKS; i++) {
     if (jobs.length >= EXPECTED_JOB_COUNT) return jobs;
     await sleep(STABILIZE_DELAY_MS);
     if (generation !== searchGeneration) return null;
-    const recheck = await fetchJobs(activeAbortCtrl ? activeAbortCtrl.signal : undefined, sinceISO);
+    const recheck = await fetchJobs(activeAbortCtrl ? activeAbortCtrl.signal : undefined, sinceISO, searchId);
     if (generation !== searchGeneration) return null;
     if (!recheck || recheck.length <= jobs.length) return jobs;
     jobs = recheck;
@@ -727,9 +743,10 @@ async function waitForStableResults(initialJobs, sinceISO, generation) {
 // ═══════════════════════════════════════
 // START AUTO POLLING
 // ═══════════════════════════════════════
-function startPolling(search, generation, sinceISO, mode) {
+function startPolling(search, generation, sinceISO, mode, searchId) {
   showPollingBar();
   const pollingStartedAt = Date.now();
+  let matchedById = false;   // true once rows carrying our search_id come back
 
   const poll = async () => {
     if (generation !== searchGeneration) return;
@@ -737,14 +754,27 @@ function startPolling(search, generation, sinceISO, mode) {
     pollInFlight = true;
     try {
       activeAbortCtrl = new AbortController();
-      let jobs = await fetchJobs(activeAbortCtrl.signal, sinceISO);
+
+      // 1. Rows stamped with this search's id — the only results that are
+      //    certainly ours.
+      let jobs = searchId ? await fetchJobs(activeAbortCtrl.signal, sinceISO, searchId) : null;
       if (generation !== searchGeneration) return;
-      if (!jobs && Date.now() - pollingStartedAt > FALLBACK_AFTER_MS) {
-        jobs = await fetchJobs(activeAbortCtrl.signal, null);
+      if (jobs && jobs.length > 0) matchedById = true;
+
+      // 2. Nothing stamped yet (Make.com not updated): rows written since this
+      //    search started.
+      if (!jobs && !matchedById) {
+        jobs = await fetchJobs(activeAbortCtrl.signal, sinceISO, null);
+        if (generation !== searchGeneration) return;
+      }
+
+      // 3. Last resort, late in the wait: newest rows, whenever they were made.
+      if (!jobs && !matchedById && Date.now() - pollingStartedAt > FALLBACK_AFTER_MS) {
+        jobs = await fetchJobs(activeAbortCtrl.signal, null, null);
         if (generation !== searchGeneration) return;
       }
       if (jobs && jobs.length > 0) {
-        const stableJobs = await waitForStableResults(jobs, sinceISO, generation);
+        const stableJobs = await waitForStableResults(jobs, sinceISO, generation, matchedById ? searchId : null);
         if (generation !== searchGeneration) return;
         if (stableJobs && stableJobs.length > 0) {
           stopPolling();
@@ -891,6 +921,8 @@ async function handleSearch() {
   currentSearch = input;
   const searchStartTime = Date.now();
   const sinceISO = new Date(searchStartTime - CLOCK_SKEW_MS).toISOString();
+  const searchId = newSearchId();
+  currentSearchId = searchId;
 
   showLoading(mode);
 
@@ -902,7 +934,7 @@ async function handleSearch() {
     await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: input, mode: mode, results_limit: FREE_RESULTS, ...filters, ...accountPayload() }),
+      body: JSON.stringify({ text: input, mode: mode, search_id: searchId, results_limit: FREE_RESULTS, ...filters, ...accountPayload() }),
       mode: 'no-cors'
     });
   } catch(e) { /* no-cors expected */ }
@@ -911,7 +943,7 @@ async function handleSearch() {
   initialWaitTimer = setTimeout(() => {
     if (myGeneration !== searchGeneration) return;
     hideLoading();
-    startPolling(input, myGeneration, sinceISO, mode);
+    startPolling(input, myGeneration, sinceISO, mode, searchId);
   }, initialWait);
 }
 
