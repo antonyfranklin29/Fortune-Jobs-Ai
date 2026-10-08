@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile · Fortune Jobs AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="account.css">
+<style>
+.hero-band{background:var(--navy);color:var(--white);padding:40px 32px 88px;position:relative;overflow:hidden;}
+.hero-band::before{content:'';position:absolute;top:-80px;right:-60px;width:560px;height:360px;background:radial-gradient(ellipse,rgba(212,168,67,0.13) 0%,transparent 70%);pointer-events:none;}
+.page{max-width:980px;margin:0 auto;padding:0 24px 64px;}
+.hero-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:22px;position:relative;}
+.avatar-btn{position:relative;border:none;background:none;padding:0;cursor:pointer;border-radius:50%;}
+.avatar-btn .cam{position:absolute;right:-2px;bottom:-2px;width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;border:2px solid var(--navy);font-size:13px;}
+.avatar-btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+.who h1{font-size:26px;font-weight:800;letter-spacing:-0.6px;line-height:1.2;}
+.who .t{color:var(--gold-light);font-weight:600;font-size:15px;margin-top:2px;}
+.who .e{color:var(--gray-400);font-size:13px;margin-top:2px;}
+.hero-actions{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+.hero-actions .btn-outline{background:transparent;color:var(--white);border-color:rgba(255,255,255,0.25);}
+.hero-actions .btn-outline:hover{border-color:rgba(255,255,255,0.5);}
+.complete{max-width:980px;margin:18px auto 0;position:relative;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--gray-400);}
+.complete .bar{flex:1;max-width:260px;height:6px;border-radius:6px;background:rgba(255,255,255,0.1);overflow:hidden;}
+.complete .bar i{display:block;height:100%;background:var(--gold);border-radius:6px;width:0;transition:width 0.4s;}
+.complete b{color:var(--white);}
+
+.sec-nav{position:sticky;top:64px;z-index:40;margin:-56px 0 20px;display:flex;gap:6px;overflow-x:auto;padding:10px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);scrollbar-width:none;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;text-decoration:none;font-size:13px;font-weight:600;color:var(--gray-600);padding:8px 14px;border-radius:40px;}
+.sec-nav a:hover{background:var(--gray-100);color:var(--navy);}
+.sec-nav a .n{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:10px;background:var(--gray-100);font-size:11px;text-align:center;color:var(--gray-600);}
+
+.stack{display:grid;gap:20px;}
+section{scroll-margin-top:140px;}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px;}
+.card-head .sub{margin-bottom:0;}
+.form-foot{display:flex;align-items:center;gap:14px;margin-top:6px;}
+.saved-note{font-size:13px;color:#047857;font-weight:600;opacity:0;transition:opacity 0.2s;}
+.saved-note.show{opacity:1;}
+
+/* resume */
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:2px dashed var(--gray-300);border-radius:var(--radius-lg);padding:30px 20px;text-align:center;cursor:pointer;transition:border-color 0.15s,background 0.15s;}
+.drop:hover,.drop.over{border-color:var(--gold);background:var(--gold-pale);}
+.drop .big{font-size:28px;}
+.drop b{font-size:15px;}
+.drop span{font-size:13px;color:var(--gray-500);}
+.resume-row{display:flex;align-items:center;gap:14px;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:16px;flex-wrap:wrap;}
+.resume-ic{width:44px;height:44px;border-radius:var(--radius-md);background:var(--gold-pale);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.resume-meta{flex:1;min-width:180px;}
+.resume-meta b{display:block;font-size:15px;word-break:break-all;}
+.resume-meta span{font-size:12px;color:var(--gray-500);}
+.ai-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 10px;border-radius:40px;margin-top:6px;}
+.ai-status.ok{background:var(--green-bg);color:#047857;border:1px solid var(--green-border);}
+.ai-status.warn{background:var(--gold-pale);color:#7A5B12;border:1px solid rgba(212,168,67,0.35);}
+
+/* saved jobs */
+.jobs{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;}
+.sjob{border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:16px;display:flex;flex-direction:column;gap:2px;}
+.sjob .top{display:flex;gap:10px;align-items:center;margin-bottom:8px;}
+.sjob .logo-l{width:36px;height:36px;border-radius:var(--radius-md);background:var(--gold-pale);color:var(--gold);font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sjob .ttl{font-weight:700;font-size:15px;line-height:1.3;}
+.sjob .co{font-size:13px;color:var(--gray-600);font-weight:600;}
+.sjob .meta{font-size:12px;color:var(--gray-500);}
+.sjob .acts{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-100);}
+
+/* history */
+.hist{list-style:none;}
+.hist li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--gray-100);}
+.hist li:last-child{border-bottom:none;}
+.hist .q{font-weight:700;font-size:14px;}
+.hist .f{font-size:12px;color:var(--gray-500);}
+.hist .when{font-size:12px;color:var(--gray-400);white-space:nowrap;}
+.hist .grow{flex:1;min-width:0;}
+.mode-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:40px;white-space:nowrap;}
+.mode-tag.quick{background:var(--gold-pale);color:#7A5B12;}
+.mode-tag.live{background:var(--green-bg);color:#047857;}
+
+.filters-saved{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:12px 14px;font-size:14px;}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:var(--white);padding:12px 18px;border-radius:var(--radius-md);font-size:14px;font-weight:600;box-shadow:var(--shadow-md);opacity:0;pointer-events:none;transition:all 0.25s;z-index:100;max-width:calc(100% - 32px);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.loading-page{display:flex;align-items:center;justify-content:center;min-height:60vh;gap:12px;color:var(--gray-500);}
+
+@media(max-width:768px){
+  .hero-band{padding:28px 16px 80px;}
+  .hero-inner{flex-wrap:wrap;gap:16px;}
+  .hero-actions{margin-left:0;width:100%;justify-content:flex-start;}
+  .who h1{font-size:22px;}
+  .page{padding:0 16px 48px;}
+  .avatar-lg{width:72px;height:72px;font-size:24px;}
+  .hist .when{display:none;}
+  .hist li{flex-wrap:wrap;align-items:flex-start;}
+  .hist .grow{flex-basis:calc(100% - 90px);}
+  .hist li .btn{margin-left:auto;}
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="index.html" class="logo">
+    <span class="logo-icon"><svg width="20" height="20" viewBox="0 0 22 22" fill="none"><path d="M3 14 L7 8 L11 14 L15 9 L19 15" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="8" r="2" fill="#0F172A"/><circle cx="15" cy="9" r="2" fill="#0F172A"/><circle cx="19" cy="15" r="2" fill="#0F172A"/></svg></span>
+    <span class="logo-text">Fortune Jobs AI</span>
+  </a>
+  <a href="index.html" class="nav-link">Find jobs →</a>
+</nav>
+
+<div id="pageLoading" class="loading-page"><span class="spinner"></span> Loading your profile…</div>
+
+<div id="app" hidden>
+  <header class="hero-band">
+    <div class="hero-inner">
+      <button class="avatar-btn" type="button" onclick="document.getElementById('avatarInput').click()" aria-label="Change profile photo">
+        <span id="avatarSlot"></span>
+        <span class="cam" aria-hidden="true">📷</span>
+      </button>
+      <input type="file" id="avatarInput" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+      <div class="who">
+        <h1 id="heroName">Your profile</h1>
+        <div class="t" id="heroTitle"></div>
+        <div class="e" id="heroEmail"></div>
+      </div>
+      <div class="hero-actions">
+        <a href="index.html" class="btn btn-primary btn-sm">Find jobs</a>
+        <button class="btn btn-outline btn-sm" type="button" onclick="FJ.signOut()">Log out</button>
+      </div>
+    </div>
+    <div class="complete"><span>Profile <b id="completePct">0%</b> complete</span><span class="bar"><i id="completeBar"></i></span><span id="completeHint"></span></div>
+  </header>
+
+  <main class="page">
+    <nav class="sec-nav" aria-label="Profile sections">
+      <a href="#profile">Profile</a>
+      <a href="#resume">Resume</a>
+      <a href="#saved">Saved jobs <span class="n" id="savedCount">0</span></a>
+      <a href="#history">Search history <span class="n" id="historyCount">0</span></a>
+      <a href="#alerts">Filters & alerts</a>
+    </nav>
+
+    <div class="stack">
+      <!-- PROFILE -->
+      <section class="card" id="profile">
+        <div class="card-head"><div><h2>Profile details</h2><p class="sub">The AI uses these to pick jobs that fit you.</p></div></div>
+        <div class="msg" id="profileMsg" role="alert"></div>
+        <form id="profileForm" novalidate>
+          <div class="row-2">
+            <div class="field">
+              <label for="pName">Full name</label>
+              <input class="input" id="pName" maxlength="120" autocomplete="name" placeholder="Jane Doe">
+            </div>
+            <div class="field">
+              <label for="pTitle">Current job title</label>
+              <input class="input" id="pTitle" maxlength="120" list="titleOptions" placeholder="e.g. Power BI Developer">
+              <datalist id="titleOptions"></datalist>
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label for="pYears">Years of experience</label>
+              <input class="input" id="pYears" type="number" min="0" max="60" inputmode="numeric" placeholder="e.g. 5">
+            </div>
+            <div class="field">
+              <span class="label">Job types you want</span>
+              <div class="pills" id="jobTypes">
+                <label class="pill"><input type="checkbox" value="fulltime"><span>Full-time</span></label>
+                <label class="pill"><input type="checkbox" value="parttime"><span>Part-time</span></label>
+                <label class="pill"><input type="checkbox" value="contract"><span>Contract</span></label>
+                <label class="pill"><input type="checkbox" value="temporary"><span>Temporary</span></label>
+                <label class="pill"><input type="checkbox" value="internship"><span>Internship</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="skillsInput">Skills</label>
+            <div class="chips" id="skillsBox" onclick="document.getElementById('skillsInput').focus()">
+              <input id="skillsInput" list="skillOptions" placeholder="Type a skill and press Enter" maxlength="60">
+            </div>
+            <datalist id="skillOptions"></datalist>
+            <div class="hint">Add up to 30. Press Enter or comma after each one.</div>
+          </div>
+          <div class="field">
+            <label for="locInput">Preferred locations</label>
+            <div class="chips" id="locBox" onclick="document.getElementById('locInput').focus()">
+              <input id="locInput" placeholder="e.g. Chicago, Remote, Toronto" maxlength="80">
+            </div>
+            <div class="hint">Add up to 10. Press Enter or comma after each one.</div>
+          </div>
+          <div class="form-foot">
+            <button class="btn btn-dark" type="submit" id="saveProfileBtn">Save profile</button>
+            <span class="saved-note" id="profileSaved">✓ Saved</span>
+          </div>
+        </form>
+      </section>
+
+      <!-- RESUME -->
+      <section class="card" id="resume">
+        <div class="card-head"><div><h2>Resume</h2><p class="sub">Upload a PDF so the AI can rank jobs against your real experience. Only you can see it.</p></div></div>
+        <div class="msg" id="resumeMsg" role="alert"></div>
+        <div id="resumeSlot"></div>
+        <input type="file" id="resumeInput" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+      </section>
+
+      <!-- SAVED JOBS -->
+      <section class="card" id="saved">
+        <div class="card-head"><div><h2>Saved jobs</h2><p class="sub">Jobs you bookmarked from your searches.</p></div></div>
+        <div id="savedSlot"></div>
+      </section>
+
+      <!-- HISTORY -->
+      <section class="card" id="history">
+        <div class="card-head">
+          <div><h2>Search history</h2><p class="sub">Your last 25 searches. Tap one to run it again.</p></div>
+          <button class="btn btn-danger btn-sm" type="button" id="clearHistoryBtn" onclick="clearHistory()" hidden>Clear history</button>
+        </div>
+        <div id="historySlot"></div>
+      </section>
+
+      <!-- FILTERS & ALERTS -->
+      <section class="card" id="alerts">
+        <div class="card-head"><div><h2>Saved filters & email alerts</h2><p class="sub">Your last-used search filters load automatically every time you visit.</p></div></div>
+        <div class="field">
+          <span class="label">Saved search filters</span>
+          <div class="filters-saved"><span id="savedFiltersText">None yet. Run a search with filters and they'll be saved here.</span>
+            <button class="btn btn-ghost btn-sm" type="button" id="clearFiltersBtn" onclick="clearSavedFilters()" hidden>Clear</button></div>
+        </div>
+        <div class="field" style="margin-top:22px">
+          <label class="switch"><input type="checkbox" id="alertsToggle"><span class="track"></span><span>Email me when new matching jobs appear</span></label>
+          <div class="hint" id="alertsHint" style="margin-left:56px">Alerts use your profile, title and saved filters.</div>
+        </div>
+        <div class="field" id="freqField" style="margin-left:56px;max-width:240px">
+          <label for="alertFreq">How often</label>
+          <select class="input" id="alertFreq">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
+        <div class="msg info show" style="margin:4px 0 0">Email alerts are launching soon. Turn them on now and you'll get them as soon as they go live.</div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script src="job-titles.js" defer></script>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+let user = null, profile = null;
+let skills = [], locations = [];
+
+const JOB_TYPE_LABEL = { fulltime: 'Full-time', parttime: 'Part-time', contract: 'Contract', temporary: 'Temporary', internship: 'Internship' };
+const WORK_LABEL = { onsite: 'On-site', remote: 'Remote', hybrid: 'Hybrid' };
+const EXP_LABEL = { internship: 'Internship', entry: 'Entry level', associate: 'Associate', mid_senior: 'Mid-Senior', director: 'Director', executive: 'Executive' };
+const DATE_LABEL = { 1: 'Past 24 hours', 3: 'Past 3 days', 7: 'Past week', 14: 'Past 2 weeks', 30: 'Past month' };
+
+function toast(text) {
+  const t = $('toast'); t.textContent = text; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function showMsg(id, text, kind) { const m = $(id); m.textContent = text; m.className = `msg show ${kind || 'error'}`; }
+function hideMsg(id) { $(id).className = 'msg'; }
+function timeAgo(iso) {
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (s < 60) return 'just now';
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  if (s < 604800) return `${Math.floor(s / 86400)}d ago`;
+  return new Date(iso).toLocaleDateString();
+}
+function filterText(f) {
+  if (!f) return '';
+  const place = [f.location, f.country_name].filter(Boolean).join(', ');
+  return [place && `📍 ${place}`, f.company && `🏢 ${f.company}`, WORK_LABEL[f.work_mode], JOB_TYPE_LABEL[f.job_type],
+          EXP_LABEL[f.experience], DATE_LABEL[f.date_posted]].filter(Boolean).join(' · ');
+}
+function searchUrl(query, mode, f) {
+  const p = new URLSearchParams({ q: query });
+  if (mode) p.set('mode', mode);
+  ['location','country','date_posted','experience','job_type','work_mode','company'].forEach(k => { if (f && f[k]) p.set(k, f[k]); });
+  return 'index.html?' + p.toString();
+}
+
+/* ── HERO ─────────────────────────────── */
+function renderHero() {
+  $('avatarSlot').innerHTML = FJ.avatarHtml(profile, user, 'avatar-lg');
+  $('heroName').textContent = (profile && profile.full_name) || 'Your profile';
+  $('heroTitle').textContent = (profile && profile.current_title) || '';
+  $('heroEmail').textContent = user.email || '';
+  const checks = [
+    [!!profile.full_name, 'add your name'], [!!profile.avatar_url, 'add a photo'], [!!profile.current_title, 'add your title'],
+    [profile.years_experience != null, 'add your experience'], [(profile.skills || []).length > 0, 'add skills'],
+    [(profile.preferred_locations || []).length > 0, 'add a location'], [(profile.job_types || []).length > 0, 'pick job types'],
+    [!!profile.resume_path, 'upload your resume']
+  ];
+  const done = checks.filter(c => c[0]).length;
+  const pct = Math.round(done / checks.length * 100);
+  $('completePct').textContent = pct + '%';
+  $('completeBar').style.width = pct + '%';
+  const next = checks.find(c => !c[0]);
+  $('completeHint').textContent = next ? `Next: ${next[1]}` : '🎉 All set';
+}
+
+/* ── CHIP INPUTS (skills, locations) ─── */
+function setupChips(boxId, inputId, getList, setList, max) {
+  const box = $(boxId), input = $(inputId);
+  function render() {
+    box.querySelectorAll('.chip').forEach(c => c.remove());
+    getList().forEach((v, i) => {
+      const c = document.createElement('span');
+      c.className = 'chip';
+      c.innerHTML = `${esc(v)}<button type="button" aria-label="Remove ${esc(v)}">×</button>`;
+      c.querySelector('button').onclick = e => { e.stopPropagation(); const l = getList().slice(); l.splice(i, 1); setList(l); render(); };
+      box.insertBefore(c, input);
+    });
+  }
+  function add(raw) {
+    const v = raw.replace(/,$/, '').trim().slice(0, 80);
+    if (!v) return;
+    const l = getList();
+    if (l.length >= max) { toast(`You can add up to ${max}.`); return; }
+    if (!l.some(x => x.toLowerCase() === v.toLowerCase())) setList(l.concat(v));
+    input.value = ''; render();
+  }
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add(input.value); }
+    else if (e.key === 'Backspace' && !input.value && getList().length) { setList(getList().slice(0, -1)); render(); }
+  });
+  input.addEventListener('input', () => { if (input.value.includes(',')) add(input.value); });
+  input.addEventListener('blur', () => add(input.value));
+  return render;
+}
+const renderSkills = setupChips('skillsBox', 'skillsInput', () => skills, l => { skills = l; }, 30);
+const renderLocs   = setupChips('locBox', 'locInput', () => locations, l => { locations = l; }, 10);
+
+/* ── PROFILE FORM ─────────────────────── */
+function fillForm() {
+  $('pName').value = profile.full_name || '';
+  $('pTitle').value = profile.current_title || '';
+  $('pYears').value = profile.years_experience == null ? '' : profile.years_experience;
+  skills = (profile.skills || []).slice(); locations = (profile.preferred_locations || []).slice();
+  renderSkills(); renderLocs();
+  document.querySelectorAll('#jobTypes input').forEach(cb => { cb.checked = (profile.job_types || []).includes(cb.value); });
+}
+
+$('profileForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  hideMsg('profileMsg');
+  // pick up anything typed but not yet turned into a chip
+  ['skillsInput', 'locInput'].forEach(id => $(id).dispatchEvent(new Event('blur')));
+  const yearsRaw = $('pYears').value.trim();
+  const years = yearsRaw === '' ? null : Math.round(Number(yearsRaw));
+  if (years != null && (isNaN(years) || years < 0 || years > 60)) { showMsg('profileMsg', 'Years of experience must be between 0 and 60.'); $('pYears').focus(); return; }
+  const update = {
+    full_name: $('pName').value.trim().slice(0, 120) || null,
+    current_title: $('pTitle').value.trim().slice(0, 120) || null,
+    years_experience: years,
+    skills, preferred_locations: locations,
+    job_types: [...document.querySelectorAll('#jobTypes input:checked')].map(cb => cb.value)
+  };
+  const btn = $('saveProfileBtn'); btn.disabled = true;
+  const { data, error } = await FJ.sb.from('profiles').update(update).eq('id', user.id).select().single();
+  btn.disabled = false;
+  if (error) { showMsg('profileMsg', "Couldn't save your profile. Please try again."); console.error(error); return; }
+  profile = data; renderHero();
+  $('profileSaved').classList.add('show'); setTimeout(() => $('profileSaved').classList.remove('show'), 2200);
+});
+
+/* ── AVATAR ───────────────────────────── */
+$('avatarInput').addEventListener('change', async () => {
+  const f = $('avatarInput').files[0]; $('avatarInput').value = '';
+  if (!f) return;
+  if (!/^image\/(png|jpeg|webp|gif)$/.test(f.type)) { toast('Please choose a PNG, JPG, WEBP or GIF image.'); return; }
+  if (f.size > 2 * 1024 * 1024) { toast('Photo must be under 2 MB.'); return; }
+  toast('Uploading photo…');
+  const ext = f.type.split('/')[1].replace('jpeg', 'jpg');
+  const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+  const up = await FJ.sb.storage.from('avatars').upload(path, f, { contentType: f.type, upsert: false });
+  if (up.error) { toast("Couldn't upload the photo. Please try again."); console.error(up.error); return; }
+  const url = FJ.sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+  const { data, error } = await FJ.sb.from('profiles').update({ avatar_url: url }).eq('id', user.id).select().single();
+  if (error) { toast("Couldn't save the photo."); return; }
+  profile = data; renderHero(); toast('Photo updated');
+  // tidy up older photos
+  const { data: files } = await FJ.sb.storage.from('avatars').list(user.id);
+  const old = (files || []).map(x => `${user.id}/${x.name}`).filter(p => p !== path);
+  if (old.length) FJ.sb.storage.from('avatars').remove(old);
+});
+
+/* ── RESUME ───────────────────────────── */
+function renderResume() {
+  const slot = $('resumeSlot');
+  if (!profile.resume_path) {
+    slot.innerHTML = `
+      <label class="drop" id="drop" for="resumeInput">
+        <span class="big">📄</span><b>Upload your resume</b>
+        <span>PDF works best · DOC/DOCX also accepted · max 5 MB</span>
+      </label>`;
+    const d = $('drop');
+    ['dragenter', 'dragover'].forEach(ev => d.addEventListener(ev, e => { e.preventDefault(); d.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach(ev => d.addEventListener(ev, e => { e.preventDefault(); d.classList.remove('over'); }));
+    d.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) uploadResume(f); });
+    return;
+  }
+  const words = profile.resume_text ? profile.resume_text.split(/\s+/).filter(Boolean).length : 0;
+  const status = words
+    ? `<span class="ai-status ok">✓ AI can read it · ${words.toLocaleString()} words</span>`
+    : `<span class="ai-status warn">Upload a PDF version so the AI can read it</span>`;
+  slot.innerHTML = `
+    <div class="resume-row">
+      <span class="resume-ic">📄</span>
+      <div class="resume-meta"><b>${esc(profile.resume_name || 'Resume')}</b>
+        <span>Updated ${profile.resume_updated_at ? timeAgo(profile.resume_updated_at) : ''}</span><br>${status}</div>
+      <button class="btn btn-outline btn-sm" type="button" onclick="viewResume()">View</button>
+      <button class="btn btn-outline btn-sm" type="button" onclick="$('resumeInput').click()">Replace</button>
+      <button class="btn btn-danger btn-sm" type="button" onclick="removeResume()">Remove</button>
+    </div>`;
+}
+
+$('resumeInput').addEventListener('change', () => { const f = $('resumeInput').files[0]; $('resumeInput').value = ''; if (f) uploadResume(f); });
+
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  return new Promise((ok, fail) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; ok(pdfjsLib); };
+    s.onerror = fail;
+    document.head.appendChild(s);
+  });
+}
+
+async function pdfToText(file) {
+  const lib = await loadPdfJs();
+  const pdf = await lib.getDocument({ data: await file.arrayBuffer() }).promise;
+  let text = '';
+  for (let i = 1; i <= Math.min(pdf.numPages, 10) && text.length < 20000; i++) {
+    const page = await pdf.getPage(i);
+    const c = await page.getTextContent();
+    text += c.items.map(it => it.str).join(' ') + '\n';
+  }
+  return text.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim().slice(0, 20000);
+}
+
+async function uploadResume(f) {
+  hideMsg('resumeMsg');
+  const ext = (f.name.split('.').pop() || '').toLowerCase();
+  if (!['pdf', 'doc', 'docx'].includes(ext)) { showMsg('resumeMsg', 'Please upload a PDF, DOC or DOCX file.'); return; }
+  if (f.size > 5 * 1024 * 1024) { showMsg('resumeMsg', 'Resume must be under 5 MB.'); return; }
+  $('resumeSlot').innerHTML = '<div class="empty"><span class="spinner"></span> Uploading and reading your resume…</div>';
+
+  let text = null;
+  if (ext === 'pdf') {
+    try { text = await pdfToText(f); } catch (e) { console.warn('PDF text extraction failed', e); }
+  }
+  const path = `${user.id}/resume.${ext}`;
+  const type = f.type || { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }[ext];
+  const up = await FJ.sb.storage.from('resumes').upload(path, f, { contentType: type, upsert: true });
+  if (up.error) { showMsg('resumeMsg', "Couldn't upload your resume. Please try again."); console.error(up.error); renderResume(); return; }
+  if (profile.resume_path && profile.resume_path !== path) FJ.sb.storage.from('resumes').remove([profile.resume_path]);
+
+  const { data, error } = await FJ.sb.from('profiles').update({
+    resume_path: path, resume_name: f.name.slice(0, 200), resume_text: text || null, resume_updated_at: new Date().toISOString()
+  }).eq('id', user.id).select().single();
+  if (error) { showMsg('resumeMsg', "Uploaded, but couldn't save it to your profile. Please try again."); renderResume(); return; }
+  profile = data; renderResume(); renderHero();
+  toast(text ? 'Resume uploaded. The AI can read it now.' : 'Resume uploaded.');
+}
+
+async function viewResume() {
+  const { data, error } = await FJ.sb.storage.from('resumes').createSignedUrl(profile.resume_path, 120);
+  if (error) { toast("Couldn't open the file."); return; }
+  window.open(data.signedUrl, '_blank', 'noopener');
+}
+
+async function removeResume() {
+  if (!confirm('Remove your resume from Fortune Jobs AI?')) return;
+  await FJ.sb.storage.from('resumes').remove([profile.resume_path]);
+  const { data, error } = await FJ.sb.from('profiles').update({ resume_path: null, resume_name: null, resume_text: null, resume_updated_at: null })
+    .eq('id', user.id).select().single();
+  if (error) { toast("Couldn't remove it. Please try again."); return; }
+  profile = data; renderResume(); renderHero(); toast('Resume removed');
+}
+
+/* ── SAVED JOBS ───────────────────────── */
+async function loadSaved() {
+  const { data, error } = await FJ.sb.from('saved_jobs').select('*').order('created_at', { ascending: false }).limit(100);
+  const slot = $('savedSlot');
+  if (error) { slot.innerHTML = '<p class="empty">Couldn\'t load saved jobs.</p>'; return; }
+  $('savedCount').textContent = data.length;
+  if (!data.length) { slot.innerHTML = '<p class="empty">No saved jobs yet. Tap <b>🔖 Save</b> on any job card to keep it here.</p>'; return; }
+  slot.innerHTML = '<div class="jobs">' + data.map(j => {
+    const url = j.apply_url && /^https?:\/\//.test(j.apply_url) ? j.apply_url : '';
+    return `<div class="sjob" data-id="${j.id}">
+      <div class="top"><span class="logo-l">${esc((j.company || '?')[0].toUpperCase())}</span>
+        <div><div class="ttl">${esc(j.job_title)}</div><div class="co">${esc(j.company || '')}</div></div></div>
+      <div class="meta">📍 ${esc(j.location || 'Location not listed')}</div>
+      <div class="meta">${esc(j.salary || 'Salary not listed')} · saved ${timeAgo(j.created_at)}</div>
+      <div class="acts"><button class="btn btn-danger btn-sm" type="button" onclick="unsave(${j.id})">Remove</button>
+        ${url ? `<a class="btn btn-dark btn-sm" href="${esc(url)}" target="_blank" rel="noopener">Apply →</a>` : ''}</div>
+    </div>`;
+  }).join('') + '</div>';
+}
+async function unsave(id) {
+  const { error } = await FJ.sb.from('saved_jobs').delete().eq('id', id);
+  if (error) { toast("Couldn't remove it."); return; }
+  loadSaved(); toast('Removed from saved jobs');
+}
+
+/* ── HISTORY ──────────────────────────── */
+async function loadHistory() {
+  const { data, error } = await FJ.sb.from('search_history').select('*').order('created_at', { ascending: false }).limit(25);
+  const slot = $('historySlot');
+  if (error) { slot.innerHTML = '<p class="empty">Couldn\'t load your history.</p>'; return; }
+  $('historyCount').textContent = data.length;
+  $('clearHistoryBtn').hidden = !data.length;
+  if (!data.length) { slot.innerHTML = '<p class="empty">No searches yet. Your searches will show up here.</p>'; return; }
+  slot.innerHTML = '<ul class="hist">' + data.map(h => `
+    <li>
+      <span class="mode-tag ${h.mode === 'live' ? 'live' : 'quick'}">${h.mode === 'live' ? '🔴 Live' : '⚡ Quick'}</span>
+      <div class="grow"><div class="q">${esc(h.query)}</div>${filterText(h.filters) ? `<div class="f">${esc(filterText(h.filters))}</div>` : ''}</div>
+      <span class="when">${timeAgo(h.created_at)}</span>
+      <a class="btn btn-outline btn-sm" href="${esc(searchUrl(h.query, h.mode, h.filters))}">Search again</a>
+    </li>`).join('') + '</ul>';
+}
+async function clearHistory() {
+  if (!confirm('Clear your whole search history?')) return;
+  const { error } = await FJ.sb.from('search_history').delete().eq('user_id', user.id);
+  if (error) { toast("Couldn't clear history."); return; }
+  loadHistory(); toast('History cleared');
+}
+
+/* ── SAVED FILTERS & ALERTS ───────────── */
+function renderFiltersAndAlerts() {
+  const t = filterText(profile.saved_filters);
+  $('savedFiltersText').textContent = t || 'None yet. Run a search with filters and they\'ll be saved here.';
+  $('clearFiltersBtn').hidden = !t;
+  $('alertsToggle').checked = !!profile.email_alerts;
+  $('alertFreq').value = profile.alert_frequency || 'weekly';
+  $('freqField').style.display = profile.email_alerts ? '' : 'none';
+  $('alertsHint').textContent = profile.email_alerts
+    ? `We'll email ${user.email} about new matches.`
+    : 'Alerts use your profile, title and saved filters.';
+}
+async function clearSavedFilters() {
+  const { data, error } = await FJ.sb.from('profiles').update({ saved_filters: null }).eq('id', user.id).select().single();
+  if (error) { toast("Couldn't clear filters."); return; }
+  profile = data; renderFiltersAndAlerts(); toast('Saved filters cleared');
+}
+async function saveAlerts() {
+  const { data, error } = await FJ.sb.from('profiles')
+    .update({ email_alerts: $('alertsToggle').checked, alert_frequency: $('alertFreq').value })
+    .eq('id', user.id).select().single();
+  if (error) { toast("Couldn't save alert settings."); return; }
+  profile = data; renderFiltersAndAlerts(); toast(profile.email_alerts ? 'Email alerts on' : 'Email alerts off');
+}
+$('alertsToggle').addEventListener('change', saveAlerts);
+$('alertFreq').addEventListener('change', saveAlerts);
+
+/* ── SUGGESTIONS for title & skills (from job-titles.js) ── */
+function fillDatalists() {
+  const s = window.JOB_SUGGESTIONS;
+  if (!s) return;
+  $('titleOptions').innerHTML = s.titles.filter(t => !/^(Senior|Junior|Lead) /.test(t)).map(t => `<option value="${esc(t)}">`).join('');
+  $('skillOptions').innerHTML = s.skills.map(t => `<option value="${esc(t)}">`).join('');
+}
+
+/* ── START ────────────────────────────── */
+(async function init() {
+  if (!window.FJ) { $('pageLoading').textContent = 'Accounts are temporarily unavailable. Please try again later.'; return; }
+  user = await FJ.user();
+  if (!user) { location.replace(FJ.loginUrl('profile.html')); return; }
+  profile = await FJ.profile(user.id);
+  if (!profile) {
+    // safety net: create the row if the sign-up trigger didn't
+    const { data } = await FJ.sb.from('profiles').insert({ id: user.id, email: user.email }).select().single();
+    profile = data || { id: user.id };
+  }
+  $('pageLoading').style.display = 'none'; $('app').hidden = false;
+  renderHero(); fillForm(); renderResume(); renderFiltersAndAlerts();
+  loadSaved(); loadHistory();
+  if (window.JOB_SUGGESTIONS) fillDatalists(); else window.addEventListener('load', fillDatalists);
+  if (new URLSearchParams(location.search).get('welcome')) toast('Welcome to Fortune Jobs AI! Complete your profile to get better matches.');
+  FJ.sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT') location.replace('login.html'); });
+})();
+</script>
+</body>
+</html>

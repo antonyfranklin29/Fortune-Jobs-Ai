@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in · Fortune Jobs AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="account.css">
+<style>
+.auth-wrap{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 64px);}
+.auth-side{background:var(--navy);color:var(--white);padding:64px 56px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;}
+.auth-side::before{content:'';position:absolute;top:-80px;left:-80px;width:520px;height:420px;background:radial-gradient(ellipse,rgba(212,168,67,0.14) 0%,transparent 70%);pointer-events:none;}
+.auth-side h1{font-size:clamp(28px,3.2vw,40px);font-weight:800;letter-spacing:-1px;line-height:1.15;margin-bottom:14px;position:relative;}
+.auth-side h1 span{color:var(--gold);}
+.auth-side p{color:var(--gray-400);font-size:15px;max-width:420px;margin-bottom:28px;position:relative;}
+.perks{list-style:none;display:grid;gap:14px;position:relative;}
+.perks li{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:#E2E8F0;}
+.perks .ic{width:30px;height:30px;border-radius:var(--radius-md);background:rgba(212,168,67,0.12);border:1px solid rgba(212,168,67,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+.perks b{display:block;color:var(--white);font-weight:700;}
+.auth-main{display:flex;align-items:center;justify-content:center;padding:48px 24px;}
+.auth-card{width:100%;max-width:420px;}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--gray-100);border-radius:var(--radius-md);padding:4px;margin-bottom:24px;}
+.tab{border:none;background:none;padding:10px;border-radius:8px;font-size:14px;font-weight:700;color:var(--gray-500);cursor:pointer;}
+.tab.active{background:var(--white);color:var(--navy);box-shadow:var(--shadow-sm);}
+.auth-title{font-size:22px;font-weight:800;letter-spacing:-0.4px;margin-bottom:4px;}
+.auth-sub{font-size:14px;color:var(--gray-500);margin-bottom:22px;}
+.google-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--white);border:1px solid var(--gray-300);border-radius:var(--radius-md);padding:11px;font-size:14px;font-weight:600;color:var(--navy);cursor:pointer;transition:border-color 0.15s;}
+.google-btn:hover:not(:disabled){border-color:var(--gray-500);}
+.google-btn:disabled{opacity:0.55;cursor:default;}
+.google-note{font-size:12px;color:var(--gray-500);text-align:center;margin-top:6px;display:none;}
+.divider{display:flex;align-items:center;gap:12px;color:var(--gray-400);font-size:12px;font-weight:600;margin:20px 0;text-transform:uppercase;letter-spacing:0.05em;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--gray-200);}
+.pw-wrap{position:relative;}
+.pw-wrap .input{padding-right:64px;}
+.pw-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;font-size:12px;font-weight:700;color:var(--gray-500);cursor:pointer;padding:6px 8px;}
+.row-between{display:flex;justify-content:space-between;align-items:center;margin:-4px 0 18px;}
+.link-btn{border:none;background:none;color:var(--navy-3);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;}
+.link-btn:hover{color:var(--navy);}
+.fine{font-size:12px;color:var(--gray-500);text-align:center;margin-top:18px;}
+@media(max-width:860px){
+  .auth-wrap{grid-template-columns:1fr;}
+  .auth-side{display:none;}
+  .auth-main{padding:32px 16px;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="index.html" class="logo">
+    <span class="logo-icon"><svg width="20" height="20" viewBox="0 0 22 22" fill="none"><path d="M3 14 L7 8 L11 14 L15 9 L19 15" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="8" r="2" fill="#0F172A"/><circle cx="15" cy="9" r="2" fill="#0F172A"/><circle cx="19" cy="15" r="2" fill="#0F172A"/></svg></span>
+    <span class="logo-text">Fortune Jobs AI</span>
+  </a>
+  <a href="index.html" class="nav-link">← Back to job search</a>
+</nav>
+
+<div class="auth-wrap">
+  <aside class="auth-side">
+    <h1>Your job search,<br><span>remembered.</span></h1>
+    <p>Create a free Fortune Jobs AI profile and let the AI match jobs to your real background.</p>
+    <ul class="perks">
+      <li><span class="ic">📄</span><span><b>Upload your resume</b>AI ranks jobs against your actual experience.</span></li>
+      <li><span class="ic">🔖</span><span><b>Save jobs</b>Keep a shortlist and apply when you're ready.</span></li>
+      <li><span class="ic">🕘</span><span><b>Search history & saved filters</b>Pick up right where you left off.</span></li>
+      <li><span class="ic">🔔</span><span><b>Email alerts</b>Get told when new matching jobs appear.</span></li>
+    </ul>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-card">
+      <div class="tabs" role="tablist" data-show="signin signup">
+        <button class="tab" id="tabSignin" role="tab" type="button" onclick="setMode('signin')">Sign in</button>
+        <button class="tab" id="tabSignup" role="tab" type="button" onclick="setMode('signup')">Create account</button>
+      </div>
+
+      <h2 class="auth-title" id="authTitle">Welcome back</h2>
+      <p class="auth-sub" id="authSub">Sign in to see your profile, saved jobs and history.</p>
+
+      <div class="msg" id="msg" role="alert"></div>
+
+      <div data-show="signin signup">
+        <button class="google-btn" id="googleBtn" type="button" onclick="signInWithGoogle()">
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+          Continue with Google
+        </button>
+        <div class="google-note" id="googleNote">Google sign-in is coming soon. Use email for now.</div>
+        <div class="divider">or with email</div>
+      </div>
+
+      <form id="authForm" novalidate>
+        <div class="field" data-show="signup">
+          <label for="fullName">Full name</label>
+          <input class="input" id="fullName" type="text" autocomplete="name" maxlength="120" placeholder="Jane Doe">
+        </div>
+        <div class="field" data-show="signin signup forgot">
+          <label for="email">Email</label>
+          <input class="input" id="email" type="email" autocomplete="email" placeholder="you@example.com">
+        </div>
+        <div class="field" data-show="signin signup reset">
+          <label for="password" id="passwordLabel">Password</label>
+          <div class="pw-wrap">
+            <input class="input" id="password" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters">
+            <button type="button" class="pw-toggle" onclick="togglePw()" id="pwToggle" aria-label="Show password">Show</button>
+          </div>
+        </div>
+        <div class="row-between" data-show="signin">
+          <span></span>
+          <button type="button" class="link-btn" onclick="setMode('forgot')">Forgot password?</button>
+        </div>
+        <button class="btn btn-primary btn-block" id="submitBtn" type="submit">Sign in</button>
+      </form>
+
+      <p class="fine" data-show="forgot reset"><button type="button" class="link-btn" onclick="setMode('signin')">← Back to sign in</button></p>
+      <p class="fine" data-show="signup">By creating an account you agree to let Fortune Jobs AI store your profile so it can match jobs for you.</p>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>
+const MODES = {
+  signin: { title: 'Welcome back', sub: 'Sign in to see your profile, saved jobs and history.', btn: 'Sign in', pwLabel: 'Password', pwAuto: 'current-password' },
+  signup: { title: 'Create your free account', sub: 'It takes 30 seconds. No credit card.', btn: 'Create account', pwLabel: 'Password', pwAuto: 'new-password' },
+  forgot: { title: 'Reset your password', sub: "Enter your email and we'll send you a reset link.", btn: 'Send reset link' },
+  reset:  { title: 'Choose a new password', sub: 'Pick something at least 8 characters long.', btn: 'Save new password', pwLabel: 'New password', pwAuto: 'new-password' }
+};
+let mode = 'signin';
+const $ = id => document.getElementById(id);
+
+// Only allow returning to our own pages (blocks redirects to other sites)
+function nextPage(fallback) {
+  const n = new URLSearchParams(location.search).get('next') || '';
+  return /^[a-z0-9_-]+\.html([?#][^\s]*)?$/i.test(n) ? n : fallback;
+}
+
+function setMode(m) {
+  mode = m;
+  const c = MODES[m];
+  document.querySelectorAll('[data-show]').forEach(el => {
+    el.style.display = el.dataset.show.split(' ').includes(m) ? '' : 'none';
+  });
+  $('tabSignin').classList.toggle('active', m === 'signin');
+  $('tabSignup').classList.toggle('active', m === 'signup');
+  $('authTitle').textContent = c.title;
+  $('authSub').textContent = c.sub;
+  $('submitBtn').textContent = c.btn;
+  if (c.pwLabel) { $('passwordLabel').textContent = c.pwLabel; $('password').autocomplete = c.pwAuto; }
+  hideMsg();
+}
+
+function showMsg(text, kind) { const m = $('msg'); m.textContent = text; m.className = `msg show ${kind || 'error'}`; }
+function hideMsg() { $('msg').className = 'msg'; }
+function busy(on) { $('submitBtn').disabled = on; if (on) $('submitBtn').innerHTML = '<span class="spinner"></span>'; else $('submitBtn').textContent = MODES[mode].btn; }
+
+function togglePw() {
+  const p = $('password'); const show = p.type === 'password';
+  p.type = show ? 'text' : 'password';
+  $('pwToggle').textContent = show ? 'Hide' : 'Show';
+  $('pwToggle').setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+}
+
+function friendly(err) {
+  const m = (err && err.message) || String(err || '');
+  if (/invalid login credentials/i.test(m)) return 'Wrong email or password.';
+  if (/email not confirmed/i.test(m)) return 'Please confirm your email first. Check your inbox for the link we sent.';
+  if (/already registered|already been registered/i.test(m)) return 'An account with this email already exists. Sign in instead.';
+  if (/rate limit|too many/i.test(m)) return 'Too many attempts. Please wait a few minutes and try again.';
+  if (/password should be at least|weak password/i.test(m)) return 'Please choose a stronger password (at least 8 characters).';
+  if (/failed to fetch|network/i.test(m)) return "Can't reach the server. Check your connection and try again.";
+  return m || 'Something went wrong. Please try again.';
+}
+
+$('authForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!window.FJ) { showMsg('Accounts are temporarily unavailable. Please try again later.'); return; }
+  const email = $('email').value.trim();
+  const password = $('password').value;
+  if (mode !== 'reset' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showMsg('Please enter a valid email address.'); $('email').focus(); return; }
+  if ((mode === 'signup' || mode === 'reset') && password.length < 8) { showMsg('Password must be at least 8 characters.'); $('password').focus(); return; }
+  if (mode === 'signin' && !password) { showMsg('Please enter your password.'); $('password').focus(); return; }
+
+  busy(true);
+  try {
+    if (mode === 'signin') {
+      const { error } = await FJ.sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      location.href = nextPage('index.html');
+    } else if (mode === 'signup') {
+      const full_name = $('fullName').value.trim().slice(0, 120);
+      const { data, error } = await FJ.sb.auth.signUp({
+        email, password,
+        options: { data: { full_name }, emailRedirectTo: FJ.baseUrl() + 'profile.html' }
+      });
+      if (error) throw error;
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        throw new Error('already registered');
+      }
+      if (data.session) { location.href = 'profile.html?welcome=1'; return; }
+      setMode('signin');
+      $('email').value = email;
+      showMsg(`Almost done! We sent a confirmation link to ${email}. Click it, then sign in here.`, 'ok');
+    } else if (mode === 'forgot') {
+      const { error } = await FJ.sb.auth.resetPasswordForEmail(email, { redirectTo: FJ.baseUrl() + 'login.html?mode=reset' });
+      if (error) throw error;
+      showMsg(`If an account exists for ${email}, a reset link is on its way. Check your inbox.`, 'ok');
+    } else if (mode === 'reset') {
+      const { error } = await FJ.sb.auth.updateUser({ password });
+      if (error) throw error;
+      showMsg('Password updated. Taking you to your profile…', 'ok');
+      setTimeout(() => { location.href = 'profile.html'; }, 1200);
+    }
+  } catch (err) {
+    showMsg(friendly(err));
+  } finally {
+    busy(false);
+  }
+});
+
+async function signInWithGoogle() {
+  if (!window.FJ) return;
+  const { error } = await FJ.sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: FJ.baseUrl() + nextPage('index.html') }
+  });
+  if (error) showMsg(friendly(error));
+}
+
+// Grey out the Google button until it's switched on in Supabase
+async function checkGoogle() {
+  try {
+    const r = await fetch(`${FJ_CONFIG.url}/auth/v1/settings`, { headers: { apikey: FJ_CONFIG.key } });
+    const s = await r.json();
+    if (!(s.external && s.external.google)) { $('googleBtn').disabled = true; $('googleNote').style.display = 'block'; }
+  } catch (e) { /* leave enabled; Supabase will explain any problem */ }
+}
+
+(async function init() {
+  const params = new URLSearchParams(location.search);
+  setMode(['signup', 'forgot', 'reset'].includes(params.get('mode')) ? params.get('mode') : 'signin');
+  if (!window.FJ) { showMsg('Accounts are temporarily unavailable. Please try again later.'); return; }
+  checkGoogle();
+
+  // Arrived from a password-reset email
+  FJ.sb.auth.onAuthStateChange(event => { if (event === 'PASSWORD_RECOVERY') setMode('reset'); });
+
+  const user = await FJ.user();
+  if (user && mode !== 'reset') location.replace(nextPage('profile.html'));
+})();
+</script>
+</body>
+</html>

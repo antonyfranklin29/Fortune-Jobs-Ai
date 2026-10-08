@@ -32,6 +32,20 @@ nav{background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);-webkit-backdro
 .nav-links a:hover{color:var(--navy);background:var(--gray-100);}
 .nav-cta{background:var(--navy);color:var(--white);border:none;padding:9px 20px;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);letter-spacing:-0.2px;transition:all 0.15s;}
 .nav-cta:hover{background:var(--navy-3);}
+.nav-account{display:flex;align-items:center;gap:6px;}
+a.nav-cta{text-decoration:none;display:inline-block;}
+.nav-login{text-decoration:none;color:var(--navy);font-size:14px;font-weight:600;padding:9px 14px;border-radius:var(--radius-md);}
+.nav-login:hover{background:var(--gray-100);}
+.nav-user{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--navy);font-size:14px;font-weight:600;padding:4px 12px 4px 4px;border:1px solid var(--gray-200);border-radius:40px;transition:border-color 0.15s;}
+.nav-user:hover{border-color:var(--gray-400);}
+.nav-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--gold-pale);color:var(--gold);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;}
+.save-btn{display:inline-flex;align-items:center;gap:5px;background:var(--white);border:1px solid var(--gray-300);color:var(--navy);padding:8px 12px;border-radius:var(--radius-md);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all 0.15s;}
+.save-btn:hover{border-color:var(--gray-500);}
+.save-btn.saved{background:var(--gold-pale);border-color:rgba(212,168,67,0.55);color:#7A5B12;}
+.job-actions{display:flex;align-items:center;gap:8px;}
+.site-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:var(--white);padding:12px 18px;border-radius:var(--radius-md);font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:all 0.25s;z-index:2000;max-width:calc(100% - 32px);}
+.site-toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+.site-toast a{color:var(--gold-light);}
 
 /* ── HERO ── */
 .hero{background:var(--navy);padding:88px 64px 80px;text-align:center;position:relative;overflow:hidden;overflow:clip visible;z-index:2;}
@@ -294,8 +308,12 @@ footer{padding:40px 20px 24px;}
     <li><a href="#">How It Works</a></li>
     <li><a href="#">About</a></li>
   </ul>
-  <button class="nav-cta" onclick="document.getElementById('jobSearchInput').focus()">Get Started Free</button>
+  <div class="nav-account" id="navAccount">
+    <a href="login.html" class="nav-login">Log in</a>
+    <a href="login.html?mode=signup" class="nav-cta">Sign up free</a>
+  </div>
 </nav>
+<div class="site-toast" id="siteToast" role="status"></div>
 
 <!-- HERO -->
 <section class="hero">
@@ -417,12 +435,12 @@ footer{padding:40px 20px 24px;}
     </div>
   </div>
   <div class="hero-actions">
-    <button class="upload-btn" onclick="document.getElementById('resumeInput').click()">
+    <button class="upload-btn" onclick="goUploadResume()">
       <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 5l4-4 4 4M2 12h12v2H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Upload Resume (PDF)
     </button>
     <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" style="display:none" onchange="handleResumeUpload(this)"/>
-    <span class="hero-note">Free to use · No sign up · Real jobs</span>
+    <span class="hero-note">Free to use · Real jobs · <a href="login.html?mode=signup" style="color:var(--gold-light)">Free account</a> saves your jobs</span>
   </div>
 </section>
 
@@ -532,6 +550,9 @@ footer{padding:40px 20px 24px;}
 </footer>
 
 <script src="job-titles.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
 <script>
 // ═══════════════════════════════════════
 // WEBHOOK URLs — one per mode
@@ -783,9 +804,11 @@ function showJobCards(allJobs, search, mode) {
   }
 
   section.classList.add('active');
-  document.getElementById('jobsGrid').innerHTML = jobs.map(job => {
+  shownJobs = jobs;
+  document.getElementById('jobsGrid').innerHTML = jobs.map((job, i) => {
     const letter = (job.company && job.company.length > 0) ? job.company[0].toUpperCase() : '?';
-    const applyUrl = (job.apply_url && job.apply_url.startsWith('http')) ? job.apply_url : '#';
+    const applyUrl = (job.apply_url && /^https?:\/\//.test(job.apply_url)) ? job.apply_url.replace(/"/g, '%22') : '#';
+    const isSaved = window.FJ && acct.savedKeys.has(FJ.jobKey(job));
     const score = job.match_score || '90';
     return `
       <div class="job-card">
@@ -799,7 +822,10 @@ function showJobCards(allJobs, search, mode) {
         ${job.match_reason ? `<div class="job-reason">💡 ${safe(job.match_reason)}</div>` : ''}
         <div class="job-footer">
           <div class="job-salary">${safe(job.salary || 'Salary not listed')}</div>
-          <a href="${applyUrl}" class="apply-btn" target="_blank" rel="noopener">Apply Now →</a>
+          <div class="job-actions">
+            <button type="button" class="save-btn${isSaved ? ' saved' : ''}" data-i="${i}" aria-pressed="${isSaved}" onclick="toggleSaveJob(${i}, this)">${isSaved ? '🔖 Saved' : '🔖 Save'}</button>
+            <a href="${applyUrl}" class="apply-btn" target="_blank" rel="noopener">Apply Now →</a>
+          </div>
         </div>
       </div>`;
   }).join('') + (showLocked ? lockedSectionHtml() : '');
@@ -871,11 +897,12 @@ async function handleSearch() {
   const webhookUrl = mode === 'live' ? WEBHOOK_URL_LIVE : WEBHOOK_URL_QUICK;
   const filters = getFilters();
   currentFilterSummary = filterSummary(filters);
+  rememberSearch(input, mode, filters);                // history + saved filters (signed-in only)
   try {
     await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: input, mode: mode, results_limit: FREE_RESULTS, ...filters }),
+      body: JSON.stringify({ text: input, mode: mode, results_limit: FREE_RESULTS, ...filters, ...accountPayload() }),
       mode: 'no-cors'
     });
   } catch(e) { /* no-cors expected */ }
@@ -1315,6 +1342,144 @@ function handleResumeUpload(input) {
     handleSearch();
   }
 }
+
+// ═══════════════════════════════════════
+// ACCOUNTS — profile, saved jobs, history, saved filters
+// ═══════════════════════════════════════
+const acct = { user: null, profile: null, savedKeys: new Set() };
+let shownJobs = [];
+
+function siteToast(html, ms) {
+  const t = document.getElementById('siteToast');
+  t.innerHTML = html; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), ms || 2800);
+}
+
+function renderNavAccount() {
+  const box = document.getElementById('navAccount');
+  if (!acct.user) return;
+  const first = ((acct.profile && acct.profile.full_name) || acct.user.email.split('@')[0]).split(' ')[0];
+  box.innerHTML = `<a href="profile.html" class="nav-user" title="My profile">${FJ.avatarHtml(acct.profile, acct.user, 'nav-avatar')}<span>${FJ.esc(first)}</span></a>`;
+}
+
+async function loadSavedKeys() {
+  const { data } = await FJ.sb.from('saved_jobs').select('job_key');
+  acct.savedKeys = new Set((data || []).map(r => r.job_key));
+  // refresh any cards already on screen
+  document.querySelectorAll('.save-btn').forEach(b => {
+    const j = shownJobs[+b.dataset.i]; if (!j) return;
+    const on = acct.savedKeys.has(FJ.jobKey(j));
+    b.classList.toggle('saved', on); b.setAttribute('aria-pressed', on); b.textContent = on ? '🔖 Saved' : '🔖 Save';
+  });
+}
+
+async function toggleSaveJob(i, btn) {
+  const job = shownJobs[i];
+  if (!job) return;
+  if (!window.FJ || !acct.user) {
+    siteToast('<a href="login.html?mode=signup&next=index.html">Create a free account</a> to save jobs.', 4500);
+    return;
+  }
+  const key = FJ.jobKey(job);
+  btn.disabled = true;
+  if (acct.savedKeys.has(key)) {
+    const { error } = await FJ.sb.from('saved_jobs').delete().eq('job_key', key);
+    if (!error) { acct.savedKeys.delete(key); siteToast('Removed from saved jobs'); }
+    else siteToast("Couldn't remove it. Please try again.");
+  } else {
+    const row = { job_key: key };
+    ['job_title','company','location','salary','apply_url','match_reason','match_score'].forEach(k => {
+      if (job[k] != null) row[k] = String(job[k]).slice(0, k === 'apply_url' ? 2000 : k === 'match_reason' ? 2000 : 300);
+    });
+    if (row.match_score) row.match_score = row.match_score.slice(0, 10);
+    const { error } = await FJ.sb.from('saved_jobs').insert(row);
+    if (!error || /duplicate/i.test(error.message || '')) { acct.savedKeys.add(key); siteToast('Saved · <a href="profile.html#saved">View saved jobs</a>'); }
+    else siteToast("Couldn't save it. Please try again.");
+  }
+  btn.disabled = false;
+  const on = acct.savedKeys.has(key);
+  btn.classList.toggle('saved', on); btn.setAttribute('aria-pressed', on); btn.textContent = on ? '🔖 Saved' : '🔖 Save';
+}
+
+// Filters worth remembering (drops empty values)
+function filtersToSave(f) {
+  const keep = {};
+  ['location','city','region','latitude','longitude','country','country_name','date_posted','experience','job_type','work_mode','company']
+    .forEach(k => { if (f[k] !== '' && f[k] != null) keep[k] = f[k]; });
+  return Object.keys(keep).length ? keep : null;
+}
+
+function rememberSearch(query, mode, filters) {
+  if (!window.FJ || !acct.user) return;
+  const saved = filtersToSave(filters);
+  FJ.sb.from('search_history').insert({ query: query.slice(0, 200), mode, filters: saved }).then(({ error }) => { if (error) console.warn('history', error); });
+  FJ.sb.from('profiles').update({ saved_filters: saved }).eq('id', acct.user.id).then(({ error }) => {
+    if (error) console.warn('saved filters', error); else if (acct.profile) acct.profile.saved_filters = saved;
+  });
+}
+
+// What the AI pipeline gets about a signed-in person (nothing for guests)
+function accountPayload() {
+  if (!acct.user || !acct.profile) return {};
+  const p = acct.profile;
+  return {
+    user_id: acct.user.id,
+    profile: {
+      name: p.full_name || '', current_title: p.current_title || '', years_experience: p.years_experience,
+      skills: p.skills || [], preferred_locations: p.preferred_locations || [], job_types: p.job_types || []
+    },
+    resume_text: (p.resume_text || '').slice(0, 6000)
+  };
+}
+
+function applyFilters(f) {
+  if (!f) return;
+  const setSel = (id, v) => { const s = document.getElementById(id); if (v && [...s.options].some(o => o.value === String(v))) s.value = String(v); };
+  if (f.location) document.getElementById('locationInput').value = f.location;
+  setSel('filterCountry', f.country); setSel('filterDate', f.date_posted); setSel('filterExperience', f.experience);
+  setSel('filterJobType', f.job_type); setSel('filterWorkMode', f.work_mode);
+  if (f.company) document.getElementById('filterCompany').value = f.company;
+  selectedCity = (f.city && f.latitude != null)
+    ? { label: f.location, name: f.city, region: f.region || '', country_code: f.country || '', lat: f.latitude, lng: f.longitude }
+    : null;
+  refreshFilterUI();
+}
+
+function goUploadResume() {
+  location.href = acct.user ? 'profile.html#resume' : 'login.html?mode=signup&next=profile.html%23resume';
+}
+
+// "Search again" links from the profile page: index.html?q=...&mode=...&location=...
+function runSearchFromUrl() {
+  const p = new URLSearchParams(location.search);
+  const q = (p.get('q') || '').trim();
+  if (!q) return false;
+  document.getElementById('jobSearchInput').value = q.slice(0, 200);
+  setMode(p.get('mode') === 'live' ? 'live' : 'quick');
+  const f = {};
+  ['location','country','date_posted','experience','job_type','work_mode','company'].forEach(k => { if (p.get(k)) f[k] = p.get(k).slice(0, 200); });
+  applyFilters(f);
+  history.replaceState(null, '', location.pathname);   // don't re-run on refresh
+  return true;
+}
+
+(async function initAccount() {
+  const fromUrl = runSearchFromUrl();                  // fills the form; search starts once the account is loaded
+  try {
+    if (window.FJ) {
+      acct.user = await FJ.user();
+      if (acct.user) {
+        acct.profile = await FJ.profile(acct.user.id);
+        renderNavAccount();
+        loadSavedKeys();
+        if (!fromUrl && acct.profile && acct.profile.saved_filters) applyFilters(acct.profile.saved_filters);
+        FJ.sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT') location.reload(); });
+      }
+    }
+  } finally {
+    if (fromUrl) handleSearch();
+  }
+})();
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && (document.activeElement.id === 'jobSearchInput' || document.activeElement.id === 'locationInput')) handleSearch();
