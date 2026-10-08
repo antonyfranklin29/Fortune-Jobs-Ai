@@ -945,7 +945,7 @@ function showJobCards(allJobs, search, mode) {
   const showLocked = jobs.length >= FREE_RESULTS;
   document.getElementById('resultsTitle').textContent = `Best Matches for "${search}"`;
   document.getElementById('resultsCount').textContent =
-    `${jobs.length} AI-matched job${jobs.length > 1 ? 's' : ''} from Indeed · Just now`
+    `${jobs.length} matched job${jobs.length > 1 ? 's' : ''} · ${mode === 'live' ? 'scraped from Indeed just now' : 'from our saved listings'}`
     + (currentFilterSummary ? ` · ${currentFilterSummary}` : '');
   const badge = document.getElementById('resultsModeBadge');
   if (mode === 'live') {
