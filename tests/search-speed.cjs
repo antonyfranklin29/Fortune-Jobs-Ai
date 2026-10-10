@@ -15,7 +15,8 @@ function harness(fetch) {
   const context = vm.createContext({
     fetch, AbortController, console,
     SUPABASE_KEY: 'test', SUPABASE_URL: 'https://test.invalid',
-    FREE_RESULTS: 10, SEARCH_REQUEST_TIMEOUT_MS: 10000, POLL_INTERVAL_MS: 3000, MAX_WAIT_MS: 300000,
+    FREE_RESULTS: 10, SEARCH_REQUEST_TIMEOUT_MS: 10000, POLL_INTERVAL_MS: 3000, MAX_WAIT_MS: 150000,
+    LIVE_SEARCH_PAUSED: false,
     QUICK_CANDIDATE_LIMIT: 300, STOPWORDS: new Set(),
     searchGeneration: 1, pollInFlight: false, activePollFn: null, activeAbortCtrl: null,
     pollingTimer: null, timeoutTimer: null, initialWaitTimer: null,
@@ -170,4 +171,23 @@ test('repeated rendering failures stop live polling with an actionable error', a
   await h.tick(3000); await h.flush();
   assert.equal(h.context.errors.length, 1);
   assert.equal(h.context.activePollFn, null);
+});
+
+test('provider maintenance returns immediately without starting paid or queued work', async () => {
+  let calls = 0;
+  const h = harness(async () => { calls++; });
+  Object.assign(h.context, {
+    currentMode: 'live', LIVE_SEARCH_PAUSED: true,
+    closeTitleList() {}, closeCityList() {},
+  });
+  h.context.document.getElementById('jobSearchInput').value = 'engineer';
+  const section = h.context.document.getElementById('resultsSection');
+  section.classList.remove = () => {};
+  section.scrollIntoView = () => {};
+  vm.runInContext(source('handleSearch'), h.context);
+  await h.context.handleSearch();
+  assert.equal(calls, 0);
+  assert.equal(h.timers.size, 0);
+  assert.match(h.context.errors[0], /Quick Match is available/);
+  assert.match(h.context.document.getElementById('jobsGrid').innerHTML, /Try Quick Match/);
 });

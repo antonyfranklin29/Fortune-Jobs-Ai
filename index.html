@@ -578,7 +578,9 @@ function setMode(mode) {
   if (mode === 'quick') {
     document.getElementById('modeDesc').innerHTML = '<span>⚡ Quick Match</span> — instant results from pre-scraped jobs (fastest)';
   } else {
-    document.getElementById('modeDesc').innerHTML = '<span>🔴 Live Search</span> — scrapes Indeed right now for the freshest listings (results appear as they arrive)';
+    document.getElementById('modeDesc').innerHTML = LIVE_SEARCH_PAUSED
+      ? '<span>🔴 Live Search</span> — temporarily unavailable. Quick Match is available.'
+      : '<span>🔴 Live Search</span> — scrapes Indeed right now for the freshest listings (results appear as they arrive)';
   }
 }
 
@@ -588,6 +590,8 @@ function setMode(mode) {
 const POLL_INTERVAL_MS   = 3000;  // Check promptly while the live source is working.
 const SEARCH_REQUEST_TIMEOUT_MS = 10000;
 const MAX_WAIT_MS        = 150000;
+// Temporary incident switch: restore after Make credits and a live test pass.
+const LIVE_SEARCH_PAUSED = true;
 const CLOCK_SKEW_MS      = 5000;
 const FREE_RESULTS = 10;        // free job cards per search (Quick + Live)
 const LOCKED_PREVIEW_CARDS = 3; // blurred placeholder cards shown after the free results
@@ -1045,6 +1049,16 @@ async function handleSearch() {
 
   document.getElementById('jobsGrid').innerHTML = '';
   document.getElementById('resultsSection').classList.remove('active');
+
+  if (mode === 'live' && LIVE_SEARCH_PAUSED) {
+    showSearchError('Live Search is temporarily unavailable. Quick Match is available.');
+    const badge = document.getElementById('resultsModeBadge');
+    badge.className = 'results-mode-badge live';
+    badge.textContent = '🔴 Live Search';
+    document.getElementById('jobsGrid').innerHTML = '<div class="empty-state"><h3>Live Search is temporarily unavailable</h3><p>Search our saved job listings with Quick Match, or try Live Search again later.</p><button class="retry-btn" onclick="setMode(\'quick\');handleSearch();">Try Quick Match</button></div>';
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
 
   currentSearch = input;
   const searchStartTime = Date.now();

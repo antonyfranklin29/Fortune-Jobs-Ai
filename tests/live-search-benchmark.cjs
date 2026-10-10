@@ -39,8 +39,12 @@ async function run(c, group) {
 }
 (async()=>{
   const rows=[];
-  for(const c of cases) rows.push(await run(c,'sequential'));
-  rows.push(...await Promise.all(cases.map(c=>run(c,'five simultaneous'))));
+  if(!process.argv.includes('--burst-only')) {
+    for(const c of cases) rows.push(await run(c,'sequential'));
+  }
+  if(!process.argv.includes('--sequential-only')) {
+    rows.push(...await Promise.all(cases.map(c=>run(c,'five simultaneous'))));
+  }
   fs.writeFileSync(path.resolve(process.argv.find(a=>a.endsWith('.json'))||path.join(__dirname,'../../live-search-benchmark.json')),JSON.stringify({timestamp:new Date().toISOString(),scope:'Production webhook through stored results; one machine; five concurrent live searches, not 100.',rows},null,2));
   if(rows.some(r=>r.error||!r.complete||!r.validUrls)) process.exitCode=1;
 })();
