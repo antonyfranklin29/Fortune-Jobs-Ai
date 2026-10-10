@@ -117,9 +117,13 @@ test('three failed live reads stop with an actionable error', async () => {
 });
 test('a slow webhook response does not hold up live result checks', async () => {
   const calls = [];
+  let submission;
   const h = harness(async (url, options) => {
     calls.push(url);
-    if (options.method === 'POST') return new Promise(() => {});
+    if (options.method === 'POST') {
+      submission = options;
+      return new Promise(() => {});
+    }
     return { ok: true, json: async () => Array.from({ length: 10 }, () => row) };
   });
   Object.assign(h.context, {
@@ -134,6 +138,9 @@ test('a slow webhook response does not hold up live result checks', async () => 
   await h.context.handleSearch();
   await h.flush();
   assert.equal(calls.length, 2);
+  assert.equal(submission.mode, 'cors');
+  assert.equal(submission.headers['Content-Type'], 'application/json');
+  assert.equal(JSON.parse(submission.body).search_id, 'new-search');
   assert.equal(h.context.displays.length, 1);
   assert.match(calls[1], /search_id=eq.new-search/);
 });

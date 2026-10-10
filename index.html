@@ -1082,9 +1082,9 @@ async function handleSearch() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: input, mode: mode, search_id: searchId, results_limit: FREE_RESULTS, ...filters, ...accountPayload() }),
-    mode: 'no-cors', signal: webhookController.signal
+    mode: 'cors', signal: webhookController.signal
   }).catch(error => {
-    // An opaque response cannot acknowledge completion; search-id polling is authoritative.
+    // Search-id polling remains authoritative if the acknowledgement is delayed.
     console.warn('Live Search submission could not be confirmed:', error.name);
   }).finally(() => clearTimeout(webhookTimeout));
   startPolling(input, myGeneration, sinceISO, mode, searchId);
