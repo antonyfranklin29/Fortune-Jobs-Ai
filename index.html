@@ -452,7 +452,7 @@ footer{padding:40px 20px 24px;}
   <div class="stat-item"><span class="stat-num">50+</span><div class="stat-label">Job Platforms Scraped</div></div>
   <div class="stat-item"><span class="stat-num">10K+</span><div class="stat-label">Jobs Found Daily</div></div>
   <div class="stat-item"><span class="stat-num">95%</span><div class="stat-label">Match Accuracy</div></div>
-  <div class="stat-item"><span class="stat-num">2 min</span><div class="stat-label">Average Search Time</div></div>
+  <div class="stat-item"><span class="stat-num">2 modes</span><div class="stat-label">Quick Match & Live Search</div></div>
 </div>
 
 <!-- HOW IT WORKS -->
@@ -489,7 +489,7 @@ footer{padding:40px 20px 24px;}
   <p class="section-sub">Stop spending hours scrolling LinkedIn. Let AI do the work.</p>
   <div class="why-grid">
     <div class="why-card"><div class="why-icon">⚡</div><h3>Quick Match Mode</h3><p>Get instant results from our nightly-scraped database of 200+ fresh jobs across 20 categories. No waiting.</p></div>
-    <div class="why-card"><div class="why-icon">🔴</div><h3>Live Search Mode</h3><p>Trigger a real-time scrape of Indeed right now. Takes 2 minutes but gets you the absolute freshest listings.</p></div>
+    <div class="why-card"><div class="why-icon">🔴</div><h3>Live Search Mode</h3><p>Search Indeed for new listings. Results appear as they arrive; timing depends on the job source.</p></div>
     <div class="why-card"><div class="why-icon">🤖</div><h3>Claude AI Matching</h3><p>Claude AI reads your search, understands context, picks your top 5 matches, and explains exactly why each one fits.</p></div>
   </div>
 </section>
@@ -578,25 +578,20 @@ function setMode(mode) {
   if (mode === 'quick') {
     document.getElementById('modeDesc').innerHTML = '<span>⚡ Quick Match</span> — instant results from pre-scraped jobs (fastest)';
   } else {
-    document.getElementById('modeDesc').innerHTML = '<span>🔴 Live Search</span> — scrapes Indeed right now for the freshest listings (~2 min)';
+    document.getElementById('modeDesc').innerHTML = '<span>🔴 Live Search</span> — scrapes Indeed right now for the freshest listings (results appear as they arrive)';
   }
 }
 
 // ═══════════════════════════════════════
 // SETTINGS
 // ═══════════════════════════════════════
-const INITIAL_WAIT_QUICK = 15000;  // Quick: wait 15s before first poll
-const INITIAL_WAIT_LIVE  = 120000; // Live: wait 2 min before first poll
-const POLL_INTERVAL_MS   = 20000;
+const POLL_INTERVAL_MS   = 3000;  // Check promptly while the live source is working.
+const SEARCH_REQUEST_TIMEOUT_MS = 10000;
 const MAX_WAIT_MS        = 300000;
 const CLOCK_SKEW_MS      = 5000;
-const FALLBACK_AFTER_MS  = 100000;
 const FREE_RESULTS = 10;        // free job cards per search (Quick + Live)
-const EXPECTED_JOB_COUNT = FREE_RESULTS; // rows to wait for before showing results
 const LOCKED_PREVIEW_CARDS = 3; // blurred placeholder cards shown after the free results
 const PRO_CHECKOUT_URL = '';    // paste your Stripe/payment link here when ready
-const STABILIZE_DELAY_MS = 5000;
-const STABILIZE_MAX_CHECKS = 3;
 
 // Every search gets its own id. It travels to Make.com, is written onto each
 // job row, and is what we filter on — so two people searching at the same
@@ -630,8 +625,7 @@ function showLoading(mode) {
   document.getElementById('loadingModeBadge').textContent = mode === 'quick' ? '⚡ Quick Match' : '🔴 Live Search';
   document.getElementById('loadingSubtext').textContent = '';
 
-  // Quick Match reads the database directly and comes back in well under a
-  // second, so it gets a simple "searching" line instead of a countdown.
+  // Quick Match reads the database directly; no scraping countdown is needed.
   if (mode === 'quick') {
     document.getElementById('loadingSubtext').textContent = 'Searching saved jobs…';
     const bar = document.getElementById('pollingBarText');
@@ -640,23 +634,8 @@ function showLoading(mode) {
     return;
   }
 
-  const waitMs = INITIAL_WAIT_LIVE;
-
-  let secondsLeft = Math.ceil(waitMs / 1000);
-  const subtextEl = document.getElementById('loadingSubtext');
-  const pollingTextEl = document.getElementById('pollingBarText');
-
-  function updateTimer() {
-    const mins = Math.floor(secondsLeft / 60);
-    const secs = secondsLeft % 60;
-    const timeStr = mins > 0 ? `${mins}:${secs.toString().padStart(2,'0')}` : `${secs}s`;
-    const msg = `Getting jobs for you in (${timeStr}) . . .`;
-    subtextEl.textContent = msg;
-    if (pollingTextEl) pollingTextEl.textContent = msg;
-    if (secondsLeft > 0) secondsLeft--;
-  }
-  updateTimer();
-  loadingIntervalId = setInterval(updateTimer, 1000);
+  document.getElementById('loadingSubtext').textContent = 'Searching live job sources… Results appear as they arrive.';
+  document.getElementById('pollingBarText').textContent = 'Searching live job sources…';
 
   document.getElementById('loadingOverlay').classList.add('active');
 }
@@ -693,33 +672,42 @@ function sanitizeJobRow(row) {
 // ═══════════════════════════════════════
 // FETCH JOBS FROM SUPABASE
 // ═══════════════════════════════════════
-async function fetchJobs(signal, sinceISO, searchId) {
+// Bound each read, including response-body parsing, without losing cancellation.
+async function readSearchRows(url, signal) {
+  const controller = new AbortController();
+  const cancel = () => controller.abort(signal.reason);
+  if (signal?.aborted) cancel();
+  else signal?.addEventListener('abort', cancel, { once: true });
+  let timedOut = false;
+  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, SEARCH_REQUEST_TIMEOUT_MS);
   try {
-    // Prefer an exact search_id match. Until Make.com stamps rows with it we
-    // fall back to "rows created since this search started".
-    const filter = searchId
-      ? `&search_id=eq.${encodeURIComponent(searchId)}`
-      : (sinceISO ? `&created_at=gt.${encodeURIComponent(sinceISO)}` : '');
-    const url = `${SUPABASE_URL}/rest/v1/job_matches`
-      + `?select=job_title,company,location,salary,apply_url,match_reason,match_score,created_at`
-      + `&order=created_at.desc&limit=${FREE_RESULTS}${filter}`;
     const res = await fetch(url, {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Cache-Control': 'no-cache' },
-      cache: 'no-store', signal
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+      cache: 'no-store', signal: controller.signal
     });
-    if (!res.ok) return null;
-    const rows = await res.json();
-    if (!rows || rows.length === 0) return null;
-    const cleaned = rows.map(sanitizeJobRow).filter(r =>
-      r.job_title && r.job_title !== 'No matching jobs found' && r.job_title !== 'N/A' && r.company !== 'N/A'
-    );
-    if (cleaned.length === 0) return null;
-    cleaned.sort((a, b) => (parseInt(b.match_score)||0) - (parseInt(a.match_score)||0));
-    return cleaned;
-  } catch(e) {
-    if (e.name !== 'AbortError') console.error('Supabase error:', e);
-    return null;
+    if (!res.ok) throw new Error('Job search request failed (' + res.status + ')');
+    return await res.json();
+  } catch (error) {
+    if (timedOut) throw new Error('Job search request timed out');
+    throw error;
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener('abort', cancel);
   }
+}
+
+async function fetchJobs(signal, sinceISO, searchId) {
+  // Never substitute another person's results when this search is still running.
+  if (!searchId) return null;
+  const url = `${SUPABASE_URL}/rest/v1/job_matches`
+    + '?select=job_title,company,location,salary,apply_url,match_reason,match_score,created_at'
+    + `&order=created_at.desc&limit=${FREE_RESULTS}&search_id=eq.${encodeURIComponent(searchId)}`;
+  const rows = await readSearchRows(url, signal);
+  const cleaned = rows.map(sanitizeJobRow).filter(r =>
+    r.job_title && r.job_title !== 'No matching jobs found' && r.job_title !== 'N/A' && r.company !== 'N/A'
+  );
+  cleaned.sort((a, b) => (parseInt(b.match_score) || 0) - (parseInt(a.match_score) || 0));
+  return cleaned.length ? cleaned : null;
 }
 
 // ═══════════════════════════════════════
@@ -801,22 +789,8 @@ async function fetchQuickMatches(input, filters, signal) {
   const tokens = queryTokens(input);
   const phrase = input.trim().toLowerCase();
 
-  const run = async relaxed => {
-    const res = await fetch(quickMatchUrl(tokens, filters, relaxed), {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
-      signal
-    });
-    if (!res.ok) return [];
-    return await res.json();
-  };
-
-  // Try with the person's filters; if that leaves too little, widen rather
-  // than show an empty page.
-  let rows = await run(false);
-  if (!rows || rows.length < FREE_RESULTS) {
-    const wider = await run(true);
-    if (wider && wider.length > (rows ? rows.length : 0)) rows = wider;
-  }
+  // A single request respects the selected filters and avoids a second round trip.
+  const rows = await readSearchRows(quickMatchUrl(tokens, filters, false), signal);
   if (!rows || !rows.length) return [];
 
   const seen = new Set();
@@ -848,86 +822,65 @@ function stopPolling() {
   hidePollingBar();
 }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-async function waitForStableResults(initialJobs, sinceISO, generation, searchId) {
-  let jobs = initialJobs;
-  for (let i = 0; i < STABILIZE_MAX_CHECKS; i++) {
-    if (jobs.length >= EXPECTED_JOB_COUNT) return jobs;
-    await sleep(STABILIZE_DELAY_MS);
-    if (generation !== searchGeneration) return null;
-    const recheck = await fetchJobs(activeAbortCtrl ? activeAbortCtrl.signal : undefined, sinceISO, searchId);
-    if (generation !== searchGeneration) return null;
-    if (!recheck || recheck.length <= jobs.length) return jobs;
-    jobs = recheck;
-  }
-  return jobs;
+function showSearchError(message) {
+  hideLoading();
+  document.getElementById('resultsTitle').textContent = 'Search unavailable';
+  document.getElementById('resultsCount').textContent = message;
+  document.getElementById('resultsSection').classList.add('active');
+  shownJobs = [];
+  document.getElementById('jobsGrid').innerHTML = '<div class="empty-state"><h3>Please try again</h3><p>We could not finish this search. Your search settings are still available above.</p></div>';
 }
 
-// ═══════════════════════════════════════
-// START AUTO POLLING
-// ═══════════════════════════════════════
 function startPolling(search, generation, sinceISO, mode, searchId) {
   showPollingBar();
-  const pollingStartedAt = Date.now();
-  let matchedById = false;   // true once rows carrying our search_id come back
-
+  let displayed = false;
+  let lastResults = '';
+  let consecutiveErrors = 0;
+  let inFlight = false;
   const poll = async () => {
-    if (generation !== searchGeneration) return;
-    if (pollInFlight) return;
+    if (generation !== searchGeneration || inFlight) return;
+    inFlight = true;
     pollInFlight = true;
+    const controller = new AbortController();
+    activeAbortCtrl = controller;
     try {
-      activeAbortCtrl = new AbortController();
-
-      // 1. Rows stamped with this search's id — the only results that are
-      //    certainly ours.
-      let jobs = searchId ? await fetchJobs(activeAbortCtrl.signal, sinceISO, searchId) : null;
-      if (generation !== searchGeneration) return;
-      if (jobs && jobs.length > 0) matchedById = true;
-
-      // 2. Nothing stamped yet (Make.com not updated): rows written since this
-      //    search started.
-      if (!jobs && !matchedById) {
-        jobs = await fetchJobs(activeAbortCtrl.signal, sinceISO, null);
-        if (generation !== searchGeneration) return;
-      }
-
-      // 3. Last resort, late in the wait: newest rows, whenever they were made.
-      if (!jobs && !matchedById && Date.now() - pollingStartedAt > FALLBACK_AFTER_MS) {
-        jobs = await fetchJobs(activeAbortCtrl.signal, null, null);
-        if (generation !== searchGeneration) return;
-      }
-      if (jobs && jobs.length > 0) {
-        const stableJobs = await waitForStableResults(jobs, sinceISO, generation, matchedById ? searchId : null);
-        if (generation !== searchGeneration) return;
-        if (stableJobs && stableJobs.length > 0) {
-          stopPolling();
-          showJobCards(stableJobs, search, mode);
-          return;
+      const jobs = await fetchJobs(controller.signal, sinceISO, searchId);
+      if (generation !== searchGeneration || controller.signal.aborted) return;
+      consecutiveErrors = 0;
+      if (jobs?.length) {
+        const signature = JSON.stringify(jobs);
+        if (signature !== lastResults) {
+          showJobCards(jobs, search, mode, !displayed);
+          lastResults = signature;
         }
+        displayed = true;
+        if (jobs.length >= FREE_RESULTS) { stopPolling(); return; }
+        document.getElementById('pollingBarText').textContent = 'Results found — checking for more…';
       }
+    } catch (error) {
+      if (generation !== searchGeneration || controller.signal.aborted) return;
+      if (++consecutiveErrors >= 3) {
+        stopPolling();
+        if (displayed) document.getElementById('resultsCount').textContent += ' · Could not check for more results';
+        else showSearchError('The job source is unavailable. Please try again.');
+        return;
+      }
+    } finally {
+      inFlight = false;
+      if (generation === searchGeneration) pollInFlight = false;
+    }
+    if (generation === searchGeneration && activePollFn === poll) {
       pollingTimer = setTimeout(poll, POLL_INTERVAL_MS);
-    } finally { pollInFlight = false; }
+    }
   };
-
   activePollFn = poll;
-  poll();
-
   timeoutTimer = setTimeout(() => {
     if (generation !== searchGeneration) return;
     stopPolling();
-    document.getElementById('resultsTitle').textContent = 'Search timed out';
-    document.getElementById('resultsCount').textContent = 'Please try searching again';
-    document.getElementById('resultsSection').classList.add('active');
-    document.getElementById('jobsGrid').innerHTML = `
-      <div class="empty-state">
-        <div class="icon">⏱️</div>
-        <h3>Search took too long</h3>
-        <p>Something went wrong. Please try again.</p>
-        <button class="retry-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">Try Again ↑</button>
-      </div>`;
-    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (displayed) document.getElementById('resultsCount').textContent += ' · Live search finished checking';
+    else showSearchError('Live Search did not return results in time. Try Quick Match or retry later.');
   }, MAX_WAIT_MS);
+  poll();
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -940,7 +893,7 @@ document.addEventListener('visibilitychange', () => {
 // ══════════════════════════════════════
 // SHOW JOB CARDS
 // ═══════════════════════════════════════
-function showJobCards(allJobs, search, mode) {
+function showJobCards(allJobs, search, mode, scrollToResults = true) {
   const section = document.getElementById('resultsSection');
   const jobs = allJobs.slice(0, FREE_RESULTS);
   const showLocked = jobs.length >= FREE_RESULTS;
@@ -983,7 +936,7 @@ function showJobCards(allJobs, search, mode) {
         </div>
       </div>`;
   }).join('') + (showLocked ? lockedSectionHtml() : '');
-  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (scrollToResults) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Placeholder cards only — no real job data is ever sent to free users here.
@@ -1042,7 +995,7 @@ function showQuickMatchEmpty(search, filters) {
     <div class="empty-state">
       <div class="icon">\u{1F50E}</div>
       <h3>Nothing saved for this one yet</h3>
-      <p>Try Live Search — it scrapes Indeed right now and takes about two minutes.</p>
+      <p>Try Live Search — it scrapes Indeed right now and shows results as they arrive.</p>
       <button class="retry-btn" onclick="setMode('live');window.scrollTo({top:0,behavior:'smooth'});">Switch to Live Search \u2191</button>
     </div>`;
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1074,8 +1027,7 @@ async function handleSearch() {
   rememberSearch(input, mode, filters);                // history + saved filters (signed-in only)
 
   // ── Quick Match: read the database directly. ──────────────────────────
-  // Nothing is written and nothing queues, so any number of people can do
-  // this at the same time and each gets their own answer straight away.
+  // Query the saved listings directly instead of joining the scraping queue.
   if (mode === 'quick') {
     showLoading(mode);
     activeAbortCtrl = new AbortController();
@@ -1084,7 +1036,10 @@ async function handleSearch() {
       jobs = await fetchQuickMatches(input, filters, activeAbortCtrl.signal);
     } catch (e) {
       if (e.name === 'AbortError') return;
-      console.error('Quick Match error:', e);
+      if (myGeneration !== searchGeneration) return;
+      hideLoading();
+      showSearchError('Quick Match could not load jobs. Please try again.');
+      return;
     }
     if (myGeneration !== searchGeneration) return;
     hideLoading();
@@ -1093,22 +1048,21 @@ async function handleSearch() {
     return;
   }
 
-  // ── Live Search: scrape Indeed now, through Make.com. ─────────────────
+  // Start checking independently of the webhook response; Make may hold it open.
   showLoading(mode);
-  try {
-    await fetch(WEBHOOK_URL_LIVE, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: input, mode: mode, search_id: searchId, results_limit: FREE_RESULTS, ...filters, ...accountPayload() }),
-      mode: 'no-cors'
-    });
-  } catch(e) { /* no-cors expected */ }
-
-  initialWaitTimer = setTimeout(() => {
-    if (myGeneration !== searchGeneration) return;
-    hideLoading();
-    startPolling(input, myGeneration, sinceISO, mode, searchId);
-  }, INITIAL_WAIT_LIVE);
+  hideLoading();
+  const webhookController = new AbortController();
+  const webhookTimeout = setTimeout(() => webhookController.abort(), SEARCH_REQUEST_TIMEOUT_MS);
+  fetch(WEBHOOK_URL_LIVE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: input, mode: mode, search_id: searchId, results_limit: FREE_RESULTS, ...filters, ...accountPayload() }),
+    mode: 'no-cors', signal: webhookController.signal
+  }).catch(error => {
+    // An opaque response cannot acknowledge completion; search-id polling is authoritative.
+    console.warn('Live Search submission could not be confirmed:', error.name);
+  }).finally(() => clearTimeout(webhookTimeout));
+  startPolling(input, myGeneration, sinceISO, mode, searchId);
 }
 
 // ═══════════════════════════════════════
