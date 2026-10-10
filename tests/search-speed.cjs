@@ -81,7 +81,7 @@ test('live search never falls back to unscoped rows when empty', async () => {
   assert.ok(calls.every(url => url.includes('search_id=eq.search-two')));
   assert.equal(h.context.displays.length, 0);
 });
-test('a completed empty source stops polling immediately instead of waiting five minutes', async () => {
+test('a completed empty source stops polling immediately', async () => {
   const calls = [];
   const h = harness(async url => {
     calls.push(url);
@@ -94,6 +94,22 @@ test('a completed empty source stops polling immediately instead of waiting five
   assert.equal(h.context.activePollFn, null);
   assert.equal(h.timers.size, 0);
   assert.equal(h.context.displays.length, 0);
+});
+
+test('completion marker stops a short result set without displaying the marker', async () => {
+  const calls = [];
+  const h = harness(async url => {
+    calls.push(url);
+    return { ok: true, json: async () => [
+      { job_title: 'No matching jobs found', company: 'N/A' }, row, row,
+    ] };
+  });
+  h.context.startPolling('engineer', 1, '', 'live', 'completed-short');
+  await h.flush();
+  assert.equal(h.context.displays[0].jobs.length, 2);
+  assert.equal(h.context.activePollFn, null);
+  assert.equal(h.timers.size, 0);
+  assert.match(calls[0], /limit=11/);
 });
 test('superseded live requests cannot display or schedule stale results', async () => {
   let resolve;

@@ -587,7 +587,7 @@ function setMode(mode) {
 // ═══════════════════════════════════════
 const POLL_INTERVAL_MS   = 3000;  // Check promptly while the live source is working.
 const SEARCH_REQUEST_TIMEOUT_MS = 10000;
-const MAX_WAIT_MS        = 300000;
+const MAX_WAIT_MS        = 150000;
 const CLOCK_SKEW_MS      = 5000;
 const FREE_RESULTS = 10;        // free job cards per search (Quick + Live)
 const LOCKED_PREVIEW_CARDS = 3; // blurred placeholder cards shown after the free results
@@ -701,14 +701,18 @@ async function fetchJobs(signal, sinceISO, searchId) {
   if (!searchId) return null;
   const url = `${SUPABASE_URL}/rest/v1/job_matches`
     + '?select=job_title,company,location,salary,apply_url,match_reason,match_score,created_at'
-    + `&order=created_at.desc&limit=${FREE_RESULTS}&search_id=eq.${encodeURIComponent(searchId)}`;
+    + `&order=created_at.desc&limit=${FREE_RESULTS + 1}&search_id=eq.${encodeURIComponent(searchId)}`;
   const rows = await readSearchRows(url, signal);
   const cleaned = rows.map(sanitizeJobRow).filter(r =>
     r.job_title && r.job_title !== 'No matching jobs found' && r.job_title !== 'N/A' && r.company !== 'N/A'
   );
   cleaned.sort((a, b) => (parseInt(b.match_score) || 0) - (parseInt(a.match_score) || 0));
-  if (cleaned.length) return cleaned;
-  // Make writes this sentinel when the source completes without any listings.
+  if (cleaned.length) {
+    const results = cleaned.slice(0, FREE_RESULTS);
+    results.completed = rows.some(r => stripCodeFence(r.job_title) === 'No matching jobs found');
+    return results;
+  }
+  // Make writes this sentinel after the final listing, including empty searches.
   // An empty database response still means the request is running.
   return rows.some(r => stripCodeFence(r.job_title) === 'No matching jobs found') ? [] : null;
 }
@@ -878,7 +882,7 @@ function startPolling(search, generation, sinceISO, mode, searchId) {
           lastResults = signature;
         }
         displayed = true;
-        if (jobs.length >= FREE_RESULTS) { stopPolling(); return; }
+        if (jobs.completed || jobs.length >= FREE_RESULTS) { stopPolling(); return; }
         document.getElementById('pollingBarText').textContent = 'Results found — checking for more…';
       }
       consecutiveErrors = 0;
