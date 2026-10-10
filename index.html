@@ -866,7 +866,6 @@ function startPolling(search, generation, sinceISO, mode, searchId) {
     try {
       const jobs = await fetchJobs(controller.signal, sinceISO, searchId);
       if (generation !== searchGeneration || controller.signal.aborted) return;
-      consecutiveErrors = 0;
       if (jobs && jobs.length === 0) {
         stopPolling();
         if (!displayed) showLiveSearchEmpty(search);
@@ -882,8 +881,10 @@ function startPolling(search, generation, sinceISO, mode, searchId) {
         if (jobs.length >= FREE_RESULTS) { stopPolling(); return; }
         document.getElementById('pollingBarText').textContent = 'Results found — checking for more…';
       }
+      consecutiveErrors = 0;
     } catch (error) {
       if (generation !== searchGeneration || controller.signal.aborted) return;
+      console.error('Live Search could not read or display results:', error.message);
       if (++consecutiveErrors >= 3) {
         stopPolling();
         if (displayed) document.getElementById('resultsCount').textContent += ' · Could not check for more results';

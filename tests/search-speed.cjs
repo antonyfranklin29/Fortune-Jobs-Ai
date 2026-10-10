@@ -144,3 +144,14 @@ test('a slow webhook response does not hold up live result checks', async () => 
   assert.equal(h.context.displays.length, 1);
   assert.match(calls[1], /search_id=eq.new-search/);
 });
+
+test('repeated rendering failures stop live polling with an actionable error', async () => {
+  const h = harness(async () => ({ ok: true, json: async () => [row] }));
+  h.context.showJobCards = () => { throw new Error('Rendering failed'); };
+  h.context.startPolling('engineer', 1, '', 'live', 'render-failure');
+  await h.flush();
+  await h.tick(3000); await h.flush();
+  await h.tick(3000); await h.flush();
+  assert.equal(h.context.errors.length, 1);
+  assert.equal(h.context.activePollFn, null);
+});
