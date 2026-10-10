@@ -707,7 +707,10 @@ async function fetchJobs(signal, sinceISO, searchId) {
     r.job_title && r.job_title !== 'No matching jobs found' && r.job_title !== 'N/A' && r.company !== 'N/A'
   );
   cleaned.sort((a, b) => (parseInt(b.match_score) || 0) - (parseInt(a.match_score) || 0));
-  return cleaned.length ? cleaned : null;
+  if (cleaned.length) return cleaned;
+  // Make writes this sentinel when the source completes without any listings.
+  // An empty database response still means the request is running.
+  return rows.some(r => stripCodeFence(r.job_title) === 'No matching jobs found') ? [] : null;
 }
 
 // ═══════════════════════════════════════
@@ -831,6 +834,23 @@ function showSearchError(message) {
   document.getElementById('jobsGrid').innerHTML = '<div class="empty-state"><h3>Please try again</h3><p>We could not finish this search. Your search settings are still available above.</p></div>';
 }
 
+function showLiveSearchEmpty(search) {
+  document.getElementById('resultsTitle').textContent = `No live results for "${search}"`;
+  document.getElementById('resultsCount').textContent = 'The live job source finished without returning listings.';
+  const badge = document.getElementById('resultsModeBadge');
+  badge.className = 'results-mode-badge live';
+  badge.textContent = '🔴 Live Search';
+  document.getElementById('resultsSection').classList.add('active');
+  shownJobs = [];
+  document.getElementById('jobsGrid').innerHTML = `
+    <div class="empty-state">
+      <h3>The live source returned no listings</h3>
+      <p>Try another location or job title, or use Quick Match to search our saved listings.</p>
+      <button class="retry-btn" onclick="setMode('quick');handleSearch();">Try Quick Match</button>
+    </div>`;
+  document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function startPolling(search, generation, sinceISO, mode, searchId) {
   showPollingBar();
   let displayed = false;
@@ -847,6 +867,11 @@ function startPolling(search, generation, sinceISO, mode, searchId) {
       const jobs = await fetchJobs(controller.signal, sinceISO, searchId);
       if (generation !== searchGeneration || controller.signal.aborted) return;
       consecutiveErrors = 0;
+      if (jobs && jobs.length === 0) {
+        stopPolling();
+        if (!displayed) showLiveSearchEmpty(search);
+        return;
+      }
       if (jobs?.length) {
         const signature = JSON.stringify(jobs);
         if (signature !== lastResults) {

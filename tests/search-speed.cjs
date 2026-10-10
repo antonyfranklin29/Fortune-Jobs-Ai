@@ -25,7 +25,8 @@ function harness(fetch) {
     showPollingBar() {}, hidePollingBar() {},
     showJobCards(jobs, search, mode, scroll) { context.displays.push({ jobs, scroll }); },
     showSearchError(message) { context.errors.push(message); },
-    displays: [], errors: [],
+    showLiveSearchEmpty(search) { context.emptySearches.push(search); },
+    displays: [], errors: [], emptySearches: [],
   });
   vm.runInContext(['readSearchRows', 'stripCodeFence', 'sanitizeJobRow', 'fetchJobs', 'queryTokens', 'quickMatchUrl', 'scoreJob', 'fetchQuickMatches', 'stopPolling', 'startPolling'].map(source).join('\n'), context);
   return { context, timers, async flush() { for (let i = 0; i < 12; i++) await Promise.resolve(); }, async tick(ms) { const entry = [...timers].find(([, value]) => value.ms === ms); assert.ok(entry, 'Missing timer ' + ms); timers.delete(entry[0]); await entry[1].fn(); } };
@@ -78,6 +79,20 @@ test('live search never falls back to unscoped rows when empty', async () => {
   await h.flush();
   assert.equal(calls.length, 2);
   assert.ok(calls.every(url => url.includes('search_id=eq.search-two')));
+  assert.equal(h.context.displays.length, 0);
+});
+test('a completed empty source stops polling immediately instead of waiting five minutes', async () => {
+  const calls = [];
+  const h = harness(async url => {
+    calls.push(url);
+    return { ok: true, json: async () => [{ job_title: 'No matching jobs found', company: 'N/A' }] };
+  });
+  h.context.startPolling('engineer', 1, '', 'live', 'completed-empty');
+  await h.flush();
+  assert.equal(calls.length, 1);
+  assert.equal(h.context.emptySearches[0], 'engineer');
+  assert.equal(h.context.activePollFn, null);
+  assert.equal(h.timers.size, 0);
   assert.equal(h.context.displays.length, 0);
 });
 test('superseded live requests cannot display or schedule stale results', async () => {
