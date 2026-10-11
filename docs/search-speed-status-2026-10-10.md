@@ -1,6 +1,15 @@
 # Search speed verification — October 10, 2026
 
-Status: Quick Match performance checks passed. Live Search optimization is deployed in Make, but full acceptance remains blocked by provider credits and concurrency limits. The website temporarily displays immediate Live Search unavailability with a working Quick Match action.
+Status: Quick Match performance checks passed. Make Core credits are restored and Live Search is enabled again after ten successful production tests. Search latency checks passed for this sample; full acceptance still requires concurrency recovery and production reliability validation.
+
+## Verification after Core activation
+
+- Five sequential and five simultaneous production searches all completed successfully, including two unmatched queries with zero jobs and a completion marker. No unrelated default occupation was returned for the unmatched queries.
+- Eight searches with jobs returned first stored results in 7,178–9,196 ms. All ten completed in 8,250–11,647 ms. These are webhook-to-database timings from one machine, excluding browser rendering.
+- Queries covered New York, San Francisco, London and Bengaluru. Application URLs retained their source values and had HTTP(S) format; employer destinations were not separately tested.
+- Raw reports: `work/live-search-after-core.json` and `work/live-search-core-concurrent.json` in the task workspace. Thirteen frontend regression tests passed again.
+- Restored `LIVE_SEARCH_PAUSED = false` following successful bounded tests. Make Core does not remove Apify's five-concurrent-run limit. Neither 100 simultaneous live users nor deliberate overload recovery is verified.
+- Earlier failures and incident details below remain historical evidence; the credit-exhaustion incident is resolved.
 
 ## Measured results
 
