@@ -852,7 +852,7 @@ function showSearchError(message) {
 
 function showLiveSearchEmpty(search) {
   document.getElementById('resultsTitle').textContent = `No live results for "${search}"`;
-  document.getElementById('resultsCount').textContent = 'The live job source finished without returning listings.';
+  document.getElementById('resultsCount').textContent = 'Live Search finished; no verified jobs matched your title and selected filters.';
   const badge = document.getElementById('resultsModeBadge');
   badge.className = 'results-mode-badge live';
   badge.textContent = '🔴 Live Search';
