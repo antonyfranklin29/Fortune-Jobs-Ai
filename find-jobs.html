@@ -483,6 +483,7 @@ body[data-page="find"] .hero{min-height:65vh}
     </div>
   </div>
   <div class="jobs-grid" id="jobsGrid"></div>
+  <div id="searchSubscription" style="display:flex;justify-content:center;margin-top:28px"></div>
 </section>
 
 <!-- FOOTER -->
@@ -886,7 +887,6 @@ document.addEventListener('visibilitychange', () => {
 function showJobCards(allJobs, search, mode, scrollToResults = true) {
   const section = document.getElementById('resultsSection');
   const jobs = allJobs.slice(0, FREE_RESULTS);
-  const showLocked = jobs.length >= FREE_RESULTS;
   document.getElementById('resultsTitle').textContent = `Best Matches for "${search}"`;
   document.getElementById('resultsCount').textContent =
     `${jobs.length} matched job${jobs.length > 1 ? 's' : ''} · ${mode === 'live' ? 'found with Live Search just now' : 'from our saved listings'}`
@@ -924,46 +924,25 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
           </div>
         </div>
       </div>`;
-  }).join('') + (showLocked ? lockedSectionHtml() : '');
+  }).join('');
   if (scrollToResults) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Placeholder cards only — no real job data is ever sent to free users here.
+// A subscription offer is visible for every search, regardless of result count.
 function lockedSectionHtml() {
-  const ghost = `
-    <div class="job-card">
-      <div class="job-card-top">
-        <div class="company-logo">•</div>
-        <div class="match-badge">✓ ••% match</div>
-      </div>
-      <div class="ghost-line lg"></div>
-      <div class="ghost-line md"></div>
-      <div class="ghost-line sm"></div>
-      <div class="ghost-box"></div>
-      <div class="job-footer">
-        <div class="ghost-line sm" style="margin:0"></div>
-        <span class="apply-btn">Apply Now →</span>
-      </div>
-    </div>`;
   const btn = PRO_CHECKOUT_URL
-    ? `<a href="${PRO_CHECKOUT_URL}" class="upsell-btn" target="_blank" rel="noopener">Subscribe for more results →</a>`
+    ? `<a href="${PRO_CHECKOUT_URL}" class="upsell-btn" target="_blank" rel="noopener">Subscribe for $7.99/month →</a>`
     : `<span class="upsell-btn soon">Subscriptions coming soon</span>`;
   return `
-    <div class="locked-wrap">
-      <div class="locked-grid" aria-hidden="true">${ghost.repeat(LOCKED_PREVIEW_CARDS)}</div>
-      <div class="locked-overlay">
-        <div class="upsell-card">
-          <div class="lock-icon">🔒</div>
-          <div class="upsell-badge">✦ Fortune Jobs AI Pro</div>
-          <h3>Subscribe for more results</h3>
-          <p>You've reached the ${FREE_RESULTS}-result free limit for this search. The planned Pro subscription will offer more results in both Quick Match and Live Search. Availability depends on your search and filters.</p>
-          <div class="upsell-price">$7.99 <span>/ month + tax</span></div>
-          <div style="margin-top:16px">${btn}</div>
-          <div class="upsell-note">Cancel anytime.</div>
-        </div>
-      </div>
-    </div>`;
+    <aside class="upsell-card" aria-label="Fortune Jobs AI Pro subscription">
+      <div class="upsell-badge">✦ Fortune Jobs AI Pro</div>
+      <h3>Subscribe for more results</h3>
+      <p>Free searches show up to ${FREE_RESULTS} matching jobs. The planned Pro subscription will offer more results in Quick Match and Live Search when available. A subscription does not guarantee additional matches for your search and filters.</p>
+      <div class="upsell-price">$7.99 <span>/ month + tax</span></div>
+      <div style="margin-top:16px">${btn}</div>
+    </aside>`;
 }
+document.getElementById('searchSubscription').innerHTML = lockedSectionHtml();
 
 function safe(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
