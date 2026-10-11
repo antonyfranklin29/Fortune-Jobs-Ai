@@ -211,3 +211,16 @@ test('provider maintenance returns immediately without starting paid or queued w
   assert.match(h.context.errors[0], /Quick Match is available/);
   assert.match(h.context.document.getElementById('jobsGrid').innerHTML, /Try Quick Match/);
 });
+
+test('guest resume details personalize Quick Match without an account', async () => {
+  const h=harness(async()=>({ok:true,json:async()=>[{...row,apply_url:'https://test.invalid/java',job_description:'Java'}, {...row,apply_url:'https://test.invalid/python',job_description:'Python SQL'}]}));
+  Object.assign(h.context,{guestResumeProfile:{skills:['Python','SQL'],years_experience:4},acct:{profile:{skills:['Java']}},location:{search:'?resume=1'},URLSearchParams});
+  const jobs=await h.context.fetchQuickMatches('engineer',{},new AbortController().signal);
+  assert.equal(jobs[0].apply_url,'https://test.invalid/python');assert.match(jobs[0].match_reason,/Python, SQL/);
+});
+test('expired guest resume does not silently use an account profile',async()=>{
+  const h=harness(async()=>({ok:true,json:async()=>[{...row,apply_url:'https://test.invalid/first',job_description:'SQL'}, {...row,apply_url:'https://test.invalid/second',job_description:'Java'}]}));
+  Object.assign(h.context,{guestResumeProfile:null,acct:{profile:{skills:['Java']}},location:{search:'?resume=1'},URLSearchParams});
+  const jobs=await h.context.fetchQuickMatches('engineer',{},new AbortController().signal);
+  assert.equal(jobs[0].apply_url,'https://test.invalid/first');assert.doesNotMatch(jobs[1].match_reason,/profile skills/);
+});

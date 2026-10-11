@@ -58,17 +58,17 @@
     if (/\bmid\b|\bsenior\b|\bsr\b|\blead\b|\bprincipal\b|\bstaff\b/.test(explicit+' '+title)) return 'mid_senior';
     return '';
   }
+
   function locationMatches(job, filters, data) {
+    const states=typeof module==='object'&&module.exports?require('./guest-resume.js').states:(root.FJGuestResume?.states||{});
+    const regionName=value=>{const s=String(value||'').trim();return normalize(states[s.toUpperCase()]||s).replace(/\s+(state|province)$/,'');};
+    const actualRegion=data.location?.stateName || data.location?.state || String(job.location||'').split(',')[1] || '';
+    if(filters.location_scope==='region')return !!filters.region && regionName(filters.region)===regionName(actualRegion);
     const wanted=cityName(filters.city || String(filters.location || '').split(',')[0]);
     if (!wanted) return true;
     const actual=cityName(data.location?.city || String(job.location || '').split(',')[0].replace(/\s+\d{5}(?:-\d{4})?\s*$/, '').replace(/\s+[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i,''));
-    if (wanted!==actual) return false;
-    const regionName=value=>normalize(value).replace(/\s+(state|province)$/,'');
-    if (filters.region && data.location?.stateName && regionName(filters.region)!==regionName(data.location.stateName) && regionName(filters.region)!==regionName(data.location.state)) return false;
-    if (filters.region && !data.location?.stateName) {
-      const region=String(job.location || '').split(',')[1] || '';
-      if(regionName(filters.region)!==regionName(region)) return false;
-    }
+    if(wanted!==actual)return false;
+    if(filters.region && regionName(filters.region)!==regionName(actualRegion))return false;
     return true;
   }
   function matchReason(job, query, filters={}) {

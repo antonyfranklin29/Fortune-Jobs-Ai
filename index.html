@@ -448,9 +448,9 @@ body[data-page="find"] .hero{min-height:65vh}
   <div class="hero-actions">
     <button class="upload-btn" onclick="goUploadResume()">
       <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 5l4-4 4 4M2 12h12v2H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Upload Resume (PDF)
+      Upload Résumé · No account needed
     </button>
-    <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" style="display:none" onchange="handleResumeUpload(this)"/>
+    <input type="file" id="resumeInput" accept=".pdf,.docx" style="display:none" onchange="handleResumeUpload(this)"/>
     <span class="hero-note">Free to use · Real jobs · <a href="login.html?mode=signup" style="color:var(--gold-light)">Free account</a> saves your jobs</span>
   </div>
 </section>
@@ -528,6 +528,7 @@ body[data-page="find"] .hero{min-height:65vh}
 
 <!-- RESULTS -->
 <section class="results-section" id="resultsSection">
+  <div id="resumeSearchSummary" hidden style="padding:20px;margin-bottom:24px;border:1px solid #D4A843;border-radius:12px;background:#FBF3E0;color:#0F172A"></div>
   <div class="results-header">
     <div>
       <div class="results-title" id="resultsTitle">Your Best Matched Jobs</div>
@@ -564,6 +565,7 @@ body[data-page="find"] .hero{min-height:65vh}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="auth.js"></script>
+<script src="guest-resume.js"></script>
 <script src="search-accuracy.js"></script>
 <script src="resume-matching.js"></script>
 <script>
@@ -1138,8 +1140,9 @@ function getFilters() {
   const sel = id => { const s = document.getElementById(id); return s.value ? s.options[s.selectedIndex].text.replace(/^\S+\s(?=[A-Z])/u, '') : ''; };
   return {
     location:     document.getElementById('locationInput').value.trim(),
-    city:         (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.name : '',
-    region:       (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.region : '',
+    city:         (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.name : (new URLSearchParams(location.search).get('city') || ''),
+    region:       (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.region : (new URLSearchParams(location.search).get('region') || ''),
+    location_scope: new URLSearchParams(location.search).get('location_scope') === 'region' ? 'region' : '',
     latitude:     (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lat : null,
     longitude:    (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lng : null,
     country:      val('filterCountry'),          // ISO code, '' = any country
@@ -1556,6 +1559,9 @@ function handleResumeUpload(input) {
 // ACCOUNTS — profile, saved jobs, history, saved filters
 // ═══════════════════════════════════════
 const acct = { user: null, profile: null, savedKeys: new Set() };
+let guestResumeProfile = null;
+try { if (new URLSearchParams(location.search).get('resume') === '1') guestResumeProfile = FJGuestResume.load(sessionStorage,Date.now(),new URLSearchParams(location.search).get('resume_id')||''); } catch {}
+
 let shownJobs = [];
 
 function siteToast(html, ms) {
@@ -1630,7 +1636,21 @@ function rememberSearch(query, mode, filters) {
 // Keep private profile details local when submitting live searches.
 function accountPayload() { return {}; }
 function personalizeJobs(jobs) {
-  return window.FJResume ? FJResume.rank(jobs, typeof acct !== 'undefined' ? acct.profile : null, FJAccuracy.metadata) : jobs;
+  const guestFlow=typeof location!=='undefined' && typeof URLSearchParams!=='undefined' && new URLSearchParams(location.search).get('resume')==='1';
+  const profile=typeof guestResumeProfile!=='undefined' && guestResumeProfile ? guestResumeProfile : (guestFlow ? null : (typeof acct!=='undefined' ? acct.profile : null));
+  return window.FJResume ? FJResume.rank(jobs, profile, FJAccuracy.metadata) : jobs;
+}
+
+function renderResumeSearchSummary() {
+  if(new URLSearchParams(location.search).get('resume')!=='1')return;
+  const box=document.getElementById('resumeSearchSummary');box.hidden=false;box.replaceChildren();
+  const title=document.createElement('strong');title.textContent='Résumé matching · No account needed';box.append(title);
+  const text=document.createElement('p');text.style.margin='12px 0';
+  if(guestResumeProfile){const p=guestResumeProfile;text.textContent=[p.current_title,p.years_experience==null?'Experience not specified':(p.experienceEstimated?'About ':'')+p.years_experience+' years of experience',p.scope==='region'?'Across '+p.region:[p.city,p.region].filter(Boolean).join(', '),p.skills.length+' matching skills'].join(' · ');}
+  else text.textContent='Temporary résumé details have expired or are unavailable. This search uses the displayed title and area without résumé personalization.';
+  box.append(text);
+  const edit=document.createElement('a');edit.href='resume-search.html?edit=1&mode='+(new URLSearchParams(location.search).get('mode')==='quick'?'quick':'live');edit.textContent=guestResumeProfile?'Edit résumé search details':'Upload résumé again';edit.style.marginRight='20px';box.append(edit);
+  if(guestResumeProfile){const clear=document.createElement('button');clear.textContent='Clear résumé details';clear.className='retry-btn';clear.onclick=()=>{try{FJGuestResume.clear(sessionStorage);}catch{}guestResumeProfile=null;location.href='find-jobs.html';};box.append(clear);}
 }
 
 function applyFilters(f) {
@@ -1647,7 +1667,7 @@ function applyFilters(f) {
 }
 
 function goUploadResume() {
-  location.href = acct.user ? 'profile.html#resume' : 'login.html?mode=signup&next=profile.html%23resume';
+  location.href = 'resume-search.html';
 }
 
 // "Search again" links from the profile page: index.html?q=...&mode=...&location=...
@@ -1678,7 +1698,7 @@ function runSearchFromUrl() {
       }
     }
   } finally {
-    if (fromUrl) handleSearch();
+    if (fromUrl) { renderResumeSearchSummary(); handleSearch(); }
   }
 })();
 
