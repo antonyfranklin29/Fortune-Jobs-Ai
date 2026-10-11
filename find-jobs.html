@@ -981,7 +981,7 @@ function showQuickMatchEmpty(search, filters) {
       <div class="icon">\u{1F50E}</div>
       <h3>Nothing saved for this one yet</h3>
       <p>Try Live Search — it finds fresh job listings and shows results as they arrive.</p>
-      <button class="retry-btn" onclick="setMode('live');window.scrollTo({top:0,behavior:'smooth'});">Switch to Live Search \u2191</button>
+      <button class="retry-btn" onclick="setMode('live');handleSearch();">Try Live Search →</button>
     </div>`;
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
