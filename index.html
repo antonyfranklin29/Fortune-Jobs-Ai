@@ -274,6 +274,15 @@ footer{padding:40px 20px 24px;}
 .results-header{flex-direction:column;}
 }
 </style>
+<style>
+nav .find-jobs-link{color:var(--gold);font-weight:700;}
+@media(max-width:768px){nav{flex-wrap:wrap;height:auto;min-height:80px;gap:12px;padding:16px 20px}.nav-links{display:flex;gap:18px;order:3;width:100%;justify-content:center}}
+body[data-page="results"] .hero{display:none}
+body[data-page="results"] .results-section{display:block;min-height:60vh;padding-top:40px}
+body[data-page="results"] .polling-bar{position:static}
+body[data-page="results"] .results-back{display:inline-block;color:var(--gold);margin-bottom:24px}
+body[data-page="find"] .hero{min-height:65vh}
+</style>
 </head>
 <body>
 
@@ -294,7 +303,7 @@ footer{padding:40px 20px 24px;}
 
 <!-- NAV -->
 <nav>
-  <a href="#" class="logo">
+  <a href="index.html" class="logo">
     <div class="logo-icon">
       <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
         <path d="M3 14 L7 8 L11 14 L15 9 L19 15" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -306,10 +315,9 @@ footer{padding:40px 20px 24px;}
     <span class="logo-text">Fortune Jobs AI</span>
   </a>
   <ul class="nav-links">
-    <li><a href="#">Home</a></li>
-    <li><a href="#">Find Jobs</a></li>
-    <li><a href="#">How It Works</a></li>
-    <li><a href="#">About</a></li>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="find-jobs.html" class="find-jobs-link">Find Jobs</a></li>
   </ul>
   <div class="nav-account" id="navAccount">
     <a href="login.html" class="nav-login">Log in</a>
@@ -542,8 +550,8 @@ footer{padding:40px 20px 24px;}
       </a>
       <p>Your AI-powered job search assistant. Real jobs from Indeed, matched by Claude AI.</p>
     </div>
-    <div class="footer-links"><h4>Product</h4><ul><li><a href="#">Find Jobs</a></li><li><a href="#">Upload Resume</a></li><li><a href="#">How It Works</a></li></ul></div>
-    <div class="footer-links"><h4>Company</h4><ul><li><a href="#">About Us</a></li><li><a href="#">Contact</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
+    <div class="footer-links"><h4>Product</h4><ul><li><a href="find-jobs.html">Find Jobs</a></li><li><a href="#">Upload Resume</a></li></ul></div>
+    <div class="footer-links"><h4>Company</h4><ul><li><a href="about.html">About Us</a></li><li><a href="#">Contact</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
     <div class="footer-links"><h4>Job Categories</h4><ul><li><a href="#">Data Analyst</a></li><li><a href="#">Software Engineer</a></li><li><a href="#">Product Manager</a></li><li><a href="#">Marketing</a></li></ul></div>
   </div>
   <div class="footer-bottom">
@@ -1041,6 +1049,15 @@ function showQuickMatchEmpty(search, filters) {
 async function handleSearch() {
   const input = document.getElementById('jobSearchInput').value.trim();
   if (!input) { alert('Please type a job title first!'); return; }
+
+  if (document.body.dataset.page !== 'results') {
+    const params = new URLSearchParams({q: input, mode: currentMode});
+    Object.entries(getFilters()).forEach(([key, value]) => {
+      if (value !== null && value !== '') params.set(key, String(value));
+    });
+    location.href = 'results.html?' + params.toString();
+    return;
+  }
 
   stopPolling();
   closeTitleList(); closeCityList();
@@ -1651,9 +1668,9 @@ function runSearchFromUrl() {
   document.getElementById('jobSearchInput').value = q.slice(0, 200);
   setMode(p.get('mode') === 'live' ? 'live' : 'quick');
   const f = {};
-  ['location','country','date_posted','experience','job_type','work_mode','company'].forEach(k => { if (p.get(k)) f[k] = p.get(k).slice(0, 200); });
+  ['location','city','region','latitude','longitude','country','country_name','date_posted','experience','job_type','work_mode','company'].forEach(k => { if (p.get(k)) f[k] = p.get(k).slice(0, 200); });
   applyFilters(f);
-  history.replaceState(null, '', location.pathname);   // don't re-run on refresh
+  // Keep the query so results can be refreshed, bookmarked and shared.
   return true;
 }
 

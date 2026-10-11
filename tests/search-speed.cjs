@@ -22,7 +22,7 @@ function harness(fetch) {
     pollingTimer: null, timeoutTimer: null, initialWaitTimer: null,
     setTimeout(fn, ms) { const key = ++id; timers.set(key, { fn, ms }); return key; },
     clearTimeout(key) { timers.delete(key); },
-    document: { getElementById(key) { if (!elements.has(key)) elements.set(key, { textContent: '', classList: { add() {} } }); return elements.get(key); } },
+    document: { body: {dataset: {page: 'results'}}, getElementById(key) { if (!elements.has(key)) elements.set(key, { textContent: '', classList: { add() {} } }); return elements.get(key); } },
     showPollingBar() {}, hidePollingBar() {},
     showJobCards(jobs, search, mode, scroll) { context.displays.push({ jobs, scroll }); },
     showSearchError(message) { context.errors.push(message); },
@@ -33,6 +33,21 @@ function harness(fetch) {
   return { context, timers, async flush() { for (let i = 0; i < 12; i++) await Promise.resolve(); }, async tick(ms) { const entry = [...timers].find(([, value]) => value.ms === ms); assert.ok(entry, 'Missing timer ' + ms); timers.delete(entry[0]); await entry[1].fn(); } };
 }
 const row = { job_title: 'Engineer', company: 'Test', location: 'Remote', apply_url: 'https://test.invalid/apply', match_score: '80' };
+test('search forms navigate to results with mode and filters without submitting twice', async () => {
+  const h = harness(() => { throw Error('The form must not request jobs before navigation'); });
+  Object.assign(h.context, {URLSearchParams, location: {}, currentMode:'live', getFilters: () => ({location:'London',country:'gb',work_mode:'remote',latitude:51.5})});
+  h.context.document.body.dataset.page = 'find';
+  h.context.document.getElementById('jobSearchInput').value = 'Data & BI Analyst';
+  vm.runInContext(source('handleSearch'), h.context);
+  await h.context.handleSearch();
+  const url = new URL(h.context.location.href, 'https://test.invalid/');
+  assert.equal(url.pathname, '/results.html');
+  assert.equal(url.searchParams.get('q'), 'Data & BI Analyst');
+  assert.equal(url.searchParams.get('mode'), 'live');
+  assert.equal(url.searchParams.get('country'), 'gb');
+  assert.equal(url.searchParams.get('work_mode'), 'remote');
+  assert.equal(url.searchParams.get('latitude'), '51.5');
+});
 test('all inline JavaScript parses', () => {
   for (const match of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)) if (match[1].trim()) new vm.Script(match[1]);
 });

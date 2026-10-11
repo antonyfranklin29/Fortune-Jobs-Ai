@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" sizes="any" href="favicon.svg?v=1">
+<!-- PRE-LAUNCH: keep the site out of search results. Delete this line on launch day. -->
+<meta name="robots" content="noindex, nofollow">
+<title>Job Results — Fortune Jobs AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+--navy:#0F172A;--navy-2:#1E293B;--navy-3:#334155;
+--gold:#D4A843;--gold-light:#F0C96A;--gold-pale:#FBF3E0;
+--white:#FFFFFF;--gray-50:#F8FAFC;--gray-100:#F1F5F9;--gray-200:#E2E8F0;
+--gray-300:#CBD5E1;--gray-400:#94A3B8;--gray-500:#64748B;--gray-600:#475569;
+--green:#10B981;--green-bg:rgba(16,185,129,0.08);--green-border:rgba(16,185,129,0.2);
+--shadow-sm:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+--shadow-md:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);
+--shadow-lg:0 10px 40px rgba(0,0,0,0.12),0 4px 12px rgba(0,0,0,0.06);
+--radius-sm:6px;--radius-md:10px;--radius-lg:14px;--radius-xl:20px;
+--font:'Inter',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--white);color:var(--navy);line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* ── NAVBAR ── */
+nav{background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200);padding:0 64px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo-icon{width:34px;height:34px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.logo-text{font-size:16px;font-weight:700;color:var(--navy);letter-spacing:-0.3px;}
+.nav-links{display:flex;gap:4px;list-style:none;}
+.nav-links a{text-decoration:none;color:var(--gray-500);font-size:14px;font-weight:500;padding:6px 12px;border-radius:var(--radius-sm);transition:all 0.15s;}
+.nav-links a:hover{color:var(--navy);background:var(--gray-100);}
+.nav-cta{background:var(--navy);color:var(--white);border:none;padding:9px 20px;border-radius:var(--radius-md);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);letter-spacing:-0.2px;transition:all 0.15s;}
+.nav-cta:hover{background:var(--navy-3);}
+.nav-account{display:flex;align-items:center;gap:6px;}
+a.nav-cta{text-decoration:none;display:inline-block;}
+.nav-login{text-decoration:none;color:var(--navy);font-size:14px;font-weight:600;padding:9px 14px;border-radius:var(--radius-md);}
+.nav-login:hover{background:var(--gray-100);}
+.nav-user{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--navy);font-size:14px;font-weight:600;padding:4px 12px 4px 4px;border:1px solid var(--gray-200);border-radius:40px;transition:border-color 0.15s;}
+.nav-user:hover{border-color:var(--gray-400);}
+.nav-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--gold-pale);color:var(--gold);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;}
+.save-btn{display:inline-flex;align-items:center;gap:5px;background:var(--white);border:1px solid var(--gray-300);color:var(--navy);padding:8px 12px;border-radius:var(--radius-md);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all 0.15s;}
+.save-btn:hover{border-color:var(--gray-500);}
+.save-btn.saved{background:var(--gold-pale);border-color:rgba(212,168,67,0.55);color:#7A5B12;}
+.job-actions{display:flex;align-items:center;gap:8px;}
+.site-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--navy);color:var(--white);padding:12px 18px;border-radius:var(--radius-md);font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:all 0.25s;z-index:2000;max-width:calc(100% - 32px);}
+.site-toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+.site-toast a{color:var(--gold-light);}
+
+/* ── HERO ── */
+.hero{background:var(--navy);padding:88px 64px 80px;text-align:center;position:relative;overflow:hidden;overflow:clip visible;z-index:2;}
+.hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(212,168,67,0.12) 0%,transparent 70%);pointer-events:none;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(212,168,67,0.1);border:1px solid rgba(212,168,67,0.22);color:var(--gold-light);font-size:12px;font-weight:600;padding:5px 14px;border-radius:40px;margin-bottom:28px;letter-spacing:0.02em;text-transform:uppercase;}
+.hero h1{font-size:clamp(36px,5vw,58px);font-weight:800;color:var(--white);line-height:1.1;margin-bottom:18px;letter-spacing:-1.5px;}
+.hero h1 span{color:var(--gold);}
+.hero-sub-text{font-size:17px;color:var(--gray-400);max-width:520px;margin:0 auto 36px;font-weight:400;line-height:1.65;}
+
+/* ── MODE TOGGLE ── */
+.mode-toggle{display:inline-flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius-lg);padding:4px;margin-bottom:24px;gap:4px;}
+.mode-btn{background:transparent;border:none;padding:9px 22px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);color:var(--gray-400);transition:all 0.18s;display:flex;align-items:center;gap:6px;letter-spacing:-0.1px;}
+.mode-btn.active{background:var(--gold);color:var(--navy);}
+.mode-btn:not(.active):hover{color:var(--white);background:rgba(255,255,255,0.08);}
+.mode-desc{font-size:13px;color:var(--gray-500);margin-bottom:22px;min-height:18px;transition:all 0.2s;}
+.mode-desc span{color:var(--gold-light);font-weight:500;}
+
+.search-wrapper{max-width:780px;margin:0 auto 20px;}
+.search-bar{display:flex;background:var(--white);border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 0 0 1.5px rgba(212,168,67,0.35),var(--shadow-md);}
+.sb-field{flex:1;display:flex;align-items:center;gap:10px;padding:0 0 0 18px;min-width:0;}
+.sb-field.loc{flex:0.85;border-left:1px solid var(--gray-200);}
+.sb-field svg{flex-shrink:0;color:var(--gray-400);}
+.search-bar input{flex:1;min-width:0;border:none;outline:none;padding:16px 16px 16px 0;font-size:15px;font-family:var(--font);color:var(--navy);font-weight:400;background:transparent;}
+.search-bar input::placeholder{color:var(--gray-400);}
+
+/* ── CITY AUTOCOMPLETE ── */
+.search-wrapper{position:relative;}
+.city-list{position:absolute;z-index:60;margin:0;padding:6px;list-style:none;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);text-align:left;max-height:320px;overflow-y:auto;display:none;}
+.city-list.open{display:block;}
+.city-list li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;color:var(--navy);font-size:14px;line-height:1.35;}
+.city-list li .pin{flex-shrink:0;color:var(--gray-400);}
+.city-list li .city-name{font-weight:600;}
+.city-list li .city-name b{color:var(--gold);font-weight:700;}
+.city-list li .city-region{display:block;font-size:12px;color:var(--gray-500);font-weight:400;}
+.city-list li .city-flag{margin-left:auto;font-size:16px;}
+.city-list li.active,.city-list li:hover{background:var(--gold-pale);}
+.city-list li.city-empty{color:var(--gray-500);cursor:default;background:none;font-size:13px;}
+
+/* ── FILTERS (LinkedIn-style) ── */
+.filters{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin-top:14px;}
+.filter-pill{position:relative;}
+.filter-pill select{appearance:none;-webkit-appearance:none;background:rgba(255,255,255,0.06) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2394A3B8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 13px center;border:1px solid rgba(255,255,255,0.16);color:#E2E8F0;border-radius:40px;padding:8px 32px 8px 15px;font-size:13px;font-weight:500;font-family:var(--font);cursor:pointer;transition:all 0.15s;max-width:230px;text-overflow:ellipsis;}
+.filter-pill select:hover{border-color:rgba(255,255,255,0.32);background-color:rgba(255,255,255,0.1);}
+.filter-pill select:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.filter-pill select.set{background-color:rgba(212,168,67,0.14);border-color:rgba(212,168,67,0.55);color:var(--gold-light);}
+.filter-pill select option{color:var(--navy);background:var(--white);}
+.pill-input{background:rgba(255,255,255,0.06) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M3 14V3h6v11 M9 7h4v7 M5 5.5h2 M5 8h2 M5 10.5h2 M2 14h12' stroke='%2394A3B8' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 13px center;border:1px solid rgba(255,255,255,0.16);color:#E2E8F0;border-radius:40px;padding:8px 15px 8px 34px;font-size:13px;font-weight:500;font-family:var(--font);width:170px;outline:none;transition:all 0.15s;}
+.pill-input::placeholder{color:#E2E8F0;opacity:1;}
+.pill-input:hover{border-color:rgba(255,255,255,0.32);background-color:rgba(255,255,255,0.1);}
+.pill-input:focus{border-color:var(--gold);background-color:rgba(255,255,255,0.1);}
+.pill-input:focus::placeholder{color:var(--gray-500);}
+.pill-input.set{background-color:rgba(212,168,67,0.14);border-color:rgba(212,168,67,0.55);color:var(--gold-light);}
+.filter-pill .city-list{top:calc(100% + 6px);left:0;min-width:260px;}
+.filter-reset{background:none;border:none;color:var(--gray-400);font-size:13px;font-weight:500;font-family:var(--font);cursor:pointer;padding:8px 6px;text-decoration:underline;text-underline-offset:3px;display:none;}
+.filter-reset:hover{color:var(--white);}
+.filter-reset.show{display:inline-block;}
+.search-bar button{background:var(--gold);color:var(--navy);border:none;padding:16px 28px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;letter-spacing:-0.1px;transition:background 0.15s;}
+.search-bar button:hover{background:var(--gold-light);}
+.hero-actions{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;}
+.upload-btn{background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);padding:10px 20px;border-radius:var(--radius-md);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:7px;transition:all 0.15s;}
+.upload-btn:hover{color:var(--white);border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.06);}
+.hero-note{color:var(--gray-500);font-size:13px;font-weight:400;}
+
+/* ── STATS BAR ── */
+.stats{background:var(--navy-2);border-top:1px solid var(--navy-3);padding:28px 64px;display:flex;justify-content:center;gap:56px;flex-wrap:wrap;}
+.stat-item{text-align:center;}
+.stat-num{font-size:26px;font-weight:800;color:var(--gold);display:block;letter-spacing:-0.5px;line-height:1;}
+.stat-label{font-size:12px;color:var(--gray-500);margin-top:5px;font-weight:500;letter-spacing:0.01em;}
+
+/* ── SECTIONS SHARED ── */
+.section-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.section-title{font-size:clamp(26px,3.5vw,36px);font-weight:800;color:var(--navy);margin-bottom:12px;letter-spacing:-0.8px;line-height:1.2;}
+.section-sub{font-size:16px;color:var(--gray-500);max-width:460px;margin:0 auto 52px;font-weight:400;line-height:1.65;}
+
+/* ── HOW IT WORKS ── */
+.how-it-works{padding:96px 64px;background:var(--white);text-align:center;}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;max-width:880px;margin:0 auto;}
+.step-card{padding:32px 24px;border:1px solid var(--gray-200);border-radius:var(--radius-xl);text-align:center;transition:all 0.2s;cursor:default;}
+.step-card:hover{border-color:rgba(212,168,67,0.5);box-shadow:0 8px 32px rgba(212,168,67,0.1);transform:translateY(-3px);}
+.step-num{width:44px;height:44px;background:var(--gold-pale);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:16px;font-weight:800;color:var(--gold);}
+.step-card h3{font-size:16px;font-weight:700;margin-bottom:10px;color:var(--navy);letter-spacing:-0.3px;}
+.step-card p{font-size:14px;color:var(--gray-500);line-height:1.7;}
+
+/* ── CATEGORIES ── */
+.categories{padding:80px 64px;background:var(--gray-50);text-align:center;}
+.categories-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:840px;margin:0 auto;}
+.category-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 18px;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;gap:14px;text-align:left;box-shadow:var(--shadow-sm);}
+.category-card:hover{border-color:rgba(212,168,67,0.5);box-shadow:0 6px 24px rgba(212,168,67,0.1);transform:translateY(-2px);}
+.category-icon{width:42px;height:42px;background:var(--gold-pale);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.category-name{font-weight:600;font-size:14px;color:var(--navy);margin-bottom:2px;letter-spacing:-0.2px;}
+.category-count{font-size:12px;color:var(--gray-400);font-weight:400;}
+
+/* ── WHY US ── */
+.why-us{padding:96px 64px;background:var(--navy);text-align:center;}
+.why-us .section-title{color:var(--white);}
+.why-us .section-sub{color:var(--gray-500);}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:900px;margin:0 auto;}
+.why-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-xl);padding:28px 24px;text-align:left;transition:all 0.2s;}
+.why-card:hover{border-color:rgba(212,168,67,0.35);background:rgba(255,255,255,0.06);}
+.why-icon{width:44px;height:44px;background:rgba(212,168,67,0.1);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px;}
+.why-card h3{font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px;letter-spacing:-0.3px;}
+.why-card p{font-size:13px;color:var(--gray-500);line-height:1.75;}
+
+/* ── TESTIMONIALS ── */
+.testimonials{padding:96px 64px;background:var(--white);text-align:center;}
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:960px;margin:0 auto;}
+.testimonial-card{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-xl);padding:28px 24px;text-align:left;transition:all 0.2s;}
+.testimonial-card:hover{border-color:var(--gray-300);box-shadow:var(--shadow-md);}
+.stars{color:var(--gold);font-size:13px;margin-bottom:14px;letter-spacing:1px;}
+.testimonial-text{font-size:14px;color:var(--gray-600);line-height:1.8;margin-bottom:20px;font-style:italic;}
+.testimonial-author{display:flex;align-items:center;gap:11px;}
+.author-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--navy);flex-shrink:0;}
+.author-name{font-size:14px;font-weight:600;color:var(--navy);letter-spacing:-0.2px;}
+.author-role{font-size:12px;color:var(--gray-400);font-weight:400;}
+
+/* ── CTA SECTION ── */
+.cta-section{background:var(--navy);padding:96px 64px;text-align:center;}
+.cta-section h2{font-size:clamp(26px,4vw,42px);font-weight:800;color:var(--white);margin-bottom:14px;letter-spacing:-1px;}
+.cta-section h2 span{color:var(--gold);}
+.cta-section p{font-size:16px;color:var(--gray-500);margin-bottom:36px;font-weight:400;}
+
+/* ── FOOTER ── */
+footer{background:#080E1A;padding:52px 64px 32px;}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:44px;flex-wrap:wrap;gap:36px;}
+.footer-brand p{font-size:13px;color:var(--gray-500);max-width:240px;margin-top:12px;line-height:1.75;}
+.footer-links h4{font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;}
+.footer-links ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.footer-links a{text-decoration:none;font-size:13px;color:var(--gray-500);transition:color 0.15s;font-weight:400;}
+.footer-links a:hover{color:var(--gold);}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.footer-bottom p{font-size:12px;color:var(--gray-500);font-weight:400;}
+.footer-bottom span{color:var(--gold);}
+
+/* ── LOADING OVERLAY ── */
+.loading-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,15,28,0.97);z-index:1000;flex-direction:column;align-items:center;justify-content:center;gap:24px;backdrop-filter:blur(4px);}
+.loading-overlay.active{display:flex;}
+.loading-spinner{width:48px;height:48px;border:2.5px solid rgba(212,168,67,0.15);border-top-color:var(--gold);border-radius:50%;animation:spin 0.85s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-mode-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(212,168,67,0.1);border:1px solid rgba(212,168,67,0.2);color:var(--gold-light);font-size:11px;font-weight:600;padding:4px 14px;border-radius:40px;margin-bottom:8px;letter-spacing:0.04em;text-transform:uppercase;}
+.loading-main-text{font-size:18px;font-weight:700;color:var(--white);margin-bottom:10px;letter-spacing:-0.3px;}
+.loading-subtext{font-size:14px;color:var(--gray-500);font-weight:400;}
+
+/* ── POLLING BAR ── */
+.polling-bar{display:none;background:var(--navy-2);padding:13px 32px;text-align:center;border-bottom:1px solid var(--navy-3);}
+.polling-bar.active{display:block;}
+.polling-bar p{color:var(--gold-light);font-size:13px;font-weight:500;}
+
+/* ── RESULTS ── */
+.results-section{display:none;padding:60px 64px 80px;background:var(--gray-50);scroll-margin-top:80px;}
+.results-section.active{display:block;}
+.results-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;flex-wrap:wrap;gap:16px;border-bottom:1px solid var(--gray-200);padding-bottom:20px;}
+.results-title{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-0.5px;}
+.results-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px;}
+.results-count{font-size:13px;color:var(--gray-400);font-weight:400;}
+.results-mode-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:40px;letter-spacing:0.02em;}
+.results-mode-badge.live{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.results-mode-badge.quick{background:rgba(212,168,67,0.1);color:var(--gold);border:1px solid rgba(212,168,67,0.25);}
+.jobs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(296px,1fr));gap:18px;}
+
+/* ── JOB CARD ── */
+.job-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-xl);padding:22px;transition:all 0.18s;display:flex;flex-direction:column;box-shadow:var(--shadow-sm);}
+.job-card:hover{border-color:rgba(212,168,67,0.4);box-shadow:0 8px 32px rgba(212,168,67,0.1);transform:translateY(-2px);}
+.job-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+.company-logo{width:42px;height:42px;background:var(--gold-pale);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:var(--gold);flex-shrink:0;}
+.match-badge{background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;padding:3px 10px;border-radius:40px;border:1px solid var(--green-border);letter-spacing:0.02em;}
+.job-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:5px;line-height:1.3;letter-spacing:-0.3px;}
+.job-company{font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:3px;}
+.job-location{font-size:12px;color:var(--gray-400);margin-bottom:12px;font-weight:400;}
+.job-reason{font-size:12px;color:var(--gray-600);margin-bottom:14px;line-height:1.65;padding:10px 12px;background:var(--gray-50);border-radius:var(--radius-sm);border-left:2.5px solid var(--gold);}
+.job-footer{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:12px;border-top:1px solid var(--gray-100);}
+.job-salary{font-size:12px;color:var(--gray-600);font-weight:600;}
+.apply-btn{background:var(--navy);color:var(--white);border:none;padding:9px 18px;border-radius:var(--radius-md);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);text-decoration:none;transition:all 0.15s;display:inline-block;letter-spacing:-0.1px;}
+.apply-btn:hover{background:var(--navy-3);}
+
+/* ── EMPTY / ERROR ── */
+.empty-state{text-align:center;padding:60px 20px;grid-column:1/-1;}
+.empty-state .icon{font-size:44px;margin-bottom:14px;}
+.empty-state h3{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:10px;letter-spacing:-0.3px;}
+.empty-state p{font-size:14px;color:var(--gray-400);margin-bottom:24px;line-height:1.8;max-width:380px;margin-left:auto;margin-right:auto;}
+.retry-btn{background:var(--gold);color:var(--navy);border:none;padding:12px 28px;border-radius:var(--radius-md);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);transition:background 0.15s;}
+.retry-btn:hover{background:var(--gold-light);}
+.locked-wrap{grid-column:1/-1;position:relative;margin-top:4px;min-height:420px;}
+.locked-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(296px,1fr));gap:18px;filter:blur(5px);opacity:0.55;pointer-events:none;user-select:none;}
+.ghost-line{height:10px;border-radius:6px;background:var(--gray-200);margin-bottom:10px;}
+.ghost-line.lg{height:14px;width:75%;background:var(--gray-400);}
+.ghost-line.md{width:55%;}
+.ghost-line.sm{width:40%;}
+.ghost-box{height:48px;border-radius:var(--radius-sm);background:var(--gray-100);margin:14px 0;}
+.locked-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
+.upsell-card{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);border:1px solid rgba(212,168,67,0.35);border-radius:var(--radius-xl);padding:32px 28px;text-align:center;box-shadow:0 12px 40px rgba(10,15,28,0.25);max-width:560px;width:100%;}
+.lock-icon{font-size:26px;margin-bottom:8px;}
+.upsell-badge{display:inline-block;background:rgba(212,168,67,0.12);border:1px solid rgba(212,168,67,0.3);color:var(--gold-light);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:4px 14px;border-radius:40px;margin-bottom:14px;}
+.upsell-card h3{font-size:22px;font-weight:800;color:var(--white);letter-spacing:-0.4px;margin-bottom:10px;}
+.upsell-card p{font-size:14px;color:var(--gray-400);line-height:1.7;max-width:520px;margin:0 auto 20px;}
+.upsell-price{font-size:30px;font-weight:800;color:var(--gold);letter-spacing:-0.5px;margin-bottom:4px;}
+.upsell-price span{font-size:14px;font-weight:500;color:var(--gray-400);}
+.upsell-btn{display:inline-block;background:var(--gold);color:var(--navy);border:none;padding:13px 30px;border-radius:var(--radius-md);font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);text-decoration:none;transition:background 0.15s;}
+.upsell-btn:hover{background:var(--gold-light);}
+.upsell-btn.soon{opacity:0.7;cursor:default;}
+.upsell-note{font-size:12px;color:var(--gray-500);margin-top:12px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+nav{padding:0 20px;}
+.hero{padding:64px 20px 56px;}
+.stats{padding:24px 20px;gap:28px;}
+.how-it-works,.categories,.why-us,.testimonials,.cta-section{padding:64px 20px;}
+.steps-grid,.categories-grid,.why-grid,.testimonials-grid{grid-template-columns:1fr;}
+footer{padding:40px 20px 24px;}
+.results-section{padding:32px 20px 56px;}
+.search-bar{flex-direction:column;border-radius:var(--radius-lg);}
+.sb-field.loc{border-left:none;border-top:1px solid var(--gray-200);}
+.search-bar button{border-radius:0 0 var(--radius-lg) var(--radius-lg);}
+.filters{display:grid;grid-template-columns:1fr 1fr;}
+.filter-pill select,.pill-input{width:100%;max-width:none;}
+.filter-pill .city-list{width:100%;}
+.filter-pill.wide,.filter-pill.wide-phone{grid-column:1/-1;}
+.filter-reset{grid-column:1/-1;}
+.nav-links{display:none;}
+.jobs-grid{grid-template-columns:1fr;}
+.mode-toggle{flex-direction:column;width:100%;max-width:300px;}
+.mode-btn{justify-content:center;}
+.results-header{flex-direction:column;}
+}
+</style>
+<style>
+nav .find-jobs-link{color:var(--gold);font-weight:700;}
+@media(max-width:768px){nav{flex-wrap:wrap;height:auto;min-height:80px;gap:12px;padding:16px 20px}.nav-links{display:flex;gap:18px;order:3;width:100%;justify-content:center}}
+body[data-page="results"] .hero{display:none}
+body[data-page="results"] .results-section{display:block;min-height:60vh;padding-top:40px}
+body[data-page="results"] .polling-bar{position:static}
+body[data-page="results"] .results-back{display:inline-block;color:var(--gold);margin-bottom:24px}
+body[data-page="find"] .hero{min-height:65vh}
+</style>
+</head>
+<body data-page="results">
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div style="text-align:center">
+    <div class="loading-mode-badge" id="loadingModeBadge">⚡ Quick Match</div>
+    <div class="loading-main-text" id="loadingMainText">Getting jobs for you . . .</div>
+    <div class="loading-subtext" id="loadingSubtext"></div>
+  </div>
+</div>
+
+<!-- POLLING STATUS BAR -->
+<div class="polling-bar" id="pollingBar">
+  <p id="pollingBarText">Getting jobs for you . . .</p>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">
+    <div class="logo-icon">
+      <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+        <path d="M3 14 L7 8 L11 14 L15 9 L19 15" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="7" cy="8" r="2" fill="#0F172A"/>
+        <circle cx="15" cy="9" r="2" fill="#0F172A"/>
+        <circle cx="19" cy="15" r="2" fill="#0F172A"/>
+      </svg>
+    </div>
+    <span class="logo-text">Fortune Jobs AI</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="find-jobs.html" class="find-jobs-link">Find Jobs</a></li>
+  </ul>
+  <div class="nav-account" id="navAccount">
+    <a href="login.html" class="nav-login">Log in</a>
+    <a href="login.html?mode=signup" class="nav-cta">Sign up free</a>
+  </div>
+</nav>
+<div class="site-toast" id="siteToast" role="status"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">✦ AI-Powered Job Matching</div>
+  <h1>Find Your <span>Next Job</span></h1>
+  <p class="hero-sub-text">Type a job title and where you want to work, anywhere in the world. Our AI picks the best matches for you.</p>
+
+  <!-- MODE TOGGLE -->
+  <div class="mode-toggle" id="modeToggle">
+    <button class="mode-btn active" id="btnQuick" onclick="setMode('quick')">
+      ⚡ Quick Match
+    </button>
+    <button class="mode-btn" id="btnLive" onclick="setMode('live')">
+      🔴 Live Search
+    </button>
+  </div>
+  <div class="mode-desc" id="modeDesc">
+    <span>⚡ Quick Match</span> — instant results from pre-scraped jobs (fastest)
+  </div>
+
+  <div class="search-wrapper">
+    <div class="search-bar">
+      <label class="sb-field">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input type="text" id="jobSearchInput" aria-label="Job title or keyword" placeholder="Job title, skill or company"
+               autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="titleList"/>
+      </label>
+      <label class="sb-field loc">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 15s5-4.6 5-8.5A5 5 0 0 0 3 6.5C3 10.4 8 15 8 15z" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="6.5" r="1.8" stroke="currentColor" stroke-width="1.6"/></svg>
+        <input type="text" id="locationInput" aria-label="Location" placeholder="City, state or region"
+               autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cityList"/>
+      </label>
+      <button onclick="handleSearch()">Find My Job →</button>
+    </div>
+    <ul class="city-list" id="cityList" role="listbox" aria-label="City suggestions"></ul>
+    <ul class="city-list" id="titleList" role="listbox" aria-label="Job title suggestions"></ul>
+
+    <!-- FILTERS -->
+    <div class="filters" id="filters">
+      <div class="filter-pill wide">
+        <select id="filterCountry" aria-label="Country">
+          <option value="">🌍 Any country</option>
+          <option value="us">🇺🇸 United States</option>
+          <option value="ca">🇨🇦 Canada</option>
+          <option value="gb">🇬🇧 United Kingdom</option>
+          <option value="in">🇮🇳 India</option>
+          <option value="au">🇦🇺 Australia</option>
+          <option value="nz">🇳🇿 New Zealand</option>
+          <option value="ie">🇮🇪 Ireland</option>
+          <option value="de">🇩🇪 Germany</option>
+          <option value="fr">🇫🇷 France</option>
+          <option value="nl">🇳🇱 Netherlands</option>
+          <option value="es">🇪🇸 Spain</option>
+          <option value="it">🇮🇹 Italy</option>
+          <option value="ch">🇨🇭 Switzerland</option>
+          <option value="be">🇧🇪 Belgium</option>
+          <option value="se">🇸🇪 Sweden</option>
+          <option value="pl">🇵🇱 Poland</option>
+          <option value="ae">🇦🇪 United Arab Emirates</option>
+          <option value="sa">🇸🇦 Saudi Arabia</option>
+          <option value="qa">🇶🇦 Qatar</option>
+          <option value="sg">🇸🇬 Singapore</option>
+          <option value="my">🇲🇾 Malaysia</option>
+          <option value="ph">🇵🇭 Philippines</option>
+          <option value="jp">🇯🇵 Japan</option>
+          <option value="hk">🇭🇰 Hong Kong</option>
+          <option value="za">🇿🇦 South Africa</option>
+          <option value="ng">🇳🇬 Nigeria</option>
+          <option value="mx">🇲🇽 Mexico</option>
+          <option value="br">🇧🇷 Brazil</option>
+          <option value="ar">🇦🇷 Argentina</option>
+        </select>
+      </div>
+      <div class="filter-pill">
+        <select id="filterDate" aria-label="Date posted">
+          <option value="">Date posted</option>
+          <option value="1">Past 24 hours</option>
+          <option value="3">Past 3 days</option>
+          <option value="7">Past week</option>
+          <option value="14">Past 2 weeks</option>
+          <option value="30">Past month</option>
+        </select>
+      </div>
+      <div class="filter-pill">
+        <select id="filterExperience" aria-label="Experience level">
+          <option value="">Experience level</option>
+          <option value="internship">Internship</option>
+          <option value="entry">Entry level</option>
+          <option value="associate">Associate</option>
+          <option value="mid_senior">Mid-Senior level</option>
+          <option value="director">Director</option>
+          <option value="executive">Executive</option>
+        </select>
+      </div>
+      <div class="filter-pill">
+        <select id="filterJobType" aria-label="Job type">
+          <option value="">Job type</option>
+          <option value="fulltime">Full-time</option>
+          <option value="parttime">Part-time</option>
+          <option value="contract">Contract</option>
+          <option value="temporary">Temporary</option>
+          <option value="internship">Internship</option>
+        </select>
+      </div>
+      <div class="filter-pill">
+        <select id="filterWorkMode" aria-label="On-site or remote">
+          <option value="">On-site / Remote</option>
+          <option value="onsite">On-site</option>
+          <option value="remote">Remote</option>
+          <option value="hybrid">Hybrid</option>
+        </select>
+      </div>
+      <div class="filter-pill wide-phone">
+        <input type="text" id="filterCompany" class="pill-input" placeholder="Company" aria-label="Company"
+               autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="companyList"/>
+        <ul class="city-list" id="companyList" role="listbox" aria-label="Company suggestions"></ul>
+      </div>
+      <button class="filter-reset" id="filterReset" type="button" onclick="resetFilters()">Reset filters</button>
+    </div>
+  </div>
+  <div class="hero-actions">
+    <button class="upload-btn" onclick="goUploadResume()">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 5l4-4 4 4M2 12h12v2H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Upload Resume (PDF)
+    </button>
+    <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" style="display:none" onchange="handleResumeUpload(this)"/>
+    <span class="hero-note">Free to use · Real jobs · <a href="login.html?mode=signup" style="color:var(--gold-light)">Free account</a> saves your jobs</span>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+
+
+<!-- CATEGORIES -->
+
+
+<!-- WHY US -->
+
+
+<!-- TESTIMONIALS -->
+
+
+<!-- CTA -->
+
+
+<!-- RESULTS -->
+<section class="results-section" id="resultsSection"><a class="results-back" href="find-jobs.html">← Search again</a>
+  <div class="results-header">
+    <div>
+      <div class="results-title" id="resultsTitle">Your Job Results</div>
+      <div class="results-meta">
+        <div class="results-count" id="resultsCount">Searching for matching jobs…</div>
+        <div class="results-mode-badge quick" id="resultsModeBadge">⚡ Quick Match</div>
+      </div>
+    </div>
+  </div>
+  <div class="jobs-grid" id="jobsGrid"></div>
+</section>
+
+<!-- FOOTER -->
+<footer><p>© 2026 Fortune Jobs AI. All rights reserved.</p></footer>
+
+<script src="job-titles.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>
+// ═══════════════════════════════════════
+// WEBHOOK URLs — one per mode
+// ═══════════════════════════════════════
+const WEBHOOK_URL_LIVE  = 'https://hook.us2.make.com/nx71muhgk5j6mvou21zrcvm9dhje8it4';
+const WEBHOOK_URL_QUICK = 'https://hook.us2.make.com/nx71muhgk5j6mvou21zrcvm9dhje8it4';
+
+const SUPABASE_URL = 'https://hqgakkcxcyspqhnlnscv.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxZ2Fra2N4Y3lzcHFobmxuc2N2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1ODk2NjEsImV4cCI6MjA5MDE2NTY2MX0.6KMFrVZtp0Qfb3qlvZCQfSmK0HQX0W3oA0pAGimHVik';
+
+// ═══════════════════════════════════════
+// MODE STATE
+// ═══════════════════════════════════════
+let currentMode = 'quick'; // 'quick' or 'live'
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('btnQuick').classList.toggle('active', mode === 'quick');
+  document.getElementById('btnLive').classList.toggle('active', mode === 'live');
+  if (mode === 'quick') {
+    document.getElementById('modeDesc').innerHTML = '<span>⚡ Quick Match</span> — instant results from pre-scraped jobs (fastest)';
+  } else {
+    document.getElementById('modeDesc').innerHTML = LIVE_SEARCH_PAUSED
+      ? '<span>🔴 Live Search</span> — temporarily unavailable. Quick Match is available.'
+      : '<span>🔴 Live Search</span> — scrapes Indeed right now for the freshest listings (results appear as they arrive)';
+  }
+}
+
+// ═══════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════
+const POLL_INTERVAL_MS   = 3000;  // Check promptly while the live source is working.
+const SEARCH_REQUEST_TIMEOUT_MS = 10000;
+const MAX_WAIT_MS        = 150000;
+// Incident switch: pause submissions when the live provider cannot execute.
+const LIVE_SEARCH_PAUSED = false;
+const CLOCK_SKEW_MS      = 5000;
+const FREE_RESULTS = 10;        // free job cards per search (Quick + Live)
+const LOCKED_PREVIEW_CARDS = 3; // blurred placeholder cards shown after the free results
+const PRO_CHECKOUT_URL = '';    // paste your Stripe/payment link here when ready
+
+// Every search gets its own id. It travels to Make.com, is written onto each
+// job row, and is what we filter on — so two people searching at the same
+// moment never see each other's results.
+let currentSearchId = '';
+function newSearchId() {
+  const rand = (crypto && crypto.randomUUID) ? crypto.randomUUID()
+             : Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  return `s_${Date.now().toString(36)}_${rand.replace(/-/g, '').slice(0, 12)}`;
+}
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let currentSearch = '';
+let pollingTimer = null;
+let timeoutTimer = null;
+let initialWaitTimer = null;
+let loadingIntervalId = null;
+let searchGeneration = 0;
+let activePollFn = null;
+let activeAbortCtrl = null;
+let pollInFlight = false;
+
+// ═══════════════════════════════════════
+// LOADING ANIMATION
+// ═══════════════════════════════════════
+function showLoading(mode) {
+  if (loadingIntervalId) { clearInterval(loadingIntervalId); loadingIntervalId = null; }
+
+  document.getElementById('loadingModeBadge').textContent = mode === 'quick' ? '⚡ Quick Match' : '🔴 Live Search';
+  document.getElementById('loadingSubtext').textContent = '';
+
+  // Quick Match reads the database directly; no scraping countdown is needed.
+  if (mode === 'quick') {
+    document.getElementById('loadingSubtext').textContent = 'Searching saved jobs…';
+    const bar = document.getElementById('pollingBarText');
+    if (bar) bar.textContent = 'Searching saved jobs…';
+    document.getElementById('loadingOverlay').classList.add('active');
+    return;
+  }
+
+  document.getElementById('loadingSubtext').textContent = 'Searching live job sources… Results appear as they arrive.';
+  document.getElementById('pollingBarText').textContent = 'Searching live job sources…';
+
+  document.getElementById('loadingOverlay').classList.add('active');
+}
+
+function hideLoading() {
+  if (loadingIntervalId) { clearInterval(loadingIntervalId); loadingIntervalId = null; }
+  document.getElementById('loadingOverlay').classList.remove('active');
+}
+
+// ═══════════════════════════════════════
+// POLLING BAR
+// ═══════════════════════════════════════
+function showPollingBar() { document.getElementById('pollingBar').classList.add('active'); }
+function hidePollingBar() { document.getElementById('pollingBar').classList.remove('active'); }
+
+// ═══════════════════════════════════════
+// SANITIZE JOB DATA
+// ═══════════════════════════════════════
+function stripCodeFence(value) {
+  if (typeof value !== 'string') return value;
+  return value.trim()
+    .replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '')
+    .replace(/^`+|`+$/g, '').trim();
+}
+function sanitizeJobRow(row) {
+  const cleaned = {};
+  for (const key of Object.keys(row)) cleaned[key] = stripCodeFence(row[key]);
+  if (typeof cleaned.job_title === 'string' && /^\{[\s\S]*\}$/.test(cleaned.job_title)) {
+    try { return Object.assign({}, cleaned, JSON.parse(cleaned.job_title)); } catch(e) {}
+  }
+  return cleaned;
+}
+
+// ═══════════════════════════════════════
+// FETCH JOBS FROM SUPABASE
+// ═══════════════════════════════════════
+// Bound each read, including response-body parsing, without losing cancellation.
+async function readSearchRows(url, signal) {
+  const controller = new AbortController();
+  const cancel = () => controller.abort(signal.reason);
+  if (signal?.aborted) cancel();
+  else signal?.addEventListener('abort', cancel, { once: true });
+  let timedOut = false;
+  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, SEARCH_REQUEST_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, {
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+      cache: 'no-store', signal: controller.signal
+    });
+    if (!res.ok) throw new Error('Job search request failed (' + res.status + ')');
+    return await res.json();
+  } catch (error) {
+    if (timedOut) throw new Error('Job search request timed out');
+    throw error;
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener('abort', cancel);
+  }
+}
+
+async function fetchJobs(signal, sinceISO, searchId) {
+  // Never substitute another person's results when this search is still running.
+  if (!searchId) return null;
+  const url = `${SUPABASE_URL}/rest/v1/job_matches`
+    + '?select=job_title,company,location,salary,apply_url,match_reason,match_score,created_at'
+    + `&order=created_at.desc&limit=${FREE_RESULTS + 1}&search_id=eq.${encodeURIComponent(searchId)}`;
+  const rows = await readSearchRows(url, signal);
+  const cleaned = rows.map(sanitizeJobRow).filter(r =>
+    r.job_title && r.job_title !== 'No matching jobs found' && r.job_title !== 'N/A' && r.company !== 'N/A'
+  );
+  cleaned.sort((a, b) => (parseInt(b.match_score) || 0) - (parseInt(a.match_score) || 0));
+  if (cleaned.length) {
+    const results = cleaned.slice(0, FREE_RESULTS);
+    results.completed = rows.some(r => stripCodeFence(r.job_title) === 'No matching jobs found');
+    return results;
+  }
+  // Make writes this sentinel after the final listing, including empty searches.
+  // An empty database response still means the request is running.
+  return rows.some(r => stripCodeFence(r.job_title) === 'No matching jobs found') ? [] : null;
+}
+
+// ═══════════════════════════════════════
+// QUICK MATCH — reads pre-scraped jobs straight from Supabase.
+// No webhook, no Make.com queue, no polling: the browser asks the database
+// and ranks the answer itself. That is what lets many people search at once.
+// ═══════════════════════════════════════
+const QUICK_CANDIDATE_LIMIT = 300;
+const STOPWORDS = new Set(['a','an','and','the','of','for','to','in','on','at','with','or','jobs','job','role','roles','position','positions','senior','junior','sr','jr']);
+
+function queryTokens(text) {
+  return (text || '').toLowerCase()
+    .replace(/[^a-z0-9+#.\s-]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length >= 2 && !STOPWORDS.has(t));
+}
+
+// Build the PostgREST URL. Hard filters go to the server; everything else is
+// scored on the client so a narrow filter never returns an empty page.
+function quickMatchUrl(tokens, filters, relaxed) {
+  const p = [
+    'select=job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category',
+    `limit=${QUICK_CANDIDATE_LIMIT}`
+  ];
+  if (tokens.length) {
+    const ors = tokens.map(t => `search_text.ilike.*${encodeURIComponent(t).replace(/\*/g, '')}*`);
+    p.push(`or=(${ors.join(',')})`);
+  }
+  if (!relaxed) {
+    if (filters.job_type)  p.push(`employment_type=eq.${encodeURIComponent(filters.job_type)}`);
+    if (filters.work_mode) p.push(`work_mode=eq.${encodeURIComponent(filters.work_mode)}`);
+    if (filters.date_posted) {
+      const since = new Date(Date.now() - parseInt(filters.date_posted, 10) * 86400000).toISOString();
+      p.push(`posted_at=gte.${encodeURIComponent(since)}`);
+    }
+    if (filters.company) p.push(`company=ilike.*${encodeURIComponent(filters.company)}*`);
+  }
+  return `${SUPABASE_URL}/rest/v1/pre_scraped_jobs?${p.join('&')}`;
+}
+
+// Score a listing against what the person actually asked for.
+function scoreJob(job, tokens, phrase, filters) {
+  const title = (job.job_title || '').toLowerCase();
+  const loc   = (job.location  || '').toLowerCase();
+  const co    = (job.company   || '').toLowerCase();
+  let score = 0;
+  const why = [];
+
+  if (phrase && title.includes(phrase)) { score += 55; why.push(`title matches "${job.job_title}"`); }
+  const hitsInTitle = tokens.filter(t => title.includes(t));
+  score += hitsInTitle.length * 14;
+  if (tokens.length && hitsInTitle.length === tokens.length && !why.length) why.push('matches every keyword you searched');
+  score += tokens.filter(t => co.includes(t)).length * 3;
+
+  const wantedCity = (filters.city || filters.location || '').toLowerCase().split(',')[0].trim();
+  if (wantedCity && loc.includes(wantedCity)) { score += 30; why.push(`in ${job.location}`); }
+  else if (wantedCity && job.is_remote)       { score += 18; why.push('remote, so location is open'); }
+
+  if (filters.work_mode && job.work_mode === filters.work_mode) { score += 12; why.push(`${filters.work_mode} role`); }
+  if (filters.job_type && job.employment_type === filters.job_type) score += 8;
+  if (job.salary) { score += 6; why.push(`pay listed at ${job.salary}`); }
+
+  if (job.posted_at) {
+    const days = (Date.now() - new Date(job.posted_at).getTime()) / 86400000;
+    if (days <= 1) { score += 14; why.push('posted today'); }
+    else if (days <= 3)  score += 9;
+    else if (days <= 7)  score += 5;
+    else if (days > 30)  score -= 6;
+  }
+
+  return {
+    score,
+    reason: why.length ? why.slice(0, 3).join('; ').replace(/^./, c => c.toUpperCase()) + '.'
+                       : 'Related to your search.'
+  };
+}
+
+async function fetchQuickMatches(input, filters, signal) {
+  const tokens = queryTokens(input);
+  const phrase = input.trim().toLowerCase();
+
+  // A single request respects the selected filters and avoids a second round trip.
+  const rows = await readSearchRows(quickMatchUrl(tokens, filters, false), signal);
+  if (!rows || !rows.length) return [];
+
+  const seen = new Set();
+  return rows
+    .filter(r => { const k = r.apply_url; if (!k || seen.has(k)) return false; seen.add(k); return true; })
+    .map(r => {
+      const { score, reason } = scoreJob(r, tokens, phrase, filters);
+      return {
+        job_title: r.job_title, company: r.company, location: r.location,
+        salary: r.salary || 'Not listed', apply_url: r.apply_url,
+        match_reason: reason,
+        match_score: String(Math.max(42, Math.min(99, 42 + score))),
+        created_at: r.posted_at
+      };
+    })
+    .sort((a, b) => parseInt(b.match_score) - parseInt(a.match_score));
+}
+
+// ═══════════════════════════════════════
+// STOP ALL POLLING
+// ═══════════════════════════════════════
+function stopPolling() {
+  if (pollingTimer)     { clearTimeout(pollingTimer); pollingTimer = null; }
+  if (timeoutTimer)     { clearTimeout(timeoutTimer); timeoutTimer = null; }
+  if (initialWaitTimer) { clearTimeout(initialWaitTimer); initialWaitTimer = null; }
+  if (activeAbortCtrl)  { activeAbortCtrl.abort(); activeAbortCtrl = null; }
+  activePollFn = null;
+  pollInFlight = false;
+  hidePollingBar();
+}
+
+function showSearchError(message) {
+  hideLoading();
+  document.getElementById('resultsTitle').textContent = 'Search unavailable';
+  document.getElementById('resultsCount').textContent = message;
+  document.getElementById('resultsSection').classList.add('active');
+  shownJobs = [];
+  document.getElementById('jobsGrid').innerHTML = '<div class="empty-state"><h3>Please try again</h3><p>We could not finish this search. Your search settings are still available above.</p></div>';
+}
+
+function showLiveSearchEmpty(search) {
+  document.getElementById('resultsTitle').textContent = `No live results for "${search}"`;
+  document.getElementById('resultsCount').textContent = 'The live job source finished without returning listings.';
+  const badge = document.getElementById('resultsModeBadge');
+  badge.className = 'results-mode-badge live';
+  badge.textContent = '🔴 Live Search';
+  document.getElementById('resultsSection').classList.add('active');
+  shownJobs = [];
+  document.getElementById('jobsGrid').innerHTML = `
+    <div class="empty-state">
+      <h3>The live source returned no listings</h3>
+      <p>Try another location or job title, or use Quick Match to search our saved listings.</p>
+      <button class="retry-btn" onclick="setMode('quick');handleSearch();">Try Quick Match</button>
+    </div>`;
+  document.getElementById('resultsSection').scrollIntoView({ behavior: 'instant', block: 'start' });
+}
+
+function startPolling(search, generation, sinceISO, mode, searchId) {
+  showPollingBar();
+  let displayed = false;
+  let lastResults = '';
+  let consecutiveErrors = 0;
+  let inFlight = false;
+  const poll = async () => {
+    if (generation !== searchGeneration || inFlight) return;
+    inFlight = true;
+    pollInFlight = true;
+    const controller = new AbortController();
+    activeAbortCtrl = controller;
+    try {
+      const jobs = await fetchJobs(controller.signal, sinceISO, searchId);
+      if (generation !== searchGeneration || controller.signal.aborted) return;
+      if (jobs && jobs.length === 0) {
+        stopPolling();
+        if (!displayed) showLiveSearchEmpty(search);
+        return;
+      }
+      if (jobs?.length) {
+        const signature = JSON.stringify(jobs);
+        if (signature !== lastResults) {
+          showJobCards(jobs, search, mode, !displayed);
+          lastResults = signature;
+        }
+        displayed = true;
+        if (jobs.completed || jobs.length >= FREE_RESULTS) { stopPolling(); return; }
+        document.getElementById('pollingBarText').textContent = 'Results found — checking for more…';
+      }
+      consecutiveErrors = 0;
+    } catch (error) {
+      if (generation !== searchGeneration || controller.signal.aborted) return;
+      console.error('Live Search could not read or display results:', error.message);
+      if (++consecutiveErrors >= 3) {
+        stopPolling();
+        if (displayed) document.getElementById('resultsCount').textContent += ' · Could not check for more results';
+        else showSearchError('The job source is unavailable. Please try again.');
+        return;
+      }
+    } finally {
+      inFlight = false;
+      if (generation === searchGeneration) pollInFlight = false;
+    }
+    if (generation === searchGeneration && activePollFn === poll) {
+      pollingTimer = setTimeout(poll, POLL_INTERVAL_MS);
+    }
+  };
+  activePollFn = poll;
+  timeoutTimer = setTimeout(() => {
+    if (generation !== searchGeneration) return;
+    stopPolling();
+    if (displayed) document.getElementById('resultsCount').textContent += ' · Live search finished checking';
+    else showSearchError('Live Search did not return results in time. Try Quick Match or retry later.');
+  }, MAX_WAIT_MS);
+  poll();
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && activePollFn && pollingTimer && !pollInFlight) {
+    clearTimeout(pollingTimer); pollingTimer = null;
+    activePollFn();
+  }
+});
+
+// ══════════════════════════════════════
+// SHOW JOB CARDS
+// ═══════════════════════════════════════
+function showJobCards(allJobs, search, mode, scrollToResults = true) {
+  const section = document.getElementById('resultsSection');
+  const jobs = allJobs.slice(0, FREE_RESULTS);
+  const showLocked = jobs.length >= FREE_RESULTS;
+  document.getElementById('resultsTitle').textContent = `Best Matches for "${search}"`;
+  document.getElementById('resultsCount').textContent =
+    `${jobs.length} matched job${jobs.length > 1 ? 's' : ''} · ${mode === 'live' ? 'scraped from Indeed just now' : 'from our saved listings'}`
+    + (currentFilterSummary ? ` · ${currentFilterSummary}` : '');
+  const badge = document.getElementById('resultsModeBadge');
+  if (mode === 'live') {
+    badge.className = 'results-mode-badge live';
+    badge.textContent = '🔴 Live Search';
+  } else {
+    badge.className = 'results-mode-badge quick';
+    badge.textContent = '⚡ Quick Match';
+  }
+
+  section.classList.add('active');
+  shownJobs = jobs;
+  document.getElementById('jobsGrid').innerHTML = jobs.map((job, i) => {
+    const letter = (job.company && job.company.length > 0) ? job.company[0].toUpperCase() : '?';
+    const applyUrl = (job.apply_url && /^https?:\/\//.test(job.apply_url)) ? job.apply_url.replace(/"/g, '%22') : '#';
+    const isSaved = window.FJ && acct.savedKeys.has(FJ.jobKey(job));
+    const score = job.match_score || '90';
+    return `
+      <div class="job-card">
+        <div class="job-card-top">
+          <div class="company-logo">${safe(letter)}</div>
+          <div class="match-badge">✓ ${safe(score)}% match</div>
+        </div>
+        <div class="job-title">${safe(job.job_title)}</div>
+        <div class="job-company">${safe(job.company || 'Company')}</div>
+        <div class="job-location">📍 ${safe(job.location || 'Location not listed')}</div>
+        ${job.match_reason ? `<div class="job-reason">💡 ${safe(job.match_reason)}</div>` : ''}
+        <div class="job-footer">
+          <div class="job-salary">${safe(job.salary || 'Salary not listed')}</div>
+          <div class="job-actions">
+            <button type="button" class="save-btn${isSaved ? ' saved' : ''}" data-i="${i}" aria-pressed="${isSaved}" onclick="toggleSaveJob(${i}, this)">${isSaved ? '🔖 Saved' : '🔖 Save'}</button>
+            <a href="${applyUrl}" class="apply-btn" target="_blank" rel="noopener">Apply Now →</a>
+          </div>
+        </div>
+      </div>`;
+  }).join('') + (showLocked ? lockedSectionHtml() : '');
+  if (scrollToResults) section.scrollIntoView({ behavior: 'instant', block: 'start' });
+}
+
+// Placeholder cards only — no real job data is ever sent to free users here.
+function lockedSectionHtml() {
+  const ghost = `
+    <div class="job-card">
+      <div class="job-card-top">
+        <div class="company-logo">•</div>
+        <div class="match-badge">✓ ••% match</div>
+      </div>
+      <div class="ghost-line lg"></div>
+      <div class="ghost-line md"></div>
+      <div class="ghost-line sm"></div>
+      <div class="ghost-box"></div>
+      <div class="job-footer">
+        <div class="ghost-line sm" style="margin:0"></div>
+        <span class="apply-btn">Apply Now →</span>
+      </div>
+    </div>`;
+  const btn = PRO_CHECKOUT_URL
+    ? `<a href="${PRO_CHECKOUT_URL}" class="upsell-btn" target="_blank" rel="noopener">Subscribe for more results →</a>`
+    : `<span class="upsell-btn soon">Subscriptions coming soon</span>`;
+  return `
+    <div class="locked-wrap">
+      <div class="locked-grid" aria-hidden="true">${ghost.repeat(LOCKED_PREVIEW_CARDS)}</div>
+      <div class="locked-overlay">
+        <div class="upsell-card">
+          <div class="lock-icon">🔒</div>
+          <div class="upsell-badge">✦ Fortune Jobs AI Pro</div>
+          <h3>Subscribe for more results</h3>
+          <p>You've reached the ${FREE_RESULTS}-result free limit for this search. The planned Pro subscription will offer more results in both Quick Match and Live Search. Availability depends on your search and filters.</p>
+          <div class="upsell-price">$7.99 <span>/ month + tax</span></div>
+          <div style="margin-top:16px">${btn}</div>
+          <div class="upsell-note">Cancel anytime.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function safe(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Shown when the pre-scraped set has nothing for this search.
+function showQuickMatchEmpty(search, filters) {
+  const section = document.getElementById('resultsSection');
+  document.getElementById('resultsTitle').textContent = `No quick matches for "${search}"`;
+  document.getElementById('resultsCount').textContent =
+    'Quick Match looks through jobs we collected earlier, so it can miss newer or more unusual roles.';
+  const badge = document.getElementById('resultsModeBadge');
+  badge.className = 'results-mode-badge quick';
+  badge.textContent = '\u26a1 Quick Match';
+  section.classList.add('active');
+  shownJobs = [];
+  document.getElementById('jobsGrid').innerHTML = `
+    <div class="empty-state">
+      <div class="icon">\u{1F50E}</div>
+      <h3>Nothing saved for this one yet</h3>
+      <p>Try Live Search — it scrapes Indeed right now and shows results as they arrive.</p>
+      <button class="retry-btn" onclick="setMode('live');window.scrollTo({top:0,behavior:'smooth'});">Switch to Live Search \u2191</button>
+    </div>`;
+  section.scrollIntoView({ behavior: 'instant', block: 'start' });
+}
+
+// ═══════════════════════════════════════
+// MAIN SEARCH
+// ═══════════════════════════════════════
+async function handleSearch() {
+  const input = document.getElementById('jobSearchInput').value.trim();
+  if (!input) { alert('Please type a job title first!'); return; }
+
+  if (document.body.dataset.page !== 'results') {
+    const params = new URLSearchParams({q: input, mode: currentMode});
+    Object.entries(getFilters()).forEach(([key, value]) => {
+      if (value !== null && value !== '') params.set(key, String(value));
+    });
+    location.href = 'results.html?' + params.toString();
+    return;
+  }
+
+  stopPolling();
+  closeTitleList(); closeCityList();
+  const mode = currentMode;
+  const myGeneration = ++searchGeneration;
+
+  document.getElementById('jobsGrid').innerHTML = '';
+  document.getElementById('resultsSection').classList.remove('active');
+
+  if (mode === 'live' && LIVE_SEARCH_PAUSED) {
+    showSearchError('Live Search is temporarily unavailable. Quick Match is available.');
+    const badge = document.getElementById('resultsModeBadge');
+    badge.className = 'results-mode-badge live';
+    badge.textContent = '🔴 Live Search';
+    document.getElementById('jobsGrid').innerHTML = '<div class="empty-state"><h3>Live Search is temporarily unavailable</h3><p>Search our saved job listings with Quick Match, or try Live Search again later.</p><button class="retry-btn" onclick="setMode(\'quick\');handleSearch();">Try Quick Match</button></div>';
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'instant', block: 'start' });
+    return;
+  }
+
+  currentSearch = input;
+  const searchStartTime = Date.now();
+  const sinceISO = new Date(searchStartTime - CLOCK_SKEW_MS).toISOString();
+  const searchId = newSearchId();
+  currentSearchId = searchId;
+
+  const filters = getFilters();
+  currentFilterSummary = filterSummary(filters);
+  rememberSearch(input, mode, filters);                // history + saved filters (signed-in only)
+
+  // ── Quick Match: read the database directly. ──────────────────────────
+  // Query the saved listings directly instead of joining the scraping queue.
+  if (mode === 'quick') {
+    showLoading(mode);
+    activeAbortCtrl = new AbortController();
+    let jobs = [];
+    try {
+      jobs = await fetchQuickMatches(input, filters, activeAbortCtrl.signal);
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+      if (myGeneration !== searchGeneration) return;
+      hideLoading();
+      showSearchError('Quick Match could not load jobs. Please try again.');
+      return;
+    }
+    if (myGeneration !== searchGeneration) return;
+    hideLoading();
+    if (jobs.length) { showJobCards(jobs, input, mode); }
+    else { showQuickMatchEmpty(input, filters); }
+    return;
+  }
+
+  // Start checking independently of the webhook response; Make may hold it open.
+  showLoading(mode);
+  hideLoading();
+  const webhookController = new AbortController();
+  const webhookTimeout = setTimeout(() => webhookController.abort(), SEARCH_REQUEST_TIMEOUT_MS);
+  fetch(WEBHOOK_URL_LIVE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: input, mode: mode, search_id: searchId, results_limit: FREE_RESULTS, ...filters, ...accountPayload() }),
+    mode: 'cors', signal: webhookController.signal
+  }).catch(error => {
+    // Search-id polling remains authoritative if the acknowledgement is delayed.
+    console.warn('Live Search submission could not be confirmed:', error.name);
+  }).finally(() => clearTimeout(webhookTimeout));
+  startPolling(input, myGeneration, sinceISO, mode, searchId);
+}
+
+// ═══════════════════════════════════════
+// FILTERS — sent to Make.com with every search
+// ═══════════════════════════════════════
+let currentFilterSummary = '';
+const FILTER_IDS = ['filterCountry','filterDate','filterExperience','filterJobType','filterWorkMode','filterCompany'];
+
+function getFilters() {
+  const val = id => document.getElementById(id).value;
+  const sel = id => { const s = document.getElementById(id); return s.value ? s.options[s.selectedIndex].text.replace(/^\S+\s(?=[A-Z])/u, '') : ''; };
+  return {
+    location:     document.getElementById('locationInput').value.trim(),
+    city:         (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.name : '',
+    region:       (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.region : '',
+    latitude:     (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lat : null,
+    longitude:    (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lng : null,
+    country:      val('filterCountry'),          // ISO code, '' = any country
+    country_name: val('filterCountry') ? sel('filterCountry') : '',
+    date_posted:  val('filterDate'),             // max age in days, '' = any time
+    experience:   val('filterExperience'),
+    job_type:     val('filterJobType'),
+    work_mode:    val('filterWorkMode'),
+    company:      val('filterCompany').trim()
+  };
+}
+
+function filterSummary(f) {
+  const place = [f.location, f.country_name].filter(Boolean).join(', ');
+  const label = id => { const s = document.getElementById(id); return s.value ? s.options[s.selectedIndex].text : ''; };
+  return [place && `📍 ${place}`, f.company && `🏢 ${f.company}`, label('filterWorkMode'), label('filterJobType'), label('filterExperience'), label('filterDate')]
+    .filter(Boolean).join(' · ');
+}
+
+function refreshFilterUI() {
+  let any = document.getElementById('locationInput').value.trim() !== '';
+  FILTER_IDS.forEach(id => {
+    const s = document.getElementById(id);
+    const has = s.value.trim() !== '';
+    s.classList.toggle('set', has);
+    if (has) any = true;
+  });
+  document.getElementById('filterReset').classList.toggle('show', any);
+}
+
+function resetFilters() {
+  FILTER_IDS.forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('locationInput').value = '';
+  if (typeof selectedCity !== 'undefined') { selectedCity = null; cityItems = []; closeCityList(); }
+  refreshFilterUI();
+}
+
+FILTER_IDS.forEach(id => document.getElementById(id).addEventListener('change', refreshFilterUI));
+document.getElementById('locationInput').addEventListener('input', refreshFilterUI);
+
+// ═══════════════════════════════════════
+// CITY AUTOCOMPLETE — worldwide, free (Open-Meteo geocoding, no key)
+// ═══════════════════════════════════════
+const CITY_API = 'https://geocoding-api.open-meteo.com/v1/search';
+const CITY_MIN_CHARS = 2;
+const CITY_MAX_SHOWN = 8;
+let selectedCity = null;      // set when the user picks a suggestion
+let cityItems = [];
+let cityActive = -1;
+let cityTimer = null;
+let cityReqId = 0;
+const cityCache = new Map();
+
+const cityInput = document.getElementById('locationInput');
+const cityList  = document.getElementById('cityList');
+
+const fold = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const flagOf = cc => cc && cc.length === 2
+  ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65)) : '';
+const escHtml = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+async function fetchCities(q, country) {
+  const key = `${country}|${fold(q)}`;
+  if (cityCache.has(key)) return cityCache.get(key);
+  const url = `${CITY_API}?name=${encodeURIComponent(q)}&count=30&language=en&format=json`
+    + (country ? `&countryCode=${country.toUpperCase()}` : '');
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('city lookup failed');
+  const data = await res.json();
+  const fq = fold(q);
+  const seen = new Set();
+  const all = (data.results || [])
+    .filter(r => fold(r.name).startsWith(fq))                 // only cities that START with what was typed
+    .filter(r => { const k = `${r.name}|${r.admin1}|${r.country_code}`; if (seen.has(k)) return false; seen.add(k); return true; })
+    .sort((a, b) => (b.population || 0) - (a.population || 0));
+  const big = all.filter(r => (r.population || 0) >= 5000 || /^PPL(A|C)/.test(r.feature_code || ''));
+  const list = (big.length >= 3 ? big : all).slice(0, CITY_MAX_SHOWN);
+  cityCache.set(key, list);
+  return list;
+}
+
+function cityLabel(r) {
+  return [r.name, r.admin1 && r.admin1 !== r.name ? r.admin1 : null].filter(Boolean).join(', ');
+}
+
+function positionCityList() {
+  const wrap = cityInput.closest('.search-wrapper').getBoundingClientRect();
+  const field = cityInput.closest('.sb-field').getBoundingClientRect();
+  const bar = cityInput.closest('.search-bar').getBoundingClientRect();
+  if (window.innerWidth <= 768) {
+    cityList.style.left = '0px';
+    cityList.style.width = '100%';
+    cityList.style.top = `${field.bottom - wrap.top + 6}px`;
+  } else {
+    cityList.style.left = `${field.left - wrap.left}px`;
+    cityList.style.width = `${Math.max(field.width, 320)}px`;
+    cityList.style.top = `${bar.bottom - wrap.top + 6}px`;
+  }
+}
+
+function openCityList(html) {
+  cityList.innerHTML = html;
+  positionCityList();
+  cityList.classList.add('open');
+  cityInput.setAttribute('aria-expanded', 'true');
+}
+
+function closeCityList() {
+  cityList.classList.remove('open');
+  cityInput.setAttribute('aria-expanded', 'false');
+  cityInput.removeAttribute('aria-activedescendant');
+  cityActive = -1;
+}
+
+function renderCities(q) {
+  if (!cityItems.length) {
+    openCityList(`<li class="city-empty">No cities found for “${escHtml(q)}” — you can still search with what you typed.</li>`);
+    return;
+  }
+  const n = q.length;
+  openCityList(cityItems.map((r, i) => `
+    <li role="option" id="city-${i}" data-i="${i}" aria-selected="false">
+      <svg class="pin" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 15s5-4.6 5-8.5A5 5 0 0 0 3 6.5C3 10.4 8 15 8 15z" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="6.5" r="1.8" stroke="currentColor" stroke-width="1.6"/></svg>
+      <span>
+        <span class="city-name"><b>${escHtml(r.name.slice(0, n))}</b>${escHtml(r.name.slice(n))}</span>
+        <span class="city-region">${escHtml([r.admin1 !== r.name ? r.admin1 : '', r.country].filter(Boolean).join(', '))}</span>
+      </span>
+      <span class="city-flag" aria-hidden="true">${flagOf(r.country_code)}</span>
+    </li>`).join(''));
+}
+
+function setCityActive(i) {
+  const lis = cityList.querySelectorAll('li[role="option"]');
+  if (!lis.length) return;
+  cityActive = (i + lis.length) % lis.length;
+  lis.forEach((li, k) => { li.classList.toggle('active', k === cityActive); li.setAttribute('aria-selected', k === cityActive); });
+  lis[cityActive].scrollIntoView({ block: 'nearest' });
+  cityInput.setAttribute('aria-activedescendant', `city-${cityActive}`);
+}
+
+function pickCity(i) {
+  const r = cityItems[i];
+  if (!r) return;
+  selectedCity = { label: cityLabel(r), name: r.name, region: r.admin1 || '', country_code: (r.country_code || '').toLowerCase(), lat: r.latitude, lng: r.longitude };
+  cityInput.value = selectedCity.label;
+  const countrySel = document.getElementById('filterCountry');
+  if ([...countrySel.options].some(o => o.value === selectedCity.country_code)) countrySel.value = selectedCity.country_code;
+  refreshFilterUI();
+  closeCityList();
+}
+
+cityInput.addEventListener('input', () => {
+  selectedCity = null;
+  clearTimeout(cityTimer);
+  const q = cityInput.value.trim();
+  if (q.length < CITY_MIN_CHARS) { closeCityList(); return; }
+  cityTimer = setTimeout(async () => {
+    const myReq = ++cityReqId;
+    try {
+      const results = await fetchCities(q, document.getElementById('filterCountry').value);
+      if (myReq !== cityReqId || cityInput.value.trim() !== q) return;   // a newer keystroke won
+      cityItems = results;
+      renderCities(q);
+    } catch (e) { closeCityList(); }                                   // lookup down: plain text still works
+  }, 200);
+});
+
+cityInput.addEventListener('keydown', e => {
+  if (!cityList.classList.contains('open') || !cityItems.length) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); setCityActive(cityActive + 1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); setCityActive(cityActive - 1); }
+  else if (e.key === 'Enter' && cityActive >= 0) { e.preventDefault(); e.stopPropagation(); pickCity(cityActive); }
+  else if (e.key === 'Escape') { closeCityList(); }
+});
+
+cityList.addEventListener('mousedown', e => e.preventDefault());       // keep focus in the input
+cityList.addEventListener('click', e => {
+  const li = e.target.closest('li[role="option"]');
+  if (li) pickCity(+li.dataset.i);
+});
+cityInput.addEventListener('blur', () => setTimeout(closeCityList, 120));
+cityInput.addEventListener('focus', () => { if (cityItems.length && cityInput.value.trim().length >= CITY_MIN_CHARS && !selectedCity) renderCities(cityInput.value.trim()); });
+window.addEventListener('resize', () => { if (cityList.classList.contains('open')) positionCityList(); });
+document.getElementById('filterCountry').addEventListener('change', () => { cityCache.clear(); });
+
+// ═══════════════════════════════════════
+// JOB TITLE / SKILL / COMPANY AUTOCOMPLETE (list lives in job-titles.js)
+// ═══════════════════════════════════════
+const TITLE_MAX_SHOWN = 10;
+const titleInput = document.getElementById('jobSearchInput');
+const titleList  = document.getElementById('titleList');
+let titleIndex = null;        // built once, on first keystroke
+let titleItems = [];
+let titleActive = -1;
+
+const TITLE_KIND = {
+  t: { label: 'Job title', icon: '<path d="M2.5 5.5h11v8h-11z M6 5.5V3.5h4v2" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' },
+  s: { label: 'Skill',     icon: '<path d="M8 2l1.6 3.6L13.5 6l-2.9 2.6.8 3.9L8 10.6 4.6 12.5l.8-3.9L2.5 6l3.9-.4z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>' },
+  c: { label: 'Company',   icon: '<path d="M3 14V3h6v11 M9 7h4v7 M5 5.5h2 M5 8h2 M5 10.5h2 M2 14h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>' }
+};
+
+function buildTitleIndex() {
+  const src = window.JOB_SUGGESTIONS;
+  if (!src) return null;
+  const all = [];
+  [['t', src.titles], ['s', src.skills], ['c', src.companies]].forEach(([k, arr]) =>
+    (arr || []).forEach((text, pos) => {     // list order = popularity order
+      const f = fold(text);
+      all.push({ text, kind: k, pos, f, starts: [0, ...[...f.matchAll(/[\s\-/&(.]+/g)].map(m => m.index + m[0].length)] });
+    }));
+  return all;
+}
+
+function matchTitles(q) {
+  if (!titleIndex) titleIndex = buildTitleIndex();
+  if (!titleIndex) return [];
+  const fq = fold(q).replace(/\s+/g, ' ');
+  const out = [];
+  for (const it of titleIndex) {
+    let rank = -1, at = -1;
+    if (it.f.startsWith(fq)) { rank = 0; at = 0; }                               // "power bi" -> "Power BI Developer"
+    else {
+      const s = it.starts.find(p => p > 0 && it.f.startsWith(fq, p));
+      if (s !== undefined) { rank = 1; at = s; }                                   // "power bi" -> "Senior Power BI Developer"
+    }
+    if (rank < 0) continue;
+    out.push({ ...it, rank, at, len: fq.length });
+  }
+  out.sort((a, b) => a.rank - b.rank || a.pos - b.pos);
+  const titles = out.filter(x => x.kind === 't');
+  const others = out.filter(x => x.kind !== 't' && x.rank === 0).slice(0, 2);   // keep room for a matching skill/company
+  const shown = titles.slice(0, TITLE_MAX_SHOWN - others.length).concat(others);
+  return shown.length < TITLE_MAX_SHOWN
+    ? shown.concat(out.filter(x => !shown.includes(x)).slice(0, TITLE_MAX_SHOWN - shown.length))
+    : shown;
+}
+
+function positionTitleList() {
+  const wrap = titleInput.closest('.search-wrapper').getBoundingClientRect();
+  const field = titleInput.closest('.sb-field').getBoundingClientRect();
+  const bar = titleInput.closest('.search-bar').getBoundingClientRect();
+  if (window.innerWidth <= 768) {
+    titleList.style.left = '0px';
+    titleList.style.width = '100%';
+    titleList.style.top = `${bar.bottom - wrap.top + 6}px`;   // below the whole bar so the location box stays tappable
+  } else {
+    titleList.style.left = `${field.left - wrap.left}px`;
+    titleList.style.width = `${Math.max(field.width, 340)}px`;
+    titleList.style.top = `${bar.bottom - wrap.top + 6}px`;
+  }
+}
+
+function closeTitleList() {
+  titleList.classList.remove('open');
+  titleInput.setAttribute('aria-expanded', 'false');
+  titleInput.removeAttribute('aria-activedescendant');
+  titleActive = -1;
+}
+
+function renderTitles() {
+  if (!titleItems.length) { closeTitleList(); return; }
+  titleList.innerHTML = titleItems.map((it, i) => {
+    const a = it.at, b = it.at + it.len;
+    const k = TITLE_KIND[it.kind];
+    return `
+    <li role="option" id="title-${i}" data-i="${i}" aria-selected="false">
+      <svg class="pin" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">${k.icon}</svg>
+      <span>
+        <span class="city-name" style="font-weight:500">${escHtml(it.text.slice(0, a))}<b>${escHtml(it.text.slice(a, b))}</b>${escHtml(it.text.slice(b))}</span>
+        <span class="city-region">${k.label}</span>
+      </span>
+    </li>`;
+  }).join('');
+  positionTitleList();
+  titleList.classList.add('open');
+  titleInput.setAttribute('aria-expanded', 'true');
+}
+
+function setTitleActive(i) {
+  const lis = titleList.querySelectorAll('li[role="option"]');
+  if (!lis.length) return;
+  titleActive = (i + lis.length) % lis.length;
+  lis.forEach((li, k) => { li.classList.toggle('active', k === titleActive); li.setAttribute('aria-selected', k === titleActive); });
+  lis[titleActive].scrollIntoView({ block: 'nearest' });
+  titleInput.setAttribute('aria-activedescendant', `title-${titleActive}`);
+}
+
+function pickTitle(i) {
+  const it = titleItems[i];
+  if (!it) return;
+  titleInput.value = it.text;
+  closeTitleList();
+  if (!cityInput.value.trim()) cityInput.focus();     // next step, like LinkedIn: where?
+}
+
+titleInput.addEventListener('input', () => {
+  const q = titleInput.value.trim();
+  if (q.length < 2) { closeTitleList(); return; }
+  titleItems = matchTitles(q);
+  renderTitles();
+});
+
+titleInput.addEventListener('keydown', e => {
+  if (!titleList.classList.contains('open')) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); setTitleActive(titleActive + 1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); setTitleActive(titleActive - 1); }
+  else if (e.key === 'Enter' && titleActive >= 0) { e.preventDefault(); e.stopPropagation(); pickTitle(titleActive); }
+  else if (e.key === 'Escape') { closeTitleList(); }
+});
+
+titleList.addEventListener('mousedown', e => e.preventDefault());
+titleList.addEventListener('click', e => {
+  const li = e.target.closest('li[role="option"]');
+  if (li) pickTitle(+li.dataset.i);
+});
+titleInput.addEventListener('blur', () => setTimeout(closeTitleList, 120));
+window.addEventListener('resize', () => { if (titleList.classList.contains('open')) positionTitleList(); });
+
+// ═══════════════════════════════════════
+// COMPANY FILTER — type any company; suggestions from job-titles.js
+// ═══════════════════════════════════════
+const companyInput = document.getElementById('filterCompany');
+const companyList  = document.getElementById('companyList');
+let companyItems = [];
+let companyActive = -1;
+
+function matchCompanies(q) {
+  const list = (window.JOB_SUGGESTIONS && window.JOB_SUGGESTIONS.companies) || [];
+  const fq = fold(q);
+  const hits = [];
+  list.forEach((name, pos) => {
+    const f = fold(name);
+    if (f.startsWith(fq)) hits.push({ name, rank: 0, pos, at: 0 });
+    else {
+      const m = f.search(new RegExp(`[\\s\\-&.]${fq.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+      if (m >= 0) hits.push({ name, rank: 1, pos, at: m + 1 });
+    }
+  });
+  return hits.sort((a, b) => a.rank - b.rank || a.pos - b.pos).slice(0, 6).map(h => ({ ...h, len: fq.length }));
+}
+
+function closeCompanyList() {
+  companyList.classList.remove('open');
+  companyInput.setAttribute('aria-expanded', 'false');
+  companyActive = -1;
+}
+
+function renderCompanies() {
+  if (!companyItems.length) { closeCompanyList(); return; }
+  companyList.innerHTML = companyItems.map((c, i) => `
+    <li role="option" id="company-${i}" data-i="${i}" aria-selected="false">
+      <svg class="pin" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">${TITLE_KIND.c.icon}</svg>
+      <span class="city-name" style="font-weight:500">${escHtml(c.name.slice(0, c.at))}<b>${escHtml(c.name.slice(c.at, c.at + c.len))}</b>${escHtml(c.name.slice(c.at + c.len))}</span>
+    </li>`).join('');
+  companyList.classList.add('open');
+  companyInput.setAttribute('aria-expanded', 'true');
+}
+
+function pickCompany(i) {
+  const c = companyItems[i];
+  if (!c) return;
+  companyInput.value = c.name;
+  closeCompanyList();
+  refreshFilterUI();
+}
+
+companyInput.addEventListener('input', () => {
+  refreshFilterUI();
+  const q = companyInput.value.trim();
+  if (q.length < 1) { closeCompanyList(); return; }
+  companyItems = matchCompanies(q);
+  renderCompanies();
+});
+companyInput.addEventListener('keydown', e => {
+  const open = companyList.classList.contains('open');
+  if (open && e.key === 'ArrowDown') { e.preventDefault(); companyActive = (companyActive + 1) % companyItems.length; }
+  else if (open && e.key === 'ArrowUp') { e.preventDefault(); companyActive = (companyActive - 1 + companyItems.length) % companyItems.length; }
+  else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (open && companyActive >= 0) pickCompany(companyActive); else { closeCompanyList(); companyInput.blur(); }
+    return;
+  }
+  else if (e.key === 'Escape') { closeCompanyList(); return; }
+  else return;
+  companyList.querySelectorAll('li').forEach((li, k) => { li.classList.toggle('active', k === companyActive); li.setAttribute('aria-selected', k === companyActive); });
+  companyInput.setAttribute('aria-activedescendant', `company-${companyActive}`);
+});
+companyList.addEventListener('mousedown', e => e.preventDefault());
+companyList.addEventListener('click', e => {
+  const li = e.target.closest('li[role="option"]');
+  if (li) pickCompany(+li.dataset.i);
+});
+companyInput.addEventListener('blur', () => setTimeout(closeCompanyList, 120));
+
+async function handleSearchCta() {
+  const input = document.getElementById('ctaSearchInput').value.trim();
+  if (!input) { alert('Please type a job title!'); return; }
+  document.getElementById('jobSearchInput').value = input;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => handleSearch(), 400);
+}
+
+function searchCategory(cat) {
+  document.getElementById('jobSearchInput').value = cat;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => handleSearch(), 500);
+}
+
+function handleResumeUpload(input) {
+  if (input.files && input.files[0]) {
+    document.getElementById('jobSearchInput').value = `Data Analyst with resume: ${input.files[0].name}`;
+    handleSearch();
+  }
+}
+
+// ═══════════════════════════════════════
+// ACCOUNTS — profile, saved jobs, history, saved filters
+// ═══════════════════════════════════════
+const acct = { user: null, profile: null, savedKeys: new Set() };
+let shownJobs = [];
+
+function siteToast(html, ms) {
+  const t = document.getElementById('siteToast');
+  t.innerHTML = html; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), ms || 2800);
+}
+
+function renderNavAccount() {
+  const box = document.getElementById('navAccount');
+  if (!acct.user) return;
+  const first = ((acct.profile && acct.profile.full_name) || acct.user.email.split('@')[0]).split(' ')[0];
+  box.innerHTML = `<a href="profile.html" class="nav-user" title="My profile">${FJ.avatarHtml(acct.profile, acct.user, 'nav-avatar')}<span>${FJ.esc(first)}</span></a>`;
+}
+
+async function loadSavedKeys() {
+  const { data } = await FJ.sb.from('saved_jobs').select('job_key');
+  acct.savedKeys = new Set((data || []).map(r => r.job_key));
+  // refresh any cards already on screen
+  document.querySelectorAll('.save-btn').forEach(b => {
+    const j = shownJobs[+b.dataset.i]; if (!j) return;
+    const on = acct.savedKeys.has(FJ.jobKey(j));
+    b.classList.toggle('saved', on); b.setAttribute('aria-pressed', on); b.textContent = on ? '🔖 Saved' : '🔖 Save';
+  });
+}
+
+async function toggleSaveJob(i, btn) {
+  const job = shownJobs[i];
+  if (!job) return;
+  if (!window.FJ || !acct.user) {
+    siteToast('<a href="login.html?mode=signup&next=index.html">Create a free account</a> to save jobs.', 4500);
+    return;
+  }
+  const key = FJ.jobKey(job);
+  btn.disabled = true;
+  if (acct.savedKeys.has(key)) {
+    const { error } = await FJ.sb.from('saved_jobs').delete().eq('job_key', key);
+    if (!error) { acct.savedKeys.delete(key); siteToast('Removed from saved jobs'); }
+    else siteToast("Couldn't remove it. Please try again.");
+  } else {
+    const row = { job_key: key };
+    ['job_title','company','location','salary','apply_url','match_reason','match_score'].forEach(k => {
+      if (job[k] != null) row[k] = String(job[k]).slice(0, k === 'apply_url' ? 2000 : k === 'match_reason' ? 2000 : 300);
+    });
+    if (row.match_score) row.match_score = row.match_score.slice(0, 10);
+    const { error } = await FJ.sb.from('saved_jobs').insert(row);
+    if (!error || /duplicate/i.test(error.message || '')) { acct.savedKeys.add(key); siteToast('Saved · <a href="profile.html#saved">View saved jobs</a>'); }
+    else siteToast("Couldn't save it. Please try again.");
+  }
+  btn.disabled = false;
+  const on = acct.savedKeys.has(key);
+  btn.classList.toggle('saved', on); btn.setAttribute('aria-pressed', on); btn.textContent = on ? '🔖 Saved' : '🔖 Save';
+}
+
+// Filters worth remembering (drops empty values)
+function filtersToSave(f) {
+  const keep = {};
+  ['location','city','region','latitude','longitude','country','country_name','date_posted','experience','job_type','work_mode','company']
+    .forEach(k => { if (f[k] !== '' && f[k] != null) keep[k] = f[k]; });
+  return Object.keys(keep).length ? keep : null;
+}
+
+function rememberSearch(query, mode, filters) {
+  if (!window.FJ || !acct.user) return;
+  const saved = filtersToSave(filters);
+  FJ.sb.from('search_history').insert({ query: query.slice(0, 200), mode, filters: saved }).then(({ error }) => { if (error) console.warn('history', error); });
+  FJ.sb.from('profiles').update({ saved_filters: saved }).eq('id', acct.user.id).then(({ error }) => {
+    if (error) console.warn('saved filters', error); else if (acct.profile) acct.profile.saved_filters = saved;
+  });
+}
+
+// What the AI pipeline gets about a signed-in person (nothing for guests)
+function accountPayload() {
+  if (!acct.user || !acct.profile) return {};
+  const p = acct.profile;
+  return {
+    user_id: acct.user.id,
+    profile: {
+      name: p.full_name || '', current_title: p.current_title || '', years_experience: p.years_experience,
+      skills: p.skills || [], preferred_locations: p.preferred_locations || [], job_types: p.job_types || []
+    },
+    resume_text: (p.resume_text || '').slice(0, 6000)
+  };
+}
+
+function applyFilters(f) {
+  if (!f) return;
+  const setSel = (id, v) => { const s = document.getElementById(id); if (v && [...s.options].some(o => o.value === String(v))) s.value = String(v); };
+  if (f.location) document.getElementById('locationInput').value = f.location;
+  setSel('filterCountry', f.country); setSel('filterDate', f.date_posted); setSel('filterExperience', f.experience);
+  setSel('filterJobType', f.job_type); setSel('filterWorkMode', f.work_mode);
+  if (f.company) document.getElementById('filterCompany').value = f.company;
+  selectedCity = (f.city && f.latitude != null)
+    ? { label: f.location, name: f.city, region: f.region || '', country_code: f.country || '', lat: f.latitude, lng: f.longitude }
+    : null;
+  refreshFilterUI();
+}
+
+function goUploadResume() {
+  location.href = acct.user ? 'profile.html#resume' : 'login.html?mode=signup&next=profile.html%23resume';
+}
+
+// "Search again" links from the profile page: index.html?q=...&mode=...&location=...
+function runSearchFromUrl() {
+  const p = new URLSearchParams(location.search);
+  const q = (p.get('q') || '').trim();
+  if (!q) return false;
+  document.getElementById('jobSearchInput').value = q.slice(0, 200);
+  setMode(p.get('mode') === 'live' ? 'live' : 'quick');
+  const f = {};
+  ['location','city','region','latitude','longitude','country','country_name','date_posted','experience','job_type','work_mode','company'].forEach(k => { if (p.get(k)) f[k] = p.get(k).slice(0, 200); });
+  applyFilters(f);
+  // Keep the query so results can be refreshed, bookmarked and shared.
+  return true;
+}
+
+(async function initAccount() {
+  const fromUrl = runSearchFromUrl();                  // fills the form; search starts once the account is loaded
+  try {
+    if (window.FJ) {
+      acct.user = await FJ.user();
+      if (acct.user) {
+        acct.profile = await FJ.profile(acct.user.id);
+        renderNavAccount();
+        loadSavedKeys();
+        if (!fromUrl && acct.profile && acct.profile.saved_filters) applyFilters(acct.profile.saved_filters);
+        FJ.sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT') location.reload(); });
+      }
+    }
+  } finally {
+    if (fromUrl) handleSearch();
+  }
+})();
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (document.activeElement.id === 'jobSearchInput' || document.activeElement.id === 'locationInput')) handleSearch();
+  if (e.key === 'Enter' && document.activeElement.id === 'ctaSearchInput') handleSearchCta();
+});
+</script>
+</body>
+</html>
