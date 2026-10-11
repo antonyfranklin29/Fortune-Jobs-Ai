@@ -32,6 +32,8 @@ Required recovery implementation: encrypted database exports plus separate priva
 
 ## Incident response
 
+Backup selection delegated by owner: managed daily database backups plus separate encrypted off-site uploaded-file backups. Operator tool and activation/restore procedure are prepared in `scripts/private-backup.cjs` and `docs/backup-recovery-runbook.md`. Synthetic recovery tests passed; real backups, destination, scheduling and isolated restore remain unactivated.
+
 1. Record incident time, affected search IDs, status codes and quota signals. Redact tokens, resume text and private contact details.
 2. If scraping fails or credits/capacity are exhausted, stop new paid Live work and keep Quick Match available using LIVE_SEARCH_PAUSED. Publish an honest availability notice.
 3. Inspect Make execution status, Apify concurrent-run limits and Supabase health. Do not retry uncontrolled bursts.
