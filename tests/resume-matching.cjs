@@ -22,12 +22,12 @@ test('live source metadata supports skill evidence and profiles without skills p
 const html=fs.readFileSync('profile.html','utf8');
 function source(name){return html.match(new RegExp('^(?:async )?function '+name+'\\([^]*?^}', 'm'))[0];}
 test('all profile inline scripts parse',()=>{for(const m of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g))if(m[1].trim())new vm.Script(m[1]);});
-test('save uploads a unique path and persists reviewed fields before replacing old file',async()=>{
- const calls=[],fields={reviewTitle:{value:'Data Analyst'},reviewYears:{value:'4'},reviewSkills:{value:'Python, SQL, Python'},reviewText:{value:'Reviewed synthetic resume text'},saveResumeReview:{isConnected:true},cancelResumeReview:{},resumeSlot:{insertAdjacentHTML(){}}};
+test('save preserves fractional experience and reviewed fields before replacing old file',async()=>{
+ const calls=[],fields={reviewTitle:{value:'Data Analyst'},reviewYears:{value:'4.5'},reviewSkills:{value:'Python, SQL, Python'},reviewText:{value:'Reviewed synthetic resume text'},saveResumeReview:{isConnected:true},cancelResumeReview:{},resumeSlot:{insertAdjacentHTML(){}}};
  const c={resumeSaving:false,resumeDraft:{file:{name:'fixture.docx'},ext:'docx'},profile:{resume_path:'user/old.pdf'},user:{id:'user'},crypto:require('node:crypto'),$:id=>fields[id],hideMsg(){},showMsg(id,text){throw Error(text)},cancelResumeReview(){},fillForm(){},renderHero(){},toast(){},encodeURIComponent,
  FJ:{sb:{storage:{from(){return {async upload(path){calls.push(['upload',path]);return{}},async remove(paths){calls.push(['remove',paths]);return{}}}}},from(){return {update(p){calls.push(['update',p]);return{eq(){return{select(){return{async single(){return{data:p,error:null}}}}}}}}}}}}};
  vm.createContext(c);vm.runInContext(source('saveResumeReview'),c);await c.saveResumeReview();
- assert.deepEqual(calls.map(x=>x[0]),['upload','update','remove']);assert.notEqual(calls[0][1],'user/old.pdf');assert.equal(calls[1][1].current_title,'Data Analyst');assert.equal(calls[1][1].years_experience,4);assert.deepEqual(Array.from(calls[1][1].skills),['Python','SQL']);
+ assert.deepEqual(calls.map(x=>x[0]),['upload','update','remove']);assert.notEqual(calls[0][1],'user/old.pdf');assert.equal(calls[1][1].current_title,'Data Analyst');assert.equal(calls[1][1].years_experience,4.5);assert.deepEqual(Array.from(calls[1][1].skills),['Python','SQL']);
 });
 test('raw resume text and identity are not sent to live search',()=>{const h=fs.readFileSync('index.html','utf8');const fn=h.match(/^function accountPayload[^\n]+/m)[0];const c={};vm.createContext(c);vm.runInContext(fn,c);assert.equal(Object.keys(c.accountPayload()).length,0);assert.doesNotMatch(h,/Data Analyst with resume:/);});
 

@@ -12,6 +12,12 @@ Verified effective permissions: anon_insert=false; authenticated_insert=false; b
 
 Authenticated RLS role simulation with a unrelated UUID returned zero visible profiles, saved jobs, history and private resume objects. This is not a full two-real-user test and does not prove every write path. Source listing reads remain public; current frontend search-ID filtering is not owner-enforced private result access.
 
+## Server-side account bounds
+
+Applied migrations/20261011_account_data_bounds.sql transactionally. All existing rows passed validation; no records were removed. Changed years_experience from smallint to numeric(4,1), preserving input such as 4.5 instead of relying on whole-number storage. Added enforced bounds for profile names/titles, experience 0-60, skills/location arrays, resume text (60,000 characters), file references and saved-filter JSON; saved-job strings and search-history query/filter JSON also have limits. Client validation alone cannot enforce these bounds against direct API requests.
+
+Database checks cloned the real profile CHECK constraints into a temporary table: 4.5 years succeeded; 60,001-character resume text, 61 years and 31 skills were rejected. Tests rolled back and did not alter actual account records. All three production constraints are validated. Do not roll numeric experience back to an integer after fractional values exist; that would lose information.
+
 ## Frontend and governance changes
 
 - Shared URL checks reject executable protocols, embedded credentials and control characters. Application links are validated and attribute escaped. Avatars are restricted to the configured public bucket and current owner's path.
