@@ -34,7 +34,7 @@ let results = search.replace('<body>', '<body data-page="results">')
 fs.writeFileSync(path.join(root, 'results.html'), results);
 const head = home.slice(0, home.indexOf('<body>')).replace(/<title>.*?<\/title>/, '<title>About — Fortune Jobs AI</title>');
 const nav = home.match(/<nav>[\s\S]*?<\/nav>/)[0];
-const about = `<body>${nav}<main class="hero" style="max-width:960px;margin:auto;text-align:left;min-height:65vh">
+const about = `<body><style>main.hero h2{color:var(--white)}</style>${nav}<main class="hero" style="max-width:960px;margin:auto;text-align:left;min-height:65vh">
 <div class="hero-badge">ABOUT FORTUNE JOBS AI</div>
 <h1>Your next opportunity,<br><span>within reach.</span></h1>
 <p class="hero-sub-text" style="margin-left:0">Fortune Jobs AI helps job seekers discover opportunities that fit their interests, skills and career goals.</p>
