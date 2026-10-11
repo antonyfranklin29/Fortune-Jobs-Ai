@@ -425,6 +425,7 @@ function renderResume() {
       <div class="resume-meta"><b>${esc(profile.resume_name || 'Resume')}</b>
         <span>Updated ${profile.resume_updated_at ? timeAgo(profile.resume_updated_at) : ''}</span><br>${status}</div>
       <button class="btn btn-outline btn-sm" type="button" onclick="viewResume()">View</button>
+      <button class="btn btn-primary btn-sm" type="button" onclick="reviewSavedResume(this)">Review profile</button>
       <button class="btn btn-outline btn-sm" type="button" onclick="$('resumeInput').click()">Replace</button>
       <button class="btn btn-danger btn-sm" type="button" onclick="removeResume()">Remove</button>
     </div>`;
@@ -492,6 +493,19 @@ async function saveResumeReview(){
     toast('Reviewed profile saved. Matching now uses your confirmed skills and experience.');
   }catch(error){showMsg('resumeMsg',error.message);}
   finally{resumeSaving=false;if(btn.isConnected){btn.disabled=false;btn.textContent='Save reviewed profile';$('cancelResumeReview').disabled=false;}}
+}
+
+async function reviewSavedResume(button) {
+  if(resumeSaving)return;
+  hideMsg('resumeMsg');button.disabled=true;
+  try {
+    const {data,error}=await FJ.sb.storage.from('resumes').createSignedUrl(profile.resume_path,120);
+    if(error)throw new Error('Could not read the saved resume. Please try again.');
+    const response=await fetch(data.signedUrl,{signal:AbortSignal.timeout(15000)});
+    if(!response.ok)throw new Error('Could not download your resume for review. Please try again.');
+    await uploadResume(new File([await response.blob()],profile.resume_name||profile.resume_path.split('/').pop()));
+  }catch(error){showMsg('resumeMsg',error.message||'Could not read the saved resume. Please try again.');}
+  finally{if(button.isConnected)button.disabled=false;}
 }
 
 async function viewResume() {
