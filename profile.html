@@ -97,6 +97,9 @@ section{scroll-margin-top:140px;}
   .hist .grow{flex-basis:calc(100% - 90px);}
   .hist li .btn{margin-left:auto;}
 }
+#resumeReview{scroll-margin-top:150px;margin-top:24px;padding-top:24px;border-top:1px solid var(--border);}
+#resumeReview label{display:block;margin:16px 0 6px;font-weight:600;font-size:14px;}
+#resumeReview textarea{resize:vertical;width:100%;}
 </style>
 </head>
 <body>
@@ -161,7 +164,7 @@ section{scroll-margin-top:140px;}
           <div class="row-2">
             <div class="field">
               <label for="pYears">Years of experience</label>
-              <input class="input" id="pYears" type="number" min="0" max="60" inputmode="numeric" placeholder="e.g. 5">
+              <input class="input" id="pYears" type="number" min="0" max="60" step="0.1" inputmode="numeric" placeholder="e.g. 5">
             </div>
             <div class="field">
               <span class="label">Job types you want</span>
@@ -198,10 +201,11 @@ section{scroll-margin-top:140px;}
 
       <!-- RESUME -->
       <section class="card" id="resume">
-        <div class="card-head"><div><h2>Resume</h2><p class="sub">Upload a PDF so the AI can rank jobs against your real experience. Only you can see it.</p></div></div>
+        <div class="card-head"><div><h2>Resume</h2><p class="sub">Upload a text-based PDF or DOCX, review the extracted details, then save them for matching. Your document is read in your browser.</p></div></div>
         <div class="msg" id="resumeMsg" role="alert"></div>
         <div id="resumeSlot"></div>
-        <input type="file" id="resumeInput" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+<div id="resumeReview" hidden></div>
+        <input type="file" id="resumeInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
       </section>
 
       <!-- SAVED JOBS -->
@@ -249,6 +253,8 @@ section{scroll-margin-top:140px;}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="auth.js"></script>
+<script src="resume-matching.js"></script>
+<script src="vendor/mammoth.browser.js" defer></script>
 <script src="job-titles.js" defer></script>
 <script>
 const $ = id => document.getElementById(id);
@@ -356,7 +362,7 @@ $('profileForm').addEventListener('submit', async e => {
   // pick up anything typed but not yet turned into a chip
   ['skillsInput', 'locInput'].forEach(id => $(id).dispatchEvent(new Event('blur')));
   const yearsRaw = $('pYears').value.trim();
-  const years = yearsRaw === '' ? null : Math.round(Number(yearsRaw));
+  const years = yearsRaw === '' ? null : Number(yearsRaw);
   if (years != null && (isNaN(years) || years < 0 || years > 60)) { showMsg('profileMsg', 'Years of experience must be between 0 and 60.'); $('pYears').focus(); return; }
   const update = {
     full_name: $('pName').value.trim().slice(0, 120) || null,
@@ -401,7 +407,7 @@ function renderResume() {
     slot.innerHTML = `
       <label class="drop" id="drop" for="resumeInput">
         <span class="big">📄</span><b>Upload your resume</b>
-        <span>PDF works best · DOC/DOCX also accepted · max 5 MB</span>
+        <span>Text-based PDF or DOCX · max 5 MB · review before saving</span>
       </label>`;
     const d = $('drop');
     ['dragenter', 'dragover'].forEach(ev => d.addEventListener(ev, e => { e.preventDefault(); d.classList.add('over'); }));
@@ -411,8 +417,8 @@ function renderResume() {
   }
   const words = profile.resume_text ? profile.resume_text.split(/\s+/).filter(Boolean).length : 0;
   const status = words
-    ? `<span class="ai-status ok">✓ AI can read it · ${words.toLocaleString()} words</span>`
-    : `<span class="ai-status warn">Upload a PDF version so the AI can read it</span>`;
+    ? `<span class="ai-status ok">✓ Text extracted · ${words.toLocaleString()} words</span>`
+    : `<span class="ai-status warn">Replace with a text-based PDF or DOCX to extract details</span>`;
   slot.innerHTML = `
     <div class="resume-row">
       <span class="resume-ic">📄</span>
@@ -426,52 +432,66 @@ function renderResume() {
 
 $('resumeInput').addEventListener('change', () => { const f = $('resumeInput').files[0]; $('resumeInput').value = ''; if (f) uploadResume(f); });
 
-function loadPdfJs() {
-  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
-  return new Promise((ok, fail) => {
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-    s.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; ok(pdfjsLib); };
-    s.onerror = fail;
-    document.head.appendChild(s);
-  });
-}
 
-async function pdfToText(file) {
-  const lib = await loadPdfJs();
-  const pdf = await lib.getDocument({ data: await file.arrayBuffer() }).promise;
-  let text = '';
-  for (let i = 1; i <= Math.min(pdf.numPages, 10) && text.length < 20000; i++) {
-    const page = await pdf.getPage(i);
-    const c = await page.getTextContent();
-    text += c.items.map(it => it.str).join(' ') + '\n';
-  }
-  return text.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim().slice(0, 20000);
-}
+let resumeDraft=null, resumeReadGeneration=0, resumeSaving=false;
+async function pdfToText(file) { return (await import('./resume-extraction.mjs')).pdfToText(file); }
 
-async function uploadResume(f) {
+function cancelResumeReview(){resumeReadGeneration++;resumeDraft=null;$('resumeReview').hidden=true;$('resumeReview').innerHTML='';renderResume();}
+function renderResumeReview(text){
+  const suggestion=FJResume.suggest(text,window.JOB_SUGGESTIONS||{});
+  const box=$('resumeReview');box.hidden=false;
+  box.innerHTML='<h3>Review your extracted profile</h3><p class="sub">Suggestions can be incomplete. Confirm your job title, experience and skills. Saving replaces these profile fields. Job ranking uses the confirmed details; your resume text is not sent to the live-search service.</p>'+
+    '<label for="reviewTitle">Job title to search for</label><input class="input" id="reviewTitle" maxlength="120">'+
+    '<label for="reviewYears">Years of experience (leave blank if unknown)</label><input class="input" id="reviewYears" type="number" min="0" max="60" step="0.1">'+
+    '<label for="reviewSkills">Skills, separated by commas</label><textarea class="input" id="reviewSkills" rows="3" maxlength="2000"></textarea>'+
+    '<label for="reviewText">Extracted text — check for missing content</label><textarea class="input" id="reviewText" rows="10" maxlength="60000"></textarea>'+
+    '<p><button class="btn btn-primary" id="saveResumeReview" type="button">Save reviewed profile</button> <button class="btn btn-outline" id="cancelResumeReview" type="button">Cancel</button></p>';
+  $('reviewTitle').value=suggestion.current_title||profile.current_title||'';
+  $('reviewYears').value=suggestion.years_experience==null?'':suggestion.years_experience;
+  $('reviewSkills').value=suggestion.skills.join(', ');$('reviewText').value=text;
+  $('saveResumeReview').addEventListener('click',saveResumeReview);$('cancelResumeReview').addEventListener('click',cancelResumeReview);
+  box.scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function uploadResume(f){
+  if(resumeSaving){toast('Wait for your reviewed profile to finish saving.');return;}
   hideMsg('resumeMsg');
-  const ext = (f.name.split('.').pop() || '').toLowerCase();
-  if (!['pdf', 'doc', 'docx'].includes(ext)) { showMsg('resumeMsg', 'Please upload a PDF, DOC or DOCX file.'); return; }
-  if (f.size > 5 * 1024 * 1024) { showMsg('resumeMsg', 'Resume must be under 5 MB.'); return; }
-  $('resumeSlot').innerHTML = '<div class="empty"><span class="spinner"></span> Uploading and reading your resume…</div>';
-
-  let text = null;
-  if (ext === 'pdf') {
-    try { text = await pdfToText(f); } catch (e) { console.warn('PDF text extraction failed', e); }
-  }
-  const path = `${user.id}/resume.${ext}`;
-  const type = f.type || { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }[ext];
-  const up = await FJ.sb.storage.from('resumes').upload(path, f, { contentType: type, upsert: true });
-  if (up.error) { showMsg('resumeMsg', "Couldn't upload your resume. Please try again."); console.error(up.error); renderResume(); return; }
-  if (profile.resume_path && profile.resume_path !== path) FJ.sb.storage.from('resumes').remove([profile.resume_path]);
-
-  const { data, error } = await FJ.sb.from('profiles').update({
-    resume_path: path, resume_name: f.name.slice(0, 200), resume_text: text || null, resume_updated_at: new Date().toISOString()
-  }).eq('id', user.id).select().single();
-  if (error) { showMsg('resumeMsg', "Uploaded, but couldn't save it to your profile. Please try again."); renderResume(); return; }
-  profile = data; renderResume(); renderHero();
-  toast(text ? 'Resume uploaded. The AI can read it now.' : 'Resume uploaded.');
+  const ext=(f.name.split('.').pop()||'').toLowerCase();
+  if(!['pdf','docx'].includes(ext)){showMsg('resumeMsg','Use a text-based PDF or DOCX. Convert older DOC files to DOCX first.');return;}
+  if(!f.size||f.size>5*1024*1024){showMsg('resumeMsg','Please upload a nonempty resume under 5 MB.');return;}
+  cancelResumeReview();const generation=resumeReadGeneration;$('resumeSlot').innerHTML='<div class="empty"><span class="spinner"></span> Reading your resume…</div>';
+  try{
+    let text;
+    if(ext==='pdf')text=await pdfToText(f);
+    else {
+      if(!window.mammoth)throw new Error('Document reader is still loading. Please try again.');
+      text=(await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value.trim();
+    }
+    if(generation!==resumeReadGeneration)return;
+    if(!text||text.replace(/\s/g,'').length<30)throw new Error('No readable resume text found. Scanned PDFs need OCR first; export a text-based PDF or DOCX.');
+    if(text.length>60000)throw new Error('Please shorten your resume to under 60,000 characters.');
+    resumeDraft={file:f,ext};renderResume();renderResumeReview(text);
+  }catch(error){if(generation!==resumeReadGeneration)return;renderResume();showMsg('resumeMsg',error.name==='PasswordException'?'Remove the PDF password and try again.':error.message||'Could not read this document. Export a new PDF or DOCX and try again.');}
+}
+async function saveResumeReview(){
+  if(!resumeDraft)return;
+  hideMsg('resumeMsg');
+  const title=$('reviewTitle').value.trim();const raw=$('reviewYears').value.trim();const years=raw===''?null:Number(raw);
+  const confirmedSkills=[...new Set($('reviewSkills').value.split(',').map(s=>s.trim()).filter(Boolean))];
+  const text=$('reviewText').value.trim();
+  if(!title||!text||confirmedSkills.length>30||confirmedSkills.some(s=>s.length>80)||years!==null&&(!Number.isFinite(years)||years<0||years>60)){showMsg('resumeMsg','Enter a job title and readable text, up to 30 skills (80 characters each), and experience between 0 and 60 years.');return;}
+  resumeSaving=true;const btn=$('saveResumeReview');btn.disabled=true;btn.textContent='Saving…';$('cancelResumeReview').disabled=true;
+  const oldPath=profile.resume_path;const draft=resumeDraft;
+  const path=user.id+'/resume-'+crypto.randomUUID()+'.'+draft.ext;
+  try{
+    const up=await FJ.sb.storage.from('resumes').upload(path,draft.file,{contentType:draft.ext==='pdf'?'application/pdf':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',upsert:false});
+    if(up.error)throw new Error('Could not upload your resume. Your existing profile is unchanged; try again.');
+    const {data,error}=await FJ.sb.from('profiles').update({resume_path:path,resume_name:draft.file.name.slice(0,200),resume_text:text,resume_updated_at:new Date().toISOString(),current_title:title,years_experience:years,skills:confirmedSkills}).eq('id',user.id).select().single();
+    if(error){await FJ.sb.storage.from('resumes').remove([path]);throw new Error('Could not save your profile. Your previous resume is unchanged; try again.');}
+    profile=data;cancelResumeReview();fillForm();renderHero();
+    if(oldPath&&oldPath!==path)await FJ.sb.storage.from('resumes').remove([oldPath]);
+    toast('Reviewed profile saved. Matching now uses your confirmed skills and experience.');
+  }catch(error){showMsg('resumeMsg',error.message);}
+  finally{resumeSaving=false;if(btn.isConnected){btn.disabled=false;btn.textContent='Save reviewed profile';$('cancelResumeReview').disabled=false;}}
 }
 
 async function viewResume() {

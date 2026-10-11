@@ -4,10 +4,10 @@ const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 const value=name=>html.match(new RegExp("const "+name+"\\s*=\\s*'([^']*)'"))[1];
 const source=name=>html.match(new RegExp('^(?:async )?function '+name+'\\([^]*?^}','m'))[0];
 const accuracy=require('../search-accuracy.js');
-const context=vm.createContext({fetch,AbortController,setTimeout,clearTimeout,FJAccuracy:accuracy,
+const context=vm.createContext({fetch,AbortController,setTimeout,clearTimeout,window: {FJResume:require('../resume-matching.js')}, FJResume:require('../resume-matching.js'), FJAccuracy:accuracy,
   SUPABASE_URL:value('SUPABASE_URL'),SUPABASE_KEY:value('SUPABASE_KEY'),SEARCH_REQUEST_TIMEOUT_MS:10000,
   QUICK_CANDIDATE_LIMIT:300,FREE_RESULTS:10,STOPWORDS:new Set(['a','an','and','the','of','for','to','in','on','at','with','or','jobs','job','role','roles','position','positions','senior','junior','sr','jr'])});
-vm.runInContext(['readSearchRows','stripCodeFence','sanitizeJobRow','isSearchCompletion','fetchJobs','queryTokens','quickMatchUrl','scoreJob','fetchQuickMatches'].map(source).join('\n'),context);
+vm.runInContext(['readSearchRows','stripCodeFence','sanitizeJobRow','isSearchCompletion','fetchJobs','queryTokens','quickMatchUrl','scoreJob','fetchQuickMatches', 'personalizeJobs'].map(source).join('\n'),context);
 const cases=[
  ['software engineer',{location:'New York',country:'us'}],
  ['software engineer',{country:'us',job_type:'fulltime'}],

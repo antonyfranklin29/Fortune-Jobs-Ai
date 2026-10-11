@@ -492,6 +492,7 @@ body[data-page="find"] .hero{min-height:65vh}
 <script src="config.js"></script>
 <script src="auth.js"></script>
 <script src="search-accuracy.js"></script>
+<script src="resume-matching.js"></script>
 <script>
 // ═══════════════════════════════════════
 // WEBHOOK URLs — one per mode
@@ -649,8 +650,9 @@ async function fetchJobs(signal, sinceISO, searchId, search = '', filters = {}) 
   );
   const cleaned = FJAccuracy.filterJobs(candidates, search, filters).map(job=>({...job,match_reason:FJAccuracy.matchReason(job,search,filters)}));
   cleaned.sort((a, b) => (parseInt(b.match_score) || 0) - (parseInt(a.match_score) || 0));
+  const personalized = personalizeJobs(cleaned);
   if (cleaned.length) {
-    const results = cleaned.slice(0, FREE_RESULTS);
+    const results = personalized.slice(0, FREE_RESULTS);
     results.completed = rows.some(isSearchCompletion);
     return results;
   }
@@ -677,7 +679,7 @@ function queryTokens(text) {
 // Narrow the candidate read, then verify every selected filter before ranking.
 function quickMatchUrl(tokens, filters, relaxed) {
   const p = [
-    'select=job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country',
+    'select=job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description',
     `limit=${QUICK_CANDIDATE_LIMIT}`
   ];
   if (tokens.length) {
@@ -740,7 +742,7 @@ async function fetchQuickMatches(input, filters, signal) {
   const rows = await readSearchRows(quickMatchUrl(tokens, filters, false), signal);
   if (!rows || !rows.length) return [];
 
-  return FJAccuracy.filterJobs(rows, input, filters)
+  return personalizeJobs(FJAccuracy.filterJobs(rows, input, filters)
     .map(r => {
       const { score } = scoreJob(r, tokens, phrase, filters);
       return {
@@ -748,11 +750,11 @@ async function fetchQuickMatches(input, filters, signal) {
         salary: r.salary || 'Not listed', apply_url: r.apply_url,
         match_reason: FJAccuracy.matchReason(r,input,filters),
         match_score: String(Math.max(42, Math.min(99, 42 + score))),
-        created_at: r.posted_at, posted_at:r.posted_at, country:r.country,
+        job_description:r.job_description, created_at: r.posted_at, posted_at:r.posted_at, country:r.country,
         employment_type:r.employment_type, work_mode:r.work_mode, is_remote:r.is_remote
       };
     })
-    .sort((a, b) => parseInt(b.match_score) - parseInt(a.match_score));
+    .sort((a, b) => parseInt(b.match_score) - parseInt(a.match_score)));
 }
 
 // ═══════════════════════════════════════
@@ -1474,10 +1476,7 @@ function searchCategory(cat) {
 }
 
 function handleResumeUpload(input) {
-  if (input.files && input.files[0]) {
-    document.getElementById('jobSearchInput').value = `Data Analyst with resume: ${input.files[0].name}`;
-    handleSearch();
-  }
+  if (input.files && input.files[0]) goUploadResume();
 }
 
 // ═══════════════════════════════════════
@@ -1555,18 +1554,10 @@ function rememberSearch(query, mode, filters) {
   });
 }
 
-// What the AI pipeline gets about a signed-in person (nothing for guests)
-function accountPayload() {
-  if (!acct.user || !acct.profile) return {};
-  const p = acct.profile;
-  return {
-    user_id: acct.user.id,
-    profile: {
-      name: p.full_name || '', current_title: p.current_title || '', years_experience: p.years_experience,
-      skills: p.skills || [], preferred_locations: p.preferred_locations || [], job_types: p.job_types || []
-    },
-    resume_text: (p.resume_text || '').slice(0, 6000)
-  };
+// Keep private profile details local when submitting live searches.
+function accountPayload() { return {}; }
+function personalizeJobs(jobs) {
+  return window.FJResume ? FJResume.rank(jobs, typeof acct !== 'undefined' ? acct.profile : null, FJAccuracy.metadata) : jobs;
 }
 
 function applyFilters(f) {

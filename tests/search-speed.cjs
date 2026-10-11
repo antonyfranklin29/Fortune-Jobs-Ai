@@ -13,7 +13,7 @@ function harness(fetch) {
   let id = 0;
   const elements = new Map();
   const context = vm.createContext({
-    FJAccuracy: require('../search-accuracy.js'),
+    window: {FJResume:require('../resume-matching.js')}, FJResume:require('../resume-matching.js'), FJAccuracy: require('../search-accuracy.js'),
     fetch, AbortController, console,
     SUPABASE_KEY: 'test', SUPABASE_URL: 'https://test.invalid',
     FREE_RESULTS: 10, SEARCH_REQUEST_TIMEOUT_MS: 10000, POLL_INTERVAL_MS: 3000, MAX_WAIT_MS: 150000,
@@ -30,7 +30,7 @@ function harness(fetch) {
     showLiveSearchEmpty(search) { context.emptySearches.push(search); },
     displays: [], errors: [], emptySearches: [],
   });
-  vm.runInContext(['readSearchRows', 'stripCodeFence', 'sanitizeJobRow', 'isSearchCompletion', 'fetchJobs', 'queryTokens', 'quickMatchUrl', 'scoreJob', 'fetchQuickMatches', 'stopPolling', 'startPolling'].map(source).join('\n'), context);
+  vm.runInContext(['readSearchRows', 'stripCodeFence', 'sanitizeJobRow', 'isSearchCompletion', 'fetchJobs', 'queryTokens', 'quickMatchUrl', 'scoreJob', 'fetchQuickMatches', 'personalizeJobs', 'stopPolling', 'startPolling'].map(source).join('\n'), context);
   return { context, timers, async flush() { for (let i = 0; i < 12; i++) await Promise.resolve(); }, async tick(ms) { const entry = [...timers].find(([, value]) => value.ms === ms); assert.ok(entry, 'Missing timer ' + ms); timers.delete(entry[0]); await entry[1].fn(); } };
 }
 const row = { job_title: 'Engineer', company: 'Test', location: 'Remote', apply_url: 'https://test.invalid/apply', match_score: '80' };
