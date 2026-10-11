@@ -515,7 +515,7 @@ function setMode(mode) {
   } else {
     document.getElementById('modeDesc').innerHTML = LIVE_SEARCH_PAUSED
       ? '<span>🔴 Live Search</span> — temporarily unavailable. Quick Match is available.'
-      : '<span>🔴 Live Search</span> — scrapes Indeed right now for the freshest listings (results appear as they arrive)';
+      : '<span>🔴 Live Search</span> — finds fresh job listings (results appear as they arrive)';
   }
 }
 
@@ -868,7 +868,7 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
   const showLocked = jobs.length >= FREE_RESULTS;
   document.getElementById('resultsTitle').textContent = `Best Matches for "${search}"`;
   document.getElementById('resultsCount').textContent =
-    `${jobs.length} matched job${jobs.length > 1 ? 's' : ''} · ${mode === 'live' ? 'scraped from Indeed just now' : 'from our saved listings'}`
+    `${jobs.length} matched job${jobs.length > 1 ? 's' : ''} · ${mode === 'live' ? 'found with Live Search just now' : 'from our saved listings'}`
     + (currentFilterSummary ? ` · ${currentFilterSummary}` : '');
   const badge = document.getElementById('resultsModeBadge');
   if (mode === 'live') {
@@ -964,7 +964,7 @@ function showQuickMatchEmpty(search, filters) {
     <div class="empty-state">
       <div class="icon">\u{1F50E}</div>
       <h3>Nothing saved for this one yet</h3>
-      <p>Try Live Search — it scrapes Indeed right now and shows results as they arrive.</p>
+      <p>Try Live Search — it finds fresh job listings and shows results as they arrive.</p>
       <button class="retry-btn" onclick="setMode('live');window.scrollTo({top:0,behavior:'smooth'});">Switch to Live Search \u2191</button>
     </div>`;
   section.scrollIntoView({ behavior: 'instant', block: 'start' });

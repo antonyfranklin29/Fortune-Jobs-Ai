@@ -28,7 +28,7 @@ let results = search.replace('<body>', '<body data-page="results">')
   .replace(/<title>.*?<\/title>/, '<title>Job Results — Fortune Jobs AI</title>')
   .replace('<section class="results-section" id="resultsSection">', '<section class="results-section" id="resultsSection"><a class="results-back" href="find-jobs.html">← Search again</a>')
   .replace('Your Best Matched Jobs', 'Your Job Results')
-  .replace('AI selected from real Indeed listings', 'Searching for matching jobs…')
+  .replace('Relevant opportunities selected for your search', 'Searching for matching jobs…')
   .replace(/<footer>[\s\S]*?<\/footer>/, '<footer><p>© 2026 Fortune Jobs AI. All rights reserved.</p></footer>')
   .replaceAll("scrollIntoView({ behavior: 'smooth', block: 'start' })", "scrollIntoView({ behavior: 'instant', block: 'start' })");
 fs.writeFileSync(path.join(root, 'results.html'), results);

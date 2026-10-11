@@ -467,10 +467,10 @@ body[data-page="find"] .hero{min-height:65vh}
 <section class="how-it-works">
   <div class="section-eyebrow">How It Works</div>
   <h2 class="section-title">Two ways to find your job</h2>
-  <p class="section-sub">Choose Quick Match for instant results, or Live Search to scrape Indeed right now.</p>
+  <p class="section-sub">Choose Quick Match for instant results, or Live Search to discover fresh job listings.</p>
   <div class="steps-grid">
-    <div class="step-card"><div class="step-num">1</div><h3>Pick Your Mode</h3><p>Use <strong>⚡ Quick Match</strong> for instant results from pre-scraped jobs, or <strong>🔴 Live Search</strong> to scrape Indeed live right now.</p></div>
-    <div class="step-card"><div class="step-num">2</div><h3>AI Matches You</h3><p>Claude AI reads your search and picks the top 5 best-matching jobs — with a reason for each match.</p></div>
+    <div class="step-card"><div class="step-num">1</div><h3>Pick Your Mode</h3><p>Use <strong>⚡ Quick Match</strong> for instant results from saved listings, or <strong>🔴 Live Search</strong> to discover fresh opportunities.</p></div>
+    <div class="step-card"><div class="step-num">2</div><h3>AI Matches You</h3><p>Our AI finds up to 10 jobs relevant to your search — with a reason for each match.</p></div>
     <div class="step-card"><div class="step-num">3</div><h3>Apply Instantly</h3><p>See your top matched jobs with the exact reason each was chosen and a direct Apply Now link.</p></div>
   </div>
 </section>
@@ -497,8 +497,8 @@ body[data-page="find"] .hero{min-height:65vh}
   <p class="section-sub">Stop spending hours scrolling LinkedIn. Let AI do the work.</p>
   <div class="why-grid">
     <div class="why-card"><div class="why-icon">⚡</div><h3>Quick Match Mode</h3><p>Get instant results from our nightly-scraped database of 200+ fresh jobs across 20 categories. No waiting.</p></div>
-    <div class="why-card"><div class="why-icon">🔴</div><h3>Live Search Mode</h3><p>Search Indeed for new listings. Results appear as they arrive; timing depends on the job source.</p></div>
-    <div class="why-card"><div class="why-icon">🤖</div><h3>Claude AI Matching</h3><p>Claude AI reads your search, understands context, picks your top 5 matches, and explains exactly why each one fits.</p></div>
+    <div class="why-card"><div class="why-icon">🔴</div><h3>Live Search Mode</h3><p>Discover fresh job listings. Results appear as they arrive; timing depends on availability.</p></div>
+    <div class="why-card"><div class="why-icon">🤖</div><h3>AI Job Matching</h3><p>Our AI reviews your search, ranks relevant opportunities, and explains why each job may fit.</p></div>
   </div>
 </section>
 
@@ -532,7 +532,7 @@ body[data-page="find"] .hero{min-height:65vh}
     <div>
       <div class="results-title" id="resultsTitle">Your Best Matched Jobs</div>
       <div class="results-meta">
-        <div class="results-count" id="resultsCount">AI selected from real Indeed listings</div>
+        <div class="results-count" id="resultsCount">Relevant opportunities selected for your search</div>
         <div class="results-mode-badge quick" id="resultsModeBadge">⚡ Quick Match</div>
       </div>
     </div>
@@ -548,7 +548,7 @@ body[data-page="find"] .hero{min-height:65vh}
         <div class="logo-icon"><svg width="20" height="20" viewBox="0 0 22 22" fill="none"><path d="M3 14 L7 8 L11 14 L15 9 L19 15" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="8" r="2" fill="#0F172A"/><circle cx="15" cy="9" r="2" fill="#0F172A"/><circle cx="19" cy="15" r="2" fill="#0F172A"/></svg></div>
         <span class="logo-text">Fortune Jobs AI</span>
       </a>
-      <p>Your AI-powered job search assistant. Real jobs from Indeed, matched by Claude AI.</p>
+      <p>Your AI-powered job search assistant. Discover opportunities for your next career move.</p>
     </div>
     <div class="footer-links"><h4>Product</h4><ul><li><a href="find-jobs.html">Find Jobs</a></li><li><a href="#">Upload Resume</a></li></ul></div>
     <div class="footer-links"><h4>Company</h4><ul><li><a href="about.html">About Us</a></li><li><a href="#">Contact</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
@@ -556,7 +556,7 @@ body[data-page="find"] .hero{min-height:65vh}
   </div>
   <div class="footer-bottom">
     <p>© 2026 <span>Fortune Jobs AI</span>. All rights reserved.</p>
-    <p>Built with <span>♦</span> AI · Powered by Claude + Apify + Indeed</p>
+    <p>Built for your future</p>
   </div>
 </footer>
 
@@ -588,7 +588,7 @@ function setMode(mode) {
   } else {
     document.getElementById('modeDesc').innerHTML = LIVE_SEARCH_PAUSED
       ? '<span>🔴 Live Search</span> — temporarily unavailable. Quick Match is available.'
-      : '<span>🔴 Live Search</span> — scrapes Indeed right now for the freshest listings (results appear as they arrive)';
+      : '<span>🔴 Live Search</span> — finds fresh job listings (results appear as they arrive)';
   }
 }
 
@@ -941,7 +941,7 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
   const showLocked = jobs.length >= FREE_RESULTS;
   document.getElementById('resultsTitle').textContent = `Best Matches for "${search}"`;
   document.getElementById('resultsCount').textContent =
-    `${jobs.length} matched job${jobs.length > 1 ? 's' : ''} · ${mode === 'live' ? 'scraped from Indeed just now' : 'from our saved listings'}`
+    `${jobs.length} matched job${jobs.length > 1 ? 's' : ''} · ${mode === 'live' ? 'found with Live Search just now' : 'from our saved listings'}`
     + (currentFilterSummary ? ` · ${currentFilterSummary}` : '');
   const badge = document.getElementById('resultsModeBadge');
   if (mode === 'live') {
@@ -1037,7 +1037,7 @@ function showQuickMatchEmpty(search, filters) {
     <div class="empty-state">
       <div class="icon">\u{1F50E}</div>
       <h3>Nothing saved for this one yet</h3>
-      <p>Try Live Search — it scrapes Indeed right now and shows results as they arrive.</p>
+      <p>Try Live Search — it finds fresh job listings and shows results as they arrive.</p>
       <button class="retry-btn" onclick="setMode('live');window.scrollTo({top:0,behavior:'smooth'});">Switch to Live Search \u2191</button>
     </div>`;
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
