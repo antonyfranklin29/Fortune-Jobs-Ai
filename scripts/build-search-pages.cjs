@@ -29,7 +29,7 @@ let results = search.replace('<body>', '<body data-page="results">')
   .replace('<section class="results-section" id="resultsSection">', '<section class="results-section" id="resultsSection"><a class="results-back" href="find-jobs.html">← Search again</a>')
   .replace('Your Best Matched Jobs', 'Your Job Results')
   .replace('Relevant opportunities selected for your search', 'Searching for matching jobs…')
-  .replace(/<footer>[\s\S]*?<\/footer>/, '<footer><p>© 2026 Fortune Jobs AI. All rights reserved.</p></footer>')
+  .replace(/<footer>[\s\S]*?<\/footer>/, '<footer><p>© 2026 Fortune Jobs AI. All rights reserved. · <a href="privacy.html">Privacy</a> · <a href="contact.html">Contact</a></p></footer>')
   .replaceAll("scrollIntoView({ behavior: 'smooth', block: 'start' })", "scrollIntoView({ behavior: 'instant', block: 'start' })");
 fs.writeFileSync(path.join(root, 'results.html'), results);
 const head = home.slice(0, home.indexOf('<body>')).replace(/<title>.*?<\/title>/, '<title>About — Fortune Jobs AI</title>');
@@ -44,5 +44,5 @@ const about = `<body><style>main.hero h2{color:var(--white)}</style>${nav}<main 
 <p style="line-height:1.9;color:var(--gray-400)">Compare roles, see why they may fit your search, and follow application links to take the next step. Create an account to save opportunities and keep your job search organized.</p>
 <p style="line-height:1.9;color:var(--gray-400);margin-top:24px">Our aim is to make discovering relevant work simpler and more focused, whether you are starting your career or exploring a new direction.</p>
 <a href="find-jobs.html" class="upsell-btn" style="margin-top:32px">Find Jobs →</a>
-</main><footer><p>© 2026 Fortune Jobs AI. All rights reserved.</p></footer></body></html>`;
+</main><footer><p>© 2026 Fortune Jobs AI. All rights reserved. · <a href="privacy.html">Privacy</a> · <a href="contact.html">Contact</a></p></footer></body></html>`;
 fs.writeFileSync(path.join(root, 'about.html'), head + about);

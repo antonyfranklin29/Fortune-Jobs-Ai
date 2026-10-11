@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" sizes="any" href="favicon.svg?v=1">
@@ -342,7 +344,7 @@ body[data-page="find"] .hero{min-height:65vh}
     </button>
   </div>
   <div class="mode-desc" id="modeDesc">
-    <span>⚡ Quick Match</span> — instant results from pre-scraped jobs (fastest)
+    <span>⚡ Quick Match</span> — fast results from saved job listings
   </div>
 
   <div class="search-wrapper">
@@ -455,21 +457,13 @@ body[data-page="find"] .hero{min-height:65vh}
   </div>
 </section>
 
-<!-- STATS -->
-<div class="stats">
-  <div class="stat-item"><span class="stat-num">50+</span><div class="stat-label">Job Platforms Scraped</div></div>
-  <div class="stat-item"><span class="stat-num">10K+</span><div class="stat-label">Jobs Found Daily</div></div>
-  <div class="stat-item"><span class="stat-num">95%</span><div class="stat-label">Match Accuracy</div></div>
-  <div class="stat-item"><span class="stat-num">2 modes</span><div class="stat-label">Quick Match & Live Search</div></div>
-</div>
-
 <!-- HOW IT WORKS -->
 <section class="how-it-works">
   <div class="section-eyebrow">How It Works</div>
   <h2 class="section-title">Two ways to find your job</h2>
-  <p class="section-sub">Choose Quick Match for instant results, or Live Search to discover fresh job listings.</p>
+  <p class="section-sub">Choose Quick Match for fast results, or Live Search to discover fresh job listings.</p>
   <div class="steps-grid">
-    <div class="step-card"><div class="step-num">1</div><h3>Pick Your Mode</h3><p>Use <strong>⚡ Quick Match</strong> for instant results from saved listings, or <strong>🔴 Live Search</strong> to discover fresh opportunities.</p></div>
+    <div class="step-card"><div class="step-num">1</div><h3>Pick Your Mode</h3><p>Use <strong>⚡ Quick Match</strong> for fast results from saved listings, or <strong>🔴 Live Search</strong> to discover fresh opportunities.</p></div>
     <div class="step-card"><div class="step-num">2</div><h3>AI Matches You</h3><p>Our AI finds up to 10 jobs relevant to your search — with a reason for each match.</p></div>
     <div class="step-card"><div class="step-num">3</div><h3>Apply Instantly</h3><p>See your top matched jobs with the exact reason each was chosen and a direct Apply Now link.</p></div>
   </div>
@@ -481,12 +475,12 @@ body[data-page="find"] .hero{min-height:65vh}
   <h2 class="section-title">Find jobs in your field</h2>
   <p class="section-sub">Click any category to instantly search for matching jobs.</p>
   <div class="categories-grid">
-    <div class="category-card" onclick="searchCategory('Data Analyst')"><div class="category-icon">📊</div><div><div class="category-name">Data Analyst</div><div class="category-count">2,400+ jobs</div></div></div>
-    <div class="category-card" onclick="searchCategory('Software Engineer')"><div class="category-icon">💻</div><div><div class="category-name">Software Engineer</div><div class="category-count">8,200+ jobs</div></div></div>
-    <div class="category-card" onclick="searchCategory('Product Manager')"><div class="category-icon">🎯</div><div><div class="category-name">Product Manager</div><div class="category-count">1,800+ jobs</div></div></div>
-    <div class="category-card" onclick="searchCategory('Marketing Manager')"><div class="category-icon">📣</div><div><div class="category-name">Marketing Manager</div><div class="category-count">3,100+ jobs</div></div></div>
-    <div class="category-card" onclick="searchCategory('UX Designer')"><div class="category-icon">🎨</div><div><div class="category-name">UX Designer</div><div class="category-count">1,500+ jobs</div></div></div>
-    <div class="category-card" onclick="searchCategory('Financial Analyst')"><div class="category-icon">💰</div><div><div class="category-name">Financial Analyst</div><div class="category-count">2,700+ jobs</div></div></div>
+    <div class="category-card" onclick="searchCategory('Data Analyst')"><div class="category-icon">📊</div><div><div class="category-name">Data Analyst</div><div class="category-count">Explore matching opportunities</div></div></div>
+    <div class="category-card" onclick="searchCategory('Software Engineer')"><div class="category-icon">💻</div><div><div class="category-name">Software Engineer</div><div class="category-count">Explore matching opportunities</div></div></div>
+    <div class="category-card" onclick="searchCategory('Product Manager')"><div class="category-icon">🎯</div><div><div class="category-name">Product Manager</div><div class="category-count">Explore matching opportunities</div></div></div>
+    <div class="category-card" onclick="searchCategory('Marketing Manager')"><div class="category-icon">📣</div><div><div class="category-name">Marketing Manager</div><div class="category-count">Explore matching opportunities</div></div></div>
+    <div class="category-card" onclick="searchCategory('UX Designer')"><div class="category-icon">🎨</div><div><div class="category-name">UX Designer</div><div class="category-count">Explore matching opportunities</div></div></div>
+    <div class="category-card" onclick="searchCategory('Financial Analyst')"><div class="category-icon">💰</div><div><div class="category-name">Financial Analyst</div><div class="category-count">Explore matching opportunities</div></div></div>
   </div>
 </section>
 
@@ -496,23 +490,14 @@ body[data-page="find"] .hero{min-height:65vh}
   <h2 class="section-title">Smarter than manual searching</h2>
   <p class="section-sub">Stop spending hours scrolling LinkedIn. Let AI do the work.</p>
   <div class="why-grid">
-    <div class="why-card"><div class="why-icon">⚡</div><h3>Quick Match Mode</h3><p>Get instant results from our nightly-scraped database of 200+ fresh jobs across 20 categories. No waiting.</p></div>
+    <div class="why-card"><div class="why-icon">⚡</div><h3>Quick Match Mode</h3><p>Search saved job listings quickly, then narrow your results with the filters that matter to you.</p></div>
     <div class="why-card"><div class="why-icon">🔴</div><h3>Live Search Mode</h3><p>Discover fresh job listings. Results appear as they arrive; timing depends on availability.</p></div>
     <div class="why-card"><div class="why-icon">🤖</div><h3>AI Job Matching</h3><p>Our AI reviews your search, ranks relevant opportunities, and explains why each job may fit.</p></div>
   </div>
 </section>
 
 <!-- TESTIMONIALS -->
-<section class="testimonials">
-  <div class="section-eyebrow">Testimonials</div>
-  <h2 class="section-title">People are finding jobs faster</h2>
-  <p class="section-sub">Real results from real job seekers who used Fortune Jobs AI.</p>
-  <div class="testimonials-grid">
-    <div class="testimonial-card"><div class="stars">★★★★★</div><p class="testimonial-text">"I used Quick Match and got 5 perfectly matched Data Analyst roles in seconds. Got an interview the same week!"</p><div class="testimonial-author"><div class="author-avatar" style="background:#FBF3E0">SM</div><div><div class="author-name">Sarah Mitchell</div><div class="author-role">Data Analyst · Chicago, IL</div></div></div></div>
-    <div class="testimonial-card"><div class="stars">★★★★★</div><p class="testimonial-text">"Live Search found me a Software Engineer role posted that same morning. The AI matched it perfectly to my background."</p><div class="testimonial-author"><div class="author-avatar" style="background:#E6F4F0">AK</div><div><div class="author-name">Arjun Kumar</div><div class="author-role">Software Engineer · Austin, TX</div></div></div></div>
-    <div class="testimonial-card"><div class="stars">★★★★★</div><p class="testimonial-text">"The AI explained exactly WHY the job matched me. That reason alone helped me write a better cover letter. Got hired!"</p><div class="testimonial-author"><div class="author-avatar" style="background:#E6EEF5">JR</div><div><div class="author-name">Jessica Rivera</div><div class="author-role">Marketing Manager · New York, NY</div></div></div></div>
-  </div>
-</section>
+
 
 <!-- CTA -->
 <section class="cta-section">
@@ -552,9 +537,9 @@ body[data-page="find"] .hero{min-height:65vh}
       </a>
       <p>Your AI-powered job search assistant. Discover opportunities for your next career move.</p>
     </div>
-    <div class="footer-links"><h4>Product</h4><ul><li><a href="find-jobs.html">Find Jobs</a></li><li><a href="#">Upload Resume</a></li></ul></div>
-    <div class="footer-links"><h4>Company</h4><ul><li><a href="about.html">About Us</a></li><li><a href="#">Contact</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
-    <div class="footer-links"><h4>Job Categories</h4><ul><li><a href="#">Data Analyst</a></li><li><a href="#">Software Engineer</a></li><li><a href="#">Product Manager</a></li><li><a href="#">Marketing</a></li></ul></div>
+    <div class="footer-links"><h4>Product</h4><ul><li><a href="find-jobs.html">Find Jobs</a></li><li><a href="resume-search.html">Upload Resume</a></li></ul></div>
+    <div class="footer-links"><h4>Company</h4><ul><li><a href="about.html">About Us</a></li><li><a href="contact.html">Contact</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+    <div class="footer-links"><h4>Job Categories</h4><ul><li><a href="results.html?mode=quick&amp;q=Data+Analyst">Data Analyst</a></li><li><a href="results.html?mode=quick&amp;q=Software+Engineer">Software Engineer</a></li><li><a href="results.html?mode=quick&amp;q=Product+Manager">Product Manager</a></li><li><a href="results.html?mode=quick&amp;q=Marketing">Marketing</a></li></ul></div>
   </div>
   <div class="footer-bottom">
     <p>© 2026 <span>Fortune Jobs AI</span>. All rights reserved.</p>
@@ -565,6 +550,7 @@ body[data-page="find"] .hero{min-height:65vh}
 <script src="job-titles.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
+<script src="data-safety.js"></script>
 <script src="auth.js"></script>
 <script src="guest-resume.js"></script>
 <script src="search-accuracy.js"></script>
@@ -589,7 +575,7 @@ function setMode(mode) {
   document.getElementById('btnQuick').classList.toggle('active', mode === 'quick');
   document.getElementById('btnLive').classList.toggle('active', mode === 'live');
   if (mode === 'quick') {
-    document.getElementById('modeDesc').innerHTML = '<span>⚡ Quick Match</span> — instant results from pre-scraped jobs (fastest)';
+    document.getElementById('modeDesc').innerHTML = '<span>⚡ Quick Match</span> — fast results from saved job listings';
   } else {
     document.getElementById('modeDesc').innerHTML = LIVE_SEARCH_PAUSED
       ? '<span>🔴 Live Search</span> — temporarily unavailable. Quick Match is available.'
@@ -960,7 +946,7 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
   shownJobs = jobs;
   document.getElementById('jobsGrid').innerHTML = jobs.map((job, i) => {
     const letter = (job.company && job.company.length > 0) ? job.company[0].toUpperCase() : '?';
-    const applyUrl = (job.apply_url && /^https?:\/\//.test(job.apply_url)) ? job.apply_url.replace(/"/g, '%22') : '#';
+    const applyUrl = safe(FJDataSafety.httpUrl(job.apply_url) || '#');
     const isSaved = window.FJ && acct.savedKeys.has(FJ.jobKey(job));
     return `
       <div class="job-card">
@@ -1001,7 +987,7 @@ function lockedSectionHtml() {
 document.getElementById('searchSubscription').innerHTML = lockedSectionHtml();
 
 function safe(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // Shown when the pre-scraped set has nothing for this search.

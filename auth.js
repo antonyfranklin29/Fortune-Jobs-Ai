@@ -48,7 +48,8 @@
 
     avatarHtml(profile, user, cls) {
       const name = (profile && profile.full_name) || '';
-      const url = (profile && profile.avatar_url) || '';
+      const candidate=(profile && profile.avatar_url)||'';
+      const url=window.FJDataSafety && window.FJDataSafety.avatarPath(candidate,window.FJ_CONFIG.url,user && user.id)?candidate:'';
       return url
         ? `<img class="${cls}" src="${esc(url)}" alt="" referrerpolicy="no-referrer">`
         : `<span class="${cls}" aria-hidden="true">${esc(FJ.initials(name, user && user.email))}</span>`;

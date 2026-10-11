@@ -2,7 +2,7 @@
   "name": "fortune-jobs-ai",
   "private": true,
   "scripts": {
-    "test": "node --test tests/search-speed.cjs tests/search-accuracy.cjs tests/resume-matching.cjs tests/resume-extraction.cjs tests/guest-resume.cjs"
+    "test": "node --test tests/search-speed.cjs tests/search-accuracy.cjs tests/resume-matching.cjs tests/resume-extraction.cjs tests/guest-resume.cjs tests/data-safety.cjs"
   },
   "devDependencies": {
     "@napi-rs/canvas": "1.0.11"

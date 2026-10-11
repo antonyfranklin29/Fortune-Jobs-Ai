@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" sizes="any" href="favicon.svg?v=1">
@@ -342,7 +344,7 @@ body[data-page="find"] .hero{min-height:65vh}
     </button>
   </div>
   <div class="mode-desc" id="modeDesc">
-    <span>⚡ Quick Match</span> — instant results from pre-scraped jobs (fastest)
+    <span>⚡ Quick Match</span> — fast results from saved job listings
   </div>
 
   <div class="search-wrapper">
@@ -496,9 +498,9 @@ body[data-page="find"] .hero{min-height:65vh}
       </a>
       <p>Your AI-powered job search assistant. Discover opportunities for your next career move.</p>
     </div>
-    <div class="footer-links"><h4>Product</h4><ul><li><a href="find-jobs.html">Find Jobs</a></li><li><a href="#">Upload Resume</a></li></ul></div>
-    <div class="footer-links"><h4>Company</h4><ul><li><a href="about.html">About Us</a></li><li><a href="#">Contact</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
-    <div class="footer-links"><h4>Job Categories</h4><ul><li><a href="#">Data Analyst</a></li><li><a href="#">Software Engineer</a></li><li><a href="#">Product Manager</a></li><li><a href="#">Marketing</a></li></ul></div>
+    <div class="footer-links"><h4>Product</h4><ul><li><a href="find-jobs.html">Find Jobs</a></li><li><a href="resume-search.html">Upload Resume</a></li></ul></div>
+    <div class="footer-links"><h4>Company</h4><ul><li><a href="about.html">About Us</a></li><li><a href="contact.html">Contact</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+    <div class="footer-links"><h4>Job Categories</h4><ul><li><a href="results.html?mode=quick&amp;q=Data+Analyst">Data Analyst</a></li><li><a href="results.html?mode=quick&amp;q=Software+Engineer">Software Engineer</a></li><li><a href="results.html?mode=quick&amp;q=Product+Manager">Product Manager</a></li><li><a href="results.html?mode=quick&amp;q=Marketing">Marketing</a></li></ul></div>
   </div>
   <div class="footer-bottom">
     <p>© 2026 <span>Fortune Jobs AI</span>. All rights reserved.</p>
@@ -509,6 +511,7 @@ body[data-page="find"] .hero{min-height:65vh}
 <script src="job-titles.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
+<script src="data-safety.js"></script>
 <script src="auth.js"></script>
 <script src="guest-resume.js"></script>
 <script src="search-accuracy.js"></script>
@@ -533,7 +536,7 @@ function setMode(mode) {
   document.getElementById('btnQuick').classList.toggle('active', mode === 'quick');
   document.getElementById('btnLive').classList.toggle('active', mode === 'live');
   if (mode === 'quick') {
-    document.getElementById('modeDesc').innerHTML = '<span>⚡ Quick Match</span> — instant results from pre-scraped jobs (fastest)';
+    document.getElementById('modeDesc').innerHTML = '<span>⚡ Quick Match</span> — fast results from saved job listings';
   } else {
     document.getElementById('modeDesc').innerHTML = LIVE_SEARCH_PAUSED
       ? '<span>🔴 Live Search</span> — temporarily unavailable. Quick Match is available.'
@@ -904,7 +907,7 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
   shownJobs = jobs;
   document.getElementById('jobsGrid').innerHTML = jobs.map((job, i) => {
     const letter = (job.company && job.company.length > 0) ? job.company[0].toUpperCase() : '?';
-    const applyUrl = (job.apply_url && /^https?:\/\//.test(job.apply_url)) ? job.apply_url.replace(/"/g, '%22') : '#';
+    const applyUrl = safe(FJDataSafety.httpUrl(job.apply_url) || '#');
     const isSaved = window.FJ && acct.savedKeys.has(FJ.jobKey(job));
     return `
       <div class="job-card">
@@ -945,7 +948,7 @@ function lockedSectionHtml() {
 document.getElementById('searchSubscription').innerHTML = lockedSectionHtml();
 
 function safe(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // Shown when the pre-scraped set has nothing for this search.

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" sizes="any" href="favicon.svg?v=1">
@@ -245,6 +247,12 @@ section{scroll-margin-top:140px;}
         <div class="msg info show" style="margin:4px 0 0">Email alerts are launching soon. Turn them on now and you'll get them as soon as they go live.</div>
       </section>
     </div>
+    <section class="card" style="padding:24px;margin:24px 0">
+      <h2>Your data</h2>
+      <p style="margin:12px 0">Download your profile, extracted resume text, saved jobs and search history. Original uploaded files are not included. Keep the downloaded copy private.</p>
+      <button class="btn btn-primary" type="button" id="exportAccountBtn" onclick="exportAccountData()">Download my data</button>
+      <p id="exportAccountStatus" role="status" style="margin-top:12px"></p>
+    </section>
   </main>
 </div>
 
@@ -252,6 +260,7 @@ section{scroll-margin-top:140px;}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
+<script src="data-safety.js"></script>
 <script src="auth.js"></script>
 <script src="resume-matching.js"></script>
 <script src="vendor/mammoth.browser.js" defer></script>
@@ -387,17 +396,17 @@ $('avatarInput').addEventListener('change', async () => {
   if (f.size > 2 * 1024 * 1024) { toast('Photo must be under 2 MB.'); return; }
   toast('Uploading photo…');
   const ext = f.type.split('/')[1].replace('jpeg', 'jpg');
-  const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+  const path = `${user.id}/avatar-${crypto.randomUUID()}.${ext}`;
+  const previousAvatar=profile.avatar_url;
   const up = await FJ.sb.storage.from('avatars').upload(path, f, { contentType: f.type, upsert: false });
   if (up.error) { toast("Couldn't upload the photo. Please try again."); console.error(up.error); return; }
   const url = FJ.sb.storage.from('avatars').getPublicUrl(path).data.publicUrl;
   const { data, error } = await FJ.sb.from('profiles').update({ avatar_url: url }).eq('id', user.id).select().single();
-  if (error) { toast("Couldn't save the photo."); return; }
+  if (error) { const cleanup=await FJ.sb.storage.from('avatars').remove([path]); toast(cleanup.error ? "Couldn't save the photo. Contact support to remove the unused upload." : "Couldn't save the photo. Your previous photo is unchanged."); return; }
   profile = data; renderHero(); toast('Photo updated');
   // tidy up older photos
-  const { data: files } = await FJ.sb.storage.from('avatars').list(user.id);
-  const old = (files || []).map(x => `${user.id}/${x.name}`).filter(p => p !== path);
-  if (old.length) FJ.sb.storage.from('avatars').remove(old);
+  const oldPath=FJDataSafety.avatarPath(previousAvatar,FJ_CONFIG.url,user.id);
+  if(oldPath&&oldPath!==path){const cleanup=await FJ.sb.storage.from('avatars').remove([oldPath]);if(cleanup.error)toast('Photo updated. The previous photo could not be removed; contact support for cleanup.');}
 });
 
 /* ── RESUME ───────────────────────────── */
@@ -514,13 +523,31 @@ async function viewResume() {
   window.open(data.signedUrl, '_blank', 'noopener');
 }
 
+let resumeRemoving=false;
 async function removeResume() {
-  if (!confirm('Remove your resume from Fortune Jobs AI?')) return;
-  await FJ.sb.storage.from('resumes').remove([profile.resume_path]);
-  const { data, error } = await FJ.sb.from('profiles').update({ resume_path: null, resume_name: null, resume_text: null, resume_updated_at: null })
-    .eq('id', user.id).select().single();
-  if (error) { toast("Couldn't remove it. Please try again."); return; }
-  profile = data; renderResume(); renderHero(); toast('Resume removed');
+  if(resumeRemoving||resumeSaving||!profile.resume_path)return;
+  if (!confirm('Remove your resume file and extracted text from Fortune Jobs AI?')) return;
+  resumeRemoving=true;
+  try{
+    profile=await FJDataSafety.removeResume(FJ.sb,user.id,profile);
+    cancelResumeReview();renderResume();renderHero();toast('Resume removed');
+  }catch(error){
+    const refreshed=await FJ.profile(user.id);if(refreshed){profile=refreshed;renderResume();renderHero();}
+    toast(error.message);
+  }finally{resumeRemoving=false;}
+}
+
+async function exportAccountData(){
+  const button=$('exportAccountBtn'),status=$('exportAccountStatus');
+  if(button.disabled)return;button.disabled=true;status.textContent='Preparing your private download…';
+  let url;
+  try{
+    const data=await FJDataSafety.exportAccount(FJ.sb,user.id);
+    url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+    const link=document.createElement('a');link.href=url;link.download='fortune-jobs-ai-my-data.json';link.click();
+    status.textContent='Your download is ready. This copy contains personal information; store it securely.';
+  }catch(error){status.textContent=error.message;}
+  finally{if(url)setTimeout(()=>URL.revokeObjectURL(url),1000);button.disabled=false;}
 }
 
 /* ── SAVED JOBS ───────────────────────── */
@@ -531,7 +558,7 @@ async function loadSaved() {
   $('savedCount').textContent = data.length;
   if (!data.length) { slot.innerHTML = '<p class="empty">No saved jobs yet. Tap <b>🔖 Save</b> on any job card to keep it here.</p>'; return; }
   slot.innerHTML = '<div class="jobs">' + data.map(j => {
-    const url = j.apply_url && /^https?:\/\//.test(j.apply_url) ? j.apply_url : '';
+    const url = FJDataSafety.httpUrl(j.apply_url);
     return `<div class="sjob" data-id="${j.id}">
       <div class="top"><span class="logo-l">${esc((j.company || '?')[0].toUpperCase())}</span>
         <div><div class="ttl">${esc(j.job_title)}</div><div class="co">${esc(j.company || '')}</div></div></div>
