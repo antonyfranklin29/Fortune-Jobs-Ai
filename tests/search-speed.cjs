@@ -13,6 +13,7 @@ function harness(fetch) {
   let id = 0;
   const elements = new Map();
   const context = vm.createContext({
+    FJAccuracy: require('../search-accuracy.js'),
     fetch, AbortController, console,
     SUPABASE_KEY: 'test', SUPABASE_URL: 'https://test.invalid',
     FREE_RESULTS: 10, SEARCH_REQUEST_TIMEOUT_MS: 10000, POLL_INTERVAL_MS: 3000, MAX_WAIT_MS: 150000,
@@ -29,7 +30,7 @@ function harness(fetch) {
     showLiveSearchEmpty(search) { context.emptySearches.push(search); },
     displays: [], errors: [], emptySearches: [],
   });
-  vm.runInContext(['readSearchRows', 'stripCodeFence', 'sanitizeJobRow', 'fetchJobs', 'queryTokens', 'quickMatchUrl', 'scoreJob', 'fetchQuickMatches', 'stopPolling', 'startPolling'].map(source).join('\n'), context);
+  vm.runInContext(['readSearchRows', 'stripCodeFence', 'sanitizeJobRow', 'isSearchCompletion', 'fetchJobs', 'queryTokens', 'quickMatchUrl', 'scoreJob', 'fetchQuickMatches', 'stopPolling', 'startPolling'].map(source).join('\n'), context);
   return { context, timers, async flush() { for (let i = 0; i < 12; i++) await Promise.resolve(); }, async tick(ms) { const entry = [...timers].find(([, value]) => value.ms === ms); assert.ok(entry, 'Missing timer ' + ms); timers.delete(entry[0]); await entry[1].fn(); } };
 }
 const row = { job_title: 'Engineer', company: 'Test', location: 'Remote', apply_url: 'https://test.invalid/apply', match_score: '80' };
@@ -53,12 +54,11 @@ test('all inline JavaScript parses', () => {
 });
 test('Quick Match uses one request even with fewer than ten results and preserves filters', async () => {
   const calls = [];
-  const { context } = harness(async url => { calls.push(url); return { ok: true, json: async () => [row] }; });
+  const { context } = harness(async url => { calls.push(url); return { ok: true, json: async () => [{...row,employment_type:'full-time',work_mode:'remote'}, {...row,apply_url:row.apply_url+'-onsite',employment_type:'full-time',work_mode:'onsite'}] }; });
   const jobs = await context.fetchQuickMatches('engineer', { job_type: 'Full-time', work_mode: 'Remote' }, new AbortController().signal);
   assert.equal(calls.length, 1);
-  assert.match(calls[0], /employment_type=eq.Full-time/);
-  assert.match(calls[0], /work_mode=eq.Remote/);
   assert.equal(jobs.length, 1);
+  assert.equal(jobs[0].apply_url, row.apply_url);
 });
 test('Quick Match surfaces HTTP failures instead of returning an empty list', async () => {
   const { context } = harness(async () => ({ ok: false, status: 503 }));
@@ -101,7 +101,7 @@ test('a completed empty source stops polling immediately', async () => {
   const calls = [];
   const h = harness(async url => {
     calls.push(url);
-    return { ok: true, json: async () => [{ job_title: 'No matching jobs found', company: 'N/A' }] };
+    return { ok: true, json: async () => [{ job_title: 'No matching jobs found', company: 'N/A', match_score:0, match_reason:'Search complete' }] };
   });
   h.context.startPolling('engineer', 1, '', 'live', 'completed-empty');
   await h.flush();
@@ -117,7 +117,7 @@ test('completion marker stops a short result set without displaying the marker',
   const h = harness(async url => {
     calls.push(url);
     return { ok: true, json: async () => [
-      { job_title: 'No matching jobs found', company: 'N/A' }, row, row,
+      { job_title: 'No matching jobs found', company: 'N/A', match_score:0, match_reason:'Search complete' }, row, {...row,apply_url:row.apply_url+'-second'},
     ] };
   });
   h.context.startPolling('engineer', 1, '', 'live', 'completed-short');
@@ -137,6 +137,11 @@ test('superseded live requests cannot display or schedule stale results', async 
   await h.flush();
   assert.equal(h.context.displays.length, 0);
   assert.equal(h.timers.size, 0);
+});
+test('an invalid source index fallback cannot masquerade as search completion', async () => {
+  const h=harness(async()=>({ok:true,json:async()=>[{job_title:'No matching jobs found',company:'N/A',match_score:95,match_reason:'Relevant software role'}]}));
+  const jobs=await h.context.fetchJobs(new AbortController().signal,'','search-invalid','engineer',{});
+  assert.equal(jobs,null);
 });
 test('three failed live reads stop with an actionable error', async () => {
   const h = harness(async () => ({ ok: false, status: 503 }));

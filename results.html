@@ -491,6 +491,7 @@ body[data-page="find"] .hero{min-height:65vh}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="auth.js"></script>
+<script src="search-accuracy.js"></script>
 <script>
 // ═══════════════════════════════════════
 // WEBHOOK URLs — one per mode
@@ -602,10 +603,11 @@ function stripCodeFence(value) {
 function sanitizeJobRow(row) {
   const cleaned = {};
   for (const key of Object.keys(row)) cleaned[key] = stripCodeFence(row[key]);
-  if (typeof cleaned.job_title === 'string' && /^\{[\s\S]*\}$/.test(cleaned.job_title)) {
-    try { return Object.assign({}, cleaned, JSON.parse(cleaned.job_title)); } catch(e) {}
-  }
   return cleaned;
+}
+function isSearchCompletion(row) {
+  return stripCodeFence(row.job_title) === 'No matching jobs found'
+    && Number(row.match_score) === 0 && stripCodeFence(row.match_reason) === 'Search complete';
 }
 
 // ═══════════════════════════════════════
@@ -635,25 +637,26 @@ async function readSearchRows(url, signal) {
   }
 }
 
-async function fetchJobs(signal, sinceISO, searchId) {
+async function fetchJobs(signal, sinceISO, searchId, search = '', filters = {}) {
   // Never substitute another person's results when this search is still running.
   if (!searchId) return null;
   const url = `${SUPABASE_URL}/rest/v1/job_matches`
-    + '?select=job_title,company,location,salary,apply_url,match_reason,match_score,created_at'
+    + '?select=job_title,company,location,salary,apply_url,match_reason,match_score,created_at,source_metadata'
     + `&order=created_at.desc&limit=${FREE_RESULTS + 1}&search_id=eq.${encodeURIComponent(searchId)}`;
   const rows = await readSearchRows(url, signal);
-  const cleaned = rows.map(sanitizeJobRow).filter(r =>
+  const candidates = rows.map(sanitizeJobRow).filter(r =>
     r.job_title && r.job_title !== 'No matching jobs found' && r.job_title !== 'N/A' && r.company !== 'N/A'
   );
+  const cleaned = FJAccuracy.filterJobs(candidates, search, filters).map(job=>({...job,match_reason:FJAccuracy.matchReason(job,search,filters)}));
   cleaned.sort((a, b) => (parseInt(b.match_score) || 0) - (parseInt(a.match_score) || 0));
   if (cleaned.length) {
     const results = cleaned.slice(0, FREE_RESULTS);
-    results.completed = rows.some(r => stripCodeFence(r.job_title) === 'No matching jobs found');
+    results.completed = rows.some(isSearchCompletion);
     return results;
   }
   // Make writes this sentinel after the final listing, including empty searches.
   // An empty database response still means the request is running.
-  return rows.some(r => stripCodeFence(r.job_title) === 'No matching jobs found') ? [] : null;
+  return rows.some(isSearchCompletion) ? [] : null;
 }
 
 // ═══════════════════════════════════════
@@ -671,11 +674,10 @@ function queryTokens(text) {
     .filter(t => t.length >= 2 && !STOPWORDS.has(t));
 }
 
-// Build the PostgREST URL. Hard filters go to the server; everything else is
-// scored on the client so a narrow filter never returns an empty page.
+// Narrow the candidate read, then verify every selected filter before ranking.
 function quickMatchUrl(tokens, filters, relaxed) {
   const p = [
-    'select=job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category',
+    'select=job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country',
     `limit=${QUICK_CANDIDATE_LIMIT}`
   ];
   if (tokens.length) {
@@ -683,8 +685,7 @@ function quickMatchUrl(tokens, filters, relaxed) {
     p.push(`or=(${ors.join(',')})`);
   }
   if (!relaxed) {
-    if (filters.job_type)  p.push(`employment_type=eq.${encodeURIComponent(filters.job_type)}`);
-    if (filters.work_mode) p.push(`work_mode=eq.${encodeURIComponent(filters.work_mode)}`);
+    if (filters.country) p.push(`country=eq.${encodeURIComponent(filters.country.toLowerCase())}`);
     if (filters.date_posted) {
       const since = new Date(Date.now() - parseInt(filters.date_posted, 10) * 86400000).toISOString();
       p.push(`posted_at=gte.${encodeURIComponent(since)}`);
@@ -739,17 +740,16 @@ async function fetchQuickMatches(input, filters, signal) {
   const rows = await readSearchRows(quickMatchUrl(tokens, filters, false), signal);
   if (!rows || !rows.length) return [];
 
-  const seen = new Set();
-  return rows
-    .filter(r => { const k = r.apply_url; if (!k || seen.has(k)) return false; seen.add(k); return true; })
+  return FJAccuracy.filterJobs(rows, input, filters)
     .map(r => {
-      const { score, reason } = scoreJob(r, tokens, phrase, filters);
+      const { score } = scoreJob(r, tokens, phrase, filters);
       return {
         job_title: r.job_title, company: r.company, location: r.location,
         salary: r.salary || 'Not listed', apply_url: r.apply_url,
-        match_reason: reason,
+        match_reason: FJAccuracy.matchReason(r,input,filters),
         match_score: String(Math.max(42, Math.min(99, 42 + score))),
-        created_at: r.posted_at
+        created_at: r.posted_at, posted_at:r.posted_at, country:r.country,
+        employment_type:r.employment_type, work_mode:r.work_mode, is_remote:r.is_remote
       };
     })
     .sort((a, b) => parseInt(b.match_score) - parseInt(a.match_score));
@@ -787,14 +787,14 @@ function showLiveSearchEmpty(search) {
   shownJobs = [];
   document.getElementById('jobsGrid').innerHTML = `
     <div class="empty-state">
-      <h3>The live source returned no listings</h3>
-      <p>Try another location or job title, or use Quick Match to search our saved listings.</p>
+      <h3>No jobs matched your search</h3>
+      <p>No verified listings matched your job title and selected filters. Try another title or location, adjust your filters, or use Quick Match.</p>
       <button class="retry-btn" onclick="setMode('quick');handleSearch();">Try Quick Match</button>
     </div>`;
   document.getElementById('resultsSection').scrollIntoView({ behavior: 'instant', block: 'start' });
 }
 
-function startPolling(search, generation, sinceISO, mode, searchId) {
+function startPolling(search, generation, sinceISO, mode, searchId, filters = {}) {
   showPollingBar();
   let displayed = false;
   let lastResults = '';
@@ -807,7 +807,7 @@ function startPolling(search, generation, sinceISO, mode, searchId) {
     const controller = new AbortController();
     activeAbortCtrl = controller;
     try {
-      const jobs = await fetchJobs(controller.signal, sinceISO, searchId);
+      const jobs = await fetchJobs(controller.signal, sinceISO, searchId, search, filters);
       if (generation !== searchGeneration || controller.signal.aborted) return;
       if (jobs && jobs.length === 0) {
         stopPolling();
@@ -885,12 +885,11 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
     const letter = (job.company && job.company.length > 0) ? job.company[0].toUpperCase() : '?';
     const applyUrl = (job.apply_url && /^https?:\/\//.test(job.apply_url)) ? job.apply_url.replace(/"/g, '%22') : '#';
     const isSaved = window.FJ && acct.savedKeys.has(FJ.jobKey(job));
-    const score = job.match_score || '90';
     return `
       <div class="job-card">
         <div class="job-card-top">
           <div class="company-logo">${safe(letter)}</div>
-          <div class="match-badge">✓ ${safe(score)}% match</div>
+          <div class="match-badge">✓ Relevant match</div>
         </div>
         <div class="job-title">${safe(job.job_title)}</div>
         <div class="job-company">${safe(job.company || 'Company')}</div>
@@ -954,7 +953,7 @@ function showQuickMatchEmpty(search, filters) {
   const section = document.getElementById('resultsSection');
   document.getElementById('resultsTitle').textContent = `No quick matches for "${search}"`;
   document.getElementById('resultsCount').textContent =
-    'Quick Match looks through jobs we collected earlier, so it can miss newer or more unusual roles.';
+    'No saved listings matched your job title and selected filters. Try adjusting your search or use Live Search for fresh listings.';
   const badge = document.getElementById('resultsModeBadge');
   badge.className = 'results-mode-badge quick';
   badge.textContent = '\u26a1 Quick Match';
@@ -978,7 +977,7 @@ async function handleSearch() {
   if (!input) { alert('Please type a job title first!'); return; }
 
   if (document.body.dataset.page !== 'results') {
-    const params = new URLSearchParams({q: input, mode: currentMode});
+    const params = new URLSearchParams({q: input, mode: currentMode, v:'20261010-accuracy'});
     Object.entries(getFilters()).forEach(([key, value]) => {
       if (value !== null && value !== '') params.set(key, String(value));
     });
@@ -1050,7 +1049,7 @@ async function handleSearch() {
     // Search-id polling remains authoritative if the acknowledgement is delayed.
     console.warn('Live Search submission could not be confirmed:', error.name);
   }).finally(() => clearTimeout(webhookTimeout));
-  startPolling(input, myGeneration, sinceISO, mode, searchId);
+  startPolling(input, myGeneration, sinceISO, mode, searchId, filters);
 }
 
 // ═══════════════════════════════════════
