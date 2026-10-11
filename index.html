@@ -991,8 +991,8 @@ function lockedSectionHtml() {
       </div>
     </div>`;
   const btn = PRO_CHECKOUT_URL
-    ? `<a href="${PRO_CHECKOUT_URL}" class="upsell-btn" target="_blank" rel="noopener">Upgrade to Pro →</a>`
-    : `<span class="upsell-btn soon">Pro launching soon</span>`;
+    ? `<a href="${PRO_CHECKOUT_URL}" class="upsell-btn" target="_blank" rel="noopener">Subscribe for more results →</a>`
+    : `<span class="upsell-btn soon">Subscriptions coming soon</span>`;
   return `
     <div class="locked-wrap">
       <div class="locked-grid" aria-hidden="true">${ghost.repeat(LOCKED_PREVIEW_CARDS)}</div>
@@ -1000,8 +1000,8 @@ function lockedSectionHtml() {
         <div class="upsell-card">
           <div class="lock-icon">🔒</div>
           <div class="upsell-badge">✦ Fortune Jobs AI Pro</div>
-          <h3>Unlock 50+ more matches</h3>
-          <p>You've seen your ${FREE_RESULTS} free results. Pro shows you 50+ job matches per search in both Quick Match and Live Search, each with the reason it fits you.</p>
+          <h3>Subscribe for more results</h3>
+          <p>You've reached the ${FREE_RESULTS}-result free limit for this search. The planned Pro subscription will offer more results in both Quick Match and Live Search. Availability depends on your search and filters.</p>
           <div class="upsell-price">$7.99 <span>/ month + tax</span></div>
           <div style="margin-top:16px">${btn}</div>
           <div class="upsell-note">Cancel anytime.</div>
