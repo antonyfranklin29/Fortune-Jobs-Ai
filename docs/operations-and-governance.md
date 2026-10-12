@@ -20,7 +20,7 @@ Account data currently has no automated expiry. Do not claim a 30-day retention 
 
 ## Support and requests
 
-Planned public email: info@fortunejobsai.com. Mailbox NOT created or verified. No working mailto link is published. Owner must provision a mailbox or dependable forwarding plus reply capability, configure SPF/DKIM/DMARC, and verify incoming/outgoing mail before launch. Do not send real resumes or identity documents to an unverified mailbox.
+Active public email: info@fortunejobsai.com, Microsoft 365 via GoDaddy. Authoritative MX verified; owner and Chrome extension report incoming and reply tests passed with SPF/DMARC PASS. Owner completed Authenticator enrollment. Direct DKIM signing remains unconfirmed despite enabled/Valid status; repeat a fresh header check. Contact/privacy pages and main page footers publish mailto links for support and feedback. No support-response SLA or complete deletion workflow is claimed.
 
 Account export: profile Download my data; includes extracted text, saved jobs and paginated history, excluding file binaries. Removal: owned resume deletion detaches the matching profile conditionally before storage cleanup, restores details on storage failure without overwriting another upload, and reports failures. Complete account deletion, orphan-file cleanup and designated-account end-to-end tests remain outstanding.
 
