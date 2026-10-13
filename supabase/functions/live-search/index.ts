@@ -5,9 +5,11 @@
 // busy, and only then calls the Make workflow using a shared secret that the
 // workflow requires. Browsers never learn the workflow URL or the secret.
 //
-// A concurrency slot is released when the backend actually reports results (a
-// database trigger on job_matches settles the admission row). The TTL is only a
-// safety net for a search that never reports at all.
+// A concurrency slot is released only on a conclusive outcome: the pipeline's
+// final completion marker (a database trigger on job_matches recognises it), an
+// explicit live_search_settle call, or a conclusive upstream refusal. Partial
+// job rows leave the slot held, because the scraper is still running. The TTL is
+// only a safety net for a search that never reports at all.
 //
 // Required secrets (set in the Supabase dashboard, never in source):
 //   MAKE_LIVE_WEBHOOK_URL  the Make webhook this gateway is allowed to call
@@ -313,9 +315,11 @@ Deno.serve(async (req: Request) => {
     // A timeout is NOT conclusive. Make may have accepted the request and may
     // still be scraping, so the slot stays held and no duplicate is permitted.
     // The completion trigger settles it if results arrive; the TTL is the backstop.
-    await dbFetch(`/rest/v1/live_search_admissions?search_id=eq.${encodeURIComponent(searchId)}`, {
-      method: "PATCH", body: JSON.stringify({ status: "dispatched", outcome: "dispatch_unconfirmed" }),
-    }).catch(() => {});
+    //
+    // This races with completion: results can land while the dispatch call is
+    // still timing out. live_search_mark_unconfirmed only touches an admission
+    // that is still active, so a search that already completed stays completed.
+    await rpc("live_search_mark_unconfirmed", { p_search_id: searchId }).catch(() => {});
     return json({ status: "accepted", search_id: searchId, unconfirmed: true, queued_ms: waitedMs,
       poll_after_ms: 8000,
       message: "Live Search was submitted but not confirmed. Results may still arrive." }, 202, origin);

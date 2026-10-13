@@ -6,7 +6,7 @@ frontend file has been modified.
 
 ## What is deployed
 
-Supabase Edge Function `live-search` (ACTIVE, **version 3**, `verify_jwt: false`).
+Supabase Edge Function `live-search` (ACTIVE, **version 4**, `verify_jwt: false`).
 `verify_jwt` is off because the product supports searching without an account;
 the function performs its own validation and never trusts client-supplied
 identity for authorisation.
@@ -21,8 +21,12 @@ Database objects (applied to production):
 | `live_search_limits` | Operator-tunable limits, changeable without redeploying |
 | `live_search_try_admit()` | Atomic admission decision under an advisory lock |
 | `live_search_settle()` | Releases a slot on a conclusive finish or failure |
-| `live_search_mark_completed()` | Trigger function: settles an admission when results land |
-| `live_search_release_slot` | `AFTER INSERT ON job_matches` trigger that calls it |
+| `live_search_mark_completed()` | Trigger function: settles an admission on the pipeline's final completion marker only |
+| `live_search_mark_unconfirmed()` | Marks a dispatch unconfirmed, but only while the admission is still active |
+| `live_search_release_slot` | `AFTER INSERT ON job_matches` trigger that calls `live_search_mark_completed()` |
+
+`live_search_try_admit`, `live_search_settle` and `live_search_mark_unconfirmed`
+are executable by `service_role` only.
 
 Both tables have RLS on and **no** grants for `anon` or `authenticated`. Only
 `service_role` reaches them. No existing table permission was altered.
@@ -46,14 +50,19 @@ Both tables have RLS on and **no** grants for `anon` or `authenticated`. Only
 - **Cost bounds** — global hourly and daily caps protect the paid scraping budget.
 - **Queueing** — a request blocked only by concurrency waits up to `queue_wait_ms`
   for a slot, then sheds with `Retry-After`.
-- **Slot lifetime** — a slot is released when the backend *actually reports
-  results* (the `job_matches` trigger settles the admission), or on a conclusive
-  upstream refusal. `slot_seconds` is now only a backstop for a search that never
-  reports at all.
+- **Slot lifetime** — a slot is released only on a conclusive outcome: the
+  pipeline's **final completion marker** (`job_title = 'No matching jobs found'`,
+  `match_reason = 'Search complete'`, `match_score = 0`), an explicit
+  `live_search_settle` call, or a conclusive upstream refusal. **Partial job rows
+  leave the slot held**, because the scraper is still running. `slot_seconds` is
+  only a backstop for a search that never reports at all.
 - **Ambiguous dispatch** — if the call to Make times out, Make may already have
   accepted the job. The gateway therefore **keeps the slot held**, marks the row
   `dispatched` / `dispatch_unconfirmed`, and returns 202 with `unconfirmed: true`
-  instead of freeing capacity and permitting duplicate scraping.
+  instead of freeing capacity and permitting duplicate scraping. The mark is
+  applied through `live_search_mark_unconfirmed`, which only touches an admission
+  that is **still active** — so results landing while the dispatch call is still
+  timing out cannot be rolled back to `dispatched`.
 - **Database calls** — every gateway→Postgres call is bounded at 5s; upstream
   dispatch aborts at 10s.
 - **Kill switch** — `paused = true` stops all Live Search while leaving Quick Match
@@ -142,6 +151,48 @@ Known limitation: the queue budget is soft. Under contention one request waited
 10.5s against a 6s budget because admission attempts serialise on the advisory
 lock. Bounded, but not a hard ceiling. Worth revisiting if concurrency is raised.
 
+## Verification C — completion trust and timeout race (2026-10-13, version 4)
+
+Reported separately from the synthetic admission tests.
+
+| Test | Result |
+| --- | --- |
+| Partial result row → slot stays held | Two real job rows inserted; admission stayed `in_flight`, in-flight count stayed 1 |
+| Near-miss marker shapes → slot stays held | Wrong `match_score`, wrong `match_reason` and wrong `job_title` each ignored; admission still `in_flight` |
+| Final marker → slot released | Admission became `completed`, outcome `results_received:<role>`, in-flight dropped to 0 |
+| Timeout **after** completion → completed state preserved | `live_search_mark_unconfirmed` returned `applied: false`, status stayed `completed` |
+| Timeout **before** completion → still applies | Returned `applied: true`, status `dispatched`, slot still counted as in-flight |
+| Live endpoint on version 4 | Full regional payload admitted (slot 300s, settled `gateway_not_configured`); bad scope and out-of-range latitude still 400 |
+
+Run inside a transaction and rolled back: no probe admission row, no probe
+`job_matches` row, in-flight back to 0.
+
+### The marker is corroborating, not yet authenticated
+
+`job_matches` carries an RLS policy `pipeline can insert job matches` granting
+**INSERT to `anon` and `authenticated`** with `with_check (true)`. The website
+ships the publishable anon key, so anyone holding it can insert rows into
+`job_matches` — including a forged completion marker for someone else's
+`search_id`, which would free a concurrency slot early.
+
+This predates the gateway and sits in the shared results pipeline, so it has not
+been changed here. Two consequences worth deciding on:
+
+1. **Fake job rows** can be inserted and will be shown to visitors, independent
+   of anything to do with capacity.
+2. The completion marker cannot be a fully trusted signal until inserts are
+   restricted to `service_role`.
+
+The trigger now records the inserting role in `live_search_admissions.outcome`
+(`results_received:anon` vs `results_received:service_role`), so the next real
+Live Search will show which key Make actually uses. If Make writes with the
+service key, the fix is to drop the anon/authenticated INSERT policy — that is a
+Codex-owned pipeline change and needs coordinating, since doing it while Make
+writes with the anon key would stop results landing altogether.
+
+Until then the defences that do not depend on the marker still hold: the 300s
+TTL, the global hourly and daily cost caps, and per-caller rate limits.
+
 ## Website state
 
 `index.html` and the generated pages are unchanged, so the live site still calls
@@ -175,7 +226,19 @@ This is blocked here: Make is signed out and credentials are not handled from th
 session. It has to be done by the owner, and it must be done **before** the
 frontend cutover, otherwise the bypass stays open while the gateway is live.
 
-### 3. Frontend cutover (shared files — needs coordination with Codex)
+### 3. `job_matches` accepts inserts from `anon` — needs a decision
+
+The RLS policy `pipeline can insert job matches` grants INSERT to `anon` and
+`authenticated` with `with_check (true)`. Anyone with the site's publishable key
+can therefore write job rows, and a forged completion marker could free a
+concurrency slot early. Details and the proposed fix are in Verification C. This
+is a Codex-owned pipeline change, so it is not made here.
+
+### 4. Frontend cutover (shared files — needs coordination with Codex)
+
+Cutover stays pending until items 1 and 2 above are verified: the Make secret
+filter must be in place and the required secrets set, otherwise the old webhook
+remains directly callable while the gateway is in the user path.
 
 `index.html` is the single source; `find-jobs.html`, `results.html` and
 `about.html` are generated from it by `scripts/build-search-pages.cjs`.
