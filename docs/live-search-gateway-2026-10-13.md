@@ -240,8 +240,24 @@ publishable key: all three callable gateway functions now return 401,
 
 The lesson generalises: any future `SECURITY DEFINER` function in this project
 needs `revoke all on function … from public` as well, or it ships
-anon-executable. Worth checking the six unused `fja_*` functions on the same
-basis.
+anon-executable.
+
+### Sweep of every other anon-executable function
+
+Checked all `public` functions where `has_function_privilege('anon', …,
+'EXECUTE')` is true. After the fix, **no gateway function appears**. What remains
+is the `pg_trgm` extension's own functions, which are expected and harmless, and
+the `fja_*` ingestion helpers.
+
+One of those is worth Codex's attention but is **not** currently exploitable:
+`fja_insert_batch(text, jsonb, text)` is anon-executable and inserts into
+`pre_scraped_jobs` (the Quick Match corpus). It is *invoker-rights*, not
+`SECURITY DEFINER`, so it runs as `anon` and the October 11 table lockdown stops
+it. Probed live with an empty batch, which writes nothing either way:
+401, `42501 permission denied for table pre_scraped_jobs`. The risk would only
+appear if that function were ever changed to `SECURITY DEFINER`, so it is worth
+revoking PUBLIC EXECUTE on the `fja_*` helpers as defence in depth. That is
+Codex's pipeline, so it is reported rather than changed.
 
 ## Website state
 
