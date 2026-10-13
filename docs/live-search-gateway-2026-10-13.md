@@ -98,6 +98,13 @@ strings when a search is restored from URL parameters; both are accepted, range
 checked (±90 / ±180) and passed through as numbers. An absent or empty value is
 skipped rather than rejected, which is what the page sends when no city is picked.
 
+Checked against Codex's statewide selection change (`d3f35a5`): a region search
+now sends `city: ''`, `latitude: null` and `longitude: null` with
+`location_scope: 'region'`, and `location_scope` round-trips through URL
+parameters. That exact payload was posted to the live gateway and passed
+validation through to dispatch. `getFilters()` sends no key the gateway does not
+already recognise.
+
 ## Verification A — Codex review points (2026-10-13, version 3)
 
 Reported separately from the synthetic admission tests below.
