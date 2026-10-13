@@ -61,8 +61,10 @@
 
   function locationMatches(job, filters, data) {
     const states=typeof module==='object'&&module.exports?require('./guest-resume.js').states:(root.FJGuestResume?.states||{});
-    const regionName=value=>{const s=String(value||'').trim();return normalize(states[s.toUpperCase()]||s).replace(/\s+(state|province)$/,'');};
-    const actualRegion=data.location?.stateName || data.location?.state || String(job.location||'').split(',')[1] || '';
+    const regionName=value=>{const s=String(value||'').trim().replace(/\s+\d{5}(?:-\d{4})?$/, '');return normalize(states[s.toUpperCase()]||s).replace(/\s+(state|province)$/,'');};
+    const parts=String(job.location||'').split(',');
+    const stateOnly=parts.length===1 && (states[parts[0].trim().toUpperCase()] || Object.values(states).some(s=>normalize(s)===normalize(parts[0]))) ? parts[0] : '';
+    const actualRegion=data.location?.stateName || data.location?.state || parts[1] || stateOnly;
     if(filters.location_scope==='region')return !!filters.region && regionName(filters.region)===regionName(actualRegion);
     const wanted=cityName(filters.city || String(filters.location || '').split(',')[0]);
     if (!wanted) return true;

@@ -553,6 +553,7 @@ body[data-page="find"] .hero{min-height:65vh}
 <script src="data-safety.js"></script>
 <script src="auth.js"></script>
 <script src="guest-resume.js"></script>
+<script src="location-regions.js"></script>
 <script src="search-accuracy.js"></script>
 <script src="resume-matching.js"></script>
 <script>
@@ -750,6 +751,13 @@ function quickMatchUrl(tokens, filters, relaxed) {
   }
   if (!relaxed) {
     if (filters.country) p.push(`country=eq.${encodeURIComponent(filters.country.toLowerCase())}`);
+    const state = filters.location_scope === 'region' && typeof FJRegions !== 'undefined' ? FJRegions.exact(filters.region, filters.country) : null;
+    if (state) {
+      const area = `or(location.ilike.*${encodeURIComponent(state.name)}*,location.ilike.${encodeURIComponent('"*, ' + state.code + '*"')},location.eq.${state.code})`;
+      const roleIndex = p.findIndex(part => part.startsWith('or='));
+      const role = roleIndex >= 0 ? p.splice(roleIndex, 1)[0].replace('or=', 'or') : '';
+      p.push(`and=(${[role, area].filter(Boolean).join(',')})`);
+    }
     if (filters.date_posted) {
       const since = new Date(Date.now() - parseInt(filters.date_posted, 10) * 86400000).toISOString();
       p.push(`posted_at=gte.${encodeURIComponent(since)}`);
@@ -1103,15 +1111,17 @@ const FILTER_IDS = ['filterCountry','filterDate','filterExperience','filterJobTy
 function getFilters() {
   const val = id => document.getElementById(id).value;
   const sel = id => { const s = document.getElementById(id); return s.value ? s.options[s.selectedIndex].text.replace(/^\S+\s(?=[A-Z])/u, '') : ''; };
+  const picked = selectedCity || FJRegions.exact(val('locationInput'), val('filterCountry'));
+  const regionSearch = picked?.scope === 'region';
   return {
     location:     document.getElementById('locationInput').value.trim(),
-    city:         (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.name : (new URLSearchParams(location.search).get('city') || ''),
-    region:       (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.region : (new URLSearchParams(location.search).get('region') || ''),
-    location_scope: new URLSearchParams(location.search).get('location_scope') === 'region' ? 'region' : '',
+    city:         regionSearch ? '' : (picked?.name || ''),
+    region:       picked ? (picked.region || picked.admin1 || '') : '',
+    location_scope: regionSearch ? 'region' : '',
     latitude:     (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lat : null,
     longitude:    (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lng : null,
-    country:      val('filterCountry'),          // ISO code, '' = any country
-    country_name: val('filterCountry') ? sel('filterCountry') : '',
+    country:      val('filterCountry') || (picked?.country_code || '').toLowerCase(),
+    country_name: val('filterCountry') ? sel('filterCountry') : (picked?.country || ''),
     date_posted:  val('filterDate'),             // max age in days, '' = any time
     experience:   val('filterExperience'),
     job_type:     val('filterJobType'),
@@ -1180,7 +1190,7 @@ async function fetchCities(q, country) {
   const fq = fold(q);
   const seen = new Set();
   const all = (data.results || [])
-    .filter(r => fold(r.name).startsWith(fq))                 // only cities that START with what was typed
+    .filter(r => !/^ADM/.test(r.feature_code || '') && fold(r.name).startsWith(fq))
     .filter(r => { const k = `${r.name}|${r.admin1}|${r.country_code}`; if (seen.has(k)) return false; seen.add(k); return true; })
     .sort((a, b) => (b.population || 0) - (a.population || 0));
   const big = all.filter(r => (r.population || 0) >= 5000 || /^PPL(A|C)/.test(r.feature_code || ''));
@@ -1190,6 +1200,7 @@ async function fetchCities(q, country) {
 }
 
 function cityLabel(r) {
+  if (r.scope === 'region') return r.name;
   return [r.name, r.admin1 && r.admin1 !== r.name ? r.admin1 : null].filter(Boolean).join(', ');
 }
 
@@ -1224,7 +1235,7 @@ function closeCityList() {
 
 function renderCities(q) {
   if (!cityItems.length) {
-    openCityList(`<li class="city-empty">No cities found for “${escHtml(q)}” — you can still search with what you typed.</li>`);
+    openCityList(`<li class="city-empty">No locations found for “${escHtml(q)}” — you can still search with what you typed.</li>`);
     return;
   }
   const n = q.length;
@@ -1233,7 +1244,7 @@ function renderCities(q) {
       <svg class="pin" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 15s5-4.6 5-8.5A5 5 0 0 0 3 6.5C3 10.4 8 15 8 15z" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="6.5" r="1.8" stroke="currentColor" stroke-width="1.6"/></svg>
       <span>
         <span class="city-name"><b>${escHtml(r.name.slice(0, n))}</b>${escHtml(r.name.slice(n))}</span>
-        <span class="city-region">${escHtml([r.admin1 !== r.name ? r.admin1 : '', r.country].filter(Boolean).join(', '))}</span>
+        <span class="city-region">${escHtml([r.admin1 !== r.name ? r.admin1 : '', r.country, r.scope === 'region' ? r.kind : 'City'].filter(Boolean).join(' · '))}</span>
       </span>
       <span class="city-flag" aria-hidden="true">${flagOf(r.country_code)}</span>
     </li>`).join(''));
@@ -1251,7 +1262,7 @@ function setCityActive(i) {
 function pickCity(i) {
   const r = cityItems[i];
   if (!r) return;
-  selectedCity = { label: cityLabel(r), name: r.name, region: r.admin1 || '', country_code: (r.country_code || '').toLowerCase(), lat: r.latitude, lng: r.longitude };
+  selectedCity = { label: cityLabel(r), name: r.scope === 'region' ? '' : r.name, region: r.admin1 || '', scope:r.scope || 'city', country:r.country || '', country_code: (r.country_code || '').toLowerCase(), lat: r.scope === 'region' ? null : r.latitude, lng: r.scope === 'region' ? null : r.longitude };
   cityInput.value = selectedCity.label;
   const countrySel = document.getElementById('filterCountry');
   if ([...countrySel.options].some(o => o.value === selectedCity.country_code)) countrySel.value = selectedCity.country_code;
@@ -1261,17 +1272,21 @@ function pickCity(i) {
 
 cityInput.addEventListener('input', () => {
   selectedCity = null;
+  const myReq = ++cityReqId;
   clearTimeout(cityTimer);
   const q = cityInput.value.trim();
   if (q.length < CITY_MIN_CHARS) { closeCityList(); return; }
+  const country = document.getElementById('filterCountry').value;
+  const regions = FJRegions.suggestions(q, country);
+  cityItems = regions;
+  if (regions.length) renderCities(q); else closeCityList();
   cityTimer = setTimeout(async () => {
-    const myReq = ++cityReqId;
     try {
-      const results = await fetchCities(q, document.getElementById('filterCountry').value);
+      const results = await fetchCities(q, country);
       if (myReq !== cityReqId || cityInput.value.trim() !== q) return;   // a newer keystroke won
-      cityItems = results;
+      cityItems = [...regions, ...results].slice(0, CITY_MAX_SHOWN);
       renderCities(q);
-    } catch (e) { closeCityList(); }                                   // lookup down: plain text still works
+    } catch (e) { if (myReq === cityReqId && !regions.length) closeCityList(); }
   }, 200);
 });
 
@@ -1291,7 +1306,7 @@ cityList.addEventListener('click', e => {
 cityInput.addEventListener('blur', () => setTimeout(closeCityList, 120));
 cityInput.addEventListener('focus', () => { if (cityItems.length && cityInput.value.trim().length >= CITY_MIN_CHARS && !selectedCity) renderCities(cityInput.value.trim()); });
 window.addEventListener('resize', () => { if (cityList.classList.contains('open')) positionCityList(); });
-document.getElementById('filterCountry').addEventListener('change', () => { cityCache.clear(); });
+document.getElementById('filterCountry').addEventListener('change', () => { cityCache.clear(); selectedCity = null; cityItems = []; ++cityReqId; clearTimeout(cityTimer); closeCityList(); });
 
 // ═══════════════════════════════════════
 // JOB TITLE / SKILL / COMPANY AUTOCOMPLETE (list lives in job-titles.js)
@@ -1584,7 +1599,7 @@ async function toggleSaveJob(i, btn) {
 // Filters worth remembering (drops empty values)
 function filtersToSave(f) {
   const keep = {};
-  ['location','city','region','latitude','longitude','country','country_name','date_posted','experience','job_type','work_mode','company']
+  ['location','city','region','location_scope','latitude','longitude','country','country_name','date_posted','experience','job_type','work_mode','company']
     .forEach(k => { if (f[k] !== '' && f[k] != null) keep[k] = f[k]; });
   return Object.keys(keep).length ? keep : null;
 }
@@ -1625,8 +1640,8 @@ function applyFilters(f) {
   setSel('filterCountry', f.country); setSel('filterDate', f.date_posted); setSel('filterExperience', f.experience);
   setSel('filterJobType', f.job_type); setSel('filterWorkMode', f.work_mode);
   if (f.company) document.getElementById('filterCompany').value = f.company;
-  selectedCity = (f.city && f.latitude != null)
-    ? { label: f.location, name: f.city, region: f.region || '', country_code: f.country || '', lat: f.latitude, lng: f.longitude }
+  selectedCity = (f.city || (f.location_scope === 'region' && f.region))
+    ? { label: f.location, name: f.location_scope === 'region' ? '' : f.city, region: f.region || '', scope:f.location_scope === 'region' ? 'region' : 'city', country:f.country_name || '', country_code: f.country || '', lat: f.latitude ?? null, lng: f.longitude ?? null }
     : null;
   refreshFilterUI();
 }
@@ -1643,7 +1658,7 @@ function runSearchFromUrl() {
   document.getElementById('jobSearchInput').value = q.slice(0, 200);
   setMode(p.get('mode') === 'live' ? 'live' : 'quick');
   const f = {};
-  ['location','city','region','latitude','longitude','country','country_name','date_posted','experience','job_type','work_mode','company'].forEach(k => { if (p.get(k)) f[k] = p.get(k).slice(0, 200); });
+  ['location','city','region','location_scope','latitude','longitude','country','country_name','date_posted','experience','job_type','work_mode','company'].forEach(k => { if (p.get(k)) f[k] = p.get(k).slice(0, 200); });
   applyFilters(f);
   // Keep the query so results can be refreshed, bookmarked and shared.
   return true;
