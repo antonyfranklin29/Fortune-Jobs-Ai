@@ -25,11 +25,13 @@ Database objects (applied to production):
 | `live_search_mark_unconfirmed()` | Marks a dispatch unconfirmed, but only while the admission is still active |
 | `live_search_release_slot` | `AFTER INSERT ON job_matches` trigger that calls `live_search_mark_completed()` |
 
-`live_search_try_admit`, `live_search_settle` and `live_search_mark_unconfirmed`
-are executable by `service_role` only.
+All four functions are `SECURITY DEFINER` and executable by `service_role`
+only — `PUBLIC` included, which needed revoking explicitly (see Verification C).
 
 Both tables have RLS on and **no** grants for `anon` or `authenticated`. Only
-`service_role` reaches them. No existing table permission was altered.
+`service_role` reaches them, verified by anonymous probe. No existing table
+permission was altered in any phase of this work, and the October 11 write-grant
+lockdown on `job_matches` and `pre_scraped_jobs` is preserved.
 
 ## Controls
 
@@ -174,31 +176,72 @@ Reported separately from the synthetic admission tests.
 Run inside a transaction and rolled back: no probe admission row, no probe
 `job_matches` row, in-flight back to 0.
 
-### The marker is corroborating, not yet authenticated
+### Correction — the marker IS an authenticated backend signal
 
-`job_matches` carries an RLS policy `pipeline can insert job matches` granting
-**INSERT to `anon` and `authenticated`** with `with_check (true)`. The website
-ships the publishable anon key, so anyone holding it can insert rows into
-`job_matches` — including a forged completion marker for someone else's
-`search_id`, which would free a concurrency slot early.
+An earlier revision of this document claimed `job_matches` accepted inserts from
+`anon`, on the strength of the RLS policy `pipeline can insert job matches`,
+which grants INSERT to `anon` and `authenticated` with `with_check (true)`.
+**That reading was wrong.** A permissive RLS policy does not by itself grant
+access: the role still needs the underlying table privilege, and the October 11
+lockdown (`20261011_public_job_write_lockdown.sql`) revoked `insert, update,
+delete, truncate, references, trigger` on `job_matches` and `pre_scraped_jobs`
+from `anon` and `authenticated`. The policy is therefore dead weight, not a hole.
 
-This predates the gateway and sits in the shared results pipeline, so it has not
-been changed here. Two consequences worth deciding on:
+Verified against production with the site's own publishable key:
 
-1. **Fake job rows** can be inserted and will be shown to visitors, independent
-   of anything to do with capacity.
-2. The completion marker cannot be a fully trusted signal until inserts are
-   restricted to `service_role`.
+| Anonymous probe | Result |
+| --- | --- |
+| `INSERT` a forged completion marker into `job_matches` | 401, `42501 permission denied for table job_matches` |
+| `INSERT` a fake job row into `job_matches` | 401, `42501 permission denied for table job_matches` |
+| `SELECT` from `job_matches` (what visitors need) | 200 — still works |
+| `SELECT` from `live_search_admissions` | 401, `42501 permission denied` |
 
-The trigger now records the inserting role in `live_search_admissions.outcome`
-(`results_received:anon` vs `results_received:service_role`), so the next real
-Live Search will show which key Make actually uses. If Make writes with the
-service key, the fix is to drop the anon/authenticated INSERT policy — that is a
-Codex-owned pipeline change and needs coordinating, since doing it while Make
-writes with the anon key would stop results landing altogether.
+Those revoked write grants are left exactly as they are. Nothing in this phase
+touched table privileges.
 
-Until then the defences that do not depend on the marker still hold: the 300s
-TTL, the global hourly and daily cost caps, and per-caller rate limits.
+Completion markers landed on 12 and 13 October, while anon INSERT was already
+revoked, so the pipeline writes with a backend credential. The marker is
+consequently an authenticated backend completion signal, and the role recorded
+in `live_search_admissions.outcome` will confirm it per-insert on the next real
+Live Search.
+
+### Gateway functions were executable by anon — fixed
+
+Codex also found a real hole, introduced by this phase: an anonymous RPC probe of
+`live_search_mark_unconfirmed` with a nonexistent id returned **200**,
+`applied: false`.
+
+Cause: `revoke all on function ... from anon, authenticated` does **not** remove
+EXECUTE inherited from `PUBLIC`, which Postgres grants on every new function by
+default. `anon` inherited it, so the revoke was a no-op. The function ACL showed
+a leading `=X/postgres` entry — that is the PUBLIC grant — and
+`has_function_privilege('anon', …, 'EXECUTE')` returned true for both
+`live_search_mark_unconfirmed` and `live_search_mark_completed`.
+
+Impact was limited: the function only moves an admission between two states that
+both count as in-flight, so it could not free capacity, and it cannot admit a
+search or settle one. But it was an unintended anonymous write path into the
+admission table and should never have existed.
+
+Fixed in `20261013_live_search_function_execute_lockdown.sql`, which revokes
+PUBLIC explicitly and grants only `service_role`. Effective privileges after the
+fix, for all four gateway functions:
+
+| Function | ACL | anon | authenticated | service_role |
+| --- | --- | --- | --- | --- |
+| `live_search_try_admit(text, text, uuid, text)` | `postgres`, `service_role` | ✗ | ✗ | ✓ |
+| `live_search_settle(text, text, text)` | `postgres`, `service_role` | ✗ | ✗ | ✓ |
+| `live_search_mark_unconfirmed(text)` | `postgres`, `service_role` | ✗ | ✗ | ✓ |
+| `live_search_mark_completed()` | `postgres`, `service_role` | ✗ | ✗ | ✓ |
+
+No ACL carries a PUBLIC entry any more. Anonymous RPC re-tested with the site's
+publishable key: all three callable gateway functions now return 401,
+`42501 permission denied for function …`.
+
+The lesson generalises: any future `SECURITY DEFINER` function in this project
+needs `revoke all on function … from public` as well, or it ships
+anon-executable. Worth checking the six unused `fja_*` functions on the same
+basis.
 
 ## Website state
 
@@ -233,13 +276,12 @@ This is blocked here: Make is signed out and credentials are not handled from th
 session. It has to be done by the owner, and it must be done **before** the
 frontend cutover, otherwise the bypass stays open while the gateway is live.
 
-### 3. `job_matches` accepts inserts from `anon` — needs a decision
+### 3. Nothing outstanding on table or function permissions
 
-The RLS policy `pipeline can insert job matches` grants INSERT to `anon` and
-`authenticated` with `with_check (true)`. Anyone with the site's publishable key
-can therefore write job rows, and a forged completion marker could free a
-concurrency slot early. Details and the proposed fix are in Verification C. This
-is a Codex-owned pipeline change, so it is not made here.
+Both items Codex raised are resolved: the `job_matches` anon-insert claim was my
+error and is corrected in Verification C, and the anon-executable gateway
+functions are locked down. No table privilege was changed in this phase; the
+October 11 revoked write grants are preserved.
 
 ### 4. Frontend cutover (shared files — needs coordination with Codex)
 

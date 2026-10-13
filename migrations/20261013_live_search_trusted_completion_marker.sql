@@ -76,6 +76,12 @@ begin
 end;
 $$;
 
-revoke all on function public.live_search_mark_unconfirmed(text) from anon, authenticated;
+-- NOTE: revoking from anon and authenticated alone is NOT enough. Postgres
+-- grants EXECUTE to PUBLIC on every new function, and anon inherits it, so both
+-- functions stayed callable by anon until PUBLIC was revoked. See
+-- 20261013_live_search_function_execute_lockdown.sql, which is the authoritative
+-- grant state for all four gateway functions.
+revoke all on function public.live_search_mark_unconfirmed(text) from public, anon, authenticated;
 grant execute on function public.live_search_mark_unconfirmed(text) to service_role;
-revoke all on function public.live_search_mark_completed() from anon, authenticated;
+revoke all on function public.live_search_mark_completed() from public, anon, authenticated;
+grant execute on function public.live_search_mark_completed() to service_role;
