@@ -83,11 +83,14 @@
       <div class="msg" id="msg" role="alert"></div>
 
       <div data-show="signin signup">
-        <button class="google-btn" id="googleBtn" type="button" onclick="signInWithGoogle()">
+        <button class="google-btn" id="googleBtn" type="button" disabled onclick="signInWithProvider('google')">
           <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
           Continue with Google
         </button>
-        <div class="google-note" id="googleNote">Google sign-in is coming soon. Use email for now.</div>
+        <div class="google-note" id="googleNote">Google sign-in is not available yet. Use email below.</div>
+        <button class="google-btn" id="appleBtn" type="button" disabled style="margin-top:12px" onclick="signInWithProvider('apple')">Continue with Apple</button>
+        <div class="google-note" id="appleNote">Apple sign-in is not available yet. You can use your iCloud email below.</div>
+        <p class="fine" id="providerStatus" role="status">Checking sign-in options…</p>
         <div class="divider">or with email</div>
       </div>
 
@@ -116,6 +119,7 @@
 
       <p class="fine" data-show="forgot reset"><button type="button" class="link-btn" onclick="setMode('signin')">← Back to sign in</button></p>
       <p class="fine" data-show="signup">By creating an account you agree to let Fortune Jobs AI store your profile so it can match jobs for you.</p>
+      <p class="fine"><a href="privacy.html">Privacy</a> · <a href="contact.html">Need help?</a></p>
     </div>
   </main>
 </div>
@@ -123,6 +127,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="data-safety.js"></script>
+<script src="account-flow.js"></script>
 <script src="auth.js"></script>
 <script>
 const MODES = {
@@ -133,11 +138,14 @@ const MODES = {
 };
 let mode = 'signin';
 const $ = id => document.getElementById(id);
+let providerAvailability = {google:false,apple:false};
+let oauthBusy = false;
+const incomingAuthError = FJAccountFlow.callbackError(location.search, location.hash);
 
 // Only allow returning to our own pages (blocks redirects to other sites)
 function nextPage(fallback) {
   const n = new URLSearchParams(location.search).get('next') || '';
-  return /^[a-z0-9_-]+\.html([?#][^\s]*)?$/i.test(n) ? n : fallback;
+  return FJAccountFlow.next(n, fallback);
 }
 
 function setMode(m) {
@@ -151,10 +159,13 @@ function setMode(m) {
   $('password').minLength = m === 'signin' ? 1 : 8;
   $('tabSignin').classList.toggle('active', m === 'signin');
   $('tabSignup').classList.toggle('active', m === 'signup');
+  $('tabSignin').setAttribute('aria-selected', String(m === 'signin'));
+  $('tabSignup').setAttribute('aria-selected', String(m === 'signup'));
   $('authTitle').textContent = c.title;
   $('authSub').textContent = c.sub;
   $('submitBtn').textContent = c.btn;
   if (c.pwLabel) { $('passwordLabel').textContent = c.pwLabel; $('password').autocomplete = c.pwAuto; }
+  $('password').type = 'password'; $('pwToggle').textContent = 'Show'; $('pwToggle').setAttribute('aria-label','Show password');
   hideMsg();
 }
 
@@ -177,12 +188,14 @@ function friendly(err) {
   if (/rate limit|too many/i.test(m)) return 'Too many attempts. Please wait a few minutes and try again.';
   if (/password should be at least|weak password/i.test(m)) return 'Please choose a stronger password (at least 8 characters).';
   if (/failed to fetch|network/i.test(m)) return "Can't reach the server. Check your connection and try again.";
-  return m || 'Something went wrong. Please try again.';
+  if (/session missing|jwt expired|refresh token/i.test(m)) return 'Your session has expired. Sign in again or request a new reset link.';
+  return 'This request could not be completed. Please try again, or contact info@fortunejobsai.com.';
 }
 
 $('authForm').addEventListener('submit', async e => {
   e.preventDefault();
   if (!window.FJ) { showMsg('Accounts are temporarily unavailable. Please try again later.'); return; }
+  if ($('submitBtn').disabled || oauthBusy) return;
   const email = $('email').value.trim();
   const password = $('password').value;
   if (mode !== 'reset' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showMsg('Please enter a valid email address.'); $('email').focus(); return; }
@@ -199,13 +212,13 @@ $('authForm').addEventListener('submit', async e => {
       const full_name = $('fullName').value.trim().slice(0, 120);
       const { data, error } = await FJ.sb.auth.signUp({
         email, password,
-        options: { data: { full_name }, emailRedirectTo: FJ.baseUrl() + 'profile.html' }
+        options: { data: { full_name }, emailRedirectTo: FJ.baseUrl() + 'login.html?next=' + encodeURIComponent(nextPage('profile.html')) }
       });
       if (error) throw error;
       if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
         throw new Error('already registered');
       }
-      if (data.session) { location.href = 'profile.html?welcome=1'; return; }
+      if (data.session) { location.href = nextPage('profile.html?welcome=1'); return; }
       setMode('signin');
       $('email').value = email;
       showMsg(`Almost done! We sent a confirmation link to ${email}. Click it, then sign in here.`, 'ok');
@@ -214,6 +227,8 @@ $('authForm').addEventListener('submit', async e => {
       if (error) throw error;
       showMsg(`If an account exists for ${email}, a reset link is on its way. Check your inbox.`, 'ok');
     } else if (mode === 'reset') {
+      const { data: sessionData, error: sessionError } = await FJ.sb.auth.getSession();
+      if (sessionError || !sessionData.session) { setMode('forgot'); showMsg('Your reset link has expired or is missing. Request a new link below.'); return; }
       const { error } = await FJ.sb.auth.updateUser({ password });
       if (error) throw error;
       showMsg('Password updated. Taking you to your profile…', 'ok');
@@ -226,35 +241,55 @@ $('authForm').addEventListener('submit', async e => {
   }
 });
 
-async function signInWithGoogle() {
-  if (!window.FJ) return;
-  const { error } = await FJ.sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: FJ.baseUrl() + nextPage('index.html') }
-  });
-  if (error) showMsg(friendly(error));
+async function signInWithProvider(provider) {
+  if (!['google','apple'].includes(provider) || !window.FJ || oauthBusy || !providerAvailability[provider]) return;
+  oauthBusy = true;
+  $('googleBtn').disabled = true; $('appleBtn').disabled = true; $('submitBtn').disabled = true;
+  $('providerStatus').textContent = 'Opening ' + (provider === 'google' ? 'Google' : 'Apple') + ' securely…';
+  try {
+    const { error } = await FJ.sb.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: FJ.baseUrl() + 'login.html?next=' + encodeURIComponent(nextPage('profile.html')) }
+    });
+    if (error) throw error;
+  } catch (error) { showMsg(friendly(error)); }
+  finally {
+    oauthBusy=false; $('submitBtn').disabled=false;
+    $('googleBtn').disabled=!providerAvailability.google; $('appleBtn').disabled=!providerAvailability.apple;
+    $('providerStatus').textContent='You can also sign in with your email address.';
+  }
 }
 
 // Grey out the Google button until it's switched on in Supabase
-async function checkGoogle() {
+async function checkProviders() {
   try {
-    const r = await fetch(`${FJ_CONFIG.url}/auth/v1/settings`, { headers: { apikey: FJ_CONFIG.key } });
+    const r = await fetch(`${FJ_CONFIG.url}/auth/v1/settings`, { headers: { apikey: FJ_CONFIG.key }, signal:AbortSignal.timeout(10000) });
+    if(!r.ok)throw new Error('Provider settings unavailable');
     const s = await r.json();
-    if (!(s.external && s.external.google)) { $('googleBtn').disabled = true; $('googleNote').style.display = 'block'; }
-  } catch (e) { /* leave enabled; Supabase will explain any problem */ }
+    providerAvailability=FJAccountFlow.providers(s);
+    $('providerStatus').textContent='Use an available provider or sign in with email.';
+  } catch (e) { $('providerStatus').textContent='Other sign-in options could not be checked. You can try email below.'; }
+  for(const provider of ['google','apple']){
+    $(provider+'Btn').disabled=!providerAvailability[provider];
+    $(provider+'Note').style.display=providerAvailability[provider]?'none':'block';
+  }
 }
 
 (async function init() {
   const params = new URLSearchParams(location.search);
   setMode(['signup', 'forgot', 'reset'].includes(params.get('mode')) ? params.get('mode') : 'signin');
   if (!window.FJ) { showMsg('Accounts are temporarily unavailable. Please try again later.'); return; }
-  checkGoogle();
+  checkProviders();
+  if(incomingAuthError)showMsg(incomingAuthError);
 
   // Arrived from a password-reset email
   FJ.sb.auth.onAuthStateChange(event => { if (event === 'PASSWORD_RECOVERY') setMode('reset'); });
 
-  const user = await FJ.user();
-  if (user && mode !== 'reset') location.replace(nextPage('profile.html'));
+  try {
+    const user = await FJ.user();
+    if (user && mode !== 'reset' && !incomingAuthError) location.replace(nextPage('profile.html'));
+    else if (!user && mode === 'reset') { setMode('forgot'); showMsg(incomingAuthError || 'Open a valid password-reset email link, or request a new one below.'); }
+  } catch { showMsg('Your account session could not be checked. Please try again.'); }
 })();
 </script>
 </body>
