@@ -624,6 +624,11 @@ let pollInFlight = false;
 // LOADING ANIMATION
 // ═══════════════════════════════════════
 function showLoading(mode) {
+  const resultsBadge = document.getElementById('resultsModeBadge');
+  if (resultsBadge) {
+    resultsBadge.className = 'results-mode-badge ' + (mode === 'live' ? 'live' : 'quick');
+    resultsBadge.textContent = mode === 'live' ? '🔴 Live Search' : '⚡ Quick Match';
+  }
   if (loadingIntervalId) { clearInterval(loadingIntervalId); loadingIntervalId = null; }
 
   document.getElementById('loadingModeBadge').textContent = mode === 'quick' ? '⚡ Quick Match' : '🔴 Live Search';

@@ -67,7 +67,6 @@
       <li><span class="ic">📄</span><span><b>Upload your resume</b>AI ranks jobs against your actual experience.</span></li>
       <li><span class="ic">🔖</span><span><b>Save jobs</b>Keep a shortlist and apply when you're ready.</span></li>
       <li><span class="ic">🕘</span><span><b>Search history & saved filters</b>Pick up right where you left off.</span></li>
-      <li><span class="ic">🔔</span><span><b>Email alerts</b>Get told when new matching jobs appear.</span></li>
     </ul>
   </aside>
 
@@ -145,8 +144,11 @@ function setMode(m) {
   mode = m;
   const c = MODES[m];
   document.querySelectorAll('[data-show]').forEach(el => {
-    el.style.display = el.dataset.show.split(' ').includes(m) ? '' : 'none';
+    const shown = el.dataset.show.split(' ').includes(m);
+    el.style.display = shown ? '' : 'none';
+    el.querySelectorAll('input,select,textarea').forEach(input => { input.disabled = !shown; });
   });
+  $('password').minLength = m === 'signin' ? 1 : 8;
   $('tabSignin').classList.toggle('active', m === 'signin');
   $('tabSignup').classList.toggle('active', m === 'signup');
   $('authTitle').textContent = c.title;
