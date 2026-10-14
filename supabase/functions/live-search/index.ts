@@ -41,7 +41,7 @@ function corsHeaders(origin: string | null) {
   return {
     "access-control-allow-origin": allow,
     "access-control-allow-headers": "content-type, x-fj-test-key",
-    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-methods": "GET, POST, OPTIONS",
     "access-control-expose-headers": "retry-after",
     "vary": "origin",
   };
@@ -219,13 +219,37 @@ Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
 
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(origin) });
-  if (req.method !== "POST") return json({ status: "rejected", reason: "method_not_allowed" }, 405, origin);
 
   // Fail closed when the gateway is not fully configured, rather than falling
   // back to a shared default that would make caller hashes guessable.
   if (!SUPABASE_URL || !SERVICE_KEY) {
     return json({ status: "error", reason: "gateway_misconfigured" }, 503, origin, { "retry-after": "120" });
   }
+
+  // ── status ──────────────────────────────────────────────────────────────────
+  // GET ?search_id=... tells the page what became of one search, so a backend
+  // failure can be shown as a failure instead of "no jobs found".
+  //
+  // The id is unguessable and the reply carries only a state and a result count:
+  // never the query text, the caller hash, an account id or any secret. States:
+  //   pending       admitted and still running
+  //   complete      finished with results
+  //   empty         finished, zero results, confirmed by an explicit signal
+  //   failed        the workflow or scraper reported failure, or the slot lapsed
+  //   indeterminate ended on the old unsignalled marker: NOT proof of success
+  //   unknown       nothing recorded for this id
+  if (req.method === "GET") {
+    const id = (new URL(req.url).searchParams.get("search_id") ?? "").slice(0, 80);
+    let s: Record<string, unknown>;
+    try {
+      s = await rpc("live_search_status", { p_search_id: id });
+    } catch {
+      return json({ status: "error", reason: "status_unavailable" }, 503, origin, { "retry-after": "15" });
+    }
+    return json({ state: s?.state ?? "unknown", results: Number(s?.results ?? 0) }, 200, origin);
+  }
+
+  if (req.method !== "POST") return json({ status: "rejected", reason: "method_not_allowed" }, 405, origin);
 
   const raw = await readBounded(req, MAX_BODY_BYTES);
   if (raw === null) {
