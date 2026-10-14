@@ -6,6 +6,8 @@ Changes: safe local-page return destinations; OAuth returns through login.html f
 
 Verification: automated redirect, provider settings, OAuth wiring/failure and form-mode tests; local browser confirms disabled Google/Apple with explanations and expired reset fallback. Real email delivery, real registration/recovery and successful OAuth account creation/linking remain unverified. User reports neither provider account is set up. Do not mark social login complete based on buttons/tests alone.
 
+Deployed and browser-verified at login.html; all 67 automated tests passed. Production Supabase URL configuration was inspected and corrected: Site URL changed from the GitHub Pages project URL to https://fortunejobsai.com/. Added https://fortunejobsai.com/login.html** (login callback query strings) and exact https://fortunejobsai.com/profile.html. Existing GitHub Pages allowlist retained for compatibility with previously sent links. Dashboard confirmed three saved entries. No provider credentials were entered and no user emails were sent. Successful Google/Apple authentication remains pending owner provider accounts and credential setup.
+
 ## Google setup
 
 Official guide: https://supabase.com/docs/guides/auth/social-login/auth-google
