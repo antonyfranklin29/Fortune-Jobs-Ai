@@ -3,7 +3,7 @@ const html=fs.readFileSync(require('node:path').join(__dirname,'../login.html'),
 test('switching to recovery disables hidden password validation and reset disables email validation',()=>{
  const fields=[['fullName','signup'],['email','signin signup forgot'],['password','signin signup reset']];
  const nodes={};for(const [id]of fields)nodes[id]={disabled:false};
- for(const id of ['tabSignin','tabSignup','authTitle','authSub','submitBtn','passwordLabel','pwToggle'])nodes[id]={classList:{toggle(){}},setAttribute(){},textContent:''};
+ for(const id of ['tabSignin','tabSignup','authTitle','authSub','submitBtn','passwordLabel','pwToggle','emailLabel'])nodes[id]={classList:{toggle(){}},setAttribute(){},textContent:''};
  const containers=fields.map(([id,show])=>({dataset:{show},style:{},querySelectorAll:()=>[nodes[id]]}));
  const ctx=vm.createContext({$:id=>nodes[id],document:{querySelectorAll:()=>containers},MODES:{signin:{title:'',sub:'',btn:'',pwLabel:'Password',pwAuto:'current-password'},signup:{},forgot:{},reset:{}},hideMsg(){},mode:''});
  vm.runInContext(html.match(/^function setMode\([^]*?^}/m)[0],ctx);
