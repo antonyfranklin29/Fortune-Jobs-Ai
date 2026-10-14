@@ -18,6 +18,8 @@ Scope: anonymous browser searches and account-form behavior, public page availab
 
 ## Still outstanding
 
+Follow-up: the NJ marker-only result was resolved in one retest after correcting Make actor input escaping. See `make-input-json-fix-2026-10-13.md`: twelve-second successful execution and six browser-displayed matches. The original observation below remains the pre-fix record.
+
 - One statewide Data Analyst Live Search returned only a completion marker and zero real rows. The empty-state interface completed correctly; source coverage/Make processing still needs investigation. Make browser tabs included signed-out pages; no claim that this backend issue is fixed.
 - Supabase public auth settings: email=true, google=false, apple=false. Provider configuration and real OAuth tests are the next requested task. Any iCloud address can use ordinary email sign-in; Sign in with Apple is a separate provider.
 - Authenticated signup, confirmation delivery, password recovery delivery, profile mutations and two-user access tests were not performed in this pass.
