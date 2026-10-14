@@ -18,22 +18,22 @@ test('OAuth return destinations are restricted to real local product pages',()=>
  for(const value of ['https://evil.example','//evil.example','javascript:alert(1)','login.html?mode=reset','unknown.html','profile.html\\evil','profile.html\n'])assert.equal(flow.next(value),'profile.html');
 });
 test('provider availability fails closed and callback errors never expose raw details',()=>{
- assert.deepEqual(flow.providers({external:{google:true,apple:false}}),{google:true,apple:false});
- assert.deepEqual(flow.providers({external:{google:'true',apple:1}}),{google:false,apple:false});
- assert.deepEqual(flow.providers(null),{google:false,apple:false});
+ assert.deepEqual(flow.providers({external:{google:true}}),{google:true});
+ assert.deepEqual(flow.providers({external:{google:'true',apple:1}}),{google:false});
+ assert.deepEqual(flow.providers(null),{google:false});
  const msg=flow.callbackError('?error=access_denied&error_description=private-secret','');
  assert.match(msg,/cancelled/);assert.ok(!msg.includes('private-secret'));
  assert.match(flow.callbackError('','#error_code=otp_expired'),/expired/);
  assert.equal(flow.callbackError('?next=profile.html',''),'');
 });
-test('OAuth wiring supports both providers, safe callback return and provider failures',async()=>{
+test('OAuth wiring supports Google and rejects other providers, safe callback return and provider failures',async()=>{
  const calls=[],nodes={};for(const id of ['googleBtn','appleBtn','submitBtn','providerStatus'])nodes[id]={disabled:false,textContent:''};
  const fj={baseUrl:()=> 'https://fortunejobsai.com/',sb:{auth:{signInWithOAuth:async args=>{calls.push(args);return {error:new Error('provider configuration')}}}}};
  let message='';const ctx=vm.createContext({window:{FJ:fj},FJ:fj,$:id=>nodes[id],providerAvailability:{google:true,apple:true},oauthBusy:false,nextPage:()=> 'profile.html',friendly:()=> 'Please try email.',showMsg:s=>{message=s;}});
  vm.runInContext(html.match(/^async function signInWithProvider\([^]*?^}/m)[0],ctx);
  await ctx.signInWithProvider('google');await ctx.signInWithProvider('apple');await ctx.signInWithProvider('constructor');
- assert.equal(calls.length,2);assert.equal(calls[0].provider,'google');assert.equal(calls[1].provider,'apple');
+ assert.equal(calls.length,1);assert.equal(calls[0].provider,'google');
  assert.equal(calls[0].options.redirectTo,'https://fortunejobsai.com/login.html?next=profile.html');
  assert.equal(message,'Please try email.');assert.equal(nodes.submitBtn.disabled,false);
- ctx.providerAvailability.google=false;await ctx.signInWithProvider('google');assert.equal(calls.length,2);
+ ctx.providerAvailability.google=false;await ctx.signInWithProvider('google');assert.equal(calls.length,1);
 });

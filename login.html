@@ -112,8 +112,6 @@
           Continue with Google
         </button>
         <div class="google-note" id="googleNote">Google sign-in is not available yet. Use email below.</div>
-        <button class="google-btn" id="appleBtn" type="button" disabled style="margin-top:12px" onclick="signInWithProvider('apple')">Continue with Apple</button>
-        <div class="google-note" id="appleNote">Apple sign-in is not available yet. You can use your iCloud email below.</div>
         <p class="fine" id="providerStatus" role="status">Checking sign-in options…</p>
       </div>
 
@@ -138,7 +136,7 @@ const MODES = {
 };
 let mode = 'signin';
 const $ = id => document.getElementById(id);
-let providerAvailability = {google:false,apple:false};
+let providerAvailability = {google:false};
 let oauthBusy = false;
 const incomingAuthError = FJAccountFlow.callbackError(location.search, location.hash);
 
@@ -243,10 +241,10 @@ $('authForm').addEventListener('submit', async e => {
 });
 
 async function signInWithProvider(provider) {
-  if (!['google','apple'].includes(provider) || !window.FJ || oauthBusy || !providerAvailability[provider]) return;
+  if (provider !== 'google' || !window.FJ || oauthBusy || !providerAvailability[provider]) return;
   oauthBusy = true;
-  $('googleBtn').disabled = true; $('appleBtn').disabled = true; $('submitBtn').disabled = true;
-  $('providerStatus').textContent = 'Opening ' + (provider === 'google' ? 'Google' : 'Apple') + ' securely…';
+  $('googleBtn').disabled = true; $('submitBtn').disabled = true;
+  $('providerStatus').textContent = 'Opening ' + 'Google' + ' securely…';
   try {
     const { error } = await FJ.sb.auth.signInWithOAuth({
       provider,
@@ -256,7 +254,7 @@ async function signInWithProvider(provider) {
   } catch (error) { showMsg(friendly(error)); }
   finally {
     oauthBusy=false; $('submitBtn').disabled=false;
-    $('googleBtn').disabled=!providerAvailability.google; $('appleBtn').disabled=!providerAvailability.apple;
+    $('googleBtn').disabled=!providerAvailability.google;
     $('providerStatus').textContent='You can also sign in with your email address.';
   }
 }
@@ -270,7 +268,7 @@ async function checkProviders() {
     providerAvailability=FJAccountFlow.providers(s);
     $('providerStatus').textContent='Use an available provider or sign in with email.';
   } catch (e) { $('providerStatus').textContent='Other sign-in options could not be checked. You can try email below.'; }
-  for(const provider of ['google','apple']){
+  for(const provider of ['google']){
     $(provider+'Btn').disabled=!providerAvailability[provider];
     $(provider+'Note').style.display=providerAvailability[provider]?'none':'block';
   }

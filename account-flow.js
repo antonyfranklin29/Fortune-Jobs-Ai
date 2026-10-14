@@ -12,6 +12,6 @@
   if(!code)return '';
   return /expired|otp_expired/i.test(code)?'This email link has expired or was already used. Request a new link.':/access_denied/i.test(code)?'Sign-in was cancelled or the link could not be verified. Please try again.':'Sign-in could not be completed. Please try again or use email.';
  }
- function providers(settings){return {google:settings?.external?.google===true,apple:settings?.external?.apple===true};}
+ function providers(settings){return {google:settings?.external?.google===true};}
  const api={next,callbackError,providers};if(typeof module==='object'&&module.exports)module.exports=api;else root.FJAccountFlow=api;
 })(typeof window==='object'?window:globalThis);
