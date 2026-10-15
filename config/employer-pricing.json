@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "free_active_posts": 15,
+  "paid_plan_code": "employer_plus",
+  "monthly_price_cents": 1499,
+  "currency": "USD",
+  "billing_interval": "month",
+  "billing_activation": "pending"
+}

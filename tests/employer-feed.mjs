@@ -4,6 +4,7 @@ import { ROLES, REGIONS } from '../supabase/functions/job-ingest/config.mjs';
 import { compileRoles, regionIndex } from '../supabase/functions/job-ingest/lib.mjs';
 import * as E from '../supabase/functions/employer-feed/lib.mjs';
 import { fetchApprovedFeed } from '../supabase/functions/employer-feed/fetch.mjs';
+import { collectEmployerFeed } from '../supabase/functions/employer-feed/collect.mjs';
 
 const now = new Date('2026-10-15T20:00:00Z');
 const options = { now, roles: compileRoles(ROLES), idx: regionIndex(REGIONS) };
@@ -125,4 +126,99 @@ test('oversized responses are rejected even when Content-Length is missing', asy
   await assert.rejects(fetchApprovedFeed(source(),{now,fetchImpl:async()=>huge}),/feed_too_large/);
   const claimedHuge = new Response('{}',{headers:{'content-type':'application/json','content-length':'9999999'}});
   await assert.rejects(fetchApprovedFeed(source(),{now,fetchImpl:async()=>claimedHuge}),/feed_too_large/);
+});
+
+const collectorOptions = (patch = {}) => ({
+  ...options, now:()=>now, loadSource:async()=>({source:leverSource(),revision:1}), ...patch,
+});
+const leverPage = (offset, count) => Array.from({length:count},(_,i)=>leverJob({
+  id:`job-${offset+i}`,applyUrl:`https://jobs.lever.co/synthetic/job-${offset+i}/apply`,
+}));
+
+test('collector enumerates bounded Lever pages and reports exact accepted counts without publishing', async () => {
+  const offsets=[];
+  const result=await collectEmployerFeed('synthetic-employer',collectorOptions({fetchPage:async(s,p)=>{
+    offsets.push(p.offset); return p.offset===0 ? leverPage(0,100) : leverPage(100,1);
+  }}));
+  assert.deepEqual(offsets,[0,100]); assert.equal(result.status,'complete');
+  assert.equal(result.rows.length,101); assert.equal(result.received,101);
+  assert.equal(result.requests_used,2); assert.equal(result.enumeration_complete,true);
+  assert.equal(result.reconcile_candidate,true); assert.equal(result.next_offset,null);
+});
+
+test('collector stops at its request budget and never calls a full page a completed sweep', async () => {
+  let calls=0;
+  const result=await collectEmployerFeed('synthetic-employer',collectorOptions({maxRequests:1,fetchPage:async()=>{calls++;return leverPage(0,100);}}));
+  assert.equal(calls,1); assert.equal(result.status,'partial'); assert.equal(result.reason,'request_budget');
+  assert.equal(result.enumeration_complete,false); assert.equal(result.reconcile_candidate,false);
+  assert.equal(result.next_offset,100);
+});
+
+test('collector rejects pending sources before network access and checks approval again after fetch', async () => {
+  let calls=0, revoked=false;
+  const loader=async()=>({source:source({status:revoked?'revoked':'approved'}),revision:1});
+  const result=await collectEmployerFeed('synthetic-employer',collectorOptions({loadSource:loader,fetchPage:async()=>{
+    calls++; revoked=true; return {jobs:[greenhouseJob()],meta:{total:1}};
+  }}));
+  assert.equal(calls,1); assert.equal(result.status,'failed'); assert.equal(result.reason,'source_not_approved');
+  assert.deepEqual(result.rows,[]); assert.equal(result.reconcile_candidate,false);
+  calls=0;
+  const pending=await collectEmployerFeed('synthetic-employer',collectorOptions({
+    loadSource:async()=>({source:source({status:'pending'}),revision:1}),fetchPage:async()=>{calls++;},
+  }));
+  assert.equal(calls,0); assert.equal(pending.requests_used,0);
+});
+
+test('a registry change or expired permission during a fetch invalidates its response', async () => {
+  let changed=false;
+  const result=await collectEmployerFeed('synthetic-employer',collectorOptions({
+    loadSource:async()=>({source:source({employer_name:changed?'Different Employer':'Synthetic Employer'}),revision:1}),
+    fetchPage:async()=>{changed=true;return{jobs:[greenhouseJob()],meta:{total:1}};},
+  }));
+  assert.equal(result.reason,'source_changed'); assert.deepEqual(result.rows,[]);
+  let clock=now;
+  const expired=await collectEmployerFeed('synthetic-employer',collectorOptions({
+    now:()=>clock,fetchPage:async()=>{clock=new Date('2027-01-01T00:00:00Z');return[];},
+  }));
+  assert.equal(expired.reason,'source_not_approved'); assert.equal(expired.enumeration_complete,false);
+});
+
+test('a duplicate ID across pages fails the whole run rather than publishing inconsistent data', async () => {
+  const result=await collectEmployerFeed('synthetic-employer',collectorOptions({fetchPage:async(s,p)=>
+    p.offset===0 ? leverPage(0,100) : leverPage(99,1)}));
+  assert.equal(result.reason,'duplicate_source_id'); assert.equal(result.status,'failed');
+  assert.deepEqual(result.rows,[]); assert.equal(result.reconcile_candidate,false);
+});
+
+test('exactly 500 records require an empty terminal page; additional records exceed the cap', async () => {
+  for (const extra of [0,1]) {
+    const result=await collectEmployerFeed('synthetic-employer',collectorOptions({maxRequests:6,
+      fetchPage:async(s,p)=>leverPage(p.offset,p.offset===500?extra:100),
+    }));
+    assert.equal(result.requests_used,6);
+    if(extra){assert.equal(result.reason,'job_limit');assert.deepEqual(result.rows,[]);}
+    else {assert.equal(result.status,'complete');assert.equal(result.rows.length,500);}
+  }
+});
+
+test('collector distinguishes filtered rows from a clean reconciliation and sanitizes failures', async () => {
+  const filtered=await collectEmployerFeed('synthetic-employer',collectorOptions({fetchPage:async()=>[
+    leverJob(),leverJob({id:'unrelated',text:'Data Entry Clerk'}),
+  ]}));
+  assert.equal(filtered.status,'complete'); assert.equal(filtered.enumeration_complete,true);
+  assert.equal(filtered.rows.length,1); assert.equal(filtered.rejected.no_role,1);
+  assert.equal(filtered.reconcile_candidate,false);
+  const failed=await collectEmployerFeed('synthetic-employer',collectorOptions({fetchPage:async()=>{throw Error('private-internal-key=fixture');}}));
+  assert.equal(failed.reason,'feed_request_failed'); assert.ok(!JSON.stringify(failed).includes('private-internal-key'));
+  assert.deepEqual(failed.rows,[]);
+});
+
+test('collector rejects an invalid registry identity and caller budgets before making requests', async () => {
+  let calls=0;
+  const invalid=await collectEmployerFeed('synthetic-employer',collectorOptions({
+    loadSource:async()=>({source:source({id:'another-employer'}),revision:1}),fetchPage:async()=>{calls++;},
+  }));
+  assert.equal(calls,0); assert.equal(invalid.reason,'invalid_registry_record');
+  for(const maxRequests of [0,7,1.5])
+    await assert.rejects(collectEmployerFeed('synthetic-employer',collectorOptions({maxRequests})),/invalid_collection_options/);
 });
