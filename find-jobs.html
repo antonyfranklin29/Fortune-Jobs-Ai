@@ -708,8 +708,9 @@ function queryTokens(text) {
 // Narrow the candidate read, then verify every selected filter before ranking.
 function quickMatchUrl(tokens, filters, relaxed) {
   const p = [
-    'select=job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description',
-    `limit=${QUICK_CANDIDATE_LIMIT}`
+    'select=job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,source_metadata,closed_at',
+    `limit=${QUICK_CANDIDATE_LIMIT}`,
+    'closed_at=is.null', 'order=posted_at.desc.nullslast'
   ];
   if (tokens.length) {
     const ors = tokens.map(t => `search_text.ilike.*${encodeURIComponent(t).replace(/\*/g, '')}*`);
@@ -787,7 +788,7 @@ async function fetchQuickMatches(input, filters, signal) {
         match_reason: FJAccuracy.matchReason(r,input,filters),
         match_score: String(Math.max(42, Math.min(99, 42 + score))),
         job_description:r.job_description, created_at: r.posted_at, posted_at:r.posted_at, country:r.country,
-        employment_type:r.employment_type, work_mode:r.work_mode, is_remote:r.is_remote
+        employment_type:r.employment_type, work_mode:r.work_mode, is_remote:r.is_remote, source:r.source, source_metadata:r.source_metadata
       };
     })
     .sort((a, b) => parseInt(b.match_score) - parseInt(a.match_score)));
@@ -932,6 +933,7 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
         <div class="job-company">${safe(job.company || 'Company')}</div>
         <div class="job-location">📍 ${safe(job.location || 'Location not listed')}</div>
         ${job.match_reason ? `<div class="job-reason">💡 ${safe(job.match_reason)}</div>` : ''}
+        ${FJDataSafety.adzunaAttribution?.(job) || ''}
         <div class="job-footer">
           <div class="job-salary">${safe(job.salary || 'Salary not listed')}</div>
           <div class="job-actions">

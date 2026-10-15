@@ -555,6 +555,7 @@ async function loadSaved() {
         <div><div class="ttl">${esc(j.job_title)}</div><div class="co">${esc(j.company || '')}</div></div></div>
       <div class="meta">📍 ${esc(j.location || 'Location not listed')}</div>
       <div class="meta">${esc(j.salary || 'Salary not listed')} · saved ${timeAgo(j.created_at)}</div>
+      ${FJDataSafety.adzunaAttribution?.(j) || ''}
       <div class="acts"><button class="btn btn-danger btn-sm" type="button" onclick="unsave(${j.id})">Remove</button>
         ${url ? `<a class="btn btn-dark btn-sm" href="${esc(url)}" target="_blank" rel="noopener">Apply →</a>` : ''}</div>
     </div>`;

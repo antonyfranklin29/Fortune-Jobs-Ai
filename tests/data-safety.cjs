@@ -40,3 +40,10 @@ test('account export does not return a misleading partial copy after an error',a
  const sb={from(){return{select(){return this},eq(){return this},async single(){return{data:{id:'u'}}},order(){return this},async range(){return{error:true}}}}};
  await assert.rejects(S.exportAccount(sb,'u'),/no partial file/);await assert.rejects(S.exportAccount(sb,''),/Sign in/);
 });
+
+test('Adzuna attribution uses a fixed safe link and detects saved source URLs',()=>{
+ assert.ok(S.adzunaAttribution({source:'adzuna',apply_url:'https://example.com'}).includes('https://www.adzuna.com/'));
+ assert.ok(S.adzunaAttribution({apply_url:'https://www.adzuna.com/land/ad/1'}).includes('min-width:116px'));
+ assert.equal(S.adzunaAttribution({apply_url:'https://adzuna.com.evil.example'}),'');
+ assert.equal(S.adzunaAttribution({apply_url:'javascript:alert(1)'}),'');
+});

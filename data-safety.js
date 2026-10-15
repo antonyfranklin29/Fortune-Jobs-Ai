@@ -7,6 +7,11 @@
       return ['https:','http:'].includes(u.protocol)&&!u.username&&!u.password?u.href:'';
     }catch{return '';}
   }
+  function adzunaAttribution(job){
+    let isAdzuna=job?.source==='adzuna';
+    try{isAdzuna=isAdzuna||/(^|\.)adzuna\.(com|co\.uk)$/.test(new URL(httpUrl(job?.apply_url)).hostname);}catch{}
+    return isAdzuna?'<a href="https://www.adzuna.com/" target="_blank" rel="noopener" style="display:inline-block;min-width:116px;min-height:23px;font:bold 23px/23px Arial,sans-serif;color:#28614e;margin:10px 0;text-decoration:none" aria-label="Jobs supplied by Adzuna">Adzuna</a>':'';
+  }
   function ownedPath(path,userId){
     return typeof path==='string'&&typeof userId==='string'&&path.startsWith(userId+'/')&&!path.includes('..')&&!path.includes('\\')&&path.split('/').length===2;
   }
@@ -50,6 +55,6 @@
     const [saved,history]=await Promise.all([rows('saved_jobs'),rows('search_history')]);
     return {exported_at:new Date().toISOString(),profile:profile.data,saved_jobs:saved,search_history:history,note:'Includes saved profile and extracted resume text. Original resume and avatar files are not included.'};
   }
-  const api={httpUrl,ownedPath,avatarPath,removeResume,exportAccount};
+  const api={adzunaAttribution,httpUrl,ownedPath,avatarPath,removeResume,exportAccount};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FJDataSafety=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
