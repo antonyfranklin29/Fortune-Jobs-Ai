@@ -227,24 +227,15 @@ section{scroll-margin-top:140px;}
 
       <!-- FILTERS & ALERTS -->
       <section class="card" id="alerts">
-        <div class="card-head"><div><h2>Saved filters & email alerts</h2><p class="sub">Your last-used search filters load automatically every time you visit.</p></div></div>
+        <div class="card-head"><div><h2>Saved filters & email preferences</h2><p class="sub">Your last-used search filters load automatically every time you visit.</p></div></div>
         <div class="field">
           <span class="label">Saved search filters</span>
           <div class="filters-saved"><span id="savedFiltersText">None yet. Run a search with filters and they'll be saved here.</span>
             <button class="btn btn-ghost btn-sm" type="button" id="clearFiltersBtn" onclick="clearSavedFilters()" hidden>Clear</button></div>
         </div>
-        <div class="field" style="margin-top:22px">
-          <label class="switch"><input type="checkbox" id="alertsToggle"><span class="track"></span><span>Email me when new matching jobs appear</span></label>
-          <div class="hint" id="alertsHint" style="margin-left:56px">Alerts use your profile, title and saved filters.</div>
-        </div>
-        <div class="field" id="freqField" style="margin-left:56px;max-width:240px">
-          <label for="alertFreq">How often</label>
-          <select class="input" id="alertFreq">
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-          </select>
-        </div>
-        <div class="msg info show" style="margin:4px 0 0">Email alerts are launching soon. Turn them on now and you'll get them as soon as they go live.</div>
+        <p style="margin:20px 0">Choose whether to receive our weekly job digest. Google sign-in does not subscribe you.</p>
+        <a class="btn btn-primary" href="email-preferences.html">Manage weekly emails</a>
+        <p class="hint" style="margin-top:14px">Newsletter delivery is being prepared. Existing alert settings are not transferred into newsletter consent.</p>
       </section>
     </div>
     <section class="card" style="padding:24px;margin:24px 0">
@@ -603,28 +594,13 @@ function renderFiltersAndAlerts() {
   const t = filterText(profile.saved_filters);
   $('savedFiltersText').textContent = t || 'None yet. Run a search with filters and they\'ll be saved here.';
   $('clearFiltersBtn').hidden = !t;
-  $('alertsToggle').checked = !!profile.email_alerts;
-  $('alertFreq').value = profile.alert_frequency || 'weekly';
-  $('freqField').style.display = profile.email_alerts ? '' : 'none';
-  $('alertsHint').textContent = profile.email_alerts
-    ? `We'll email ${user.email} about new matches.`
-    : 'Alerts use your profile, title and saved filters.';
+
 }
 async function clearSavedFilters() {
   const { data, error } = await FJ.sb.from('profiles').update({ saved_filters: null }).eq('id', user.id).select().single();
   if (error) { toast("Couldn't clear filters."); return; }
   profile = data; renderFiltersAndAlerts(); toast('Saved filters cleared');
 }
-async function saveAlerts() {
-  const { data, error } = await FJ.sb.from('profiles')
-    .update({ email_alerts: $('alertsToggle').checked, alert_frequency: $('alertFreq').value })
-    .eq('id', user.id).select().single();
-  if (error) { toast("Couldn't save alert settings."); return; }
-  profile = data; renderFiltersAndAlerts(); toast(profile.email_alerts ? 'Email alerts on' : 'Email alerts off');
-}
-$('alertsToggle').addEventListener('change', saveAlerts);
-$('alertFreq').addEventListener('change', saveAlerts);
-
 /* ── SUGGESTIONS for title & skills (from job-titles.js) ── */
 function fillDatalists() {
   const s = window.JOB_SUGGESTIONS;
