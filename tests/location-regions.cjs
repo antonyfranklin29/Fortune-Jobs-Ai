@@ -32,4 +32,8 @@ test('state database restriction is applied before candidate limit',()=>{
  assert.ok(url.searchParams.get('and').includes('location.ilike.*New Jersey*'));
  assert.ok(url.searchParams.get('and').includes('location.ilike."*, NJ*"'));
  assert.equal(url.searchParams.has('or'),false);
+ assert.equal(url.searchParams.get('closed_at'),'is.null');
+ assert.equal(url.searchParams.get('order'),'posted_at.desc.nullslast');
+ assert.ok(url.searchParams.get('select').split(',').includes('source'));
+ assert.ok(!url.searchParams.get('select').split(',').includes('source_metadata')); 
 });
