@@ -1,0 +1,242 @@
+// End-to-end test of the ingestion worker against an in-memory Supabase and a
+// fake Adzuna. No network, no credentials, nothing written to production.
+//   deno test --allow-env --import-map=tests/deno/import_map.json tests/job-ingest-worker.ts
+import { assert, assertEquals } from "./deno/assert.ts";
+import * as L from "../supabase/functions/job-ingest/lib.mjs";
+import { ROLES, REGIONS } from "../supabase/functions/job-ingest/config.mjs";
+
+const SB = "https://fake.supabase.test";
+Deno.env.set("SUPABASE_URL", SB);
+Deno.env.set("SUPABASE_SERVICE_ROLE_KEY", "service-test-key");
+Deno.env.set("INGEST_SECRET", "test-secret-123");
+Deno.env.set("INGEST_SPACING_MS", "0");
+(globalThis as Record<string, unknown>).__INGEST_TEST__ = true;
+
+const roles = L.compileRoles(ROLES);
+const regionCodes = new Set(REGIONS.regions.map((r: { code: string }) => r.code));
+const DAY = 86400000;
+
+// ── fake database: mirrors the SQL functions and view ──────────────────────────
+type Job = Record<string, any>;
+const db = { runs: [] as any[], cells: new Map<string, any>(), jobs: [] as Job[], nextRun: 1 };
+
+function coverage(role: string, state: string) {
+  const now = Date.now(), keys = new Set<string>();
+  for (const j of db.jobs) {
+    if (j.closed_at || j.canonical_role !== role || j.state_code !== state) continue;
+    if (!j.posted_at || now - Date.parse(j.posted_at) > 30 * DAY) continue;
+    if (!j.last_seen_at || now - Date.parse(j.last_seen_at) > 7 * DAY) continue;
+    keys.add(`${j.job_title}|${j.company ?? ""}|${j.location ?? ""}`.toLowerCase());
+  }
+  return keys.size;
+}
+function upsert(rows: Job[]) {
+  let inserted = 0, updated = 0, rejected = 0;
+  for (const r of rows) {
+    if (!r.source || !r.source_listing_id || !r.job_title || !/^https:\/\/[^/\s]+\.[^/\s]+/.test(r.apply_url ?? "")
+        || !regionCodes.has(r.state_code) || L.classifyRole(r.job_title, roles) !== r.canonical_role
+        || (r.posted_at && Date.parse(r.posted_at) > Date.now() + 3600000)) { rejected++; continue; }
+    const hit = db.jobs.filter((j) => (j.source === r.source && j.source_listing_id === r.source_listing_id) || j.apply_url === r.apply_url);
+    const now = new Date().toISOString();
+    if (hit.length) {
+      for (const j of hit) Object.assign(j, { ...r, posted_at: [r.posted_at, j.posted_at].filter(Boolean).sort().pop() ?? null,
+        company: r.company ?? j.company, last_seen_at: now, closed_at: null });
+      updated++;
+    } else { db.jobs.push({ ...r, last_seen_at: now, closed_at: null }); inserted++; }
+  }
+  return { inserted, updated, rejected, conflicts: 0 };
+}
+function closeUnseen(a: any) {
+  const t = Date.parse(a.p_sweep_started);
+  if (!(t > Date.now() - 6 * 3600000 && t <= Date.now())) throw new Error("sweep start must be within the last six hours");
+  let n = 0;
+  for (const j of db.jobs) if (j.source === a.p_source && j.canonical_role === a.p_role && j.state_code === a.p_state
+                                && !j.closed_at && Date.parse(j.last_seen_at) < t) { j.closed_at = new Date().toISOString(); n++; }
+  return n;
+}
+function budgetUsed() {
+  const now = Date.now(), sum = (ms: number) => db.runs.filter((r) => now - Date.parse(r.started_at) < ms).reduce((a, r) => a + r.requests_used, 0);
+  return { minute: sum(60000), day: sum(DAY), week: sum(7 * DAY), month: sum(30 * DAY) };
+}
+
+// ── fake Adzuna market ─────────────────────────────────────────────────────────
+type Listing = { id: string; title: string; state: string; created: string; company: string };
+let market: Listing[] = [];
+let adzunaCalls = 0;
+const failures = new Map<string, number[]>();       // "NC:1" -> status codes to return first
+const stateName = (c: string) => REGIONS.regions.find((r: any) => r.code === c).name;
+function seedMarket() {
+  const now = Date.now(), m: Listing[] = [];
+  const titles = ["Data Analyst", "Sr. Data Analyst", "Reporting Analyst", "Data & Decision Analyst"];
+  for (let i = 0; i < 120; i++) m.push({ id: `nc-${i}`, title: titles[i % 4], state: "NC", created: new Date(now - (i + 10) * 3600000).toISOString(), company: `NC Co ${i}` });
+  for (let i = 0; i < 15; i++) m.push({ id: `nc-eng-${i}`, title: "Lead Data Engineer", state: "NC", created: new Date(now - i * 3600000).toISOString(), company: `Eng ${i}` });
+  for (let i = 0; i < 37; i++) m.push({ id: `sc-${i}`, title: titles[i % 4], state: "SC", created: new Date(now - (i + 5) * 3600000).toISOString(), company: `SC Co ${i}` });
+  market = m;
+}
+function adzuna(url: URL) {
+  adzunaCalls++;
+  const page = Number(url.pathname.split("/").pop());
+  const state = REGIONS.regions.find((r: any) => r.name === url.searchParams.get("location1")).code;
+  const key = `${state}:${page}`;
+  const queued = failures.get(key);
+  if (queued?.length) { const s = queued.shift()!; return new Response("fail", { status: s }); }
+  const all = market.filter((l) => l.state === state).sort((a, b) => b.created.localeCompare(a.created));
+  // A real API sometimes mixes in a neighbouring state; prove it is rejected.
+  const leak = state === "NC" ? market.filter((l) => l.state === "SC").slice(0, 2) : [];
+  const per = Number(url.searchParams.get("results_per_page"));
+  const pageRows = all.slice((page - 1) * per, page * per).concat(page === 1 ? leak : []);
+  const results = pageRows.map((l) => ({
+    id: l.id, title: l.title, created: l.created,
+    redirect_url: `https://www.adzuna.com/land/ad/${l.id}?se=abc&utm_source=api`,
+    company: { display_name: l.company },
+    location: { display_name: `${l.state} City`, area: ["US", stateName(l.state), "County", "City"] },
+  }));
+  return Response.json({ count: all.length, results });
+}
+
+// ── fetch router ───────────────────────────────────────────────────────────────
+const realFetch = globalThis.fetch;
+globalThis.fetch = (async (input: Request | URL | string, init?: RequestInit) => {
+  const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
+  if (url.hostname === "api.adzuna.com") {
+    assertEquals(url.searchParams.get("app_key"), "adzuna-test-key");
+    assert(!url.searchParams.has("resume") && !url.searchParams.has("user_id"), "no user data sent to the source");
+    return adzuna(url);
+  }
+  if (!url.href.startsWith(SB)) throw new Error(`unexpected network call: ${url.host}`);
+  const method = init?.method ?? "GET";
+  const body = init?.body ? JSON.parse(String(init.body)) : null;
+  const p = url.pathname, q = url.searchParams;
+  if (p === "/rest/v1/rpc/ingest_budget_used") return Response.json(budgetUsed());
+  if (p === "/rest/v1/rpc/ingest_upsert_jobs") return Response.json(upsert(body.p_rows));
+  if (p === "/rest/v1/rpc/ingest_close_unseen") { try { return Response.json(closeUnseen(body)); } catch (e) { return new Response(String(e), { status: 400 }); } }
+  if (p === "/rest/v1/ingest_runs" && method === "POST") {
+    const row = { id: db.nextRun++, source: body.source, note: body.note, started_at: new Date().toISOString(), status: "running", requests_used: 0 };
+    db.runs.push(row); return Response.json([row]);
+  }
+  if (p === "/rest/v1/ingest_runs" && method === "PATCH") {
+    Object.assign(db.runs.find((r) => r.id === Number(q.get("id")!.slice(3)))!, body); return new Response(null, { status: 204 });
+  }
+  if (p === "/rest/v1/ingest_runs") {
+    const since = q.get("started_at")!.slice(3);
+    return Response.json(db.runs.filter((r) => r.status === "running" && r.started_at > since).map((r) => ({ id: r.id })));
+  }
+  if (p === "/rest/v1/ingest_cells" && method === "POST") {
+    const k = `${body.source}:${body.canonical_role}:${body.state_code}`;
+    db.cells.set(k, { ...(db.cells.get(k) ?? {}), ...body }); return new Response(null, { status: 201 });
+  }
+  if (p === "/rest/v1/ingest_cells") return Response.json([...db.cells.values()]);
+  if (p === "/rest/v1/ingest_coverage") {
+    const rolesQ = q.get("role_id")!.slice(4, -1).split(","), statesQ = q.get("state")!.slice(4, -1).split(",");
+    return Response.json(rolesQ.flatMap((r) => statesQ.map((s) => ({ role_id: r, state: s, fresh_distinct: coverage(r, s) }))));
+  }
+  throw new Error(`unhandled fake route ${method} ${p}`);
+}) as typeof fetch;
+
+const { handler } = await import("../supabase/functions/job-ingest/index.ts");
+const call = (body: unknown, secret = "test-secret-123") =>
+  handler(new Request("https://worker.test", { method: "POST", headers: { "x-ingest-secret": secret }, body: JSON.stringify(body) }))
+    .then(async (r: Response) => ({ status: r.status, body: await r.json() }));
+
+// ── scenarios, in order: each builds on the previous state ────────────────────
+Deno.test("rejects callers without the ingest secret", async () => {
+  const r = await call({}, "wrong-secret-xyz");
+  assertEquals(r.status, 401);
+});
+
+Deno.test("without Adzuna credentials: blocked, recorded, catalogue untouched", async () => {
+  const r = await call({ roles: ["data-analyst"], regions: ["NC", "SC"] });
+  assertEquals(r.body.status, "blocked");
+  assertEquals(db.jobs.length, 0);
+  assertEquals(db.runs.at(-1).status, "blocked");
+  assertEquals(adzunaCalls, 0);
+});
+
+Deno.test("dry run with a fixture writes nothing", async () => {
+  const fixture = JSON.parse(await Deno.readTextFile(new URL("./fixtures/adzuna-nc-data-analyst.json", import.meta.url)));
+  const runsBefore = db.runs.length;
+  const r = await call({ dry_run: true, fixture, roles: ["data-analyst"], regions: ["NC", "SC"], budget: 4 });
+  assert(r.body.status.startsWith("dry_run:"));
+  assertEquals(db.jobs.length, 0, "no writes");
+  assertEquals(db.runs.length, runsBefore, "no run row");
+  assertEquals(r.body.rejected.off_role, 2, "Data Engineer rejected once per cell");
+});
+
+Deno.test("first live run: NC filled to target statewide, SC's genuine shortage reported", async () => {
+  Deno.env.set("ADZUNA_APP_ID", "adzuna-test-id");
+  Deno.env.set("ADZUNA_APP_KEY", "adzuna-test-key");
+  // Credentials are read at module load, so reload the worker with them set.
+  const mod = await import(`../supabase/functions/job-ingest/index.ts?with-creds`);
+  (globalThis as any).__worker = mod.handler;
+  seedMarket();
+  failures.set("SC:1", [429]);                                   // one transient failure
+  const before = adzunaCalls;
+  const r = await (globalThis as any).__worker(new Request("https://w", { method: "POST",
+    headers: { "x-ingest-secret": "test-secret-123" }, body: JSON.stringify({ roles: ["data-analyst"], regions: ["NC", "SC"], budget: 10 }) })).then((x: Response) => x.json());
+  assertEquals(r.status, "succeeded");
+  assertEquals(adzunaCalls - before, 5, "NC 3 pages + SC 1 page + 1 retry; SC pages 2-3 skipped once enumerated");
+  assertEquals(r.requests_used, 5);
+  assertEquals(coverage("data-analyst", "NC"), 120);
+  assertEquals(coverage("data-analyst", "SC"), 37, "genuine shortage: the market has 37, not 100");
+  assert(db.jobs.every((j) => (j.source_listing_id.startsWith("nc-") ? j.state_code === "NC" : j.state_code === "SC")), "no cross-state rows");
+  assertEquals(db.jobs.filter((j) => /Engineer/.test(j.job_title)).length, 0, "no off-role padding");
+  assertEquals(r.rejected.other_state, 2, "SC rows leaked into the NC response were rejected");
+  assert(db.jobs.every((j) => !/utm_/.test(j.apply_url)), "tracking stripped");
+  assertEquals(db.runs.at(-1).requests_used, 5, "budget recorded for the next run");
+});
+
+const worker = (body: unknown) => (globalThis as any).__worker(new Request("https://w", { method: "POST",
+  headers: { "x-ingest-secret": "test-secret-123" }, body: JSON.stringify(body) })).then((x: Response) => x.json());
+
+Deno.test("later refresh adds genuinely newer listings and never closes on a partial view", async () => {
+  const newestBefore = db.jobs.filter((j) => j.state_code === "NC").map((j) => j.posted_at).sort().pop();
+  const now = Date.now();
+  market = market.filter((l) => !/^nc-(1[0-1][0-9])$/.test(l.id));            // 20 NC listings removed
+  for (let i = 0; i < 10; i++) market.push({ id: `nc-new-${i}`, title: "Data Analyst", state: "NC", created: new Date(now - i * 60000).toISOString(), company: `New Co ${i}` });
+  const r = await worker({ roles: ["data-analyst"], regions: ["NC"], budget: 10, force: true });
+  assertEquals(r.cells["data-analyst:NC"].pages, 1, "NC is full and freshly swept: one incremental page");
+  assertEquals(r.written.inserted, 10);
+  const newestAfter = db.jobs.filter((j) => j.state_code === "NC").map((j) => j.posted_at).sort().pop();
+  assert(newestAfter > newestBefore, "the catalogue now holds newer postings than before");
+  assertEquals(r.closed, 0, "one page is not a full view: nothing closed");
+  assertEquals(db.jobs.filter((j) => j.closed_at).length, 0);
+});
+
+Deno.test("a periodic full sweep re-confirms open listings and closes the removed ones", async () => {
+  const cell = db.cells.get("adzuna:data-analyst:NC");
+  cell.last_full_sweep_at = new Date(Date.now() - 7 * DAY).toISOString();
+  const r = await worker({ roles: ["data-analyst"], regions: ["NC"], budget: 10, force: true });
+  assertEquals(r.cells["data-analyst:NC"].complete, true);
+  assertEquals(r.closed, 20, "exactly the 20 removed listings");
+  assertEquals(coverage("data-analyst", "NC"), 110);
+});
+
+Deno.test("a source outage keeps the last good catalogue and records the failure", async () => {
+  const open = db.jobs.filter((j) => !j.closed_at).length;
+  failures.set("NC:1", [500, 500, 500]);
+  db.cells.get("adzuna:data-analyst:NC").last_full_sweep_at = new Date(Date.now() - 7 * DAY).toISOString();
+  const r = await worker({ roles: ["data-analyst"], regions: ["NC"], budget: 10, force: true });
+  assertEquals(r.status, "failed");
+  assertEquals(r.closed, 0);
+  assertEquals(db.jobs.filter((j) => !j.closed_at).length, open, "nothing purged");
+  assertEquals(db.cells.get("adzuna:data-analyst:NC").consecutive_failures, 1);
+  assert(db.cells.get("adzuna:data-analyst:NC").last_error.startsWith("source_500"));
+});
+
+Deno.test("provider allowance exhausted: no requests, run recorded as blocked", async () => {
+  db.runs.push({ id: db.nextRun++, source: "adzuna", started_at: new Date().toISOString(), status: "succeeded", requests_used: 250 });
+  const before = adzunaCalls;
+  const r = await worker({ roles: ["data-analyst"], regions: ["NC", "SC"], budget: 10, force: true });
+  assertEquals(r.status, "blocked");
+  assertEquals(adzunaCalls, before);
+  assertEquals(db.runs.at(-1).status, "blocked");
+});
+
+Deno.test("a second run cannot start while one is in progress", async () => {
+  db.runs.push({ id: db.nextRun++, source: "adzuna", started_at: new Date().toISOString(), status: "running", requests_used: 0 });
+  const r = await (globalThis as any).__worker(new Request("https://w", { method: "POST",
+    headers: { "x-ingest-secret": "test-secret-123" }, body: JSON.stringify({ roles: ["data-analyst"], regions: ["NC"] }) }));
+  assertEquals(r.status, 409);
+});
+
+globalThis.addEventListener("unload", () => { globalThis.fetch = realFetch; });
