@@ -157,3 +157,75 @@ test('retry backoff grows and is capped', () => {
   assert.ok(L.backoffMs(3, 1000, 30000, max) < 8000 && L.backoffMs(3, 1000, 30000, max) > 7000);
   assert.ok(L.backoffMs(20, 1000, 30000, max) < 30000);
 });
+
+// ── nationwide IT feed ────────────────────────────────────────────────────────
+const FEED = roleCfg.feeds['adzuna-us-it'];
+const scope = new Set(FEED.roles);
+const feedNorm = (r) => L.normalizeAdzunaFeed(r, { roles, scope, feed: 'adzuna-us-it', idx, fetchedAt: now.toISOString(), now });
+const ad = (id, title, area, display = '') => ({ id, title, created: '2026-10-14T12:00:00Z',
+  redirect_url: `https://www.adzuna.com/land/ad/${id}?se=x`, company: { display_name: 'Co' },
+  location: { area, display_name: display } });
+
+test('the IT feed covers exactly the 18 IT roles, in config order', () => {
+  assert.equal(FEED.roles.length, 18);
+  assert.ok(FEED.roles.every((id) => roles.some((r) => r.id === id)));
+  assert.ok(!scope.has('project-manager') && !scope.has('registered-nurse'));
+});
+
+test('feed rows get their role from the title and their state from the listing', () => {
+  const cases = [
+    [ad('1', 'Senior Data Analyst', ['US', 'Texas', 'Travis County', 'Austin']), 'data-analyst', 'TX'],
+    [ad('2', 'Java Developer', ['US', 'New Jersey', 'Middlesex County', 'Edison']), 'software-engineer', 'NJ'],
+    [ad('3', 'Software Test Engineer', ['US', 'Ohio']), 'qa-engineer', 'OH'],
+    [ad('4', 'AI/ML Engineer', ['US', 'California', 'San Francisco']), 'machine-learning-engineer', 'CA'],
+    [ad('5', 'Azure Data Engineer', ['US', 'Washington D.C.']), 'data-engineer', 'DC'],
+    [ad('6', 'SOC Analyst II', [], 'Raleigh, NC'), 'cybersecurity-analyst', 'NC'],
+  ];
+  for (const [raw, role, state] of cases) {
+    const n = feedNorm(raw);
+    assert.ok(n.row, `${raw.title} should be kept: ${n.reject}`);
+    assert.equal(n.row.canonical_role, role, raw.title);
+    assert.equal(n.row.state_code, state, raw.title);
+    assert.equal(n.row.feed, 'adzuna-us-it');
+    assert.equal(n.row.attribution, 'Adzuna');
+  }
+});
+
+test('feed rejects instead of padding: unknown roles, non-IT roles, no state', () => {
+  assert.equal(feedNorm(ad('a', 'IT Support Specialist', ['US', 'Iowa'])).reject, 'no_role');
+  assert.equal(feedNorm(ad('b', 'Help Desk Technician', ['US', 'Iowa'])).reject, 'no_role');
+  assert.equal(feedNorm(ad('c', 'Applications Engineer - Sales', ['US', 'Iowa'])).reject, 'no_role');
+  assert.equal(feedNorm(ad('d', 'IT Project Manager', ['US', 'Iowa'])).reject, 'out_of_scope');
+  assert.equal(feedNorm(ad('e', 'Data Analyst', ['US'], 'Remote, USA')).reject, 'no_state_evidence');
+  assert.equal(feedNorm(ad('f', 'Data Analyst', ['US'], 'Washington')).reject, 'no_state_evidence');
+});
+
+test('software engineer aliases stay inside software engineering', () => {
+  const SE = roles.find((r) => r.id === 'software-engineer');
+  for (const t of ['Software Engineer II', 'Senior .NET Developer', 'Front-End Engineer', 'Python Developer', 'iOS Engineer'])
+    assert.ok(L.titleMatchesRole(t, SE), `should accept: ${t}`);
+  for (const t of ['Sales Engineer', 'Software Sales Engineer', 'Technical Support Engineer', 'Software QA Engineer', 'Web Designer'])
+    assert.ok(!L.titleMatchesRole(t, SE), `should reject: ${t}`);
+});
+
+test('feed cursor: resume shifts by new postings with one page of overlap', () => {
+  assert.equal(L.resumePage({ nextPage: 1, headPages: 0, newSinceWatermark: 0 }), 1);
+  assert.equal(L.resumePage({ nextPage: 10, headPages: 1, newSinceWatermark: 20 }), 9, 'few new: overlap one page');
+  assert.equal(L.resumePage({ nextPage: 10, headPages: 3, newSinceWatermark: 120 }), 11, '120 new pushed the pass 2 pages down');
+  assert.equal(L.resumePage({ nextPage: 2, headPages: 4, newSinceWatermark: 30 }), 5, 'never re-fetch head pages');
+});
+
+test('feed page outcome distinguishes the end from a truncated response', () => {
+  assert.equal(L.pageOutcome({ page: 1, results: 50, count: 300 }), 'more');
+  assert.equal(L.pageOutcome({ page: 6, results: 50, count: 300 }), 'end');
+  assert.equal(L.pageOutcome({ page: 7, results: 12, count: 312 }), 'end');
+  assert.equal(L.pageOutcome({ page: 5, results: 0, count: 5000 }), 'truncated');
+  assert.equal(L.pageOutcome({ page: 1, results: 0, count: 0 }), 'end');
+});
+
+test('feed rows stay eligible for the 30-day window; other rows need a sighting within 7 days', () => {
+  const posted = new Date(now - 5 * 86400000).toISOString(), seen = new Date(now - 12 * 86400000).toISOString();
+  assert.equal(L.isEligible({ posted_at: posted, last_seen_at: seen, ingest_feed: 'adzuna-us-it' }, roleCfg, now), true);
+  assert.equal(L.isEligible({ posted_at: posted, last_seen_at: seen }, roleCfg, now), false);
+  assert.equal(L.isEligible({ posted_at: posted, last_seen_at: seen, ingest_feed: 'adzuna-us-it', closed_at: seen }, roleCfg, now), false);
+});

@@ -16,8 +16,18 @@
 //   - No user data (résumé, identity, search history) is ever sent to a source.
 //
 // Secrets: INGEST_SECRET, ADZUNA_APP_ID, ADZUNA_APP_KEY.
-// Optional overrides: ADZUNA_LIMIT_MINUTE/DAY/WEEK/MONTH (defaults are the
-// provider's published free allowance: 25 / 250 / 1000 / 2500).
+// Optional overrides: ADZUNA_LIMIT_MINUTE/DAY/WEEK/MONTH. Defaults follow the
+// paid "API access" plan in Adzuna's activation email (500/day, 5,000/month; no
+// weekly figure, so the monthly one applies). The per-minute cap is a
+// conservative guess. The provider enforces its own limits regardless; these
+// only stop the worker from spending calls it knows it does not have.
+//
+// Two modes:
+//   cells (default)  one role in one state per request — targeted top-ups.
+//   feed             {"mode":"feed","feed":"adzuna-us-it"} — every U.S. listing
+//                    in a category, newest first, classified into role and state.
+//                    One request returns up to 50 listings from anywhere in the
+//                    country, so it covers 18 roles × 51 regions far more cheaply.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import * as L from "./lib.mjs";
@@ -31,9 +41,9 @@ const APP_KEY       = Deno.env.get("ADZUNA_APP_KEY") ?? "";
 
 const LIMITS = {
   minute: Number(Deno.env.get("ADZUNA_LIMIT_MINUTE") ?? 25),
-  day:    Number(Deno.env.get("ADZUNA_LIMIT_DAY")    ?? 250),
-  week:   Number(Deno.env.get("ADZUNA_LIMIT_WEEK")   ?? 1000),
-  month:  Number(Deno.env.get("ADZUNA_LIMIT_MONTH")  ?? 2500),
+  day:    Number(Deno.env.get("ADZUNA_LIMIT_DAY")    ?? 500),
+  week:   Number(Deno.env.get("ADZUNA_LIMIT_WEEK")   ?? 5000),
+  month:  Number(Deno.env.get("ADZUNA_LIMIT_MONTH")  ?? 5000),
 };
 const RUN_HARD_CAP     = 50;      // never more than this many requests in one run
 const SPACING_MS       = Number(Deno.env.get("INGEST_SPACING_MS") ?? 2600);  // stays under 25/minute
@@ -42,7 +52,8 @@ const REQUEST_TIMEOUT  = 15_000;
 const REFRESH_HOURS    = 24;
 const FRESH_DAYS       = ROLES.fresh_days ?? 30;
 
-const roles = L.compileRoles(ROLES);
+type Role = { id: string; name: string; query: string; review: string; inc: RegExp[]; exc: RegExp[] };
+const roles = L.compileRoles(ROLES) as Role[];
 const idx   = L.regionIndex(REGIONS);
 
 function json(body: unknown, status = 200) {
@@ -99,24 +110,205 @@ async function recordCell(role: string, region: string, ok: boolean, error: stri
 }
 
 // One Adzuna page. Credentials go in the query string as the API requires, and
-// the URL is never logged or returned.
-async function fetchPage(roleQuery: string, regionName: string, page: number, maxDaysOld: number) {
+// the URL is never logged or returned. No user data is ever added.
+async function fetchAdzuna(page: number, params: Record<string, string>) {
   const u = new URL(`https://api.adzuna.com/v1/api/jobs/us/search/${page}`);
   u.searchParams.set("app_id", APP_ID);
   u.searchParams.set("app_key", APP_KEY);
   u.searchParams.set("results_per_page", String(L.ADZUNA_PER_PAGE));
-  u.searchParams.set("title_only", roleQuery);
   u.searchParams.set("location0", "US");
-  u.searchParams.set("location1", regionName);
-  u.searchParams.set("max_days_old", String(maxDaysOld));
   u.searchParams.set("sort_by", "date");
   u.searchParams.set("content-type", "application/json");
+  for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
   const r = await fetch(u, { signal: AbortSignal.timeout(REQUEST_TIMEOUT) });
   if (r.status === 429 || r.status >= 500) return { retry: true, status: r.status };
   if (!r.ok) return { retry: false, status: r.status };
   const body = await r.json().catch(() => null);
   if (!body || !Array.isArray(body.results)) return { retry: true, status: 0 };
   return { ok: true, count: Number(body.count) || 0, results: body.results };
+}
+const fetchPage = (roleQuery: string, regionName: string, page: number, maxDaysOld: number) =>
+  fetchAdzuna(page, { title_only: roleQuery, location1: regionName, max_days_old: String(maxDaysOld) });
+
+type Page = { ok?: boolean; retry?: boolean; status?: number; count?: number; results?: unknown[] };
+async function fetchWithRetry(get: () => Promise<Page>, spend: () => boolean): Promise<Page | null> {
+  let page: Page | null = null;
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    if (!spend()) break;
+    try { page = await get(); } catch { page = { retry: true, status: 0 }; }
+    if (page.ok || !page.retry) break;
+    await sleep(L.backoffMs(attempt + 1));
+  }
+  await sleep(SPACING_MS);
+  return page;
+}
+
+async function budgetFor(requested: number) {
+  const used = await rpc("ingest_budget_used", { p_source: L.SOURCE_ADZUNA });
+  const budget = Math.max(0, Math.min(requested,
+    LIMITS.minute - used.minute, LIMITS.day - used.day, LIMITS.week - used.week, LIMITS.month - used.month));
+  return { used, budget };
+}
+
+// ── nationwide feed ───────────────────────────────────────────────────────────
+// Each run: (1) the HEAD — newest pages until we reach listings already seen,
+// so new postings arrive within a day; (2) the PASS — resume walking the whole
+// window from where the last run stopped. When a pass reaches the end without
+// truncation, listings the feed ingested but this pass never saw are closed.
+async function runFeed(body: Record<string, unknown>): Promise<Response> {
+  const feedId = String(body.feed ?? "adzuna-us-it");
+  const feeds = (ROLES.feeds ?? {}) as Record<string, { source: string; category: string; window_days: number; roles: string[] }>;
+  const feed = feeds[feedId];
+  if (!feed) return json({ status: "rejected", reason: "unknown_feed" }, 400);
+  const scope = new Set(feed.roles);
+  const dryRun = body.dry_run === true;
+  const requested = Math.max(0, Math.min(RUN_HARD_CAP, Number(body.budget ?? 10) || 0));
+  const fixture = dryRun && Array.isArray(body.fixture_pages) ? body.fixture_pages as { count: number; results: unknown[] }[] : null;
+
+  if (!fixture && (!APP_ID || !APP_KEY)) {
+    if (!dryRun) {
+      const id = await startRun(`blocked: Adzuna credentials not configured (${feedId})`).catch(() => null);
+      if (id) await finishRun(id, { status: "blocked" });
+    }
+    return json({ status: "blocked", reason: "adzuna_credentials_missing",
+      message: "Adzuna API access is not active. The catalogue was not touched." });
+  }
+  if (!dryRun) {
+    const r = await db(`/rest/v1/ingest_runs?source=eq.${L.SOURCE_ADZUNA}&status=eq.running&started_at=gt.${new Date(Date.now() - 15 * 60_000).toISOString()}&select=id`);
+    if (r.ok && (await r.json()).length) return json({ status: "rejected", reason: "run_in_progress" }, 409);
+  }
+
+  const { used, budget } = fixture ? { used: null, budget: requested } : await budgetFor(requested);
+  const stR = await db(`/rest/v1/ingest_feeds?feed=eq.${feedId}&select=*`);
+  const saved = stR.ok ? (await stR.json())[0] ?? null : null;
+  const st = {
+    pass_started_at: saved?.pass_started_at ?? null as string | null,
+    next_page: saved?.next_page ?? 1,
+    watermark: saved?.watermark ?? null as string | null,
+    passes_completed: saved?.passes_completed ?? 0,
+  };
+  if (budget === 0) {
+    if (!dryRun) { const id = await startRun(`blocked: provider allowance exhausted (${feedId})`); await finishRun(id, { status: "blocked" }); }
+    return json({ status: "blocked", reason: "allowance_exhausted", used });
+  }
+
+  const runId = dryRun ? null : await startRun(`feed ${feedId}`);
+  const startedAt = new Date();
+  const passStarted = st.pass_started_at ?? startedAt.toISOString();
+  const fetchedAt = startedAt.toISOString();
+  const params = { category: feed.category, max_days_old: String(feed.window_days) };
+  let requestsUsed = 0, fetched = 0, fixtureIdx = 0;
+  const wm = st.watermark ? Date.parse(st.watermark) : null;
+  let newestMs: number | null = wm, reportedCount = 0;
+  const rejected: Record<string, number> = {};
+  const rows: Record<string, unknown>[] = [];
+  const spend = () => (requestsUsed < budget ? (requestsUsed++, true) : false);
+  const get = (page: number) => async (): Promise<Page> => fixture
+    ? ({ ok: true, ...(fixture[fixtureIdx++] ?? { count: 0, results: [] }) })
+    : fetchAdzuna(page, params);
+
+  const take = (results: unknown[]) => {
+    let fresh = 0;
+    for (const raw of results) {
+      // Compare instants, not strings: the stored watermark comes back from
+      // Postgres as "+00:00" while Adzuna sends "Z".
+      const t = Date.parse((raw as { created?: string })?.created ?? "");
+      if (Number.isFinite(t) && t <= Date.now() + 3600_000) {
+        if (wm !== null && t > wm) fresh++;
+        if (newestMs === null || t > newestMs) newestMs = t;
+      }
+      const n = L.normalizeAdzunaFeed(raw, { roles, scope, feed: feedId, idx, fetchedAt }) as { reject?: string; row?: Record<string, unknown> };
+      if (n.reject) rejected[n.reject] = (rejected[n.reject] ?? 0) + 1; else rows.push(n.row!);
+    }
+    fetched += results.length;
+    return fresh;
+  };
+
+  let error: string | null = null, outcome: "more" | "end" | "truncated" = "more";
+  let headPages = 0, newSinceWatermark = 0, page = 1, headReached = true;
+
+  // (1) head — only when a pass is mid-way; a fresh pass starts at page 1 anyway.
+  if (st.next_page > 1 && st.watermark) {
+    headReached = false;
+    while (true) {
+      const p = await fetchWithRetry(get(page), spend);
+      if (!p?.ok) { if (p) error = `source_${p.status}`; break; }
+      headPages = page; reportedCount = p.count ?? reportedCount;
+      const fresh = take(p.results!);
+      newSinceWatermark += fresh;
+      if (fresh < p.results!.length || L.pageOutcome({ page, results: p.results!.length, count: p.count ?? 0 }) !== "more") { headReached = true; break; }
+      page++;
+    }
+  }
+
+  // (2) pass
+  let passPage = L.resumePage({ nextPage: st.next_page, headPages, newSinceWatermark });
+  let lastDone = passPage - 1;
+  while (!error && requestsUsed < budget) {
+    const p = await fetchWithRetry(get(passPage), spend);
+    if (!p) break;                                   // budget ran out
+    if (!p.ok) { error = `source_${p.status}`; break; }
+    reportedCount = p.count ?? reportedCount;
+    take(p.results!);
+    lastDone = passPage;
+    outcome = L.pageOutcome({ page: passPage, results: p.results!.length, count: p.count ?? 0 });
+    if (outcome !== "more") break;
+    passPage++;
+  }
+
+  const unique = L.dedupe(rows as never[]);
+  let written = { inserted: 0, updated: 0, rejected: 0, conflicts: 0 };
+  let closed = 0, closeError: string | null = null;
+
+  if (!dryRun) {
+    let writeFailed = false;
+    for (let i = 0; i < unique.length; i += 500) {
+      try {
+        const w = await rpc("ingest_upsert_jobs", { p_rows: unique.slice(i, i + 500) });
+        written = { inserted: written.inserted + w.inserted, updated: written.updated + w.updated,
+                    rejected: written.rejected + w.rejected, conflicts: written.conflicts + w.conflicts };
+      } catch { writeFailed = true; }
+    }
+    if (writeFailed) error = error ?? "write_failed";
+
+    const next: Record<string, unknown> = { feed: feedId, source: feed.source, updated_at: new Date().toISOString(),
+      // If the head ran out of budget before reaching the old watermark, keep it,
+      // so the next run's head covers the gap instead of skipping it.
+      watermark: headReached && newestMs !== null ? new Date(newestMs).toISOString() : st.watermark, last_count: reportedCount || null };
+    if (outcome === "end" && !error) {
+      // Complete pass: only now may unseen feed listings be retired.
+      try { closed = await rpc("ingest_close_feed_unseen", { p_feed: feedId, p_pass_started: passStarted }); }
+      catch (e) { closeError = "close_refused"; }
+      Object.assign(next, { pass_started_at: null, next_page: 1, passes_completed: st.passes_completed + 1,
+                            last_pass_completed_at: new Date().toISOString() });
+    } else if (outcome === "truncated") {
+      // The provider stopped returning pages before its reported total. Never
+      // treat that as complete; restart the pass and surface it.
+      error = error ?? "provider_truncated";
+      Object.assign(next, { pass_started_at: null, next_page: 1 });
+    } else {
+      Object.assign(next, { pass_started_at: passStarted, next_page: Math.max(1, lastDone + 1) });
+    }
+    if (error) Object.assign(next, { last_failure_at: new Date().toISOString(), last_error: error });
+    else Object.assign(next, { last_success_at: new Date().toISOString() });
+    await db("/rest/v1/ingest_feeds", { method: "POST", headers: { prefer: "resolution=merge-duplicates" },
+      body: JSON.stringify(next) }).catch(() => {});
+  }
+
+  const status = error ? (fetched ? "partial" : "failed") : "succeeded";
+  if (runId) await finishRun(runId, { status, requests_used: requestsUsed, fetched,
+    inserted: written.inserted, updated: written.updated, closed, rejected });
+
+  const byCell: Record<string, number> = {};
+  for (const r of unique as Record<string, string>[]) byCell[`${r.canonical_role}:${r.state_code}`] = (byCell[`${r.canonical_role}:${r.state_code}`] ?? 0) + 1;
+  return json({
+    status: dryRun ? `dry_run:${status}` : status, feed: feedId, error, close_error: closeError,
+    budget, used_before: used, requests_used: requestsUsed, fetched, kept: unique.length, rejected, written, closed,
+    pass: { outcome, head_pages: headPages, resumed_at: L.resumePage({ nextPage: st.next_page, headPages, newSinceWatermark }),
+            last_page: lastDone, source_reported: reportedCount, completed: outcome === "end" && !error },
+    kept_by_role_state: byCell,
+    sample: dryRun ? unique.slice(0, 5).map((r: Record<string, unknown>) => ({ id: r.source_listing_id, title: r.job_title, role: r.canonical_role, state: r.state_code })) : undefined,
+  });
 }
 
 export async function handler(req: Request): Promise<Response> {
@@ -128,6 +320,7 @@ export async function handler(req: Request): Promise<Response> {
 
   let body: Record<string, unknown> = {};
   try { body = await req.json(); } catch { /* defaults */ }
+  if (body.mode === "feed") return runFeed(body);
   const dryRun = body.dry_run === true;
   const wantRoles = Array.isArray(body.roles) ? body.roles.map(String) : ["data-analyst"];
   const wantRegions = Array.isArray(body.regions) ? body.regions.map((s: unknown) => String(s).toUpperCase()) : ["NC", "SC"];
@@ -223,8 +416,8 @@ export async function handler(req: Request): Promise<Response> {
     }
     fetched += page.results!.length;
     for (const raw of page.results!) {
-      const n = L.normalizeAdzuna(raw, { role, regionCode: region.code, idx, fetchedAt });
-      if (n.reject) rejected[n.reject] = (rejected[n.reject] ?? 0) + 1; else rows.push(n.row);
+      const n = L.normalizeAdzuna(raw, { role, regionCode: region.code, idx, fetchedAt }) as { reject?: string; row?: Record<string, unknown> };
+      if (n.reject) rejected[n.reject] = (rejected[n.reject] ?? 0) + 1; else rows.push(n.row!);
     }
     const pages = state.pages + 1;
     const enumerated = pages * L.ADZUNA_PER_PAGE >= (page.count ?? 0) || page.results!.length < L.ADZUNA_PER_PAGE;

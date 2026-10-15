@@ -7,18 +7,19 @@
 --   3. job-ingest is deployed from the repository:
 --        supabase functions deploy job-ingest --no-verify-jwt
 --
--- Hourly, bounded to 10 requests per run, Data Analyst across all 51 regions.
--- The planner only spends what is due, so after the first ~16 hours (153
--- requests for the initial full sweep) steady state averages about 68 requests
--- a day: 51 one-page refreshes plus staggered three-page full sweeps every six
--- days. That is about 2,040 a month, inside Adzuna's free 2,500/month. Adding a
--- second role would exceed it; see docs/us-job-coverage-2026-10-15.md.
+-- Requires the paid Adzuna "API access" plan (500/day, 5,000/month); the free
+-- Pending Activation plan has only 25 calls in total.
+--
+-- Hourly nationwide IT feed, 6 requests per run = 144/day, about 4,300/month,
+-- leaving ~700/month for targeted cell top-ups. Each request returns up to 50
+-- U.S. IT listings (about 7,200 a day), classified into the 18 IT roles × 51
+-- regions. The worker also enforces the provider windows itself.
 
 create extension if not exists pg_cron;
 create extension if not exists pg_net;
 
 select cron.schedule(
-  'job-ingest-data-analyst-hourly',
+  'job-ingest-us-it-feed-hourly',
   '7 * * * *',
   $$
   select net.http_post(
@@ -26,10 +27,7 @@ select cron.schedule(
     headers := jsonb_build_object(
                  'content-type', 'application/json',
                  'x-ingest-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'ingest_secret')),
-    body    := jsonb_build_object(
-                 'roles',   jsonb_build_array('data-analyst'),
-                 'regions', (select jsonb_agg(code) from public.ingest_regions),
-                 'budget',  10),
+    body    := jsonb_build_object('mode', 'feed', 'feed', 'adzuna-us-it', 'budget', 6),
     timeout_milliseconds := 300000);
   $$);
 

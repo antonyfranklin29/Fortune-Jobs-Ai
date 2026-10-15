@@ -105,52 +105,70 @@ export function parsePostedAt(raw, now = new Date()) {
 // or say exactly why it was rejected. Nothing is filled in that the listing does
 // not state: no invented company, salary, date, state or match reason.
 export function normalizeAdzuna(r, { role, regionCode, idx, fetchedAt, now = new Date() }) {
+  const base = adzunaBase(r, idx);
+  if (base.reject) return base;
+  if (!titleMatchesRole(base.title, role)) return { reject: 'off_role' };
+  if (!base.state) return { reject: 'no_state_evidence' };
+  if (base.state !== regionCode) return { reject: 'other_state' };
+  return { row: adzunaRow(r, base, role, { fetchedAt, now }) };
+}
+
+// A nationwide feed result: the role comes from the title (the same first-match
+// rule the database applies) and the state from the listing's own location.
+// A title that belongs to no role, or to a role outside the feed's scope, is
+// rejected rather than filed under the nearest role.
+export function normalizeAdzunaFeed(r, { roles, scope, feed, idx, fetchedAt, now = new Date() }) {
+  const base = adzunaBase(r, idx);
+  if (base.reject) return base;
+  const roleId = classifyRole(base.title, roles);
+  if (!roleId) return { reject: 'no_role' };
+  if (!scope.has(roleId)) return { reject: 'out_of_scope' };
+  if (!base.state) return { reject: 'no_state_evidence' };
+  const role = roles.find((x) => x.id === roleId);
+  return { row: { ...adzunaRow(r, base, role, { fetchedAt, now }), feed } };
+}
+
+function adzunaBase(r, idx) {
   if (!r || typeof r !== 'object') return { reject: 'malformed' };
   const id = r.id != null ? String(r.id).trim() : '';
   if (!id) return { reject: 'no_source_id' };
   const title = String(r.title || '').replace(/<[^>]*>/g, '').trim();
   if (!title) return { reject: 'no_title' };
-  if (!titleMatchesRole(title, role)) return { reject: 'off_role' };
-
   const applyUrl = canonicalUrl(r.redirect_url);
   if (!applyUrl) return { reject: 'invalid_apply_url' };
-
   const state = stateFromEvidence({ area: r.location?.area, displayName: r.location?.display_name }, idx);
-  if (!state) return { reject: 'no_state_evidence' };
-  if (state !== regionCode) return { reject: 'other_state' };
+  return { id, title, applyUrl, state };
+}
 
+function adzunaRow(r, { id, title, applyUrl, state }, role, { fetchedAt, now }) {
   const predicted = String(r.salary_is_predicted ?? '') === '1';
   const lo = Number(r.salary_min), hi = Number(r.salary_max);
   const salary = !predicted && Number.isFinite(lo) && lo > 0
     ? (Number.isFinite(hi) && hi > lo ? `$${Math.round(lo).toLocaleString('en-US')}–$${Math.round(hi).toLocaleString('en-US')}` : `$${Math.round(lo).toLocaleString('en-US')}`)
     : null;
-
   const contract = { full_time: 'Full-time', part_time: 'Part-time' }[r.contract_time] ||
                    { contract: 'Contract', permanent: null }[r.contract_type] || null;
   const remote = /\bremote\b/i.test(title);
-
   return {
-    row: {
-      source: SOURCE_ADZUNA,
-      source_listing_id: id,
-      canonical_role: role.id,
-      category: role.name,
-      state_code: state,
-      country: 'us',
-      job_title: title.slice(0, 300),
-      company: r.company?.display_name ? String(r.company.display_name).trim().slice(0, 200) : null,
-      location: r.location?.display_name ? String(r.location.display_name).trim().slice(0, 200) : null,
-      salary,
-      apply_url: applyUrl,
-      source_url: applyUrl,
-      job_description: r.description ? String(r.description).replace(/<[^>]*>/g, '').trim().slice(0, 4000) : null,
-      employment_type: contract,
-      is_remote: remote,
-      work_mode: remote ? 'remote' : null,
-      posted_at: parsePostedAt(r.created, now),
-      fetched_at: fetchedAt,
-      attribution: 'Adzuna',
-    },
+    source: SOURCE_ADZUNA,
+    source_listing_id: id,
+    canonical_role: role.id,
+    category: role.name,
+    state_code: state,
+    country: 'us',
+    job_title: title.slice(0, 300),
+    company: r.company?.display_name ? String(r.company.display_name).trim().slice(0, 200) : null,
+    location: r.location?.display_name ? String(r.location.display_name).trim().slice(0, 200) : null,
+    salary,
+    apply_url: applyUrl,
+    source_url: applyUrl,
+    job_description: r.description ? String(r.description).replace(/<[^>]*>/g, '').trim().slice(0, 4000) : null,
+    employment_type: contract,
+    is_remote: remote,
+    work_mode: remote ? 'remote' : null,
+    posted_at: parsePostedAt(r.created, now),
+    fetched_at: fetchedAt,
+    attribution: 'Adzuna',
   };
 }
 
@@ -180,7 +198,7 @@ export function isEligible(row, cfg, now = new Date()) {
   if (!row.posted_at || !row.last_seen_at) return false;
   const day = 86400000;
   return now - new Date(row.posted_at) <= cfg.fresh_days * day &&
-         now - new Date(row.last_seen_at) <= cfg.seen_within_days * day;
+         now - new Date(row.last_seen_at) <= (row.ingest_feed ? cfg.seen_within_days_by_feed ?? cfg.seen_within_days : cfg.seen_within_days) * day;
 }
 
 // ── planning ──────────────────────────────────────────────────────────────────
@@ -226,4 +244,26 @@ export function planRequests({ cells, roles, regions, target, budget, maxPagesPe
 // Exponential backoff with full jitter, capped.
 export function backoffMs(attempt, base = 1000, cap = 30000, rand = Math.random) {
   return Math.floor(rand() * Math.min(cap, base * 2 ** attempt));
+}
+
+// ── nationwide feed cursor ───────────────────────────────────────────────────
+// A pass walks every page of the feed (newest first) across as many runs as the
+// budget needs. Between runs, new postings push the pass's position down the
+// list; `shiftPages` estimates that from the number of new listings the head of
+// this run found, and one page of overlap absorbs the error (duplicates are
+// harmless; the database de-duplicates).
+export function resumePage({ nextPage, headPages, newSinceWatermark, perPage = ADZUNA_PER_PAGE }) {
+  if (nextPage <= 1) return headPages + 1;
+  const shift = Math.floor(newSinceWatermark / perPage);
+  return Math.max(headPages + 1, nextPage + shift - 1);
+}
+
+// Whether a page ends the pass: fewer than a full page, or the reported total
+// reached. A page that comes back empty while the provider still reports more
+// results is a truncation (e.g. a page-depth limit) and must not count as a
+// complete pass, or the close step would wrongly retire listings it never saw.
+export function pageOutcome({ page, results, count, perPage = ADZUNA_PER_PAGE }) {
+  if (results === 0 && (page - 1) * perPage < count) return 'truncated';
+  if (results < perPage || page * perPage >= count) return 'end';
+  return 'more';
 }

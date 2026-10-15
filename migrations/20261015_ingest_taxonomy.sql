@@ -107,8 +107,8 @@ begin
   if (t ~* '\ysql\s+(?:server\s+)?developer\y') and not false then return 'sql-developer'; end if;
   if (t ~* '\ydata\s+engineer\y') and not false then return 'data-engineer'; end if;
   if (t ~* '\ydata\s+scientist\y') and not false then return 'data-scientist'; end if;
-  if (t ~* '\y(?:machine\s+learning|ml)\s+engineer\y') and not false then return 'machine-learning-engineer'; end if;
-  if (t ~* '\ysoftware\s+(?:engineer|developer)\y') and not (t ~* '\ytest\y' or t ~* '\yqa\y') then return 'software-engineer'; end if;
+  if (t ~* '\y(?:machine\s+learning|ml)\s+engineer\y' or t ~* '\y(?:ai|artificial\s+intelligence)\s+engineer\y') and not false then return 'machine-learning-engineer'; end if;
+  if (t ~* '\ysoftware\s+(?:engineer|developer)\y' or t ~* '(?:\y(?:java|python|c\+\+|golang|ruby|php|javascript|typescript|react|angular|node(?:\.js)?|ios|android|mobile|front[\s-]*end|back[\s-]*end|web)|\.net|\yc#)\s+(?:software\s+)?(?:developer|engineer|programmer)\y') and not (t ~* '\ytest\y' or t ~* '\yqa\y' or t ~* '\ysales\y' or t ~* '\ysupport\s+engineer\y') then return 'software-engineer'; end if;
   if (t ~* '\yfull[\s-]*stack\y') and not false then return 'full-stack-developer'; end if;
   if (t ~* '\ydevops\y' or t ~* '\ysite\s+reliability\s+engineer\y') and not false then return 'devops-engineer'; end if;
   if (t ~* '\ycloud\s+(?:engineer|architect)\y') and not false then return 'cloud-engineer'; end if;

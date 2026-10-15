@@ -213,7 +213,54 @@ correct: nothing has re-confirmed them. The full matrix is live in
 User-visible counts are separate from this: Quick Match still shows at most ten
 free cards, and the catalogue counts above are what sits behind them.
 
-## 6. Blockers and next steps
+## 6. Update 2026-10-15 evening — nationwide IT feed (Tony: "entire USA IT jobs first")
+
+**Adzuna access (from the activation email, account `fortunejobsai`):** free
+"Pending Activation" plan = 25 calls total; "API access" = £8/month for 500
+calls/day, 5,000/month. Support: api-partnerships@adzuna.com. The developer
+terms still say commercial use is "subject to a 14 day trial period" after which
+"a licence agreement may be required" — written confirmation from Adzuna that
+the £8 plan covers public display on a commercial site is still needed.
+
+**Why a feed:** keeping 18 IT roles × 51 regions (918 cells) fresh one cell at a
+time costs ~36,000 calls/month, about 7× the £8 plan. The feed asks for every
+U.S. listing in Adzuna's IT category (`category=it-jobs`, 30-day window, newest
+first); each call returns up to 50 listings from anywhere in the country, which
+are classified into role (title, same first-match rule as the database) and
+state (the listing's own location). Titles outside the 18 roles are rejected
+(`no_role`, `out_of_scope`), never padded in.
+
+**How it stays current:** each run (1) reads the newest pages until it reaches
+listings already seen, then (2) resumes a full pass of the window from a stored
+cursor (`ingest_feeds`), shifted for new postings with one page of overlap.
+When a pass completes, feed rows the pass never saw are closed — only rows the
+feed ingested, and the database refuses to close more than 40% at once. A page
+that comes back empty while Adzuna still reports more results is treated as a
+truncation: nothing is closed and the pass restarts. Feed rows count as current
+for 30 days after their last sighting (cell rows still need 7), because a full
+pass can take longer than a week on this plan.
+
+**Known limits:** IT jobs that Adzuna files under another category are missed
+by the feed (cell mode can top up short cells); the 17 non-Data-Analyst IT role
+patterns are first-draft (`initial`) and need review against real feed titles;
+software-engineer gained common stack titles (Java/.NET/Python/Front-end…
+Developer/Engineer, excluding sales/support/QA) and ML gained "AI Engineer".
+
+**Applied in production:** `ingest_feed` column, `ingest_feeds`,
+`ingest_close_feed_unseen`, feed-aware `ingest_upsert_jobs` and coverage view,
+updated classifier. All service-role only (verified with has_*_privilege); feed
+write and close paths verified in a rolled-back transaction.
+
+**Tests:** 24 unit + 15 end-to-end (6 new feed scenarios: dry run, checkpointed
+first pass, head + resumed pass with nothing skipped, next pass retiring exactly
+the removed listings and only feed rows, truncation, mass-close refusal).
+Mutation checks: treating truncation as complete, skipping a page on resume,
+dropping the role-scope check and freezing the watermark each fail a test.
+
+**First live test (after deploy):** `{"mode":"feed","budget":5}` — 5 of the 25
+free calls, up to 250 real U.S. IT listings.
+
+## 7. Blockers and next steps
 
 1. **Adzuna activation** — the gate for everything below. Then set
    `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` and `INGEST_SECRET` as Edge Function

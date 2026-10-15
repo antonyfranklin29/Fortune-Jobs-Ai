@@ -18,14 +18,14 @@ const DAY = 86400000;
 
 // ── fake database: mirrors the SQL functions and view ──────────────────────────
 type Job = Record<string, any>;
-const db = { runs: [] as any[], cells: new Map<string, any>(), jobs: [] as Job[], nextRun: 1 };
+const db = { runs: [] as any[], cells: new Map<string, any>(), jobs: [] as Job[], nextRun: 1, feeds: new Map<string, any>() };
 
 function coverage(role: string, state: string) {
   const now = Date.now(), keys = new Set<string>();
   for (const j of db.jobs) {
     if (j.closed_at || j.canonical_role !== role || j.state_code !== state) continue;
     if (!j.posted_at || now - Date.parse(j.posted_at) > 30 * DAY) continue;
-    if (!j.last_seen_at || now - Date.parse(j.last_seen_at) > 7 * DAY) continue;
+    if (!j.last_seen_at || now - Date.parse(j.last_seen_at) > (j.ingest_feed ? 30 : 7) * DAY) continue;
     keys.add(`${j.job_title}|${j.company ?? ""}|${j.location ?? ""}`.toLowerCase());
   }
   return keys.size;
@@ -39,10 +39,11 @@ function upsert(rows: Job[]) {
     const hit = db.jobs.filter((j) => (j.source === r.source && j.source_listing_id === r.source_listing_id) || j.apply_url === r.apply_url);
     const now = new Date().toISOString();
     if (hit.length) {
-      for (const j of hit) Object.assign(j, { ...r, posted_at: [r.posted_at, j.posted_at].filter(Boolean).sort().pop() ?? null,
+      const { feed, ...rest } = r;
+      for (const j of hit) Object.assign(j, { ...rest, ingest_feed: j.ingest_feed ?? feed ?? null, posted_at: [r.posted_at, j.posted_at].filter(Boolean).sort().pop() ?? null,
         company: r.company ?? j.company, last_seen_at: now, closed_at: null });
       updated++;
-    } else { db.jobs.push({ ...r, last_seen_at: now, closed_at: null }); inserted++; }
+    } else { const { feed, ...rest } = r; db.jobs.push({ ...rest, ingest_feed: feed ?? null, last_seen_at: now, closed_at: null }); inserted++; }
   }
   return { inserted, updated, rejected, conflicts: 0 };
 }
@@ -53,6 +54,15 @@ function closeUnseen(a: any) {
   for (const j of db.jobs) if (j.source === a.p_source && j.canonical_role === a.p_role && j.state_code === a.p_state
                                 && !j.closed_at && Date.parse(j.last_seen_at) < t) { j.closed_at = new Date().toISOString(); n++; }
   return n;
+}
+function closeFeedUnseen(a: any) {
+  const t = Date.parse(a.p_pass_started);
+  if (!(t <= Date.now() && t > Date.now() - 45 * DAY)) throw new Error("pass start must be within the last 45 days");
+  const open = db.jobs.filter((j) => j.ingest_feed === a.p_feed && !j.closed_at);
+  const stale = open.filter((j) => Date.parse(j.last_seen_at) < t);
+  if (open.length > 100 && stale.length > open.length * 0.4) throw new Error("refusing mass close");
+  for (const j of stale) j.closed_at = new Date().toISOString();
+  return stale.length;
 }
 function budgetUsed() {
   const now = Date.now(), sum = (ms: number) => db.runs.filter((r) => now - Date.parse(r.started_at) < ms).reduce((a, r) => a + r.requests_used, 0);
@@ -73,8 +83,22 @@ function seedMarket() {
   for (let i = 0; i < 37; i++) m.push({ id: `sc-${i}`, title: titles[i % 4], state: "SC", created: new Date(now - (i + 5) * 3600000).toISOString(), company: `SC Co ${i}` });
   market = m;
 }
+type FeedListing = { id: string; title: string; area: string[]; display?: string; created: string };
+let feedMarket: FeedListing[] = [];
+let feedTruncateAfter = Infinity;
+function feedAdzuna(url: URL) {
+  assertEquals(url.searchParams.get("category"), "it-jobs");
+  assert(!url.searchParams.has("location1") && !url.searchParams.has("title_only"), "feed asks for the whole country");
+  const page = Number(url.pathname.split("/").pop()), per = Number(url.searchParams.get("results_per_page"));
+  const all = [...feedMarket].sort((a, b) => b.created.localeCompare(a.created));
+  const rows = page > feedTruncateAfter ? [] : all.slice((page - 1) * per, page * per);
+  return Response.json({ count: all.length, results: rows.map((l) => ({ id: l.id, title: l.title, created: l.created,
+    redirect_url: `https://www.adzuna.com/land/ad/${l.id}?se=abc`, company: { display_name: `Co ${l.id}` },
+    location: { area: l.area, display_name: l.display ?? l.area.slice(1).join(", ") } })) });
+}
 function adzuna(url: URL) {
   adzunaCalls++;
+  if (url.searchParams.has("category")) return feedAdzuna(url);
   const page = Number(url.pathname.split("/").pop());
   const state = REGIONS.regions.find((r: any) => r.name === url.searchParams.get("location1")).code;
   const key = `${state}:${page}`;
@@ -109,6 +133,9 @@ globalThis.fetch = (async (input: Request | URL | string, init?: RequestInit) =>
   const p = url.pathname, q = url.searchParams;
   if (p === "/rest/v1/rpc/ingest_budget_used") return Response.json(budgetUsed());
   if (p === "/rest/v1/rpc/ingest_upsert_jobs") return Response.json(upsert(body.p_rows));
+  if (p === "/rest/v1/rpc/ingest_close_feed_unseen") { try { return Response.json(closeFeedUnseen(body)); } catch (e) { return new Response(String(e), { status: 400 }); } }
+  if (p === "/rest/v1/ingest_feeds" && method === "POST") { db.feeds.set(body.feed, { ...(db.feeds.get(body.feed) ?? {}), ...body }); return new Response(null, { status: 201 }); }
+  if (p === "/rest/v1/ingest_feeds") { const f = db.feeds.get(q.get("feed")!.slice(3)); return Response.json(f ? [f] : []); }
   if (p === "/rest/v1/rpc/ingest_close_unseen") { try { return Response.json(closeUnseen(body)); } catch (e) { return new Response(String(e), { status: 400 }); } }
   if (p === "/rest/v1/ingest_runs" && method === "POST") {
     const row = { id: db.nextRun++, source: body.source, note: body.note, started_at: new Date().toISOString(), status: "running", requests_used: 0 };
@@ -237,6 +264,103 @@ Deno.test("a second run cannot start while one is in progress", async () => {
   const r = await (globalThis as any).__worker(new Request("https://w", { method: "POST",
     headers: { "x-ingest-secret": "test-secret-123" }, body: JSON.stringify({ roles: ["data-analyst"], regions: ["NC"] }) }));
   assertEquals(r.status, 409);
+});
+
+
+// ── nationwide IT feed ─────────────────────────────────────────────────────────
+const FEED_TITLES = ["Data Analyst", "Java Developer", "DevOps Engineer", "IT Support Specialist", "IT Project Manager", "Data Engineer"];
+const FEED_STATES = [["US", "Texas", "Travis County", "Austin"], ["US", "North Carolina"], ["US", "Wyoming"], ["US", "California"], ["US"]];
+function seedFeed(n: number, from = 0, newestHoursAgo = 1) {
+  const now = Date.now(), out: FeedListing[] = [];
+  for (let i = 0; i < n; i++) out.push({ id: `f-${from + i}`, title: FEED_TITLES[(from + i) % 6], area: FEED_STATES[(from + i) % 5],
+    created: new Date(now - (newestHoursAgo + i) * 3600000).toISOString() });
+  return out;
+}
+const freshRuns = () => { for (const r of db.runs) { r.status = r.status === "running" ? "failed" : r.status; r.started_at = new Date(Date.now() - 2 * DAY).toISOString(); } };
+const feedRows = () => db.jobs.filter((j) => j.ingest_feed === "adzuna-us-it");
+
+Deno.test("feed dry run classifies nationwide listings and writes nothing", async () => {
+  freshRuns();
+  feedMarket = seedFeed(30);
+  const fx = await (await feedAdzuna(new URL("https://api.adzuna.com/v1/api/jobs/us/search/1?category=it-jobs&results_per_page=50"))).json();
+  const before = db.jobs.length;
+  const r = await worker({ mode: "feed", dry_run: true, fixture_pages: [fx], budget: 1 });
+  assertEquals(r.status, "dry_run:succeeded");
+  assertEquals(db.jobs.length, before, "no writes");
+  assertEquals(db.feeds.size, 0, "cursor untouched");
+  assert(r.rejected.no_role > 0 && r.rejected.out_of_scope > 0 && r.rejected.no_state_evidence > 0, JSON.stringify(r.rejected));
+  assert(Object.keys(r.kept_by_role_state).every((k) => /^(data-analyst|software-engineer|devops-engineer|data-engineer):(TX|NC|WY|CA)$/.test(k)), JSON.stringify(r.kept_by_role_state));
+});
+
+Deno.test("feed run 1: walks the first pages of the whole country and checkpoints the pass", async () => {
+  feedMarket = seedFeed(330);
+  const r = await worker({ mode: "feed", budget: 3 });
+  assertEquals(r.status, "succeeded", JSON.stringify(r));
+  assertEquals(r.requests_used, 3);
+  assertEquals(r.pass.last_page, 3);
+  assertEquals(r.pass.completed, false);
+  assertEquals(r.closed, 0);
+  assertEquals(db.feeds.get("adzuna-us-it").next_page, 4);
+  assert(db.feeds.get("adzuna-us-it").pass_started_at);
+  assertEquals(r.written.inserted, r.kept);
+  assert(feedRows().length > 0 && feedRows().every((j) => ["data-analyst", "software-engineer", "devops-engineer", "data-engineer"].includes(j.canonical_role)));
+  assert(feedRows().every((j) => j.attribution === "Adzuna" && j.state_code), "attributed, with a real state");
+  assertEquals(db.jobs.filter((j) => /Support Specialist|Project Manager/.test(j.job_title)).length, 0, "no padding");
+});
+
+Deno.test("feed run 2: the head picks up new postings, the pass resumes and completes without wrong closures", async () => {
+  freshRuns();
+  feedMarket = feedMarket.filter((l) => !/^f-1[0-4]$/.test(l.id)).concat(seedFeed(60, 1000, -0.5).map((l, i) => ({ ...l, created: new Date(Date.now() - i * 60000).toISOString() })));
+  const r = await worker({ mode: "feed", budget: 10 });
+  assertEquals(r.status, "succeeded", JSON.stringify(r));
+  assertEquals(r.pass.head_pages, 2, "page 1 all new, page 2 reaches known listings");
+  assertEquals(r.pass.resumed_at, 4, "pass shifted by the 60 new postings, with one page overlap");
+  assertEquals(r.pass.completed, true);
+  assertEquals(r.closed, 0, "removed listings were seen earlier in this pass; the next pass retires them");
+  assert(feedRows().some((j) => j.source_listing_id === "f-1001"), "new posting ingested");
+  const ids = new Set(feedRows().map((j) => j.source_listing_id));
+  for (const l of feedMarket) {
+    const kept = L.normalizeAdzunaFeed({ id: l.id, title: l.title, created: l.created, redirect_url: `https://www.adzuna.com/land/ad/${l.id}`,
+      location: { area: l.area } }, { roles, scope: new Set(ROLES.feeds["adzuna-us-it"].roles), feed: "x", idx: L.regionIndex(REGIONS), fetchedAt: "" }) as any;
+    if (kept.row) assert(ids.has(l.id), `nothing skipped across runs: ${l.id}`);
+  }
+});
+
+Deno.test("feed run 3: the next complete pass retires exactly the removed listings, and only feed rows", async () => {
+  freshRuns();
+  const cellRowsOpen = db.jobs.filter((j) => !j.ingest_feed && !j.closed_at).length;
+  await new Promise((res) => setTimeout(res, 5));
+  const r = await worker({ mode: "feed", budget: 10 });
+  assertEquals(r.pass.completed, true);
+  const removedKept = ["f-10", "f-11", "f-12", "f-13", "f-14"].filter((id) => db.jobs.some((j) => j.source_listing_id === id));
+  assertEquals(r.closed, removedKept.length);
+  assert(removedKept.every((id) => db.jobs.find((j) => j.source_listing_id === id).closed_at));
+  assertEquals(db.jobs.filter((j) => !j.ingest_feed && !j.closed_at).length, cellRowsOpen, "cell-sweep rows untouched");
+});
+
+Deno.test("feed: a truncated provider response never counts as a complete pass", async () => {
+  freshRuns();
+  const open = feedRows().filter((j) => !j.closed_at).length;
+  feedTruncateAfter = 2;
+  const r = await worker({ mode: "feed", budget: 10 });
+  feedTruncateAfter = Infinity;
+  assertEquals(r.error, "provider_truncated");
+  assertEquals(r.closed, 0);
+  assertEquals(feedRows().filter((j) => !j.closed_at).length, open);
+  assertEquals(db.feeds.get("adzuna-us-it").next_page, 1, "pass restarts");
+});
+
+Deno.test("feed: an implausible mass closure is refused", async () => {
+  freshRuns();
+  const open = feedRows().filter((j) => !j.closed_at).length;
+  assert(open > 100, `need >100 open feed rows, have ${open}`);
+  feedMarket = feedMarket.slice(0, 10);
+  await new Promise((res) => setTimeout(res, 5));
+  const r = await worker({ mode: "feed", budget: 10 });
+  assertEquals(r.pass.completed, true);
+  assertEquals(r.close_error, "close_refused");
+  assertEquals(r.closed, 0);
+  assertEquals(feedRows().filter((j) => !j.closed_at).length, open);
 });
 
 globalThis.addEventListener("unload", () => { globalThis.fetch = realFetch; });
