@@ -933,7 +933,6 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
         <div class="job-company">${safe(job.company || 'Company')}</div>
         <div class="job-location">📍 ${safe(job.location || 'Location not listed')}</div>
         ${job.match_reason ? `<div class="job-reason">💡 ${safe(job.match_reason)}</div>` : ''}
-        ${FJDataSafety.adzunaAttribution?.(job) || ''}
         <div class="job-footer">
           <div class="job-salary">${safe(job.salary || 'Salary not listed')}</div>
           <div class="job-actions">
@@ -941,6 +940,7 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
             <a href="${applyUrl}" class="apply-btn" target="_blank" rel="noopener">Apply Now →</a>
           </div>
         </div>
+        ${FJDataSafety.adzunaAttribution?.(job) || ''}
       </div>`;
   }).join('');
   if (scrollToResults) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
