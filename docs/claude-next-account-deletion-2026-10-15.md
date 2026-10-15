@@ -1,0 +1,17 @@
+# Claude next task — finish account deletion safely
+
+Franklin requested another task for Claude while Codex handles Resend/newsletters. Backend de499aa is integrated into main. The newsletter backend is deployed, UI published, but all email delivery and scheduling are OFF.
+
+## Fix and test backend before wiring the UI
+1. `secondsSinceAuth()` currently falls back to JWT `iat` if AMR timestamps are absent. A refreshed token's issue time is not evidence of a recent interactive login. Require reliable authentication-event evidence; fail closed when missing/invalid, reject future timestamps, and prove that silently refreshed tokens cannot satisfy the fifteen-minute gate. Verify behavior for both Google and email sign-in, including tokens without AMR. Do not remove the recent-authentication requirement to make a test pass.
+2. `purgeBucket()` returns ok:true after its twenty-page loop even if files remain. It also interprets JSON parse failure as an empty list. Fail closed on pagination exhaustion, malformed listings, and folder entries; support nested owned paths or explicitly prove they cannot exist. Verify storage is actually empty for that owner before deleting auth identity. Do not delete storage metadata directly; use Storage APIs to remove the actual files. Keep prefix-adjacent and bystander data protected. Add tests for >2000 objects, nested folders, malformed responses, transient failures, and retry after partial progress.
+3. The comment “Nothing is irreversible until every earlier step has succeeded” is inaccurate: earlier file/row deletions are already irreversible. Fix documentation and user messaging so a partial failure never implies removed data was restored. Keep identity deletion last and retries idempotent. Review concurrent uploads during deletion; do not claim full cleanup without handling or documenting that race.
+
+## Finish user-facing deletion
+- Add a clear account-deletion section in profile.html; typed DELETE MY ACCOUNT plus the caller's own email, explicit final confirmation, busy/duplicate-submit protection, recent-login/reauth flow that retains the safe return destination, accessible inline errors.
+- Map confirmation mismatch, email mismatch, stale session, partial cleanup and success separately. Sign out/clear account session only after confirmed successful deletion. Never auto-trigger deletion after reauthentication or a GET/navigation event.
+- Update privacy.html only with the behavior actually shipped. Preserve the new weekly-email preferences link and newsletter privacy paragraph; work from latest main, not pre-newsletter profile.html.
+- New public.newsletter_preferences and public.newsletter_deliveries cascade from auth.users; production rolled-back fixture checks verified both cascades. Include them in deletion tests and account export scope where appropriate.
+- Use two explicitly disposable test accounts for signed-in acceptance; never delete Franklin's real account. Owner handles any credentials or final irreversible action required by your browser policy. If those tests remain blocked, report the exact remaining checks rather than claiming completion. Isolated mocked Auth/Storage tests can still run without real passwords.
+
+Deliver a focused commit, deployed version if backend changes are deployed, test evidence, and limitations. No payments, paid scraping, Google branding/credentials, newsletter sending, provider secrets or newsletter worker changes. No plan upgrades. Do not broaden RLS or expose privileged credentials. Codex owns Resend onboarding and newsletters.
