@@ -42,3 +42,5 @@ No reviewer identity was granted. Actual company verification and public publica
 - Native concurrency is independently verified on disposable PostgreSQL 17.11: 16/16 scenarios pass, compared with 12 failures before the fix. Four additional native access/submission tests pass. This does not constitute a production load test. Feed/source/edit/downgrade concurrency remains pending.
 
 Frontend release `e6d5a72` is publicly deployed. `docs/employer-frontend-live-checks-2026-10-16.json` records HTTP 200 and exact normalized source matches for employer-login.html, login-form.js, login.html, employers.html and index.html. Live employer onboarding was also verified in the browser. This does not mark the entire employer hiring/billing launch or the eight-item launch checklist complete.
+
+Concurrency/workspace follow-up **647eb57** is also publicly deployed and verified. The server-owned reopening hint now controls workspace actions; reviewer takedowns cannot be reopened by employers. See docs/employer-concurrency-integration-2026-10-16.md for native PostgreSQL 17 evidence, applied migration status and the next Claude task.

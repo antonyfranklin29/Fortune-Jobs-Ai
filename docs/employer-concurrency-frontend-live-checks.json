@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-10-16T11:48:14.548Z",
+  "release": "647eb57",
+  "results": [
+    {
+      "file": "employers.html",
+      "status": 200,
+      "sourceMatches": true
+    },
+    {
+      "file": "employer-submissions.js",
+      "status": 200,
+      "sourceMatches": true
+    }
+  ]
+}

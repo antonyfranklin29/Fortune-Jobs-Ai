@@ -5,6 +5,7 @@
 Claude authored the publication/status locking migration and the original 16-scenario concurrency harness in commit 16cf506. Codex reviewed it and cherry-picked it as 22c8fdc, preserving attribution.
 
 Codex then:
+
 - Included both the existing pending-claim deletion fix and the new migrations in every full test chain and first-install builder.
 - Ported persistent race-test sessions to independent node-postgres connections so Windows process-output buffering cannot stall the harness; pinned pg 8.23.1 as a development dependency. Required lock waits now fail on a deadline, and close/review assertions check actual outcomes.
 - Added the server-derived can_activate hint to the existing owner-scoped read model. Employers can reopen their own still-approved posts; reviewer takedowns withdraw approval and offer no reopen button. The mutation RPC independently enforces permission. No reinstatement or reviewer-appeal approval path was invented.
@@ -29,7 +30,7 @@ The function-only transaction for 20261019_employer_concurrency_hardening.sql an
 
 Public-key-only live probes confirm private company/state/lock functions refuse anonymous access with 401/42501; public job reads remain 200. No credential was extracted, no real account deleted, no company or reviewer granted, and no employer listing/feed imported. Paid publishing remains disabled.
 
-Frontend release verification is recorded below when the Pages deployment completes.
+Frontend release **647eb57** is live: GitHub Pages deployment succeeded and both employers.html and employer-submissions.js return HTTP 200 with exact normalized matches to the tested source. The existing signed-in session loaded the company registration form with no browser errors. This check created no company or user. See employer-concurrency-frontend-live-checks.json. Live database metadata additionally confirms 736 open jobs, zero companies/reviewers, zero private-helper grants, zero private table access for ordinary roles and paid publishing false (employer-concurrency-live-database-checks.json).
 
 ## Remaining scope
 
