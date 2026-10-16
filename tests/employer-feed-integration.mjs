@@ -19,7 +19,8 @@ before(async()=>{
     'migrations/pending/20261017_employer_feed_publish_hardening.sql',
     'migrations/pending/20261017_employer_domain_checks.sql',
     'migrations/pending/20261017_employer_account_deletion.sql',
-    'migrations/pending/20261017_employer_search_visibility.sql']){
+    'migrations/pending/20261017_employer_search_visibility.sql',
+    'migrations/pending/20261018_employer_access_hardening.sql']){
     try{await db.exec(read(path));}catch(e){throw Error(`${path}: ${e.message}`);}
   }
 });

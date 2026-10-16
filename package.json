@@ -9,7 +9,8 @@
     "newsletter:dry-run": "node scripts/newsletter-worker.mjs",
     "test:ingest-worker": "deno test --allow-env --allow-read --no-check --import-map=tests/deno/import_map.json tests/job-ingest-worker.ts",
     "build:ingest": "node scripts/build-ingest-sql.cjs",
-    "test:employer-native-db": "node --test tests/employer-submissions-db.mjs"
+    "test:employer-native-db": "node --test tests/employer-submissions-db.mjs",
+    "test:employer-access": "node --test tests/employer-access-db.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.10",

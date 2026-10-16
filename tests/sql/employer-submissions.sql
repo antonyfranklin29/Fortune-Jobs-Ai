@@ -86,7 +86,8 @@ select t.ok((public.employer_my_state()->'orgs'->0->>'domain_verified')::boolean
 select t.as('B');
 alter table t_org add column b uuid;
 update t_org set b = (public.employer_register_org('Beta Labs', 'beta-b.com')->>'org_id')::uuid;
-select t.fails('select public.employer_register_org(''Acme Copy'', ''acme-a.com'')', 'domain_already_registered');
+-- A pending claim does not block the company that owns the domain (see 20261018 hardening).
+select t.ok((public.employer_register_org('Acme Copy', 'acme-a.com')->>'status') = 'pending', 'pending duplicate allowed');
 select t.fails('select public.employer_register_org(''Bad'', ''localhost'')', 'violates check|check constraint');
 reset role;
 insert into public.employer_org_members (org_id, user_id, role) select a, t.id('A2'), 'member' from t_org;
@@ -95,7 +96,9 @@ insert into public.employer_org_members (org_id, user_id, role) select a, t.id('
 -- ── 3. org isolation ─────────────────────────────────────────────────────────
 set role authenticated;
 select t.as('B');
-select t.ok(jsonb_array_length(public.employer_my_state()->'orgs') = 1, 'B sees only its own org');
+select t.ok(jsonb_array_length(public.employer_my_state()->'orgs') = 2
+  and not exists (select 1 from jsonb_array_elements(public.employer_my_state()->'orgs') e where e->>'name' = 'Acme Analytics'),
+  'B sees only its own two organisations (Beta and its pending Acme Copy claim), never A''s');
 select t.ok(public.employer_my_state()->'orgs'->0->>'name' = 'Beta Labs', 'B sees Beta');
 select t.fails(format('select public.employer_save_post(%L, null, t.post())', (select a from t_org)), 'not_a_member');
 
@@ -127,7 +130,7 @@ select t.fails(format('select public.operator_review_post(%L, 99, ''approve'', n
 -- Approval while the org is unverified publishes nothing.
 select t.ok(public.operator_review_post((select p1 from t_p), 1, 'approve', 'ok')->>'state' = 'org_not_verified', 'unverified org blocks publication');
 select t.ok(t.anon_visible((select a from t_org)) = 0, 'nothing public yet');
-select t.fails(format('select public.operator_set_org_status(%L, ''verified'', null)', (select a from t_org)), 'domain_not_verified');
+select t.fails(format('select public.operator_set_org_status(%L, ''verified'', ''name check'')', (select a from t_org)), 'domain_not_verified');
 reset role;
 
 -- ── 6. domain proof (service) then operator verification ─────────────────────
