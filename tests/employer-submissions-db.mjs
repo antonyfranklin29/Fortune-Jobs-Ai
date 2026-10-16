@@ -18,7 +18,13 @@ const enabled = process.env.FJ_PG_DISPOSABLE === '1' && spawnSync('psql', ['--ve
 const db = `fj_employer_test_${process.pid}`;
 const FILES = ['tests/sql/supabase-shim.sql', 'migrations/20261015_ingest_taxonomy.sql',
   'migrations/20261015_ingest_catalogue.sql', 'migrations/20261015_ingest_feed.sql',
-  'migrations/pending/20261016_employer_submissions.sql'];
+  'migrations/pending/20261016_employer_feed_runs.sql',
+  'migrations/pending/20261016_employer_submissions.sql',
+  'migrations/pending/20261017_employer_feed_registry_bridge.sql',
+  'migrations/pending/20261017_employer_feed_publish_hardening.sql',
+  'migrations/pending/20261017_employer_domain_checks.sql',
+  'migrations/pending/20261017_employer_account_deletion.sql',
+  'migrations/pending/20261017_employer_search_visibility.sql'];
 
 const psql = (args, input) => spawnSync('psql', ['-X', '-v', 'ON_ERROR_STOP=1', '-d', db, ...args],
   { cwd: root, input, encoding: 'utf8' });

@@ -78,9 +78,9 @@ The worker intentionally does NOT call ingest_upsert_jobs, any publishing RPC, M
 
 ## Verification
 
-- Full Node suite: **142 passing tests**, including 14 backend/SQL tests, 18 adapter/collector tests and nine combined SQL integration tests.
-- Deno cold-start/entry-point wiring: **3 passing tests**, with no sockets/network. Exercises disabled/auth gates, actual HTTP-to-RPC argument wiring, no credential forwarding to providers, zero publication and a missing registry bridge.
-- Deno entry-point type check passes with the repository's local edge-runtime declaration mapping.
+- Full Node suite: **154 passing tests**, including 14 backend/SQL tests, 18 adapter/collector tests, 16 combined SQL integration tests and Claude's five existing helper/page regression checks.
+- Deno edge tests: **13 passing tests**, with no sockets/network. Includes three worker cold-start tests and ten employer-domain endpoint tests covering identity, atomic claim wiring, byte-limited bodies, status changes, replay invalidation and sanitized upstream failures.
+- Both Deno entry-point type checks pass with the repository's local edge-runtime declaration mapping.
 - All pending migrations execute together in an isolated in-memory PostgreSQL engine (PGlite); these are tests of the actual SQL, not a JavaScript imitation. Effective privileges and actual denied calls are verified. The combined test imports 16 synthetic candidates, publishes zero before selection, then permits 15 selected publications and blocks the 16th.
 - PGlite has one connection. The competing-claim test checks two queued claim attempts and the atomic SQL outcome, not a real multi-client Supabase stress test. Live permission checks, real concurrent transactions and an approved real source remain integration gates.
 - No migration applied to Supabase; no function deployed; no feature flag enabled; no employer data fetched or staged in production; no payments activated.
@@ -92,14 +92,20 @@ npm test
 npm run test:employer-backend
 npx deno check --import-map=tests/deno/import_map.json supabase/functions/employer-feed/index.ts
 npx deno test --allow-env --allow-read --import-map=tests/deno/import_map.json tests/employer-feed-entrypoint.ts
+npx deno test --allow-env --allow-read --import-map=tests/deno/import_map.json tests/employer-submissions-edge.ts
+node scripts/check-employer-search.mjs
 ```
 
 PGlite 0.5.10 is a pinned development dependency for isolated SQL tests, not a website runtime dependency. No account credentials or customer records are used by these tests.
 
 ## Next integration steps (backend only)
 
-1. Review the combined pending migrations and publication hardening. Production account deletion/organization ownership transfer, attribution requirements for the first actual source, query-plan impact and downgrade policy remain activation checks. The original auth-user FKs in Claude's organization tables require explicit account-deletion integration before enabling employer registration.
-2. Apply in dependency order after review: ingest prerequisites; `20261016_employer_feed_runs.sql`; Claude's `20261016_employer_submissions.sql`; `20261017_employer_feed_registry_bridge.sql`; `20261017_employer_feed_publish_hardening.sql`. Validate effective privileges and multi-client lease/publication races in the actual project.
+1. Review the combined pending migrations and publication hardening. Account deletion and query visibility now have tested local integration fixes (see the review report below); production checks, required source attribution and the deferred paid-plan decisions remain activation checks.
+2. Apply in dependency order after review: ingest prerequisites; `20261016_employer_feed_runs.sql`; Claude's `20261016_employer_submissions.sql`; `20261017_employer_feed_registry_bridge.sql`; `20261017_employer_feed_publish_hardening.sql`; `20261017_employer_domain_checks.sql`; `20261017_employer_account_deletion.sql`; `20261017_employer_search_visibility.sql`. Validate effective privileges and multi-client lease/publication races in the actual project. The domain endpoint now requires its new claim/finish RPCs: apply its migration before deploying that endpoint.
 3. Deploy the worker with its feature flag off. Verify unauthorized/disabled gates, then enable only for one actually approved source and perform a bounded private preview/staging run.
 4. Configure the backend retention job. Keep automatic refresh off until its provider allowance, permission window and monitoring destination are established.
 5. The candidate/selection/publication integration passes locally. Before enabling actual public employer jobs, repeat with a permitted source and disposable authorized accounts, including the 15th/16th post, real concurrent publications, duplicate/retry behavior, revocation, attribution/provenance and complete-sweep closure safeguards. Automatic closure is still not connected to the worker.
+
+## Follow-up backend review
+
+See `docs/employer-backend-review-2026-10-15.md` for the domain-check race, auth-user deletion constraints and row-by-row visibility cost found during integration. The fixes are separate pending migrations; Claude's original employer migration remains intact. No frontend activity or live deployment is included.

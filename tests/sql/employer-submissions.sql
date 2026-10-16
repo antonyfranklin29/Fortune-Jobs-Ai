@@ -327,7 +327,8 @@ select t.ok((select count(*) from public.employer_audit where org_id = (select a
 select t.ok(not exists (
   select 1 from pg_proc p where p.pronamespace = 'public'::regnamespace
     and (p.proname like 'employer\_%' or p.proname like 'operator\_%')
-    and has_function_privilege('anon', p.oid, 'execute') and p.proname <> 'employer_listing_visible'), 'anon executes nothing but the visibility check');
+    and has_function_privilege('anon', p.oid, 'execute')
+    and p.proname not in ('employer_listing_visible','employer_public_listing_keys')), 'anon executes only the read-only catalogue visibility helpers');
 select t.ok(not exists (
   select 1 from pg_proc p where p.pronamespace = 'public'::regnamespace
     and p.proname in ('employer_publish_feed_jobs','employer_stage_feed_candidates','employer_close_feed_jobs','employer_mark_domain_verified',

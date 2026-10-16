@@ -16,7 +16,10 @@ before(async()=>{
     'migrations/20261015_ingest_catalogue.sql','migrations/20261015_ingest_feed.sql',
     'migrations/pending/20261016_employer_feed_runs.sql','migrations/pending/20261016_employer_submissions.sql',
     'migrations/pending/20261017_employer_feed_registry_bridge.sql',
-    'migrations/pending/20261017_employer_feed_publish_hardening.sql']){
+    'migrations/pending/20261017_employer_feed_publish_hardening.sql',
+    'migrations/pending/20261017_employer_domain_checks.sql',
+    'migrations/pending/20261017_employer_account_deletion.sql',
+    'migrations/pending/20261017_employer_search_visibility.sql']){
     try{await db.exec(read(path));}catch(e){throw Error(`${path}: ${e.message}`);}
   }
 });
@@ -141,4 +144,106 @@ test('an older private batch cannot overwrite candidates from a newer collected 
   assert.equal((await handler(1)(request())).status,200);
   const result=await store.stage(old.run_id,old.lease_token,1,[row],summary);
   assert.equal(result.reason,'stale_batch');
+});
+
+test('DNS reservations check membership, consume the minute atomically and invalidate stale attempts',async()=>{
+  await seed();await db.query('update public.employer_orgs set domain_verified_at=null where id=$1',[ORG]);
+  await db.query('insert into public.employer_domain_challenges(org_id) values($1)',[ORG]);
+  const unclaimed=(await db.query('select token from public.employer_domain_challenges where org_id=$1',[ORG])).rows[0].token;
+  assert.equal((await call('employer_domain_check_finish',['uuid','uuid','uuid','text','boolean'],[ORG,OWNER,null,unclaimed,true])).state,'invalidated');
+  const begin=user=>call('employer_domain_check_begin',['uuid','uuid'],[ORG,user]);
+  assert.equal((await begin(OPERATOR)).state,'not_found');
+  const first=await begin(OWNER);assert.equal(first.state,'lookup');
+  assert.equal((await begin(OWNER)).state,'rate_limited');
+  const finish=(attempt,token,matched)=>call('employer_domain_check_finish',['uuid','uuid','uuid','text','boolean'],[ORG,OWNER,attempt,token,matched]);
+  assert.equal((await finish(first.attempt_id,'b'.repeat(32),true)).state,'invalidated');
+  assert.equal((await finish(first.attempt_id,first.token,false)).verified,false);
+  assert.equal((await finish(first.attempt_id,first.token,true)).state,'invalidated','completed attempts cannot be replayed');
+  await db.query("update public.employer_domain_challenges set checked_at=now()-interval '2 minutes'");
+  const next=await begin(OWNER);assert.notEqual(next.attempt_id,first.attempt_id);
+  assert.equal((await finish(first.attempt_id,first.token,true)).state,'invalidated');
+  assert.equal((await finish(next.attempt_id,next.token,true)).verified,true);
+  await db.query("update public.employer_orgs set status='suspended' where id=$1",[ORG]);
+  assert.equal((await begin(OWNER)).state,'inactive');
+  assert.equal(await call('employer_mark_domain_verified',['uuid','text'],[ORG,next.token]),false);
+});
+
+test('DNS checks and account-deletion triggers have no anonymous inherited EXECUTE',async()=>{
+  const signatures=['employer_domain_check_begin(uuid,uuid)','employer_domain_check_finish(uuid,uuid,uuid,text,boolean)','employer_before_account_deleted()'];
+  for(const signature of signatures)for(const role of ['anon','authenticated']){
+    assert.equal((await db.query('select has_function_privilege($1,$2,\'EXECUTE\') as allowed',[role,'public.'+signature])).rows[0].allowed,false);
+  }
+});
+
+test('account deletion unlinks employer references, suspends a last-owner org and hides its jobs',async()=>{
+  await seed();await handler(1)(request());await selectJobs(['job-0']);await publish(['job-0']);
+  await db.query("insert into public.employer_source_evidence(source_id,kind,attested_by) values($1,'employer_attestation',$2)",[SOURCE,OWNER]);
+  await db.query("select public.employer_audit_log($1::uuid,'employer',$2::uuid,'org',($2::uuid)::text,'fixture')",[OWNER,ORG]);
+  await call('employer_save_post',['uuid','uuid','jsonb'],[ORG,null,{
+    job_title:'Data Analyst',canonical_role:'data-analyst',state_code:'NJ',city:'Edison',
+    description:'Build dashboards and reports for operations. '.repeat(3),apply_url:'https://synthetic-careers.com/direct-job',
+    posting_date:new Date().toISOString().slice(0,10),closing_date:new Date(Date.now()+86400000*20).toISOString().slice(0,10),
+  }]);
+  await db.query('update public.employer_posts set reviewed_by=$1',[OPERATOR]);
+  await db.query('delete from auth.users where id=$1',[OWNER]);
+  const org=(await db.query('select status,created_by from public.employer_orgs where id=$1',[ORG])).rows[0];
+  assert.equal(org.status,'suspended');assert.equal(org.created_by,null);
+  assert.equal((await db.query('select submitted_by from public.employer_sources')).rows[0].submitted_by,null);
+  assert.equal((await db.query('select selected_by from public.employer_feed_candidates')).rows[0].selected_by,null);
+  assert.equal((await db.query('select attested_by from public.employer_source_evidence')).rows[0].attested_by,null);
+  assert.equal((await db.query('select created_by from public.employer_posts')).rows[0].created_by,null);
+  assert.equal((await db.query('select count(*)::int n from public.employer_audit where actor=$1',[OWNER])).rows[0].n,0);
+  assert.equal((await db.query('select count(*)::int n from public.pre_scraped_jobs')).rows[0].n,1,'retain operational history');
+  await db.exec('set role anon');
+  assert.equal((await db.query('select count(*)::int n from public.pre_scraped_jobs')).rows[0].n,0,'RLS immediately hides orphaned organization');
+  await db.exec('reset role');
+});
+
+test('another active owner keeps a shared company live; an ordinary member does not inherit ownership',async()=>{
+  await seed();const other='44444444-4444-4444-4444-444444444444';
+  await db.query("insert into auth.users(id,email,email_confirmed_at) values($1,'coowner@synthetic-careers.com',now())",[other]);
+  await db.query('insert into public.employer_org_members(org_id,user_id,role) values($1,$2,\'owner\')',[ORG,other]);
+  await db.query('delete from auth.users where id=$1',[OWNER]);
+  assert.equal((await db.query('select status from public.employer_orgs')).rows[0].status,'verified');
+  await db.query("insert into public.employer_org_members(org_id,user_id,role) values($1,$2,'member')",[ORG,OPERATOR]);
+  await db.query('delete from auth.users where id=$1',[other]);
+  assert.equal((await db.query('select status from public.employer_orgs')).rows[0].status,'suspended');
+  assert.equal((await db.query('select role from public.employer_org_members')).rows[0].role,'member');
+});
+
+test('deleting a reviewer unlinks approval safely and requires a new independent review',async()=>{
+  await seed();await db.query('delete from auth.users where id=$1',[OPERATOR]);
+  const source=(await db.query('select status,enabled,approved_by,revision from public.employer_sources')).rows[0];
+  assert.deepEqual(source,{status:'pending',enabled:false,approved_by:null,revision:2});
+  assert.equal(await loadSource(SOURCE),null);
+  assert.equal((await db.query('select status,verified_by from public.employer_orgs')).rows[0].status,'verified');
+});
+
+test('batched visibility exposes only existing public listing keys, with immediate revocation',async()=>{
+  await seed();
+  const publicView=async()=>{
+    await db.exec('set role anon');
+    try{return {keys:(await db.query('select public.employer_public_listing_keys() k')).rows.map(r=>r.k).sort(),
+      titles:(await db.query('select job_title from pre_scraped_jobs order by job_title')).rows.map(r=>r.job_title)};}
+    finally{await db.exec('reset role');}
+  };
+  assert.deepEqual((await publicView()).keys,[],'an approved registry-only source is still private');
+  await handler(1)(request());await selectJobs(['job-0']);await publish(['job-0']);
+  await db.query("insert into pre_scraped_jobs(category,job_title,apply_url,employer_org_id,expires_at) values('Data Analyst','Direct job','https://synthetic-careers.com/direct',$1,now()+interval '1 day')",[ORG]);
+  await db.query("insert into pre_scraped_jobs(category,job_title,apply_url,employer_org_id,employer_source_id,expires_at) values('Data Analyst','Expired job','https://synthetic-careers.com/expired',$1,$2,now()-interval '1 day')",[ORG,SOURCE]);
+  assert.deepEqual(await publicView(),{keys:[ORG+':',ORG+':'+SOURCE],titles:['Data Analyst','Direct job']});
+  await db.query('update employer_sources set allow_display=false where id=$1',[SOURCE]);
+  assert.deepEqual(await publicView(),{keys:[ORG+':'],titles:['Direct job']});
+  await db.query("update employer_orgs set status='suspended' where id=$1",[ORG]);
+  assert.deepEqual(await publicView(),{keys:[],titles:[]});
+});
+
+test('batched RLS never accepts a source belonging to a different organization',async()=>{
+  await seed();const other='55555555-5555-5555-5555-555555555555';
+  await db.query("insert into employer_orgs(id,name,primary_domain,status,created_by) values($1,'Other Synthetic','other-synthetic.com','verified',$2)",[other,OWNER]);
+  await db.query("insert into pre_scraped_jobs(category,job_title,apply_url,employer_org_id,employer_source_id) values('Data Analyst','Cross-org fixture','https://synthetic-careers.com/mismatch',$1,$2)",[other,SOURCE]);
+  await db.exec('set role anon');
+  try{assert.equal((await db.query('select count(*)::int n from pre_scraped_jobs')).rows[0].n,0);
+    assert.equal((await db.query('select public.employer_public_listing_keys() k')).rows.length,0);}
+  finally{await db.exec('reset role');}
 });

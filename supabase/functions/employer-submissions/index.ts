@@ -19,6 +19,35 @@ const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const ALLOWED_ORIGINS = ["https://fortunejobsai.com", "https://www.fortunejobsai.com", "https://antonyfranklin29.github.io"];
 const MAX_BODY_BYTES = 1_000;
 
+async function readBounded(req: Request): Promise<unknown> {
+  if (Number(req.headers.get("content-length") ?? "0") > MAX_BODY_BYTES) throw new RangeError();
+  if (!req.body) throw new SyntaxError();
+  const reader = req.body.getReader();
+  const chunks: Uint8Array[] = []; let total = 0;
+  try {
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > MAX_BODY_BYTES) { await reader.cancel(); throw new RangeError(); }
+      chunks.push(value);
+    }
+  } finally { reader.releaseLock(); }
+  const bytes = new Uint8Array(total); let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+}
+
+async function lookupTxt(name: string): Promise<string[][]> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      Deno.resolveDns(name, "TXT"),
+      new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error("dns_timeout")), 5_000); }),
+    ]);
+  } finally { if (timer !== undefined) clearTimeout(timer); }
+}
+
 function cors(origin: string | null) {
   return {
     "access-control-allow-origin": origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
@@ -60,37 +89,42 @@ export async function handler(req: Request): Promise<Response> {
   if (!user) return json({ error: "sign_in_required" }, 401, origin);
   if (!user.confirmed) return json({ error: "email_not_confirmed" }, 403, origin);
 
-  let body: Record<string, unknown> = {};
-  try { body = JSON.parse((await req.text()).slice(0, MAX_BODY_BYTES)); } catch { return json({ error: "bad_request" }, 400, origin); }
-  if (body.action !== "check_domain" || !isUuid(body.org_id)) return json({ error: "bad_request" }, 400, origin);
+  let parsed: unknown;
+  try { parsed = await readBounded(req); }
+  catch (error) { return json({ error: error instanceof RangeError ? "too_large" : "bad_request" }, error instanceof RangeError ? 413 : 400, origin); }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return json({ error: "bad_request" }, 400, origin);
+  const body = parsed as Record<string, unknown>;
+  if (body.action !== "check_domain" || !isUuid(body.org_id) || Object.keys(body).some(k => !["action", "org_id"].includes(k))) {
+    return json({ error: "bad_request" }, 400, origin);
+  }
   const orgId = String(body.org_id);
-
-  // Membership is checked server-side; a non-member learns nothing about the org.
-  const m = await rest(`/rest/v1/employer_org_members?org_id=eq.${orgId}&user_id=eq.${user.id}&status=eq.active&select=org_id`);
-  if (!m.ok || !(await m.json()).length) return json({ error: "not_found" }, 404, origin);
-  const o = await rest(`/rest/v1/employer_orgs?id=eq.${orgId}&select=primary_domain,status,domain_verified_at`);
-  const org = o.ok ? (await o.json())[0] : null;
-  if (!org) return json({ error: "not_found" }, 404, origin);
-  if (org.domain_verified_at) return json({ verified: true }, 200, origin);
-  if (!["pending", "verified"].includes(org.status)) return json({ error: "organization_inactive" }, 409, origin);
-
-  const c = await rest(`/rest/v1/employer_domain_challenges?org_id=eq.${orgId}&select=token,checked_at`);
-  const ch = c.ok ? (await c.json())[0] : null;
-  if (!ch) return json({ error: "not_found" }, 404, origin);
-  if (ch.checked_at && Date.now() - Date.parse(ch.checked_at) < 60_000) return json({ error: "try_again_in_a_minute" }, 429, origin);
-
-  const name = proofName(org.primary_domain);
-  if (!name) return json({ error: "invalid_domain" }, 409, origin);
-  let records: string[][] = [];
-  try { records = await Deno.resolveDns(name, "TXT"); } catch { records = []; }
-  const matched = proofMatches(records, ch.token);
-
-  // Records the attempt either way (rate limit + audit); sets domain_verified_at only on a match.
-  const r = await rest(`/rest/v1/rpc/employer_mark_domain_verified`, {
-    method: "POST", body: JSON.stringify({ p_org: orgId, p_token: matched ? ch.token : "no-match" }),
-  });
-  if (!r.ok) return json({ error: "temporarily_unavailable" }, 503, origin);
-  return json({ verified: matched, record: name }, 200, origin);
+  try {
+    // Identity is resolved from the user token. The DB atomically checks
+    // membership/status and reserves the minute BEFORE any DNS work starts.
+    const started = await rest("/rest/v1/rpc/employer_domain_check_begin", {
+      method: "POST", body: JSON.stringify({ p_org: orgId, p_user: user.id }),
+    });
+    if (!started.ok) throw new Error("database_unavailable");
+    const claim = await started.json();
+    if (claim?.state === "not_found") return json({ error: "not_found" }, 404, origin);
+    if (claim?.state === "inactive") return json({ error: "organization_inactive" }, 409, origin);
+    if (claim?.state === "rate_limited") return json({ error: "try_again_in_a_minute" }, 429, origin);
+    if (claim?.state === "verified") return json({ verified: true }, 200, origin);
+    if (claim?.state !== "lookup" || !isUuid(claim.attempt_id) || !/^[0-9a-f]{32}$/.test(claim.token)) throw new Error("invalid_claim");
+    const name = proofName(claim.domain);
+    if (!name) return json({ error: "invalid_domain" }, 409, origin);
+    let records: string[][] = [];
+    try { records = await lookupTxt(name); } catch { records = []; }
+    const finished = await rest("/rest/v1/rpc/employer_domain_check_finish", {
+      method: "POST", body: JSON.stringify({ p_org: orgId, p_user: user.id, p_attempt: claim.attempt_id,
+        p_token: claim.token, p_matched: proofMatches(records, claim.token) }),
+    });
+    if (!finished.ok) throw new Error("database_unavailable");
+    const result = await finished.json();
+    if (result?.state === "invalidated") return json({ error: "check_invalidated" }, 409, origin);
+    if (result?.state !== "finished" || typeof result.verified !== "boolean") throw new Error("invalid_result");
+    return json({ verified: result.verified, record: name }, 200, origin);
+  } catch { return json({ error: "temporarily_unavailable" }, 503, origin); }
 }
 
 if (!(globalThis as Record<string, unknown>).__EMPLOYER_TEST__) Deno.serve(handler);

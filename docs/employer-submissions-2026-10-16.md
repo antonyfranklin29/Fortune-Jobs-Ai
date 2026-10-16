@@ -1,5 +1,7 @@
 # Employer submissions and approval — Claude track, handoff for review
 
+**Codex integration update — 2026-10-15:** The original report is preserved below. Worker integration, test registration, account deletion and query visibility now have tested backend fixes. Read `docs/employer-backend-review-2026-10-15.md` and the migration order in `docs/employer-feed-backend-2026-10-15.md` before deployment. The domain endpoint now needs the atomic claim/finish migration. All employer migrations remain pending; the native PostgreSQL results below are Claude's reported run, not a newly reproduced concurrent run. No frontend work was added in the follow-up.
+
 Implements the Claude-owned part of `docs/employer-sourcing-plan-2026-10-15.md` and
 `docs/claude-employer-pricing-update-2026-10-15.md`. **Nothing is applied or deployed.**
 The migration is in `migrations/pending/`, the edge function is not deployed, and

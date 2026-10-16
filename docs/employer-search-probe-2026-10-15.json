@@ -1,0 +1,131 @@
+{
+  "environment": "PGlite single connection; synthetic 50,000 jobs, 100 employers; not production latency",
+  "samples": [
+    {
+      "case": "legacy / old RLS / national",
+      "median_ms": 83.64,
+      "rows": 300,
+      "scan": "includes sequential scan"
+    },
+    {
+      "case": "legacy / new RLS / national",
+      "median_ms": 84.431,
+      "rows": 300,
+      "scan": "includes sequential scan"
+    },
+    {
+      "case": "legacy / old RLS / north_carolina",
+      "median_ms": 96.143,
+      "rows": 300,
+      "scan": "includes sequential scan"
+    },
+    {
+      "case": "legacy / new RLS / north_carolina",
+      "median_ms": 97.577,
+      "rows": 300,
+      "scan": "includes sequential scan"
+    },
+    {
+      "case": "half employer / new RLS / national",
+      "median_ms": 585.675,
+      "rows": 300,
+      "scan": "includes sequential scan"
+    },
+    {
+      "case": "half employer / new RLS / north_carolina",
+      "median_ms": 607.803,
+      "rows": 300,
+      "scan": "includes sequential scan"
+    },
+    {
+      "case": "half employer / batched visibility / national",
+      "median_ms": 117.235,
+      "rows": 300,
+      "scan": "includes sequential scan"
+    },
+    {
+      "case": "half employer / batched visibility / north_carolina",
+      "median_ms": 128.406,
+      "rows": 300,
+      "scan": "includes sequential scan"
+    }
+  ],
+  "visibility": {
+    "total": 50000,
+    "expected": 45769,
+    "anonymous_visible": 45769
+  },
+  "plan": [
+    {
+      "Plan": {
+        "Node Type": "Limit",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 3696.79,
+        "Total Cost": 3696.8,
+        "Plan Rows": 3,
+        "Plan Width": 22,
+        "Disabled": false,
+        "Plans": [
+          {
+            "Node Type": "Sort",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Startup Cost": 3696.79,
+            "Total Cost": 3696.8,
+            "Plan Rows": 3,
+            "Plan Width": 22,
+            "Disabled": false,
+            "Sort Key": [
+              "pre_scraped_jobs.posted_at DESC NULLS LAST"
+            ],
+            "Plans": [
+              {
+                "Node Type": "Seq Scan",
+                "Parent Relationship": "Outer",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Relation Name": "pre_scraped_jobs",
+                "Alias": "pre_scraped_jobs",
+                "Startup Cost": 7.77,
+                "Total Cost": 3696.77,
+                "Plan Rows": 3,
+                "Plan Width": 22,
+                "Disabled": false,
+                "Filter": "((closed_at IS NULL) AND (closed_at IS NULL) AND (country = 'us'::text) AND ((expires_at IS NULL) OR (expires_at > now())) AND ((employer_org_id IS NULL) OR (ANY ((((employer_org_id)::text || ':'::text) || COALESCE(employer_source_id, ''::text)) = (hashed SubPlan 1).col1))) AND (search_text ~~* '%analyst%'::text))",
+                "Plans": [
+                  {
+                    "Node Type": "ProjectSet",
+                    "Parent Relationship": "SubPlan",
+                    "Subplan Name": "SubPlan 1",
+                    "Parallel Aware": false,
+                    "Async Capable": false,
+                    "Startup Cost": 0,
+                    "Total Cost": 5.27,
+                    "Plan Rows": 1000,
+                    "Plan Width": 32,
+                    "Disabled": false,
+                    "Plans": [
+                      {
+                        "Node Type": "Result",
+                        "Parent Relationship": "Outer",
+                        "Parallel Aware": false,
+                        "Async Capable": false,
+                        "Startup Cost": 0,
+                        "Total Cost": 0.01,
+                        "Plan Rows": 1,
+                        "Plan Width": 0,
+                        "Disabled": false
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
