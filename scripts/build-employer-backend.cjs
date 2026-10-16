@@ -6,7 +6,8 @@ const files=['20261016_employer_feed_runs.sql','20261016_employer_submissions.sq
  '20261017_employer_domain_checks.sql','20261017_employer_account_deletion.sql',
  '20261017_employer_search_visibility.sql','20261018_employer_access_hardening.sql',
  '20261019_employer_pending_account_cleanup.sql','20261019_employer_concurrency_hardening.sql',
- '20261020_employer_post_actions.sql'];
+ '20261020_employer_post_actions.sql','20261021_employer_feed_concurrency_hardening.sql',
+ '20261022_employer_paused_post_state.sql'];
 function build(){
  const parts=files.map(name=>{const sql=fs.readFileSync(path.join(root,'migrations/pending',name),'utf8');
   return '-- '+name+' SHA256 '+crypto.createHash('sha256').update(sql).digest('hex')+'\n'+sql.replace(/^\s*(begin|commit);\s*$/gmi,'');});
@@ -34,18 +35,21 @@ notify pgrst,'reload schema';
 commit;
 select 'employer_backend_installed_payments_disabled' as result;\n`;
 }
-// Existing installations receive only these two function updates, never the
-// first-install DDL. No user/company/post row is changed by this transaction.
-function buildUpgrade(){
- const names=['20261019_employer_concurrency_hardening.sql','20261020_employer_post_actions.sql'];
+// Existing installations receive only the selected function updates, never
+// the first-install DDL. No user/company/post row is changed by this transaction.
+function buildUpgrade({feed=false}={}){
+ const names=feed?['20261021_employer_feed_concurrency_hardening.sql','20261022_employer_paused_post_state.sql']
+  :['20261019_employer_concurrency_hardening.sql','20261020_employer_post_actions.sql'];
  const parts=names.map(name=>{const sql=fs.readFileSync(path.join(root,'migrations/pending',name),'utf8');
   return '-- '+name+' SHA256 '+crypto.createHash('sha256').update(sql).digest('hex')+'\n'+sql.replace(/^\s*(begin|commit);\s*$/gmi,'');});
  return `begin;
 set local lock_timeout='5s';
 set local statement_timeout='30s';
 do $$ begin
- if to_regprocedure('public.employer_user_eligible(uuid)') is null then raise exception 'employer access baseline missing'; end if;
- if to_regprocedure('public.employer_lock_post_parties(uuid)') is not null then raise exception 'concurrency upgrade already present; review before applying'; end if;
+ ${feed?`if to_regprocedure('public.employer_lock_post_parties(uuid)') is null then raise exception 'employer concurrency baseline missing'; end if;
+ if position('feed_closed_approver_deleted' in pg_get_functiondef('public.employer_before_account_deleted()'::regprocedure))>0 then raise exception 'feed upgrade already present; review before applying'; end if;`
+ :`if to_regprocedure('public.employer_user_eligible(uuid)') is null then raise exception 'employer access baseline missing'; end if;
+ if to_regprocedure('public.employer_lock_post_parties(uuid)') is not null then raise exception 'concurrency upgrade already present; review before applying'; end if;`}
 end $$;
 create temporary table employer_upgrade_acl on commit drop as
  select p.oid,p.proacl::text as acl from pg_proc p join pg_namespace n on n.oid=p.pronamespace
@@ -68,8 +72,9 @@ do $$ declare helper text; r record; begin
 end $$;
 notify pgrst,'reload schema';
 commit;
-select 'employer_concurrency_upgrade_applied_payments_disabled' as result;
+select '${feed?'employer_feed_upgrade_applied_payments_disabled':'employer_concurrency_upgrade_applied_payments_disabled'}' as result;
 `;
 }
-module.exports={build,files,buildUpgrade};
-if(require.main===module)process.stdout.write(process.argv.includes('--concurrency-upgrade')?buildUpgrade():build());
+const buildFeedUpgrade=()=>buildUpgrade({feed:true});
+module.exports={build,files,buildUpgrade,buildFeedUpgrade};
+if(require.main===module)process.stdout.write(process.argv.includes('--feed-upgrade')?buildFeedUpgrade():process.argv.includes('--concurrency-upgrade')?buildUpgrade():build());

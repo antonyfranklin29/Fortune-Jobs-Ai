@@ -1,5 +1,7 @@
 # Employer feed, revocation, draft and deletion concurrency review
 
+**Codex integration update (October 16):** The original report is preserved below. Its fixes are now integrated and applied with the private paused-state follow-up. Independent PostgreSQL 17.11 runs reproduce the four baseline failures and pass all 31 combined race scenarios. Read [the integration report](employer-feed-integration-2026-10-16.md) for current deployment status, retained approval policy, evidence and remaining scope. The pending/deployment statements below describe the original handoff.
+
 Base: `origin/main` at `7080006`. Branch: `claude/employer-feed-concurrency-review`.
 Database: PostgreSQL 17.10 (embedded binaries, loopback, disposable cluster). Each scenario runs in its own database cloned from a migrated template, with independent backend sessions. A session counts as blocked when `pg_stat_activity` reports `wait_event_type = 'Lock'`.
 

@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-10-16T22:28:56.889Z",
+  "credential": "publishable key only",
+  "results": [
+    {
+      "name": "private state",
+      "status": 401,
+      "code": "42501",
+      "expected": 401
+    },
+    {
+      "name": "keep preference",
+      "status": 401,
+      "code": "42501",
+      "expected": 401
+    },
+    {
+      "name": "private companies",
+      "status": 401,
+      "code": "42501",
+      "expected": 401
+    },
+    {
+      "name": "public catalogue",
+      "status": 200,
+      "code": null,
+      "expected": 200
+    }
+  ]
+}

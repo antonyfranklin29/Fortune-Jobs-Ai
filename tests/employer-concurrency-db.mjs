@@ -35,7 +35,8 @@ const CHAIN = [
   'migrations/pending/20261019_employer_pending_account_cleanup.sql',
   ...(FIX ? ['migrations/pending/20261019_employer_concurrency_hardening.sql',
     'migrations/pending/20261020_employer_post_actions.sql',
-    'migrations/pending/20261021_employer_feed_concurrency_hardening.sql'] : []),
+    'migrations/pending/20261021_employer_feed_concurrency_hardening.sql',
+    'migrations/pending/20261022_employer_paused_post_state.sql'] : []),
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -396,6 +397,7 @@ async function fixtureDb(tag) {
 }
 
 test('employer concurrency review: deterministic interleavings', { skip: !enabled && 'set FJ_PG_DISPOSABLE=1 with a disposable PostgreSQL 16' }, async (t) => {
+  assert.equal(new Set(CHAIN).size,CHAIN.length,'migration chain must not repeat a file');
   spawnSync('dropdb', ['--if-exists', TPL]);
   assert.equal(spawnSync('createdb', [TPL]).status, 0, 'createdb template');
   t.after(() => spawnSync('dropdb', ['--if-exists', TPL]));

@@ -9,7 +9,7 @@ import {normalizeEmployerJob} from '../supabase/functions/employer-feed/lib.mjs'
 import {compileRoles,regionIndex} from '../supabase/functions/job-ingest/lib.mjs';
 import {ROLES,REGIONS} from '../supabase/functions/job-ingest/config.mjs';
 import {createRequire} from 'node:module';
-const {build:buildEmployerBackend,buildUpgrade,files:employerMigrations}=createRequire(import.meta.url)('../scripts/build-employer-backend.cjs');
+const {build:buildEmployerBackend,buildUpgrade,buildFeedUpgrade,files:employerMigrations}=createRequire(import.meta.url)('../scripts/build-employer-backend.cjs');
 let db;
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 before(async()=>{
@@ -25,7 +25,9 @@ before(async()=>{
     'migrations/pending/20261018_employer_access_hardening.sql',
     'migrations/pending/20261019_employer_pending_account_cleanup.sql',
     'migrations/pending/20261019_employer_concurrency_hardening.sql',
-    'migrations/pending/20261020_employer_post_actions.sql']){
+    'migrations/pending/20261020_employer_post_actions.sql',
+    'migrations/pending/20261021_employer_feed_concurrency_hardening.sql',
+    'migrations/pending/20261022_employer_paused_post_state.sql']){
     try{await db.exec(read(path));}catch(e){throw Error(`${path}: ${e.message}`);}
   }
 });
@@ -351,7 +353,7 @@ test('incremental deployment preserves existing records and grants; refuses a re
   const isolated=await PGlite.create();
   try{
     for(const file of ['tests/sql/supabase-shim.sql','migrations/20261015_ingest_taxonomy.sql','migrations/20261015_ingest_catalogue.sql','migrations/20261015_ingest_feed.sql',
-      ...employerMigrations.slice(0,-2).map(name=>'migrations/pending/'+name)])await isolated.exec(read(file));
+      ...employerMigrations.slice(0,employerMigrations.indexOf('20261019_employer_concurrency_hardening.sql')).map(name=>'migrations/pending/'+name)])await isolated.exec(read(file));
     await isolated.exec(`insert into auth.users(id,email,email_confirmed_at) values('${OWNER}','synthetic@synthetic-careers.com',now());
       insert into employer_orgs(id,name,primary_domain,status,created_by) values('${ORG}','Existing synthetic company','synthetic-careers.com','pending','${OWNER}');
       insert into pre_scraped_jobs(category,job_title,apply_url) values('Data Analyst','Existing job','https://synthetic.com/legacy');`);
@@ -361,6 +363,41 @@ test('incremental deployment preserves existing records and grants; refuses a re
     assert.equal((await isolated.query('select count(*)::int n from pre_scraped_jobs')).rows[0].n,1);
     assert.equal((await isolated.query("select has_function_privilege('anon','public.employer_my_state()','EXECUTE') allowed")).rows[0].allowed,false);
     assert.equal((await isolated.query("select has_function_privilege('authenticated','public.employer_my_state()','EXECUTE') allowed")).rows[0].allowed,true);
+    await isolated.exec(buildFeedUpgrade());
+    assert.equal((await isolated.query('select count(*)::int n from employer_orgs')).rows[0].n,1);
+    assert.equal((await isolated.query('select count(*)::int n from pre_scraped_jobs')).rows[0].n,1);
+    assert.equal((await isolated.query("select has_function_privilege('anon','public.employer_set_keep_on_downgrade(uuid,boolean)','EXECUTE') allowed")).rows[0].allowed,false);
+    assert.equal((await isolated.query("select has_function_privilege('authenticated','public.employer_set_keep_on_downgrade(uuid,boolean)','EXECUTE') allowed")).rows[0].allowed,true);
+    await assert.rejects(isolated.exec(buildFeedUpgrade()),/feed upgrade already present/);await isolated.exec('rollback');
     await assert.rejects(isolated.exec(buildUpgrade()),/upgrade already present/);await isolated.exec('rollback');
   }finally{await isolated.close();}
+});
+
+test('company suspension shows paused listings; re-verification needs a deliberate reactivation',async()=>{
+  const id=await directPost();
+  await call('operator_set_org_status',['uuid','text','text'],[ORG,'suspended','Synthetic company review']);
+  let state=await ownerPostState();assert.equal(state.status,'paused');assert.equal(state.can_activate,false);
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)",[OPERATOR]);
+  await call('operator_set_org_status',['uuid','text','text'],[ORG,'verified','Synthetic company identity rechecked']);
+  state=await ownerPostState();assert.equal(state.status,'paused');assert.equal(state.can_activate,true);
+  assert.equal((await db.query('select count(*)::int n from pre_scraped_jobs where closed_at is null')).rows[0].n,0);
+  assert.equal((await call('employer_activate_post',['uuid'],[id])).published,true);
+  assert.equal((await ownerPostState()).status,'published');
+});
+
+test('deleted source approver frees allowance; re-approval cannot publish old candidates',async()=>{
+  await seed();await handler(1)(request());await selectJobs(['job-0']);await publish(['job-0']);
+  await db.query('delete from auth.users where id=$1',[OPERATOR]);
+  assert.equal((await db.query('select public.employer_active_count($1) n',[ORG])).rows[0].n,0);
+  assert.equal((await db.query('select count(*)::int n from pre_scraped_jobs where closed_at is null')).rows[0].n,0);
+  const reviewer='88888888-8888-8888-8888-888888888888';
+  await db.query("insert into auth.users(id,email,email_confirmed_at) values($1,'new-reviewer@synthetic-review.com',now())",[reviewer]);
+  await db.query('insert into employer_operators(user_id) values($1)',[reviewer]);
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)",[reviewer]);
+  const approved=await call('operator_review_source',['text','integer','text','text[]','text','boolean','timestamptz','text','text'],
+    [SOURCE,2,'approve',['jobs.lever.co'],'Synthetic Employer',false,new Date(Date.now()+86400000*30).toISOString(),'fixture-new-permission','Synthetic permission rechecked']);
+  assert.equal(approved.revision,3);
+  const stale=await publish(['job-0'],3);assert.equal(stale.published,0);assert.equal(stale.skipped[0].reason,'stale_candidate_revision');
+  await handler(1)(request());await selectJobs(['job-0']);
+  assert.equal((await publish(['job-0'],3)).published,1);
 });

@@ -1,0 +1,285 @@
+{
+  "date": "2026-10-16",
+  "server": "PostgreSQL 17.11 on disposable loopback Windows cluster",
+  "production": "17.6 checked via read-only dashboard query",
+  "baseline": {
+    "fix": false,
+    "results": [
+      {
+        "name": "F01 publish parked, revocation queued behind it",
+        "expected": "revocation after an in-flight publish leaves no open or visible job from the source",
+        "observed": "publish: {\"limit\":15,\"state\":null,\"skipped\":[],\"updated\":0,\"published\":1,\"blocked_quota\":0}; revoke closed: 1; open 0; visible to anon 0",
+        "pass": true
+      },
+      {
+        "name": "F02 revocation and publish both queued on the org lock",
+        "expected": "queued revoke and publish end with no open or visible job from the source",
+        "observed": "revoke: 0; publish: ERROR P0001: source_not_publishable; open 0; visible 0",
+        "pass": true
+      },
+      {
+        "name": "F03 shared 15-slot quota: manual and feed publishers",
+        "expected": "manual and feed listings together take one slot; active count 15",
+        "observed": "manual: {\"id\":\"f1e9918b-cc6c-4471-ada7-1b47162ada16\",\"job_id\":15,\"pu; feed published 0, blocked 2; active 15",
+        "pass": true
+      },
+      {
+        "name": "F04 edit committed while approval of the prior revision is queued",
+        "expected": "approval of revision 1 never publishes the edited revision 2 text",
+        "observed": "edit completed before approval released: true; approval: ERROR P0001: revision_changed; revision 2, reviewed null; live edited text 0",
+        "pass": true
+      },
+      {
+        "name": "F05 live post edited: listing stays on approved text",
+        "expected": "live post edits stay private until re-approved; activation refused with review_required",
+        "observed": "activation: ERROR P0001: review_required; open jobs 1; listing carries edit 0",
+        "pass": true
+      },
+      {
+        "name": "F06 approved post edited: old approval not usable",
+        "expected": "an edited approved post cannot publish on its old approval",
+        "observed": "activation: ERROR P0001: review_required; direct publish: ERROR P0001: revision_not_approved; open jobs 0",
+        "pass": true
+      },
+      {
+        "name": "F07 keep-on-downgrade committed during a downgrade",
+        "expected": "a keep choice committed during a downgrade is honoured; active count at most 15",
+        "observed": "keep committed before downgrade finished: true; downgrade: {\"limit\":15,\"state\":\"paused_excess\",\"paused\":2}; post 15 keep|status true|paused; active 14",
+        "pass": false
+      },
+      {
+        "name": "F08 downgrade parked, manual publish queued behind it",
+        "expected": "publish after a downgrade respects the free allowance; active count at most 15",
+        "observed": "downgrade: {\"limit\":15,\"state\":\"paused_excess\",\"paused\":2}; publish: {\"id\":\"98825f48-0024-40f0-abb0-5757c0a20c6c\",\"job_id\":17,\"published\":t; active 15",
+        "pass": true
+      },
+      {
+        "name": "F09 submitting owner deleted during a feed publish",
+        "expected": "owner deletion during a feed publish: no deadlock, publish completes, org stays verified",
+        "observed": "publish: {\"limit\":15,\"state\":null,\"skipped\":[],\"updated\":0,\"published\":1,\"blocked_quota\":; deletion: ok; open feed jobs 1; org verified",
+        "pass": true
+      },
+      {
+        "name": "F10 approving operator deleted: feed listings closed",
+        "expected": "a source demoted by approver deletion has no open feed listing and holds no allowance",
+        "observed": "published 1; deletion: ok; source pending|false; open feed jobs 1; visible 0; active 1",
+        "pass": false
+      },
+      {
+        "name": "F11 last owner deleted: live listing closed",
+        "expected": "last owner deleted: org suspended and its open listing closed",
+        "observed": "deletion: ok; org suspended; open listings 1; active 1",
+        "pass": false
+      },
+      {
+        "name": "F12 revocation and owner deletion queued together",
+        "expected": "revocation and owner deletion queued together: no deadlock, no open or visible job",
+        "observed": "revoke: 1; deletion: ok; open 0; visible 0",
+        "pass": true
+      },
+      {
+        "name": "F13 re-verification after suspension does not revive listing",
+        "expected": "re-verification does not revive the pre-suspension listing",
+        "observed": "re-verify: ok; visible 1; open 1",
+        "pass": false
+      }
+    ]
+  },
+  "fixed": {
+    "fix": true,
+    "results": [
+      {
+        "name": "F01 publish parked, revocation queued behind it",
+        "expected": "revocation after an in-flight publish leaves no open or visible job from the source",
+        "observed": "publish: {\"limit\":15,\"state\":null,\"skipped\":[],\"updated\":0,\"published\":1,\"blocked_quota\":0}; revoke closed: 1; open 0; visible to anon 0",
+        "pass": true
+      },
+      {
+        "name": "F02 revocation and publish both queued on the org lock",
+        "expected": "queued revoke and publish end with no open or visible job from the source",
+        "observed": "revoke: 0; publish: ERROR P0001: source_not_publishable; open 0; visible 0",
+        "pass": true
+      },
+      {
+        "name": "F03 shared 15-slot quota: manual and feed publishers",
+        "expected": "manual and feed listings together take one slot; active count 15",
+        "observed": "manual: {\"id\":\"b5fd9faf-c16b-41a3-9ca3-72dc08d212ca\",\"job_id\":15,\"pu; feed published 0, blocked 2; active 15",
+        "pass": true
+      },
+      {
+        "name": "F04 edit committed while approval of the prior revision is queued",
+        "expected": "approval of revision 1 never publishes the edited revision 2 text",
+        "observed": "edit completed before approval released: true; approval: ERROR P0001: revision_changed; revision 2, reviewed null; live edited text 0",
+        "pass": true
+      },
+      {
+        "name": "F05 live post edited: listing stays on approved text",
+        "expected": "live post edits stay private until re-approved; activation refused with review_required",
+        "observed": "activation: ERROR P0001: review_required; open jobs 1; listing carries edit 0",
+        "pass": true
+      },
+      {
+        "name": "F06 approved post edited: old approval not usable",
+        "expected": "an edited approved post cannot publish on its old approval",
+        "observed": "activation: ERROR P0001: review_required; direct publish: ERROR P0001: revision_not_approved; open jobs 0",
+        "pass": true
+      },
+      {
+        "name": "F07 keep-on-downgrade committed during a downgrade",
+        "expected": "a keep choice committed during a downgrade is honoured; active count at most 15",
+        "observed": "keep committed before downgrade finished: false; downgrade: {\"limit\":15,\"state\":\"paused_excess\",\"paused\":2}; post 15 keep|status true|paused; active 14",
+        "pass": true
+      },
+      {
+        "name": "F08 downgrade parked, manual publish queued behind it",
+        "expected": "publish after a downgrade respects the free allowance; active count at most 15",
+        "observed": "downgrade: {\"limit\":15,\"state\":\"paused_excess\",\"paused\":2}; publish: {\"id\":\"fc4c43a2-3c59-4130-93a0-5a29e04796b2\",\"job_id\":17,\"published\":t; active 15",
+        "pass": true
+      },
+      {
+        "name": "F09 submitting owner deleted during a feed publish",
+        "expected": "owner deletion during a feed publish: no deadlock, publish completes, org stays verified",
+        "observed": "publish: {\"limit\":15,\"state\":null,\"skipped\":[],\"updated\":0,\"published\":1,\"blocked_quota\":; deletion: ok; open feed jobs 1; org verified",
+        "pass": true
+      },
+      {
+        "name": "F10 approving operator deleted: feed listings closed",
+        "expected": "a source demoted by approver deletion has no open feed listing and holds no allowance",
+        "observed": "published 1; deletion: ok; source pending|false; open feed jobs 0; visible 0; active 0",
+        "pass": true
+      },
+      {
+        "name": "F11 last owner deleted: live listing closed",
+        "expected": "last owner deleted: org suspended and its open listing closed",
+        "observed": "deletion: ok; org suspended; open listings 0; active 0",
+        "pass": true
+      },
+      {
+        "name": "F12 revocation and owner deletion queued together",
+        "expected": "revocation and owner deletion queued together: no deadlock, no open or visible job",
+        "observed": "revoke: 1; deletion: ok; open 0; visible 0",
+        "pass": true
+      },
+      {
+        "name": "F13 re-verification after suspension does not revive listing",
+        "expected": "re-verification does not revive the pre-suspension listing",
+        "observed": "re-verify: ok; visible 0; open 0",
+        "pass": true
+      },
+      {
+        "name": "F14 keep choice and post creator deletion",
+        "expected": "keep choice and creator deletion both succeed without a deadlock",
+        "observed": "keep: ok; deletion: ok; kept true; creator remaining 0",
+        "pass": true
+      },
+      {
+        "name": "F15 downgrade and owner deletion",
+        "expected": "downgrade and creator deletion both succeed, active jobs at most 15",
+        "observed": "downgrade: {\"limit\":15,\"state\":\"paused_excess\",\"paused\":2}; deletion: ok; active 14; creator remaining 0",
+        "pass": true
+      }
+    ]
+  },
+  "core": {
+    "fix": true,
+    "results": [
+      {
+        "name": "S01 ban before activation (control)",
+        "expected": "activation refused with account_banned; no job",
+        "observed": "ERROR 42501: account_banned",
+        "pass": true
+      },
+      {
+        "name": "S02 ban during in-flight activation",
+        "expected": "if the ban committed before the publish committed, the publish must be refused",
+        "observed": "ban committed while publish waited: false; publish: {\"id\":\"bbaafff8-698d-4ab9-9463-227287a1f20e\",\"job_id\":1,\"published\":true}; open jobs: 1",
+        "pass": true
+      },
+      {
+        "name": "S03 owner close vs publish (unpublished approved post)",
+        "expected": "after the owner closes, no open job remains for the post",
+        "observed": "post status closed; open jobs 0",
+        "pass": true
+      },
+      {
+        "name": "S04 operator close vs publish (unpublished approved post)",
+        "expected": "operator close is final: post closed and no open job",
+        "observed": "post status closed; open jobs 0",
+        "pass": true
+      },
+      {
+        "name": "S05 operator review vs owner close: lock order",
+        "expected": "review and owner close both complete without database errors",
+        "observed": "both completed",
+        "pass": true
+      },
+      {
+        "name": "S06 operator close vs owner re-activation of live post: lock order",
+        "expected": "operator close wins without deadlock and leaves no open job",
+        "observed": "closed with no job: true",
+        "pass": true
+      },
+      {
+        "name": "S07 owner deletion after approval queued (approval first)",
+        "expected": "approval publishes, deletion succeeds, org stays verified (X still owns it)",
+        "observed": "approval: {\"id\":\"c64b1d60-42a7-48ef-a114-86ca96c62dd4\",\"job_id\":1,\"published\":true}; deletion: ok; open jobs 1; org verified",
+        "pass": true
+      },
+      {
+        "name": "S08 owner deletion first, approval queued behind it",
+        "expected": "deletion of a post creator neither deadlocks nor blocks approval",
+        "observed": "approval: {\"id\":\"03aaf409-0978-4864-94ef-4ec45d724419\",\"job_id\":1,\"published\":true}; open jobs 1; org verified",
+        "pass": true
+      },
+      {
+        "name": "S09 last owner deleted, approval queued (deletion first)",
+        "expected": "last owner deleted: org suspended, no new listing for it",
+        "observed": "org suspended; open jobs 0",
+        "pass": true
+      },
+      {
+        "name": "S10 last owner deleted after approval (approval first)",
+        "expected": "approved-then-deleted org: suspended, its listings hidden from anonymous visitors",
+        "observed": "org suspended; anonymous visible rows 0",
+        "pass": true
+      },
+      {
+        "name": "S11a two owners deleted concurrently, A first",
+        "expected": "both owners deleted: org suspended exactly once, no active owner, no error",
+        "observed": "org suspended; active owners 0; suspension audit rows 1; errors: false",
+        "pass": true
+      },
+      {
+        "name": "S11b two owners deleted concurrently, X first",
+        "expected": "both owners deleted: org suspended exactly once, no active owner, no error",
+        "observed": "org suspended; active owners 0; suspension audit rows 1; errors: false",
+        "pass": true
+      },
+      {
+        "name": "S12a two companies verify one domain, C1 first",
+        "expected": "exactly one verified; the loser gets domain_already_claimed",
+        "observed": "verified 1; loser: ERROR P0001: domain_already_claimed",
+        "pass": true
+      },
+      {
+        "name": "S12b two companies verify one domain, C2 first",
+        "expected": "exactly one verified; the loser gets domain_already_claimed",
+        "observed": "verified 1; loser: ERROR P0001: domain_already_claimed",
+        "pass": true
+      },
+      {
+        "name": "S13 quota at 14 with three concurrent publishers",
+        "expected": "one publish takes the 15th slot, two get upgrade_required, active count 15",
+        "observed": "published 1, upgrade_required 2, active 15",
+        "pass": true
+      },
+      {
+        "name": "S16 owner re-activates an operator-closed post",
+        "expected": "owner activation refused after an operator close; no open job",
+        "observed": "ERROR P0001: review_required; open jobs 0",
+        "pass": true
+      }
+    ]
+  },
+  "note": "The original 13 scenarios reproduce four baseline failures. F14/F15 are additional regressions that pass on the reviewed org-lock design; F14 is not applicable before that lock exists. This is deterministic interleaving coverage, not a production load test."
+}

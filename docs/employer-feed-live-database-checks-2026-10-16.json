@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-10-16T22:29:58.077Z",
+  "source": "Read-only Supabase SQL metadata after committed feed update",
+  "preflightApplyURLUnique": true,
+  "checks": [
+    {
+      "check": "Feed deletion cleanup",
+      "result": "Installed"
+    },
+    {
+      "check": "Paused job labels",
+      "result": "Installed"
+    },
+    {
+      "check": "Anonymous private RPCs",
+      "result": "0"
+    },
+    {
+      "check": "Private table grants",
+      "result": "0"
+    },
+    {
+      "check": "Paid publishing",
+      "result": "false"
+    },
+    {
+      "check": "Open catalogue jobs",
+      "result": "736"
+    },
+    {
+      "check": "Companies / reviewers",
+      "result": "0 / 0"
+    },
+    {
+      "check": "PostgreSQL",
+      "result": "17.6"
+    }
+  ]
+}

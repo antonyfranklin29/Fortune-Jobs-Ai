@@ -5,7 +5,7 @@
 //   FJ_PG_DISPOSABLE=1 PGHOST=127.0.0.1 PGPORT=54417 PGUSER=postgres node --test tests/employer-feed-concurrency-db.mjs
 //
 //   Default: the current main chain (through 20261020) plus the feed concurrency fix in
-//            migrations/pending/20261021_employer_feed_concurrency_hardening.sql (if it exists).
+//            migrations 20261021 and 20261022.
 //   FJ_FEED_FIX=0: the baseline, main chain only. Expected to show the failing interleavings.
 //   FJ_CONC_RESULTS=/path/results.json  writes per-scenario results.
 //
@@ -15,12 +15,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import pg from 'pg';
-import { existsSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const enabled = process.env.FJ_PG_DISPOSABLE === '1' && spawnSync('psql', ['--version']).status === 0;
 const FEED_FIX = process.env.FJ_FEED_FIX !== '0';
+const REVIEW_FIX = process.env.FJ_FEED_REVIEW_FIX !== '0';
 const FIX_FILE = 'migrations/pending/20261021_employer_feed_concurrency_hardening.sql';
 const TPL = `fj_feed_tpl_${process.pid}`;
 
@@ -40,7 +41,8 @@ const CHAIN = [
   'migrations/pending/20261019_employer_pending_account_cleanup.sql',
   'migrations/pending/20261019_employer_concurrency_hardening.sql',
   'migrations/pending/20261020_employer_post_actions.sql',
-  ...(FEED_FIX && existsSync(root + FIX_FILE) ? [FIX_FILE] : []),
+  ...(FEED_FIX ? [FIX_FILE] : []),
+  ...(FEED_FIX ? ['migrations/pending/20261022_employer_paused_post_state.sql'] : []),
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -178,7 +180,7 @@ async function f01PublishParkedThenRevoke(c) {
   const [p, r] = await Promise.all([pub, rv]);
   const open = await openFeedJobs(c, f.src);
   const vis = await anonVisible(c, `employer_source_id = '${f.src}'`);
-  const pass = !hasDeadlock(p, r) && open === 0 && vis === 0 && !hasError(r);
+  const pass = !hasError(p, r) && parseJson(p)?.published === 1 && open === 0 && vis === 0;
   return { expected: 'revocation after an in-flight publish leaves no open or visible job from the source',
     observed: `publish: ${p.split('\n').pop().slice(0, 100)}; revoke closed: ${r.split('\n').pop().slice(0, 60)}; open ${open}; visible to anon ${vis}`, pass };
 }
@@ -197,7 +199,7 @@ async function f02RevokeAndPublishQueued(c) {
   const [r, p] = await Promise.all([rv, pub]);
   const open = await openFeedJobs(c, f.src);
   const vis = await anonVisible(c, `employer_source_id = '${f.src}'`);
-  const pass = !hasDeadlock(r, p) && open === 0 && vis === 0;
+  const pass = !hasError(r) && (!hasError(p) || /source_not_publishable/.test(p)) && open === 0 && vis === 0;
   return { expected: 'queued revoke and publish end with no open or visible job from the source',
     observed: `revoke: ${r.split('\n').pop().slice(0, 70)}; publish: ${p.split('\n').pop().slice(0, 90)}; open ${open}; visible ${vis}`, pass };
 }
@@ -300,7 +302,7 @@ async function f07KeepDuringDowngrade(c) {
   const [d, k] = await Promise.all([dg, keep]);
   const flags = await c.q(`select keep_on_downgrade || '|' || status from public.employer_posts where id = '${ids[14]}'`);
   const active = await activeCount(c, c.map.ORG_A);
-  const pass = active <= 15 && !(keepDone && flags.startsWith('true|paused')) && !hasError(d);
+  const pass = active <= 15 && !(keepDone && flags.startsWith('true|paused')) && !hasError(d,k);
   return { expected: 'a keep choice committed during a downgrade is honoured; active count at most 15',
     observed: `keep committed before downgrade finished: ${keepDone}; downgrade: ${d.split('\n').pop().slice(0, 90)}; post 15 keep|status ${flags}; active ${active}`, pass };
 }
@@ -320,7 +322,7 @@ async function f08DowngradeThenPublish(c) {
   await hold.run('commit;');
   const [d, p] = await Promise.all([dg, pub]);
   const active = await activeCount(c, c.map.ORG_A);
-  const pass = active <= 15 && !hasDeadlock(d, p) && !hasError(d);
+  const pass = active <= 15 && !hasError(d,p);
   return { expected: 'publish after a downgrade respects the free allowance; active count at most 15',
     observed: `downgrade: ${d.split('\n').pop().slice(0, 90)}; publish: ${p.split('\n').pop().slice(0, 70)}; active ${active}`, pass };
 }
@@ -355,7 +357,7 @@ async function f10ApproverDeletedLeavesFeedJobs(c) {
   const open = await openFeedJobs(c, f.src);
   const vis = await anonVisible(c, `employer_source_id = '${f.src}'`);
   const active = await activeCount(c, c.map.ORG_A);
-  const pass = before === 1 && !hasError(del) && open === 0 && vis === 0 && active === 0;
+  const pass = before === 1 && !hasError(del) && status === 'pending|false' && open === 0 && vis === 0 && active === 0;
   return { expected: 'a source demoted by approver deletion has no open feed listing and holds no allowance',
     observed: `published ${parseJson(p)?.published}; deletion: ${del.slice(0, 60) || 'ok'}; source ${status}; open feed jobs ${open}; visible ${vis}; active ${active}`, pass };
 }
@@ -387,7 +389,7 @@ async function f12RevokeAndOwnerDeletion(c) {
   const [r, d] = await Promise.all([rv, del]);
   const open = await openFeedJobs(c, f.src);
   const vis = await anonVisible(c, `employer_source_id = '${f.src}'`);
-  const pass = !hasDeadlock(r, d) && !hasError(r) && open === 0 && vis === 0;
+  const pass = !hasError(r, d) && open === 0 && vis === 0;
   return { expected: 'revocation and owner deletion queued together: no deadlock, no open or visible job',
     observed: hasDeadlock(r, d) ? 'deadlock detected' : `revoke: ${r.split('\n').pop().slice(0, 60)}; deletion: ${d.slice(0, 40) || 'ok'}; open ${open}; visible ${vis}`, pass };
 }
@@ -401,9 +403,44 @@ async function f13ReverifyDoesNotRevive(c) {
   const re = await op.run(`select public.operator_set_org_status('${c.map.ORG_B}', 'verified', 'Re-checked: Beta Labs owns beta-b.com')`);
   const vis = await anonVisible(c, `employer_post_id = '${post}'`);
   const open = await openJobs(c, post);
-  const pass = vis === 0 && open === 0;
+  const org=await c.q(`select status from employer_orgs where id='${c.map.ORG_B}'`);
+  const pass = !hasError(re) && org === 'verified' && vis === 0 && open === 0;
   return { expected: 're-verification does not revive the pre-suspension listing',
     observed: `re-verify: ${re.split('\n').pop().slice(0, 60) || 'ok'}; visible ${vis}; open ${open}`, pass };
+}
+
+// Additional regression probes for the new preference lock and the existing
+// downgrade path. These interleavings pass with Claude's fix: no extra locking
+// change is justified by these tests.
+async function f14KeepAndCreatorDeletion(c) {
+  const post=await mkLive(c,'A',c.map.ORG_A,1401,'f14');
+  const hold=c.raw();await hold.run(`begin; select public.employer_lock_org('${c.map.ORG_A}');`);
+  const keep=(await c.actor('X')).run(`select public.employer_set_keep_on_downgrade('${post}',true)`);
+  await until(async()=>(await c.lockWaits())>=1);
+  const del=c.raw().run(`delete from auth.users where id='${c.map.A}'`);
+  await until(async()=>(await c.lockWaits())>=2);
+  await hold.run('commit');const [k,d]=await Promise.all([keep,del]);
+  const flag=await c.q(`select keep_on_downgrade from employer_posts where id='${post}'`);
+  const remaining=num(await c.q(`select count(*) from auth.users where id='${c.map.A}'`));
+  return {expected:'keep choice and creator deletion both succeed without a deadlock',
+    observed:`keep: ${k||'ok'}; deletion: ${d||'ok'}; kept ${flag}; creator remaining ${remaining}`,
+    pass:!hasError(k,d)&&flag==='true'&&remaining===0};
+}
+
+async function f15DowngradeAndOwnerDeletion(c) {
+  const ids=await sixteenLive(c);
+  const job=await c.q(`select published_job_id from employer_posts where id='${ids[15]}'`);
+  const hold=c.raw();await hold.run(`begin; select 1 from pre_scraped_jobs where id=${job} for update;`);
+  const downgrade=c.raw().run(`set role service_role; select public.employer_apply_downgrade('${c.map.ORG_A}'); reset role;`);
+  await until(async()=>(await c.lockWaits())>=1);
+  const del=c.raw().run(`delete from auth.users where id='${c.map.A}'`);
+  await until(async()=>(await c.lockWaits())>=2);
+  await hold.run('commit');const [dg,d]=await Promise.all([downgrade,del]);
+  const active=await activeCount(c,c.map.ORG_A);
+  const remaining=num(await c.q(`select count(*) from auth.users where id='${c.map.A}'`));
+  return {expected:'downgrade and creator deletion both succeed, active jobs at most 15',
+    observed:`downgrade: ${dg}; deletion: ${d||'ok'}; active ${active}; creator remaining ${remaining}`,
+    pass:!hasError(dg,d)&&active<=15&&remaining===0};
 }
 
 const SCENARIOS = [
@@ -420,6 +457,8 @@ const SCENARIOS = [
   ['F11 last owner deleted: live listing closed', f11LastOwnerDeletedLeavesListing],
   ['F12 revocation and owner deletion queued together', f12RevokeAndOwnerDeletion],
   ['F13 re-verification after suspension does not revive listing', f13ReverifyDoesNotRevive],
+  ['F14 keep choice and post creator deletion', f14KeepAndCreatorDeletion],
+  ['F15 downgrade and owner deletion', f15DowngradeAndOwnerDeletion],
 ];
 
 async function fixtureDb(tag) {
@@ -432,6 +471,7 @@ async function fixtureDb(tag) {
 }
 
 test('employer feed, revocation, draft and deletion interleavings', { skip: !enabled && 'set FJ_PG_DISPOSABLE=1 with a disposable PostgreSQL 17' }, async (t) => {
+  assert.equal(new Set(CHAIN).size,CHAIN.length,'migration chain must not repeat a file');
   spawnSync('dropdb', ['--if-exists', '--force', TPL]);
   assert.equal(spawnSync('createdb', [TPL]).status, 0, 'createdb template');
   t.after(() => spawnSync('dropdb', ['--if-exists', '--force', TPL]));
@@ -441,7 +481,10 @@ test('employer feed, revocation, draft and deletion interleavings', { skip: !ena
   }
   const results = [];
   const only = process.env.FJ_CONC_ONLY;
-  for (const [name, fn] of SCENARIOS.filter(([n]) => !only || n.startsWith(only))) {
+  // F14/F15 are follow-up regressions on the reviewed lock design. In
+  // particular F14 requires the org lock that did not exist before 20261021.
+  for (const [name, fn] of SCENARIOS.filter(([n]) => (!only || n.startsWith(only))
+    && (FEED_FIX || (!n.startsWith('F14 ') && !n.startsWith('F15 '))))) {
     const tag = name.split(' ')[0].toLowerCase();
     const db = await fixtureDb(tag);
     const c = await open(db);
@@ -457,7 +500,7 @@ test('employer feed, revocation, draft and deletion interleavings', { skip: !ena
     results.push({ name, ...res });
   }
   const summary = results.map((r) => `${r.pass ? 'PASS' : 'FAIL'}  ${r.name}\n      expected: ${r.expected}\n      observed: ${r.observed}`).join('\n');
-  console.log(`\n${FEED_FIX && FEED_FIX !== false && existsSync(root + FIX_FILE) ? 'with 20261021 fix' : 'baseline (main chain, no 20261021 fix)'}\n${summary}`);
+  console.log(`\n${FEED_FIX ? 'with 20261021 fix and current workspace projection' : 'baseline (main chain, no 20261021 fix)'}\n${summary}`);
   if (process.env.FJ_CONC_RESULTS) writeFileSync(process.env.FJ_CONC_RESULTS, JSON.stringify({ fix: FEED_FIX, results }, null, 2));
   const failed = results.filter((r) => !r.pass).map((r) => r.name);
   assert.deepEqual(failed, [], `failed scenarios: ${failed.join('; ')}`);
