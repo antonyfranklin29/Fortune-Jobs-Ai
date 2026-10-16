@@ -24,7 +24,8 @@ const FILES = ['tests/sql/supabase-shim.sql', 'migrations/20261015_ingest_taxono
   'migrations/pending/20261017_employer_feed_publish_hardening.sql',
   'migrations/pending/20261017_employer_domain_checks.sql',
   'migrations/pending/20261017_employer_account_deletion.sql',
-  'migrations/pending/20261017_employer_search_visibility.sql'];
+  'migrations/pending/20261017_employer_search_visibility.sql',
+  'migrations/pending/20261018_employer_access_hardening.sql'];
 
 const psql = (args, input) => spawnSync('psql', ['-X', '-v', 'ON_ERROR_STOP=1', '-d', db, ...args],
   { cwd: root, input, encoding: 'utf8' });

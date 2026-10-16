@@ -1,7 +1,8 @@
 -- Minimal stand-in for the parts of a Supabase project that the employer
 -- migrations depend on, for a DISPOSABLE local PostgreSQL 16 database only.
 -- Mirrors production as read on 2026-10-15: roles, auth.users, auth.uid(), and
--- pre_scraped_jobs before the ingest migrations, with its public read policy
+-- auth.users carries banned_until/deleted_at as production does (checked read-only
+-- on 2026-10-15); pre_scraped_jobs before the ingest migrations, with its public read policy
 -- and grants (anon/authenticated SELECT only; service_role full).
 do $$ begin
   if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon nologin; end if;
@@ -16,6 +17,8 @@ create table if not exists auth.users (
   id uuid primary key default gen_random_uuid(),
   email text,
   email_confirmed_at timestamptz,
+  banned_until timestamptz,
+  deleted_at timestamptz,
   raw_user_meta_data jsonb default '{}'::jsonb
 );
 -- Supabase reads the caller from the request JWT; tests set the same setting.
