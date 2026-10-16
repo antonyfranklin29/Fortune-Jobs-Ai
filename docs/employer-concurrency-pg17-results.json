@@ -1,0 +1,208 @@
+{
+  "testDate": "2026-10-16",
+  "engine": "PostgreSQL 17.11, disposable Windows server, 127.0.0.1 only",
+  "productionVersion": "17.6 (read-only dashboard check)",
+  "method": "Independent protocol sessions with observed lock waits; complete baseline including pending-claim cleanup, with and without the incremental fix",
+  "baseline": {
+    "fix": false,
+    "results": [
+      {
+        "name": "S01 ban before activation (control)",
+        "expected": "activation refused with account_banned; no job",
+        "observed": "ERROR 42501: account_banned",
+        "pass": true
+      },
+      {
+        "name": "S02 ban during in-flight activation",
+        "expected": "if the ban committed before the publish committed, the publish must be refused",
+        "observed": "ban committed while publish waited: true; publish: {\"id\":\"38ecb6e7-685b-463c-8206-2846da068192\",\"job_id\":1,\"published\":true}; open jobs: 1",
+        "pass": false
+      },
+      {
+        "name": "S03 owner close vs publish (unpublished approved post)",
+        "expected": "after the owner closes, no open job remains for the post",
+        "observed": "post status closed; open jobs 1",
+        "pass": false
+      },
+      {
+        "name": "S04 operator close vs publish (unpublished approved post)",
+        "expected": "operator close is final: post closed and no open job",
+        "observed": "post status published; open jobs 1",
+        "pass": false
+      },
+      {
+        "name": "S05 operator review vs owner close: lock order",
+        "expected": "review and owner close both complete without database errors",
+        "observed": "deadlock detected",
+        "pass": false
+      },
+      {
+        "name": "S06 operator close vs owner re-activation of live post: lock order",
+        "expected": "operator close wins without deadlock and leaves no open job",
+        "observed": "deadlock detected",
+        "pass": false
+      },
+      {
+        "name": "S07 owner deletion after approval queued (approval first)",
+        "expected": "approval publishes, deletion succeeds, org stays verified (X still owns it)",
+        "observed": "approval: {\"id\":\"f79f52e6-3b09-4c67-aff5-e7958aaac901\",\"job_id\":1,\"published\":true}; deletion: ERROR 40P01: deadlock detected\nDETAIL: Process 30320 waits f; open jobs 1; org verified",
+        "pass": false
+      },
+      {
+        "name": "S08 owner deletion first, approval queued behind it",
+        "expected": "deletion of a post creator neither deadlocks nor blocks approval",
+        "observed": "deadlock detected",
+        "pass": false
+      },
+      {
+        "name": "S09 last owner deleted, approval queued (deletion first)",
+        "expected": "last owner deleted: org suspended, no new listing for it",
+        "observed": "deadlock detected",
+        "pass": false
+      },
+      {
+        "name": "S10 last owner deleted after approval (approval first)",
+        "expected": "approved-then-deleted org: suspended, its listings hidden from anonymous visitors",
+        "observed": "deadlock detected",
+        "pass": false
+      },
+      {
+        "name": "S11a two owners deleted concurrently, A first",
+        "expected": "both owners deleted: org suspended exactly once, no active owner, no error",
+        "observed": "org suspended; active owners 0; suspension audit rows 1; errors: false",
+        "pass": true
+      },
+      {
+        "name": "S11b two owners deleted concurrently, X first",
+        "expected": "both owners deleted: org suspended exactly once, no active owner, no error",
+        "observed": "org suspended; active owners 0; suspension audit rows 1; errors: false",
+        "pass": true
+      },
+      {
+        "name": "S12a two companies verify one domain, C1 first",
+        "expected": "exactly one verified; the loser gets domain_already_claimed",
+        "observed": "verified 1; loser: DETAIL: Key (primary_domain)=(contoso.com) already exists.",
+        "pass": false
+      },
+      {
+        "name": "S12b two companies verify one domain, C2 first",
+        "expected": "exactly one verified; the loser gets domain_already_claimed",
+        "observed": "verified 1; loser: DETAIL: Key (primary_domain)=(contoso.com) already exists.",
+        "pass": false
+      },
+      {
+        "name": "S13 quota at 14 with three concurrent publishers",
+        "expected": "one publish takes the 15th slot, two get upgrade_required, active count 15",
+        "observed": "published 1, upgrade_required 2, active 15",
+        "pass": true
+      },
+      {
+        "name": "S16 owner re-activates an operator-closed post",
+        "expected": "owner activation refused after an operator close; no open job",
+        "observed": "{\"id\":\"01603b04-2359-43e8-8573-b2242d048375\",\"job_id\":1,\"published\":true}; open jobs 1",
+        "pass": false
+      }
+    ]
+  },
+  "fixed": {
+    "fix": true,
+    "results": [
+      {
+        "name": "S01 ban before activation (control)",
+        "expected": "activation refused with account_banned; no job",
+        "observed": "ERROR 42501: account_banned",
+        "pass": true
+      },
+      {
+        "name": "S02 ban during in-flight activation",
+        "expected": "if the ban committed before the publish committed, the publish must be refused",
+        "observed": "ban committed while publish waited: false; publish: {\"id\":\"a793ead8-7983-4ba6-ae69-435ebb2c576d\",\"job_id\":1,\"published\":true}; open jobs: 1",
+        "pass": true
+      },
+      {
+        "name": "S03 owner close vs publish (unpublished approved post)",
+        "expected": "after the owner closes, no open job remains for the post",
+        "observed": "post status closed; open jobs 0",
+        "pass": true
+      },
+      {
+        "name": "S04 operator close vs publish (unpublished approved post)",
+        "expected": "operator close is final: post closed and no open job",
+        "observed": "post status closed; open jobs 0",
+        "pass": true
+      },
+      {
+        "name": "S05 operator review vs owner close: lock order",
+        "expected": "review and owner close both complete without database errors",
+        "observed": "both completed",
+        "pass": true
+      },
+      {
+        "name": "S06 operator close vs owner re-activation of live post: lock order",
+        "expected": "operator close wins without deadlock and leaves no open job",
+        "observed": "closed with no job: true",
+        "pass": true
+      },
+      {
+        "name": "S07 owner deletion after approval queued (approval first)",
+        "expected": "approval publishes, deletion succeeds, org stays verified (X still owns it)",
+        "observed": "approval: {\"id\":\"d500a4f8-e1ad-488e-8ca8-cbb980f3ff42\",\"job_id\":1,\"published\":true}; deletion: ok; open jobs 1; org verified",
+        "pass": true
+      },
+      {
+        "name": "S08 owner deletion first, approval queued behind it",
+        "expected": "deletion of a post creator neither deadlocks nor blocks approval",
+        "observed": "approval: {\"id\":\"64c5ddf5-0f05-408e-82d8-14a06fc76a21\",\"job_id\":1,\"published\":true}; open jobs 1; org verified",
+        "pass": true
+      },
+      {
+        "name": "S09 last owner deleted, approval queued (deletion first)",
+        "expected": "last owner deleted: org suspended, no new listing for it",
+        "observed": "org suspended; open jobs 0",
+        "pass": true
+      },
+      {
+        "name": "S10 last owner deleted after approval (approval first)",
+        "expected": "approved-then-deleted org: suspended, its listings hidden from anonymous visitors",
+        "observed": "org suspended; anonymous visible rows 0",
+        "pass": true
+      },
+      {
+        "name": "S11a two owners deleted concurrently, A first",
+        "expected": "both owners deleted: org suspended exactly once, no active owner, no error",
+        "observed": "org suspended; active owners 0; suspension audit rows 1; errors: false",
+        "pass": true
+      },
+      {
+        "name": "S11b two owners deleted concurrently, X first",
+        "expected": "both owners deleted: org suspended exactly once, no active owner, no error",
+        "observed": "org suspended; active owners 0; suspension audit rows 1; errors: false",
+        "pass": true
+      },
+      {
+        "name": "S12a two companies verify one domain, C1 first",
+        "expected": "exactly one verified; the loser gets domain_already_claimed",
+        "observed": "verified 1; loser: ERROR P0001: domain_already_claimed",
+        "pass": true
+      },
+      {
+        "name": "S12b two companies verify one domain, C2 first",
+        "expected": "exactly one verified; the loser gets domain_already_claimed",
+        "observed": "verified 1; loser: ERROR P0001: domain_already_claimed",
+        "pass": true
+      },
+      {
+        "name": "S13 quota at 14 with three concurrent publishers",
+        "expected": "one publish takes the 15th slot, two get upgrade_required, active count 15",
+        "observed": "published 1, upgrade_required 2, active 15",
+        "pass": true
+      },
+      {
+        "name": "S16 owner re-activates an operator-closed post",
+        "expected": "owner activation refused after an operator close; no open job",
+        "observed": "ERROR P0001: review_required; open jobs 0",
+        "pass": true
+      }
+    ]
+  }
+}

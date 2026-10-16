@@ -9,7 +9,7 @@ import {normalizeEmployerJob} from '../supabase/functions/employer-feed/lib.mjs'
 import {compileRoles,regionIndex} from '../supabase/functions/job-ingest/lib.mjs';
 import {ROLES,REGIONS} from '../supabase/functions/job-ingest/config.mjs';
 import {createRequire} from 'node:module';
-const {build:buildEmployerBackend}=createRequire(import.meta.url)('../scripts/build-employer-backend.cjs');
+const {build:buildEmployerBackend,buildUpgrade,files:employerMigrations}=createRequire(import.meta.url)('../scripts/build-employer-backend.cjs');
 let db;
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 before(async()=>{
@@ -23,7 +23,9 @@ before(async()=>{
     'migrations/pending/20261017_employer_account_deletion.sql',
     'migrations/pending/20261017_employer_search_visibility.sql',
     'migrations/pending/20261018_employer_access_hardening.sql',
-    'migrations/pending/20261019_employer_pending_account_cleanup.sql']){
+    'migrations/pending/20261019_employer_pending_account_cleanup.sql',
+    'migrations/pending/20261019_employer_concurrency_hardening.sql',
+    'migrations/pending/20261020_employer_post_actions.sql']){
     try{await db.exec(read(path));}catch(e){throw Error(`${path}: ${e.message}`);}
   }
 });
@@ -279,5 +281,86 @@ test('first-install deployment bundle is atomic, keeps legacy data and leaves bi
     assert.equal((await isolated.query('select paid_publishing_enabled from employer_billing_config')).rows[0].paid_publishing_enabled,false);
     await isolated.exec('set role anon');assert.equal((await isolated.query('select count(*)::int n from pre_scraped_jobs')).rows[0].n,1);await isolated.exec('reset role');
     await assert.rejects(isolated.exec(buildEmployerBackend()),/already present/);await isolated.exec('rollback');
+  }finally{await isolated.close();}
+});
+
+async function directPost(){
+  await seed();
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)",[OWNER]);
+  const post=await call('employer_save_post',['uuid','uuid','jsonb'],[ORG,null,{
+    job_title:'Data Analyst',canonical_role:'data-analyst',state_code:'NJ',city:'Edison',
+    description:'Build dashboards and reports for operations. '.repeat(3),apply_url:'https://synthetic-careers.com/reviewed-job',
+    posting_date:new Date().toISOString().slice(0,10),closing_date:new Date(Date.now()+86400000*20).toISOString().slice(0,10),
+  }]);
+  await call('employer_submit_post',['uuid'],[post.id]);
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)",[OPERATOR]);
+  const result=await call('operator_review_post',['uuid','integer','text','text'],[post.id,1,'approve','Reviewed synthetic vacancy']);
+  assert.equal(result.published,true);return post.id;
+}
+async function ownerPostState(){
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)",[OWNER]);
+  await db.exec('set role authenticated');
+  try{return(await call('employer_my_state',[],[])).orgs[0].posts[0];}
+  finally{await db.exec('reset role');}
+}
+
+test('owner close frees the slot and current approval permits reopening',async()=>{
+  const id=await directPost();
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)",[OWNER]);
+  await call('employer_close_post',['uuid'],[id]);
+  assert.equal((await ownerPostState()).can_activate,true);
+  assert.equal((await db.query('select public.employer_active_count($1) n',[ORG])).rows[0].n,0);
+  assert.equal((await call('employer_activate_post',['uuid'],[id])).published,true);
+  assert.equal((await db.query('select public.employer_active_count($1) n',[ORG])).rows[0].n,1);
+});
+
+test('reviewer takedown withdraws approval and cannot be undone by an employer',async()=>{
+  const id=await directPost();
+  await call('operator_close_post',['uuid','text'],[id,'Synthetic policy takedown']);
+  const state=await ownerPostState();assert.equal(state.status,'closed');assert.equal(state.can_activate,false);
+  await db.exec('set role authenticated');
+  try{await assert.rejects(call('employer_activate_post',['uuid'],[id]),/review_required/);}
+  finally{await db.exec('reset role');}
+  assert.equal((await db.query('select count(*)::int n from pre_scraped_jobs where closed_at is null')).rows[0].n,0);
+});
+
+test('expired, unreviewed and inactive-company posts never offer reopening',async()=>{
+  const id=await directPost();
+  await db.query("update employer_posts set status='closed',posting_date=current_date-10,closing_date=current_date-1 where id=$1",[id]);
+  assert.equal((await ownerPostState()).can_activate,false);
+  await db.query("update employer_posts set closing_date=current_date+20,has_unreviewed_changes=true where id=$1",[id]);
+  assert.equal((await ownerPostState()).can_activate,false);
+  await db.query("update employer_posts set has_unreviewed_changes=false where id=$1",[id]);
+  await db.query("update employer_orgs set status='suspended' where id=$1",[ORG]);
+  assert.equal((await ownerPostState()).can_activate,false);
+});
+
+test('new lock helpers remain private and a banned actor cannot publish',async()=>{
+  const id=await directPost();
+  await db.query("select set_config('request.jwt.claim.sub',$1,false)",[OWNER]);
+  await call('employer_close_post',['uuid'],[id]);
+  await db.query("update auth.users set banned_until=now()+interval '1 day' where id=$1",[OWNER]);
+  await assert.rejects(call('employer_activate_post',['uuid'],[id]),/account_banned/);
+  for(const role of ['anon','authenticated','service_role'])for(const fn of ['employer_lock_actor(uuid)','employer_lock_post_parties(uuid)']){
+    assert.equal((await db.query("select has_function_privilege($1,$2,'EXECUTE') allowed",[role,'public.'+fn])).rows[0].allowed,false);
+  }
+  assert.equal((await db.query('select count(*)::int n from pre_scraped_jobs where closed_at is null')).rows[0].n,0);
+});
+
+test('incremental deployment preserves existing records and grants; refuses a repeated upgrade',async()=>{
+  const isolated=await PGlite.create();
+  try{
+    for(const file of ['tests/sql/supabase-shim.sql','migrations/20261015_ingest_taxonomy.sql','migrations/20261015_ingest_catalogue.sql','migrations/20261015_ingest_feed.sql',
+      ...employerMigrations.slice(0,-2).map(name=>'migrations/pending/'+name)])await isolated.exec(read(file));
+    await isolated.exec(`insert into auth.users(id,email,email_confirmed_at) values('${OWNER}','synthetic@synthetic-careers.com',now());
+      insert into employer_orgs(id,name,primary_domain,status,created_by) values('${ORG}','Existing synthetic company','synthetic-careers.com','pending','${OWNER}');
+      insert into pre_scraped_jobs(category,job_title,apply_url) values('Data Analyst','Existing job','https://synthetic.com/legacy');`);
+    await isolated.exec(buildUpgrade());
+    assert.equal((await isolated.query('select count(*)::int n from auth.users')).rows[0].n,1);
+    assert.equal((await isolated.query('select count(*)::int n from employer_orgs')).rows[0].n,1);
+    assert.equal((await isolated.query('select count(*)::int n from pre_scraped_jobs')).rows[0].n,1);
+    assert.equal((await isolated.query("select has_function_privilege('anon','public.employer_my_state()','EXECUTE') allowed")).rows[0].allowed,false);
+    assert.equal((await isolated.query("select has_function_privilege('authenticated','public.employer_my_state()','EXECUTE') allowed")).rows[0].allowed,true);
+    await assert.rejects(isolated.exec(buildUpgrade()),/upgrade already present/);await isolated.exec('rollback');
   }finally{await isolated.close();}
 });

@@ -191,7 +191,8 @@
     const act = (label, fn, cls) => actions.push(h('button', { class: 'btn btn-sm ' + (cls || 'btn-outline'), type: 'button', on: { click: fn } }, label));
     if (['draft', 'rejected', 'approved', 'published', 'paused', 'pending_review'].includes(p.status)) act('Edit', () => row.after(postForm(o, p)), 'btn-ghost');
     if (p.status === 'draft') act('Submit for review', () => run(() => rpc('employer_submit_post', { p_post: p.id }), 'Submitted for review.'));
-    if ((p.status === 'approved' && p.publish_state) || p.status === 'paused' || (p.status === 'closed' && !p.has_unreviewed_changes))
+    if (p.status === 'closed' && p.can_activate !== true) notes.push('Reopening is unavailable. Contact info@fortunejobsai.com for help.');
+    if (p.can_activate === true)
       act('Make live', () => run(async () => {
         const r = await rpc('employer_activate_post', { p_post: p.id });
         if (!r.published) throw new Error(r.state);

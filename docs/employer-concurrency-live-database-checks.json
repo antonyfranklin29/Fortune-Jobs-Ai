@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-10-16T11:43:23.351Z",
+  "source": "Authenticated Supabase dashboard, read-only metadata query after committed upgrade",
+  "rows": [
+    "checkresult",
+    "PostgreSQL17.6",
+    "Concurrency functionsInstalled",
+    "Private helper grants0",
+    "Private table access0",
+    "Reopen action hintInstalled",
+    "Open catalogue jobs736",
+    "Employer companies0",
+    "Reviewers0",
+    "Paid publishingfalse"
+  ]
+}

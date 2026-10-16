@@ -1,21 +1,22 @@
 // Concurrency review of the employer backend (docs/claude-employer-concurrency-review.md).
-// Runs deterministic interleavings on a DISPOSABLE local PostgreSQL 16 server (never a
+// Runs deterministic interleavings on a DISPOSABLE local PostgreSQL 16/17 server (never a
 // Supabase project). Each scenario gets its own database cloned from a migrated template.
-// Sessions are persistent psql processes; a statement is "blocked" when pg_stat_activity
+// Sessions use independent direct protocol connections; a statement is "blocked" when pg_stat_activity
 // reports wait_event_type = 'Lock' for it.
 //
 //   FJ_PG_DISPOSABLE=1 PGHOST=/var/tmp/fjpg PGPORT=54329 PGUSER=postgres node --test tests/employer-concurrency-db.mjs
-//   FJ_CONC_FIX=1 ...   also applies migrations/pending/20261019_employer_concurrency_hardening.sql
+//   Defaults to the complete current chain. FJ_CONC_FIX=0 reproduces the old baseline.
 //   FJ_CONC_RESULTS=/path/results.json   writes the per-scenario results
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import pg from 'pg';
+import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const enabled = process.env.FJ_PG_DISPOSABLE === '1' && spawnSync('psql', ['--version']).status === 0;
-const FIX = process.env.FJ_CONC_FIX === '1';
+const FIX = process.env.FJ_CONC_FIX !== '0';
 const TPL = `fj_conc_tpl_${process.pid}`;
 
 const CHAIN = [
@@ -31,49 +32,43 @@ const CHAIN = [
   'migrations/pending/20261017_employer_feed_publish_hardening.sql',
   'migrations/pending/20261017_employer_feed_registry_bridge.sql',
   'migrations/pending/20261018_employer_access_hardening.sql',
-  ...(FIX ? ['migrations/pending/20261019_employer_concurrency_hardening.sql'] : []),
+  'migrations/pending/20261019_employer_pending_account_cleanup.sql',
+  ...(FIX ? ['migrations/pending/20261019_employer_concurrency_hardening.sql',
+    'migrations/pending/20261020_employer_post_actions.sql'] : []),
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function until(fn, ms = 4000) {
   const end = Date.now() + ms;
   while (Date.now() < end) { if (await fn()) return true; await sleep(25); }
-  return false;
+  throw new Error('required lock interleaving was not observed within the deadline');
 }
 const dbName = (tag) => `fj_conc_${tag}_${process.pid}`;
 
-// A persistent psql process. Statements run in order; output is split by a marker echo.
+// Direct protocol sessions work on Windows and Unix without psql stdout buffering.
+// Each session is a separate backend connection; errors are returned as text so
+// negative scenarios can inspect the database's actual refusal.
 class Session {
-  constructor(db, label) {
-    this.label = label; this.buf = ''; this.queue = []; this.seq = 0;
-    this.proc = spawn('sh', ['-c', `stdbuf -oL -eL psql -X -At -q -v ON_ERROR_STOP=0 -d "${db}" 2>&1`],
-      { env: process.env, stdio: ['pipe', 'pipe', 'pipe'] });
-    this.proc.stdout.setEncoding('utf8');
-    this.proc.stdout.on('data', (d) => { this.buf += d; this.pump(); });
+  constructor(db,label){
+    this.label=label;
+    this.client=new pg.Client({database:db,application_name:'fj_concurrency_'+label,
+      connectionTimeoutMillis:3000,query_timeout:20000,statement_timeout:15000});
+    this.client.on('error',()=>{});
+    this.ready=this.client.connect();
   }
-  pump() {
-    while (this.queue.length) {
-      const { marker, resolve } = this.queue[0];
-      const i = this.buf.indexOf(marker);
-      if (i < 0) return;
-      const text = this.buf.slice(0, i);
-      this.buf = this.buf.slice(i + marker.length);
-      this.queue.shift();
-      resolve(text.trim());
-    }
+  async run(sql){
+    let text;
+    try{
+      await this.ready;
+      const result=await this.client.query(sql);
+      text=(Array.isArray(result)?result:[result]).flatMap(r=>r.rows.map(row=>
+        r.fields.map(f=>{const v=row[f.name];return v==null?'':typeof v==='object'?JSON.stringify(v):String(v);}).join('|'))).join('\n');
+    }catch(e){text='ERROR '+e.code+': '+e.message+(e.detail?'\nDETAIL: '+e.detail:'');}
+    if(process.env.FJ_CONC_DEBUG)console.error('['+this.label+'] '+sql.slice(0,90)+' => '+text.slice(0,240));
+    return text.trim();
   }
-  run(sql) {
-    const marker = `__END_${this.label}_${++this.seq}__`;
-    const p = new Promise((resolve) => this.queue.push({ marker, resolve }));
-    const stmt = sql.trim().endsWith(';') ? sql : `${sql};`;
-    this.proc.stdin.write(`${stmt}\n\\echo ${marker}\n`);
-    if (process.env.FJ_CONC_DEBUG) p.then((t) => console.error(`[${this.label}] ${sql.slice(0, 90)} => ${t.slice(0, 240)}`));
-    return p;
-  }
-  end() { this.proc.stdin.end(); }
+  async end(){await this.client.end();}
 }
-
-function pgEnv() { return { ...process.env }; }
 
 // Scenario context: one database, a control session as the owner, and actor sessions.
 async function open(db, ids) {
@@ -94,7 +89,7 @@ async function open(db, ids) {
   return { db, ctl, map, actor, raw, lockWaits, q, sessions, ids };
 }
 
-function closeAll(c) { for (const s of c.sessions) { try { s.end(); } catch { /* already closed */ } } }
+async function closeAll(c) { await Promise.allSettled(c.sessions.map(s=>s.end())); }
 
 // Fixture helpers. Posts are created as the owner; approval goes through the real
 // operator RPC unless the scenario needs an approved but unpublished post, in which case
@@ -124,7 +119,7 @@ async function mkLive(c, owner, org, i) {
   const ops = await c.actor('OP');
   const out = await ops.run(`select public.operator_review_post('${pid}', 1, 'approve', null)`);
   ops.end();
-  if (!/"published": true/.test(out)) throw new Error(`fixture: live post not published: ${out}`);
+  if (!/"published"\s*:\s*true/.test(out)) throw new Error(`fixture: live post not published: ${out}`);
   return pid;
 }
 const openJobs = (c, post) => c.q(`select count(*) from public.pre_scraped_jobs where employer_post_id = '${post}' and closed_at is null`).then(Number);
@@ -160,7 +155,9 @@ async function s02BanDuringActivation(c) {
   const out = await pending;
   await banP;
   const jobs = await openJobs(c, post);
-  const pass = !(banCommittedWhilePublishWaiting && jobs > 0);
+  const pass = banCommittedWhilePublishWaiting
+    ? /account_banned/.test(out) && jobs === 0
+    : /"published"\s*:\s*true/.test(out) && jobs === 1;
   return {
     expected: 'if the ban committed before the publish committed, the publish must be refused',
     observed: `ban committed while publish waited: ${banCommittedWhilePublishWaiting}; publish: ${out.split('\n').pop().slice(0, 120)}; open jobs: ${jobs}`,
@@ -177,10 +174,10 @@ async function s03EmployerCloseVsPublish(c) {
   const close = (await c.actor('A')).run(`select public.employer_close_post('${post}')`);
   await until(async () => (await c.lockWaits()) >= 2);
   await hold.run('commit;');
-  await Promise.all([pub, close]);
+  const outcomes=await Promise.all([pub, close]);
   const st = await postStatus(c, post);
   const jobs = await openJobs(c, post);
-  const pass = !(st === 'closed' && jobs > 0);
+  const pass = st === 'closed' && jobs === 0 && !/ERROR/.test(outcomes.join('\n'));
   return { expected: 'after the owner closes, no open job remains for the post', observed: `post status ${st}; open jobs ${jobs}`, pass };
 }
 
@@ -211,7 +208,7 @@ async function s05ReviewVsEmployerClose(c) {
   await until(async () => (await c.lockWaits()) >= 2);
   await hold.run('commit;');
   const [a, b] = await Promise.all([cl, rv]);
-  return { expected: 'no deadlock between operator review and owner close', observed: hasDeadlock(a, b) ? 'deadlock detected' : 'no deadlock', pass: !hasDeadlock(a, b) };
+  return { expected: 'review and owner close both complete without database errors', observed: hasDeadlock(a, b) ? 'deadlock detected' : (a+b).includes('ERROR') ? a+b : 'both completed', pass: !/ERROR/.test(a+b) };
 }
 
 async function s06OperatorCloseVsActivateLive(c) {
@@ -225,7 +222,8 @@ async function s06OperatorCloseVsActivateLive(c) {
   await until(async () => (await c.lockWaits()) >= 2);
   await hold.run('commit;');
   const [a, b] = await Promise.all([cl, pub]);
-  return { expected: 'no deadlock between operator close and owner re-activation', observed: hasDeadlock(a, b) ? 'deadlock detected' : 'no deadlock', pass: !hasDeadlock(a, b) };
+  const closed = (await postStatus(c, post)) === 'closed' && (await openJobs(c,post)) === 0;
+  return { expected: 'operator close wins without deadlock and leaves no open job', observed: hasDeadlock(a, b) ? 'deadlock detected' : `closed with no job: ${closed}`, pass: !hasDeadlock(a, b) && closed && !/ERROR/.test(a) };
 }
 
 // Owner A (post creator) and co-owner X. Deletion and approval, in both orders.
@@ -242,7 +240,7 @@ async function s07ApprovalFirstThenOwnerDeletion(c) {
   const [r, d] = await Promise.all([rv, dp]);
   const jobs = await openJobs(c, post);
   const org = await c.q(`select status from public.employer_orgs where id = '${c.map.ORG_A}'`);
-  const pass = !hasDeadlock(r, d) && /"published": true/.test(r) && jobs === 1 && org === 'verified';
+  const pass = !/ERROR/.test(d) && /"published"\s*:\s*true/.test(r) && jobs === 1 && org === 'verified';
   return { expected: 'approval publishes, deletion succeeds, org stays verified (X still owns it)', observed: `approval: ${r.split('\n').pop().slice(0, 90)}; deletion: ${d.slice(0, 60) || 'ok'}; open jobs ${jobs}; org ${org}`, pass };
 }
 
@@ -259,7 +257,7 @@ async function s08OwnerDeletionFirstThenApproval(c) {
   const [d, r] = await Promise.all([dp, rv]);
   const jobs = await openJobs(c, post);
   const org = await c.q(`select status from public.employer_orgs where id = '${c.map.ORG_A}'`);
-  const pass = !hasDeadlock(r, d) && /"published": true/.test(r) && jobs === 1 && org === 'verified';
+  const pass = !/ERROR/.test(d) && /"published"\s*:\s*true/.test(r) && jobs === 1 && org === 'verified';
   return { expected: 'deletion of a post creator neither deadlocks nor blocks approval', observed: hasDeadlock(r, d) ? 'deadlock detected' : `approval: ${r.split('\n').pop().slice(0, 90)}; open jobs ${jobs}; org ${org}`, pass };
 }
 
@@ -351,7 +349,7 @@ async function s13QuotaThreePublishers(c) {
   await until(async () => (await c.lockWaits()) >= 3);
   await hold.run('commit;');
   const outs = await Promise.all(runs);
-  const published = outs.filter((o) => /"published": true/.test(o)).length;
+  const published = outs.filter((o) => /"published"\s*:\s*true/.test(o)).length;
   const refused = outs.filter((o) => /upgrade_required/.test(o)).length;
   const active = Number(await c.q(`select public.employer_active_count('${c.map.ORG_A}')`));
   const pass = published === 1 && refused === 2 && active === 15;
@@ -364,7 +362,7 @@ async function s16OwnerReactivatesOperatorClosedPost(c) {
   await (await c.actor('OP')).run(`select public.operator_close_post('${post}', 'takedown')`);
   const out = await (await c.actor('A')).run(`select public.employer_activate_post('${post}')`);
   const jobs = await openJobs(c, post);
-  const pass = !/"published": true/.test(out) && jobs === 0;
+  const pass = /review_required/.test(out) && jobs === 0 && (await postStatus(c,post)) === 'closed';
   return { expected: 'owner activation refused after an operator close; no open job', observed: `${out.split('\n').pop().slice(0, 120)}; open jobs ${jobs}`, pass };
 }
 
@@ -416,8 +414,8 @@ test('employer concurrency review: deterministic interleavings', { skip: !enable
     } catch (e) {
       res = { expected: 'scenario runs', observed: `harness error: ${e.message}`, pass: false };
     } finally {
-      closeAll(c);
-      spawnSync('dropdb', ['--if-exists', db]);
+      await closeAll(c);
+      spawnSync('dropdb', ['--if-exists', '--force', db]);
     }
     results.push({ name, ...res });
   }

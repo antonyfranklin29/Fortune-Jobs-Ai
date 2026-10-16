@@ -2,7 +2,7 @@
 
 ## Current implementation
 
-Codex owns this frontend/account/workspace release. Claude's access-review commit `f852633` was reviewed and integrated as `42c072f`, preserving its author. Claude's next assigned task is native concurrent ban/deletion/domain-claim testing on a separate branch; no further production change is authorized by that handoff.
+Codex owns this frontend/account/workspace release. Claude's access-review commit `f852633` was reviewed and integrated as `42c072f`, preserving its author. Claude's concurrency review is now integrated; see [the follow-up report](employer-concurrency-integration-2026-10-16.md). Its function-only database update is applied, independently tested on PostgreSQL 17 and leaves billing disabled.
 
 - `login.html` is the job-seeker entrance; the default signed-in destination is the profile, with validated job-page return links preserved.
 - `employer-login.html` is the dedicated employer entrance, using email/password followed by Google. Employer sign-up, email confirmation, Google return and password reset preserve the company workspace destination.
@@ -35,10 +35,10 @@ No reviewer identity was granted. Actual company verification and public publica
 
 ## Evidence and limits
 
-- 172 Node tests pass, including real SQL workflow/access scenarios, deployment-bundle checks, sign-in/confirmation/recovery routing and stale-session workspace tests.
+- 178 Node tests pass, including real SQL workflow/access scenarios, deployment-bundle checks, sign-in/confirmation/recovery routing and stale-session workspace tests.
 - 14 Deno edge tests pass; the domain endpoint type-check passes. Its actual browser preflight headers are tested.
 - `docs/employer-live-checks-2026-10-16.json` records live public-key-only probes: private company SELECT and private RPCs return 401/42501; public job reads remain 200; the domain handler rejects anonymous use with 401; browser preflight is 204.
 - No real credential/account was created for testing. An existing authenticated owner session successfully loaded the live company onboarding form, switched to its existing job-seeker profile and returned to the employer workspace, with no browser errors. A fresh Google/email confirmation/recovery round trip and a real company's DNS/approval/publication trial remain user-assisted acceptance checks.
-- Native concurrency follow-up is assigned to Claude. PGlite's single connection is not evidence of a simultaneous production race test.
+- Native concurrency is independently verified on disposable PostgreSQL 17.11: 16/16 scenarios pass, compared with 12 failures before the fix. Four additional native access/submission tests pass. This does not constitute a production load test. Feed/source/edit/downgrade concurrency remains pending.
 
 Frontend release `e6d5a72` is publicly deployed. `docs/employer-frontend-live-checks-2026-10-16.json` records HTTP 200 and exact normalized source matches for employer-login.html, login-form.js, login.html, employers.html and index.html. Live employer onboarding was also verified in the browser. This does not mark the entire employer hiring/billing launch or the eight-item launch checklist complete.

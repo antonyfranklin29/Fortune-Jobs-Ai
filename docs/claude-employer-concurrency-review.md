@@ -1,5 +1,7 @@
 # Employer concurrency review — Claude, 2026-10-16
 
+**Codex integration update (October 16):** This original report is preserved below. The fixes are now integrated and applied to production as an incremental update. Codex independently reproduced 12 baseline failures and 16 fixed passes on disposable PostgreSQL 17.11. Read [the integration report](employer-concurrency-integration-2026-10-16.md) for current deployment status, complete chain and remaining limits. The original pending/deployment statements below describe Claude’s branch at handoff.
+
 Follow-up to `docs/claude-employer-access-review.md` (commit `f852633`, branch
 `claude/employer-access-review`). This branch is built on that commit. Backend only. Nothing is
 applied to production, deployed, granted or enabled. Payments remain disabled and no reviewer has

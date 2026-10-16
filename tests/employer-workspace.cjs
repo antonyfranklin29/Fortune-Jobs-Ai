@@ -56,3 +56,14 @@ test('reviewer verification requires an entered reason and sends that reason to 
   if(note)assert.equal(calls[0][1].p_note,note);
  }
 });
+
+test('reopening follows server approval; reviewer takedowns have no Make live action',async()=>{
+ const buttons=n=>[...(n.tag==='button'?[n.textContent]:[]),...n.children.flatMap(buttons)];
+ for(const can_activate of [true,false,undefined]){
+  const b=await setup({user:{email:'fixture@synthetic.com'},state:{orgs:[{...company,posts:[{
+   id:'post-fixture',job_title:'Data Analyst',status:'closed',has_unreviewed_changes:false,can_activate,
+  }]}],plan:{free_active_posts:15,monthly_price_cents:1499}}});
+  assert.equal(buttons(b.node('orgs')).includes('Make live'),can_activate===true);
+  if(can_activate!==true)assert.match(b.node('orgs').textContent,/Reopening is unavailable/);
+ }
+});

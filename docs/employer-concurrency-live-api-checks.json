@@ -1,0 +1,36 @@
+{
+  "checkedAt": "2026-10-16T11:41:13.155Z",
+  "credential": "publishable project key only; no user or service credential",
+  "results": [
+    {
+      "name": "private company",
+      "status": 401,
+      "code": "42501",
+      "expected": 401
+    },
+    {
+      "name": "private state",
+      "status": 401,
+      "code": "42501",
+      "expected": 401
+    },
+    {
+      "name": "actor lock",
+      "status": 401,
+      "code": "42501",
+      "expected": 401
+    },
+    {
+      "name": "post party lock",
+      "status": 401,
+      "code": "42501",
+      "expected": 401
+    },
+    {
+      "name": "public jobs",
+      "status": 200,
+      "code": null,
+      "expected": 200
+    }
+  ]
+}
