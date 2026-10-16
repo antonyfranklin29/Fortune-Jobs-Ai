@@ -38,7 +38,7 @@ No reviewer identity was granted. Actual company verification and public publica
 - 172 Node tests pass, including real SQL workflow/access scenarios, deployment-bundle checks, sign-in/confirmation/recovery routing and stale-session workspace tests.
 - 14 Deno edge tests pass; the domain endpoint type-check passes. Its actual browser preflight headers are tested.
 - `docs/employer-live-checks-2026-10-16.json` records live public-key-only probes: private company SELECT and private RPCs return 401/42501; public job reads remain 200; the domain handler rejects anonymous use with 401; browser preflight is 204.
-- No real credential/account was created for testing. A complete real-user Google/email confirmation/recovery round trip and a real company's DNS/approval/publication trial remain user-assisted acceptance checks.
+- No real credential/account was created for testing. An existing authenticated owner session successfully loaded the live company onboarding form, switched to its existing job-seeker profile and returned to the employer workspace, with no browser errors. A fresh Google/email confirmation/recovery round trip and a real company's DNS/approval/publication trial remain user-assisted acceptance checks.
 - Native concurrency follow-up is assigned to Claude. PGlite's single connection is not evidence of a simultaneous production race test.
 
-Frontend publication/HTTP verification is recorded in the release commit and follow-up checks. This does not mark the entire employer hiring/billing launch or the eight-item launch checklist complete.
+Frontend release `e6d5a72` is publicly deployed. `docs/employer-frontend-live-checks-2026-10-16.json` records HTTP 200 and exact normalized source matches for employer-login.html, login-form.js, login.html, employers.html and index.html. Live employer onboarding was also verified in the browser. This does not mark the entire employer hiring/billing launch or the eight-item launch checklist complete.

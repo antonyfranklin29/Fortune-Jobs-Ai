@@ -1,0 +1,31 @@
+{
+  "checked_at": "2026-10-16T04:13:30.271Z",
+  "commit": "e6d5a72",
+  "pages": [
+    {
+      "page": "employer-login.html",
+      "status": 200,
+      "current": true
+    },
+    {
+      "page": "login-form.js",
+      "status": 200,
+      "current": true
+    },
+    {
+      "page": "login.html",
+      "status": 200,
+      "current": true
+    },
+    {
+      "page": "employers.html",
+      "status": 200,
+      "current": true
+    },
+    {
+      "page": "index.html",
+      "status": 200,
+      "current": true
+    }
+  ]
+}
