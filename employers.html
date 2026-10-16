@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none';base-uri 'none';form-action 'self'">
+<title>Post jobs · Fortune Jobs AI</title>
+<link rel="stylesheet" href="account.css">
+<link rel="icon" href="favicon.svg">
+<style>
+main{max-width:900px;margin:40px auto 80px;padding:0 20px}
+h1{font-size:30px;line-height:1.25;margin-bottom:8px}
+.lead{color:var(--gray-600);margin-bottom:28px;max-width:640px}
+.card{margin-bottom:22px}
+.card h2{margin-bottom:6px}
+.stack>*+*{margin-top:14px}
+.status{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.02em;padding:3px 9px;border-radius:999px;background:var(--gray-100);color:var(--gray-600);text-transform:uppercase}
+.status.ok{background:var(--green-bg);color:#047857}
+.status.warn{background:var(--gold-pale);color:#8A6414}
+.status.bad{background:var(--red-bg);color:var(--red)}
+.meter{height:10px;border-radius:999px;background:var(--gray-200);overflow:hidden;margin:10px 0 6px}
+.meter span{display:block;height:100%;background:var(--navy)}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:14px}
+.plan{border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:16px}
+.plan .price{font-size:22px;font-weight:700}
+.plan .note{font-size:13px;color:var(--gray-600)}
+.unavailable{display:inline-block;margin-top:10px;font-size:13px;font-weight:600;color:var(--gray-600);border:1px dashed var(--gray-300);border-radius:var(--radius-sm);padding:6px 10px}
+.post{border-top:1px solid var(--gray-200);padding:14px 0;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
+.post:first-of-type{border-top:0}
+.post .meta{font-size:14px;color:var(--gray-600)}
+.post .actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.dns{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:var(--gray-100);border-radius:var(--radius-sm);padding:10px 12px;overflow-wrap:anywhere}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+textarea.input{min-height:150px;resize:vertical}
+fieldset{border:0}
+legend{font-weight:600;margin-bottom:8px}
+.check{display:flex;gap:10px;align-items:flex-start;margin:8px 0;line-height:1.5}
+.check input{margin-top:5px;width:18px;height:18px;flex-shrink:0}
+[hidden]{display:none!important}
+@media (max-width:560px){.post{grid-template-columns:1fr}.post .actions{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<nav class="top-nav"><a class="logo-text" href="index.html">Fortune Jobs AI</a><a class="nav-link" href="profile.html">Your profile</a></nav>
+<main>
+  <h1>Post jobs on Fortune Jobs AI</h1>
+  <p class="lead">Verified employers can post up to 15 active jobs at a time for free. Every organization, post and career feed is reviewed before anything appears in search.</p>
+
+  <p id="status" class="msg info show" role="status" aria-live="polite">Loading…</p>
+
+  <section id="signed-out" class="card" hidden>
+    <h2>Sign in to continue</h2>
+    <p class="sub">Use a work account with a confirmed email address at your company's domain.</p>
+    <p style="margin-top:14px"><a class="btn btn-primary" id="signin" href="login.html">Sign in</a></p>
+  </section>
+
+  <section id="register" class="card" hidden>
+    <h2>Register your organization</h2>
+    <p class="sub">Registration starts as pending. You'll prove you control the domain, then our team reviews it.</p>
+    <form id="register-form" class="stack" novalidate>
+      <div class="field"><label for="org-name">Organisation name</label><input class="input" id="org-name" maxlength="200" required autocomplete="organization"></div>
+      <div class="field"><label for="org-domain">Company website domain</label><input class="input" id="org-domain" maxlength="253" required placeholder="example.com" inputmode="url" autocapitalize="off" spellcheck="false"><span class="hint">Just the domain, like acme.com. Not a URL.</span></div>
+      <button class="btn btn-primary" type="submit">Register</button>
+    </form>
+  </section>
+
+  <div id="orgs"></div>
+
+  <section id="operator" class="card" hidden>
+    <h2>Review queue</h2>
+    <p class="sub">Visible to Fortune Jobs AI reviewers only. You cannot review an organization you belong to.</p>
+    <div id="queue" class="stack"></div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script src="employer-submissions.js"></script>
+</body>
+</html>
