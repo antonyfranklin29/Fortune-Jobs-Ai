@@ -12,9 +12,9 @@ Scope is backend only, following Franklin's latest instruction. No website HTML,
 - Failed collection discards rows and records a safe reason; failed cleanup leaves only the bounded lease. Provider/registry exceptions are not returned verbatim.
 - Backend-only retention routine: expire abandoned collecting runs; remove completed payloads and copied source snapshots after seven days; retain aggregate run records for 30 days. The routine is implemented and tested, but no cleanup schedule is active because the migration is not deployed.
 
-## Registry bridge required from Claude
+## Registry integration
 
-Provide `public.employer_feed_source_snapshot(p_source_id text) returns jsonb` with effective EXECUTE limited to service_role (revoke PUBLIC, anon, authenticated). It must read actual protected registry/organization state, not caller-provided approval claims. Return null for missing/ineligible sources, or:
+Integrated Claude's commit `1d2fe3d`. The worker calls its existing `public.employer_source_for_worker(p_source text) returns jsonb`, with effective EXECUTE limited to service_role. It reads protected registry/organization state and returns null for missing/ineligible sources, or:
 
 ```json
 {
@@ -44,7 +44,23 @@ Provide `public.employer_feed_source_snapshot(p_source_id text) returns jsonb` w
 
 This is a synthetic contract example, not an approved employer. Increment a positive integer revision whenever organization, permission, enabled/status, attribution, board or host settings change. Mapping must preserve field types and return consistent values. The collector rechecks approval and configuration between requests. The later publication RPC must independently recheck the authoritative registry inside its transaction; an old staged snapshot is not authorization.
 
-No FK to a guessed registry table was introduced: source_id remains a private text reference pending review of Claude's actual schema. Before production integration, agree a typed source relationship and deletion/revocation handling. The missing registry bridge currently results in a sanitized 503 before any provider request; covered by an entry-point test.
+The raw run log retains a private source text reference for its bounded audit lifetime. `20261017_employer_feed_registry_bridge.sql` adds a candidate checkpoint with a real FK to Claude's employer_sources table. Its service-only `employer_feed_stage_registered_run` rechecks the actual organization/source state and exact approved snapshot under the organization/source locks, stages an immutable batch and copies it to employer_feed_candidates in the same transaction. A newer batch watermark prevents late old batches from overwriting newer candidates. Candidates remain unselected unless the employer has explicitly selected them; this path never publishes.
+
+If the registry reader is absent in the target project, the worker returns a sanitized 503 before any provider request; covered by an entry-point test. The migrations remain unapplied in production.
+
+## Publication hardening found during integration review
+
+The original service-only feed publisher checked the source revision but not each stored candidate's revision. It also treated an expired row with closed_at=null as an ordinary update, which could reactivate it above the 15-active-post limit. Existing refresh updates left application/search metadata stale.
+
+`20261017_employer_feed_publish_hardening.sql` preserves the public RPC signature and Claude's original migration while tightening the deployed definition when this integration migration is eventually applied:
+
+- Reject selected candidates from older source revisions or last staged seven or more days ago.
+- Validate known ATS links against the approved tenant and provider posting ID, along with current host permissions, title/role evidence, location/state evidence and posting dates.
+- Count expired-row reactivation against the same organization quota as a new job.
+- Refresh application URL, company, search_text, category, location/work metadata and attribution together; refuse URL conflicts rather than overwrite another source.
+- Bound listing validity by both source permission expiry and seven days since confirmation, instead of keeping an unrefreshed vacancy visible until a long permission deadline.
+
+Nine combined actual-SQL integration tests pass, including Claude's complete scripted permission/workflow/quota scenarios with all the pending migrations applied. This is an integration override for review, not a change applied behind Claude's back to its original file.
 
 ## Worker protocol
 
@@ -56,16 +72,16 @@ POST with x-ingest-secret. Body:
 
 Only these keys are accepted. max_requests is an integer from 1 to 6. **Dry-run fetches provider data**, but creates no staging run; it is not a zero-request mode. All development tests inject synthetic provider responses instead of calling any employer API.
 
-With dry_run=false, the worker claims the source lease, collects, then persists one private batch. It returns a run ID and accepted/rejected/request counts, with published=0. Pending/revoked/expired sources are refused. Busy source -> 409 before fetching; invalid body -> 400; absent/incorrect secret -> 401; disabled/unavailable backend -> 503. No browser CORS or public employer account invocation is provided.
+With dry_run=false, the worker claims the source lease, collects, then atomically persists one private batch and eligible private candidate records. It returns a run ID, candidate count and accepted/rejected/request counts, with published=0. Pending/revoked/expired sources are refused. Busy source -> 409 before fetching; invalid body -> 400; absent/incorrect secret -> 401; disabled/unavailable backend -> 503. No browser CORS or public employer account invocation is provided.
 
 The worker intentionally does NOT call ingest_upsert_jobs, any publishing RPC, Make, Adzuna or newsletter sending. Private staging is not an active job and does not consume or bypass the employer's 15-active-post allowance. Claude's actual publication transaction must enforce that allowance organization-wide and require verified entitlement for above-limit publishing. Paying still does not bypass review or source approval.
 
 ## Verification
 
-- Full Node suite: **133 passing tests**, including 14 new backend/SQL tests and 18 adapter/collector tests.
+- Full Node suite: **142 passing tests**, including 14 backend/SQL tests, 18 adapter/collector tests and nine combined SQL integration tests.
 - Deno cold-start/entry-point wiring: **3 passing tests**, with no sockets/network. Exercises disabled/auth gates, actual HTTP-to-RPC argument wiring, no credential forwarding to providers, zero publication and a missing registry bridge.
 - Deno entry-point type check passes with the repository's local edge-runtime declaration mapping.
-- The pending migration executes in an isolated in-memory PostgreSQL engine (PGlite); these are tests of the actual SQL, not a JavaScript imitation. Effective privileges and actual denied calls are verified.
+- All pending migrations execute together in an isolated in-memory PostgreSQL engine (PGlite); these are tests of the actual SQL, not a JavaScript imitation. Effective privileges and actual denied calls are verified. The combined test imports 16 synthetic candidates, publishes zero before selection, then permits 15 selected publications and blocks the 16th.
 - PGlite has one connection. The competing-claim test checks two queued claim attempts and the atomic SQL outcome, not a real multi-client Supabase stress test. Live permission checks, real concurrent transactions and an approved real source remain integration gates.
 - No migration applied to Supabase; no function deployed; no feature flag enabled; no employer data fetched or staged in production; no payments activated.
 
@@ -82,8 +98,8 @@ PGlite 0.5.10 is a pinned development dependency for isolated SQL tests, not a w
 
 ## Next integration steps (backend only)
 
-1. Review Claude's registry/organization/publication schema, quota enforcement and service-only snapshot bridge. Reconcile source identifiers and ownership. Do not change Claude's pending migration independently.
-2. Review/apply the private feed-run migration together with the registry prerequisites. Validate effective privileges in the actual project and multi-client lease races.
+1. Review the combined pending migrations and publication hardening. Production account deletion/organization ownership transfer, attribution requirements for the first actual source, query-plan impact and downgrade policy remain activation checks. The original auth-user FKs in Claude's organization tables require explicit account-deletion integration before enabling employer registration.
+2. Apply in dependency order after review: ingest prerequisites; `20261016_employer_feed_runs.sql`; Claude's `20261016_employer_submissions.sql`; `20261017_employer_feed_registry_bridge.sql`; `20261017_employer_feed_publish_hardening.sql`. Validate effective privileges and multi-client lease/publication races in the actual project.
 3. Deploy the worker with its feature flag off. Verify unauthorized/disabled gates, then enable only for one actually approved source and perform a bounded private preview/staging run.
 4. Configure the backend retention job. Keep automatic refresh off until its provider allowance, permission window and monitoring destination are established.
-5. Connect reviewed staged rows to Claude's source/organization-scoped publishing transaction. Verify the 15th/16th post, concurrent publications, duplicate/retry behavior, revocation, attribution/provenance and closure safeguards before any public employer jobs are activated.
+5. The candidate/selection/publication integration passes locally. Before enabling actual public employer jobs, repeat with a permitted source and disposable authorized accounts, including the 15th/16th post, real concurrent publications, duplicate/retry behavior, revocation, attribution/provenance and complete-sweep closure safeguards. Automatic closure is still not connected to the worker.

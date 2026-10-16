@@ -45,9 +45,9 @@ Deno.test('entrypoint stages through exact private RPCs and never sends credenti
     if(url.startsWith(DB+'/rest/v1/rpc/')){
       assertEquals(headers.get('apikey'),SERVICE);assertEquals(headers.get('authorization'),'Bearer '+SERVICE);
       const body=JSON.parse(String(init?.body));calls.push({url,body});
-      if(url.endsWith('/employer_feed_source_snapshot'))return Response.json({source,revision:1});
+      if(url.endsWith('/employer_source_for_worker')){assertEquals(body.p_source,source.id);return Response.json({source,revision:1});}
       if(url.endsWith('/employer_feed_run_begin'))return Response.json({status:'claimed',run_id:'fixture-run',lease_token:'fixture-lease'});
-      if(url.endsWith('/employer_feed_run_stage'))return Response.json({status:'staged',accepted:1});
+      if(url.endsWith('/employer_feed_stage_registered_run'))return Response.json({status:'staged',accepted:1,candidates_promoted:1});
       throw Error('unexpected RPC');
     }
     assertEquals(url,'https://api.lever.co/v0/postings/synthetic?mode=json&skip=0&limit=100');
@@ -58,9 +58,9 @@ Deno.test('entrypoint stages through exact private RPCs and never sends credenti
   }) as typeof fetch;
   try{
     const response=await fn(req(false));const body=await response.json();
-    assertEquals(response.status,200);assertEquals(body.status,'staged');assertEquals(body.published,0);
+    assertEquals(response.status,200);assertEquals(body.status,'staged');assertEquals(body.published,0);assertEquals(body.candidates_promoted,1);
     assert(!JSON.stringify(body).includes('fixture-lease'));assert(!JSON.stringify(body).includes(source.permission_ref));
-    const staged=calls.find(c=>c.url.endsWith('/employer_feed_run_stage'));
+    const staged=calls.find(c=>c.url.endsWith('/employer_feed_stage_registered_run'));
     assert(staged);assertEquals(staged.body.p_token,'fixture-lease');assertEquals(staged.body.p_rows[0].employer_source_id,source.id);
     assert(!calls.some(c=>/upsert|publish|close|pre_scraped_jobs/.test(c.url)));
   }finally{globalThis.fetch=original;}
@@ -68,7 +68,7 @@ Deno.test('entrypoint stages through exact private RPCs and never sends credenti
 
 Deno.test('a missing registry bridge returns 503 before any provider or staging call',async()=>{
   const fn=await loadWorker(true);const original=globalThis.fetch;let calls=0;
-  globalThis.fetch=(async input=>{calls++;assert(String(input).endsWith('/employer_feed_source_snapshot'));
+  globalThis.fetch=(async input=>{calls++;assert(String(input).endsWith('/employer_source_for_worker'));
     return new Response('private-backend-detail',{status:404});}) as typeof fetch;
   try{
     const response=await fn(req(false));assertEquals(response.status,503);assertEquals(calls,1);

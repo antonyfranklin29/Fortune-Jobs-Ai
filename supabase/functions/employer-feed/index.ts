@@ -15,17 +15,17 @@ async function rpc(name:string,args:Record<string,unknown>) {
   return response.json();
 }
 
-// Claude's registry bridge must return {source,revision} and be service_role
+// Claude's registry reader returns {source,revision} and is service_role
 // only. Missing registry RPC -> 503 before any provider call. This worker only
 // stages; it intentionally has no catalogue publication or closure RPC.
 const handler=createEmployerFeedHandler({
   secret:Deno.env.get('INGEST_SECRET')??'',
   enabled:Deno.env.get('EMPLOYER_FEED_ENABLED')==='true',
   roles:compileRoles(ROLES),idx:regionIndex(REGIONS),
-  loadSource:(id:string)=>rpc('employer_feed_source_snapshot',{p_source_id:id}),
+  loadSource:(id:string)=>rpc('employer_source_for_worker',{p_source:id}),
   store:{
     begin:(id:string,revision:number,snapshot:unknown)=>rpc('employer_feed_run_begin',{p_source_id:id,p_revision:revision,p_snapshot:snapshot}),
-    stage:(id:string,token:string,revision:number,rows:unknown,summary:unknown)=>rpc('employer_feed_run_stage',{
+    stage:(id:string,token:string,revision:number,rows:unknown,summary:unknown)=>rpc('employer_feed_stage_registered_run',{
       p_run_id:id,p_token:token,p_revision:revision,p_rows:rows,p_summary:summary}),
     fail:(id:string,token:string,reason:string)=>rpc('employer_feed_run_fail',{p_run_id:id,p_token:token,p_reason:reason}),
   },

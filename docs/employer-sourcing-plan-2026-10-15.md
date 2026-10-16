@@ -10,7 +10,7 @@ Add employer-authorized career feeds and reviewed direct employer postings to Fo
 
 Current production baseline: 79 open Adzuna rows, 23 state codes, 13 role families; zero role/state cells meeting the 100-fresh-distinct target. NC and SC Data Analyst fresh coverage is zero. Two five-call Adzuna runs are recorded. That target is not a promise that every employer or state has 100 actual vacancies.
 
-The employer-feed transport, normalizers, bounded collector, authenticated worker and private staging migration are implemented and tested. Deployment and registry/publication integration remain pending. No approved employer or live employer feed import is active. Existing Adzuna/Make services and permission grants are unchanged. See `docs/employer-feed-backend-2026-10-15.md` for the backend contract and evidence.
+The employer-feed transport, normalizers, bounded collector, authenticated worker and private staging migration are implemented and tested. Claude's registry and publication functions are now integrated locally, including private candidate staging and publication hardening. Production deployment remains pending. No approved employer or live employer feed import is active. Existing Adzuna/Make services and permission grants are unchanged. See `docs/employer-feed-backend-2026-10-15.md` for the backend contract and evidence.
 
 ## Ownership: work in parallel without editing the same files
 
@@ -20,6 +20,7 @@ The employer-feed transport, normalizers, bounded collector, authenticated worke
 | Bounded read-only page collection and permission rechecks | Codex | `supabase/functions/employer-feed/collect.mjs` |
 | Backend registry and verified employer accounts, pending submissions, operator review, approval/revocation audit | Claude | NEW `migrations/pending/20261016_employer_submissions.sql`, NEW `supabase/functions/employer-submissions/`, corresponding tests |
 | Feed worker, private staging/leases and retention | Codex | `supabase/functions/employer-feed/index.ts`, `handler.mjs`, NEW `migrations/pending/20261016_employer_feed_runs.sql`; deployment pending registry integration |
+| Registry bridge and feed publication integration hardening | Codex | NEW `migrations/pending/20261017_employer_feed_registry_bridge.sql`, `20261017_employer_feed_publish_hardening.sql`; preserves Claude's original file |
 | Direct posting publish/update/close path with provenance, expiry and no privilege escalation | Claude | New backend-only publishing RPC and submission endpoints; pending migration reviewed before application |
 | Integration, cross-source deduplication, coverage checks and production smoke checks | Codex reviews both tracks | Coordinate existing catalogue / search files before editing |
 
@@ -118,4 +119,4 @@ Please implement the Claude-owned employer submissions/approval backend in docs/
 
 ## Verification in this change
 
-The full Node suite passes 133 tests, including 18 adapter/collector tests and 14 actual-SQL/backend tests. Three Deno entry-point tests also pass, and the worker type check passes. SQL runs in an isolated PostgreSQL engine; live multi-client Supabase testing remains pending. All new provider responses are synthetic. No live employer approval or feed import has been performed.
+The full Node suite passes 142 tests, including 18 adapter/collector tests, 14 actual-SQL/backend tests and nine combined integration tests. Three Deno entry-point tests also pass, and the worker type check passes. The combined SQL verifies no publication before selection, the 15th/16th-post allowance, expired-row reactivation, candidate revision/freshness, source isolation and complete source/permission workflow scenarios. SQL runs in an isolated PostgreSQL engine; live multi-client Supabase testing remains pending. All new provider responses are synthetic. No live employer approval or feed import has been performed.

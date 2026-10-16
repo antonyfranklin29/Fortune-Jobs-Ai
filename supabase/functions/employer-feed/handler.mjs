@@ -92,6 +92,6 @@ export function createEmployerFeedHandler({secret,enabled=false,loadSource,store
       await failRun('stale_lease');
       return json({...summary,status:'failed',reason:'staging_rejected'},409);
     }
-    return json({...summary,status:staged.status,run_id:lease.run_id,dry_run:false});
+    return json({...summary,status:staged.status,run_id:lease.run_id,candidates_promoted:staged.candidates_promoted??0,dry_run:false});
   };
 }

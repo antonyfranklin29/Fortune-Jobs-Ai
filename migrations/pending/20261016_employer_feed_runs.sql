@@ -83,19 +83,20 @@ end $$;
 create or replace function public.employer_feed_run_stage(
   p_run_id uuid, p_token uuid, p_revision bigint, p_rows jsonb, p_summary jsonb)
 returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
-declare v_run record; v_n integer; v_status text;
+declare v_run record; v_lease record; v_source text; v_n integer; v_status text;
 begin
-  select r.*, l.expires_at as current_expiry into v_run
-    from public.employer_feed_runs r join public.employer_feed_leases l on l.source_id=r.source_id
-    where r.id=p_run_id and l.run_id=r.id and l.token=p_token
-    for update of r,l;
+  select source_id into v_source from public.employer_feed_runs where id=p_run_id;
+  select * into v_lease from public.employer_feed_leases
+    where source_id=v_source and run_id=p_run_id and token=p_token for update;
+  if not found then return jsonb_build_object('status','rejected','reason','stale_lease'); end if;
+  select * into v_run from public.employer_feed_runs where id=p_run_id for update;
   if not found or v_run.source_revision is distinct from p_revision then
     return jsonb_build_object('status','rejected','reason','stale_lease');
   end if;
   if v_run.status in ('staged','partial') then
     return jsonb_build_object('status','already_staged','accepted',v_run.accepted);
   end if;
-  if v_run.status <> 'collecting' or v_run.current_expiry <= clock_timestamp() then
+  if v_run.status <> 'collecting' or v_lease.expires_at <= clock_timestamp() then
     return jsonb_build_object('status','rejected','reason','stale_lease');
   end if;
   if jsonb_typeof(p_rows) is distinct from 'array' or octet_length(p_rows::text) > 4194304
@@ -131,16 +132,16 @@ end $$;
 
 create or replace function public.employer_feed_run_fail(p_run_id uuid,p_token uuid,p_reason text)
 returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
-declare v_source text;
+declare v_source text; v_status text;
 begin
   if p_reason is null or p_reason !~ '^[a-z_]{1,64}$' then
     return jsonb_build_object('status','rejected','reason','invalid_reason');
   end if;
-  select r.source_id into v_source from public.employer_feed_runs r
-    join public.employer_feed_leases l on l.source_id=r.source_id
-    where r.id=p_run_id and l.run_id=r.id and l.token=p_token and r.status='collecting'
-    for update of r,l;
+  select source_id into v_source from public.employer_feed_runs where id=p_run_id;
+  perform 1 from public.employer_feed_leases where source_id=v_source and run_id=p_run_id and token=p_token for update;
   if not found then return jsonb_build_object('status','rejected','reason','stale_lease'); end if;
+  select status into v_status from public.employer_feed_runs where id=p_run_id for update;
+  if v_status is distinct from 'collecting' then return jsonb_build_object('status','rejected','reason','stale_lease'); end if;
   update public.employer_feed_runs set status='failed',failure_reason=p_reason,finished_at=clock_timestamp() where id=p_run_id;
   update public.employer_feed_leases set expires_at=clock_timestamp()
     where source_id=v_source and run_id=p_run_id and token=p_token;
@@ -154,6 +155,8 @@ create or replace function public.employer_feed_run_prune()
 returns jsonb language plpgsql security definer set search_path = public, pg_temp as $$
 declare n_payloads integer; n_runs integer;
 begin
+  -- Same lease-before-run lock order as begin/stage/fail.
+  delete from public.employer_feed_leases where expires_at < clock_timestamp()-interval '7 days';
   update public.employer_feed_runs set status='expired',finished_at=clock_timestamp()
     where status='collecting' and lease_expires_at <= clock_timestamp();
   delete from public.employer_feed_staging s using public.employer_feed_runs r
@@ -161,7 +164,6 @@ begin
   get diagnostics n_payloads = row_count;
   update public.employer_feed_runs set source_snapshot='{}'::jsonb
     where status <> 'collecting' and finished_at < clock_timestamp()-interval '7 days' and source_snapshot <> '{}'::jsonb;
-  delete from public.employer_feed_leases where expires_at < clock_timestamp()-interval '7 days';
   delete from public.employer_feed_runs
     where status <> 'collecting' and finished_at < clock_timestamp()-interval '30 days';
   get diagnostics n_runs = row_count;
