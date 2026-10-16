@@ -2,12 +2,16 @@
   "name": "fortune-jobs-ai",
   "private": true,
   "scripts": {
-    "test": "node --test tests/search-speed.cjs tests/search-accuracy.cjs tests/resume-matching.cjs tests/resume-extraction.cjs tests/guest-resume.cjs tests/data-safety.cjs tests/private-backup.cjs tests/location-regions.cjs tests/login-form.cjs tests/newsletter.mjs tests/job-ingest.mjs tests/employer-feed.mjs",
+    "test": "node --test tests/search-speed.cjs tests/search-accuracy.cjs tests/resume-matching.cjs tests/resume-extraction.cjs tests/guest-resume.cjs tests/data-safety.cjs tests/private-backup.cjs tests/location-regions.cjs tests/login-form.cjs tests/newsletter.mjs tests/job-ingest.mjs tests/employer-feed.mjs tests/employer-feed-backend.mjs",
+    "test:employer-backend": "node --test tests/employer-feed.mjs tests/employer-feed-backend.mjs",
+    "check:employer-worker": "deno check --import-map=tests/deno/import_map.json supabase/functions/employer-feed/index.ts",
+    "test:employer-entrypoint": "deno test --allow-env --allow-read --import-map=tests/deno/import_map.json tests/employer-feed-entrypoint.ts",
     "newsletter:dry-run": "node scripts/newsletter-worker.mjs",
     "test:ingest-worker": "deno test --allow-env --allow-read --no-check --import-map=tests/deno/import_map.json tests/job-ingest-worker.ts",
     "build:ingest": "node scripts/build-ingest-sql.cjs"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.10",
     "@napi-rs/canvas": "1.0.11"
   }
 }
