@@ -2,7 +2,7 @@
 
 Owner: Franklin. Code owners: Codex (feed ingestion) and Claude (employer submissions and approval). Updated October 15, 2026.
 
-**Current scope: backend only.** Franklin removed interface/design activities from this plan. Build and integrate the registry, submission APIs, employer quota enforcement and feed staging/publishing backend. Existing website pages remain in place.
+**Current scope:** Franklin has now authorized dedicated employer and job-seeker sign-in entrances and an employer workspace. General website redesign remains outside this task. Backend ownership stays split below; Codex owns login/account/workspace/navigation changes. Read `docs/employer-launch-progress-2026-10-16.md` before relying on the historical production baseline below.
 
 ## Outcome and current status
 

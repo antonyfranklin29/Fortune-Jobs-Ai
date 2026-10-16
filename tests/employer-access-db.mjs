@@ -29,6 +29,7 @@ const CHAIN = [
   'migrations/pending/20261017_employer_feed_publish_hardening.sql',
   'migrations/pending/20261017_employer_feed_registry_bridge.sql',
   'migrations/pending/20261018_employer_access_hardening.sql',
+    'migrations/pending/20261019_employer_pending_account_cleanup.sql',
 ];
 
 const psql = (args) => spawnSync('psql', ['-X', '-v', 'ON_ERROR_STOP=1', '-d', db, ...args], { cwd: root, encoding: 'utf8' });

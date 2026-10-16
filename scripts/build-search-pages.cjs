@@ -5,7 +5,7 @@ const root = path.join(__dirname, '..');
 let home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const pageStyle = `<style>
 nav .find-jobs-link{color:var(--gold);font-weight:700;}
-@media(max-width:768px){nav{flex-wrap:wrap;height:auto;min-height:80px;gap:12px;padding:16px 20px}.nav-links{display:flex;gap:18px;order:3;width:100%;justify-content:center}}
+@media(max-width:768px){nav{flex-wrap:wrap;height:auto;min-height:80px;gap:12px;padding:16px 20px}.nav-links{display:flex;flex-wrap:wrap;gap:8px;order:3;width:100%;justify-content:center}}
 body[data-page="results"] .hero{display:none}
 body[data-page="results"] .results-section{display:block;min-height:60vh;padding-top:40px}
 body[data-page="results"] .polling-bar{position:static}

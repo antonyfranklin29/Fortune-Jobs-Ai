@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="object-src 'none';base-uri 'none';form-action 'self'">
-<title>Post jobs · Fortune Jobs AI</title>
+<title>Employer workspace · Fortune Jobs AI</title>
 <link rel="stylesheet" href="account.css">
 <link rel="icon" href="favicon.svg">
 <style>
@@ -39,22 +39,33 @@ legend{font-weight:600;margin-bottom:8px}
 .check{display:flex;gap:10px;align-items:flex-start;margin:8px 0;line-height:1.5}
 .check input{margin-top:5px;width:18px;height:18px;flex-shrink:0}
 [hidden]{display:none!important}
+.employer-nav-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.workspace-heading{display:flex;justify-content:space-between;align-items:start;gap:20px;margin-bottom:24px}
+.eyebrow{font-size:11px;letter-spacing:.13em;font-weight:800;color:#8A6414;margin-bottom:8px}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
+.summary-grid .card{margin:0;padding:18px}.summary-grid strong{display:block;font-size:27px;color:var(--navy)}
+.onboarding-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0 4px;font-size:14px}
+.onboarding-steps b{display:block;color:var(--navy);margin-bottom:4px}
+.workspace-account{font-size:13px;color:var(--gray-600);overflow-wrap:anywhere}
+@media(max-width:640px){.top-nav{height:auto;min-height:64px;gap:12px;flex-wrap:wrap;padding:16px}.workspace-heading{flex-direction:column}.summary-grid{gap:8px}.summary-grid .card{padding:12px}.summary-grid strong{font-size:23px}.onboarding-steps{grid-template-columns:1fr}.employer-nav-actions{gap:12px}}
 @media (max-width:560px){.post{grid-template-columns:1fr}.post .actions{justify-content:flex-start}}
 </style>
 </head>
 <body>
-<nav class="top-nav"><a class="logo-text" href="index.html">Fortune Jobs AI</a><a class="nav-link" href="profile.html">Your profile</a></nav>
+<nav class="top-nav"><a class="logo-text" href="index.html">Fortune Jobs AI</a><div class="employer-nav-actions"><a class="nav-link" href="find-jobs.html">Find jobs</a><a class="nav-link" href="profile.html">Job seeker profile</a><button class="btn btn-ghost btn-sm" id="employer-signout" type="button" hidden>Sign out</button></div></nav>
 <main>
-  <h1>Post jobs on Fortune Jobs AI</h1>
-  <p class="lead">Verified employers can post up to 15 active jobs at a time for free. Every organization, post and career feed is reviewed before anything appears in search.</p>
+  <header class="workspace-heading"><div><p class="eyebrow">FOR EMPLOYERS</p><h1>Your employer workspace</h1><p class="lead">Manage your company, job posts and career feeds. Verified employers can keep up to 15 active jobs free.</p><p class="workspace-account" id="workspace-account"></p></div><button class="btn btn-outline" type="button" id="add-company" hidden>Add a company</button></header>
 
   <p id="status" class="msg info show" role="status" aria-live="polite">Loading…</p>
 
   <section id="signed-out" class="card" hidden>
-    <h2>Sign in to continue</h2>
-    <p class="sub">Use a work account with a confirmed email address at your company's domain.</p>
-    <p style="margin-top:14px"><a class="btn btn-primary" id="signin" href="login.html">Sign in</a></p>
+    <h2>Your company has its own space</h2>
+    <p class="sub">Use employer sign-in to manage hiring. Company domain verification and independent review protect every posting.</p>
+    <p style="margin-top:14px"><a class="btn btn-primary" id="signin" href="employer-login.html">Employer sign in</a> <a class="btn btn-outline" href="employer-login.html?mode=signup">Create employer account</a></p>
+    <div class="onboarding-steps"><div><b>1. Register your company</b>Tell us your company name and website domain.</div><div><b>2. Verify and review</b>Prove domain ownership and prepare your job drafts.</div><div><b>3. Manage your postings</b>Approved jobs go live within your company’s allowance.</div></div>
   </section>
+
+  <section id="workspace-summary" class="summary-grid" aria-label="Company overview" hidden><div class="card"><strong id="summary-companies">0</strong>Companies</div><div class="card"><strong id="summary-active">0</strong>Active jobs</div><div class="card"><strong id="summary-review">0</strong>Posts in review</div></section>
 
   <section id="register" class="card" hidden>
     <h2>Register your organization</h2>
@@ -76,7 +87,7 @@ legend{font-weight:600;margin-bottom:8px}
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
-<script src="auth.js"></script>
-<script src="employer-submissions.js"></script>
+<script src="auth.js?v=20261015-employer-entry"></script>
+<script src="employer-submissions.js?v=20261015-employer-entry"></script>
 </body>
 </html>

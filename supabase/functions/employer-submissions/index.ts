@@ -6,8 +6,8 @@
 //
 // POST { "action": "check_domain", "org_id": "<uuid>" }   Authorization: Bearer <user token>
 //
-// verify_jwt is off; the handler accepts only a real user token (resolved via
-// /auth/v1/user), as delete-account does. The domain and token come from the
+// The handler accepts only a real user token (resolved via /auth/v1/user),
+// independently of the gateway JWT check. The domain and token come from the
 // database, never from the request, so the lookup cannot be steered elsewhere.
 // One check per org per minute.
 
@@ -51,7 +51,7 @@ async function lookupTxt(name: string): Promise<string[][]> {
 function cors(origin: string | null) {
   return {
     "access-control-allow-origin": origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
-    "access-control-allow-headers": "authorization, content-type",
+    "access-control-allow-headers": "authorization, apikey, content-type",
     "access-control-allow-methods": "POST, OPTIONS",
     "vary": "origin",
   };

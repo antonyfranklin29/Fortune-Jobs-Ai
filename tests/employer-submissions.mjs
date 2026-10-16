@@ -53,6 +53,6 @@ test('employer page renders data as text, not HTML', () => {
 test('employer page is private to search engines and loads no inline script', () => {
   assert.match(html, /<meta name="robots" content="noindex,nofollow">/);
   assert.doesNotMatch(html, /<script>(?!<\/script>)/);
-  assert.match(html, /src="employer-submissions\.js"/);
+  assert.match(html, /src="employer-submissions\.js(?:\?[^"\s]*)?"/);
   assert.doesNotMatch(html, /<a [^>]*(index|results|find-jobs)\.html[^>]*>Post jobs/i, 'no shared navigation change');
 });

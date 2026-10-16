@@ -1,0 +1,41 @@
+{
+  "checked_at": "2026-10-16T04:05:24.818Z",
+  "scope": "Public key probes only; no real users, company records, paid runs or credentials created.",
+  "checks": [
+    {
+      "label": "company_data",
+      "status": 401,
+      "code": "42501"
+    },
+    {
+      "label": "own_state_anon",
+      "status": 401,
+      "code": "42501"
+    },
+    {
+      "label": "domain_service_rpc_anon",
+      "status": 401,
+      "code": "42501"
+    },
+    {
+      "label": "public_visibility",
+      "status": 200,
+      "rows": 0
+    },
+    {
+      "label": "public_jobs",
+      "status": 200,
+      "rows": 1
+    },
+    {
+      "label": "domain_anonymous",
+      "status": 401,
+      "error": "sign_in_required"
+    },
+    {
+      "label": "domain_browser_preflight",
+      "status": 204,
+      "allow_headers": "authorization, apikey, content-type"
+    }
+  ]
+}

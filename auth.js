@@ -33,7 +33,10 @@
       return [j.job_title, j.company, j.apply_url].map(s => String(s || '').trim().toLowerCase()).join('|').slice(0, 600);
     },
 
-    loginUrl(next) { return 'login.html' + (next ? '?next=' + encodeURIComponent(next) : ''); },
+    loginUrl(next) {
+      const employer = typeof next === 'string' && next.split(/[?#]/)[0] === 'employers.html';
+      return (employer ? 'employer-login.html' : 'login.html') + (next ? '?next=' + encodeURIComponent(next) : '');
+    },
 
     async signOut() {
       await sb.auth.signOut();

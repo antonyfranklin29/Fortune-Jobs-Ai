@@ -48,6 +48,11 @@ Deno.test('anonymous, project credentials and unconfirmed users are refused',asy
   reset();for(const token of [null,'anon-key','fixture-service'])assertEquals((await call(token)).status,401);
   assertEquals((await call('unconfirmed')).status,403);assertEquals(lookups.length,0);
 });
+Deno.test('browser preflight allows the headers actually sent by the employer page',async()=>{
+ const res=await handler(new Request('https://fn.test',{method:'OPTIONS',headers:{origin:'https://fortunejobsai.com','access-control-request-headers':'authorization,apikey,content-type'}}));
+ assertEquals(res.status,204);assertEquals(res.headers.get('access-control-allow-origin'),'https://fortunejobsai.com');
+ for(const header of ['authorization','apikey','content-type'])assert(res.headers.get('access-control-allow-headers')?.includes(header));
+});
 Deno.test('non-members cannot reserve a DNS check',async()=>{
   reset();assertEquals((await call('other-token')).status,404);assertEquals(lookups.length,0);assertEquals(checked,false);
 });

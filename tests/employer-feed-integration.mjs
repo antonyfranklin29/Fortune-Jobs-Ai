@@ -8,6 +8,8 @@ import {createEmployerFeedHandler} from '../supabase/functions/employer-feed/han
 import {normalizeEmployerJob} from '../supabase/functions/employer-feed/lib.mjs';
 import {compileRoles,regionIndex} from '../supabase/functions/job-ingest/lib.mjs';
 import {ROLES,REGIONS} from '../supabase/functions/job-ingest/config.mjs';
+import {createRequire} from 'node:module';
+const {build:buildEmployerBackend}=createRequire(import.meta.url)('../scripts/build-employer-backend.cjs');
 let db;
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 before(async()=>{
@@ -20,7 +22,8 @@ before(async()=>{
     'migrations/pending/20261017_employer_domain_checks.sql',
     'migrations/pending/20261017_employer_account_deletion.sql',
     'migrations/pending/20261017_employer_search_visibility.sql',
-    'migrations/pending/20261018_employer_access_hardening.sql']){
+    'migrations/pending/20261018_employer_access_hardening.sql',
+    'migrations/pending/20261019_employer_pending_account_cleanup.sql']){
     try{await db.exec(read(path));}catch(e){throw Error(`${path}: ${e.message}`);}
   }
 });
@@ -247,4 +250,34 @@ test('batched RLS never accepts a source belonging to a different organization',
   try{assert.equal((await db.query('select count(*)::int n from pre_scraped_jobs')).rows[0].n,0);
     assert.equal((await db.query('select public.employer_public_listing_keys() k')).rows.length,0);}
   finally{await db.exec('reset role');}
+});
+
+test('deleting a pending duplicate claimant never reserves or blocks the verified company domain',async()=>{
+  await seed();const pendingUser='66666666-6666-6666-6666-666666666666',pendingOrg='77777777-7777-7777-7777-777777777777';
+  await db.query("insert into auth.users(id,email,email_confirmed_at) values($1,'pending@synthetic-test.com',now())",[pendingUser]);
+  await db.query("insert into employer_orgs(id,name,primary_domain,status,created_by) values($1,'Pending claimant','synthetic-careers.com','pending',$2)",[pendingOrg,pendingUser]);
+  await db.query("insert into employer_org_members(org_id,user_id,role) values($1,$2,'owner')",[pendingOrg,pendingUser]);
+  await db.query('delete from auth.users where id=$1',[pendingUser]);
+  assert.equal((await db.query('select status from employer_orgs where id=$1',[pendingOrg])).rows[0].status,'rejected');
+  assert.equal((await db.query('select status from employer_orgs where id=$1',[ORG])).rows[0].status,'verified');
+});
+
+test('Claude adversarial access SQL passes on the combined migration chain',async()=>{
+  const script=read('tests/sql/employer-access.sql').split(/\r?\n/).filter(line=>!/^\s*\\/.test(line)).join('\n');
+  try{const results=await db.exec(script);assert.ok(results.some(result=>result.rows?.some(row=>Object.values(row).some(value=>String(value).startsWith('PASS: employer access review')))));}
+  catch(e){await db.exec('rollback');throw Error(`Access SQL scenario: ${e.message}; ${e.where||''}`);}
+});
+
+test('first-install deployment bundle is atomic, keeps legacy data and leaves billing/reviewers off',async()=>{
+  const isolated=await PGlite.create();
+  try{
+    for(const file of ['tests/sql/supabase-shim.sql','migrations/20261015_ingest_taxonomy.sql','migrations/20261015_ingest_catalogue.sql','migrations/20261015_ingest_feed.sql'])await isolated.exec(read(file));
+    await isolated.exec("insert into auth.users(email,email_confirmed_at) values('legacy@synthetic.com',now());insert into pre_scraped_jobs(category,job_title,apply_url) values('Data Analyst','Existing job','https://synthetic.com/legacy');");
+    await isolated.exec(buildEmployerBackend());
+    assert.equal((await isolated.query('select count(*)::int n from auth.users')).rows[0].n,1);
+    assert.equal((await isolated.query('select count(*)::int n from employer_operators')).rows[0].n,0);
+    assert.equal((await isolated.query('select paid_publishing_enabled from employer_billing_config')).rows[0].paid_publishing_enabled,false);
+    await isolated.exec('set role anon');assert.equal((await isolated.query('select count(*)::int n from pre_scraped_jobs')).rows[0].n,1);await isolated.exec('reset role');
+    await assert.rejects(isolated.exec(buildEmployerBackend()),/already present/);await isolated.exec('rollback');
+  }finally{await isolated.close();}
 });

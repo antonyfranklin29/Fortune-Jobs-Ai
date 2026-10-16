@@ -14,6 +14,8 @@
   const MESSAGES = {
     sign_in_required: 'Please sign in first.',
     email_not_confirmed: 'Please confirm your email address, then reload this page.',
+    account_banned: 'Employer access is unavailable for this account. Contact info@fortunejobsai.com for help.',
+    account_unavailable: 'This account is no longer available. Please sign out.',
     domain_already_registered: 'That domain is already registered. If it belongs to your company, contact info@fortunejobsai.com.',
     too_many_organizations: 'You can belong to at most three organizations.',
     not_a_member: 'You are not a member of that organization.',
@@ -33,6 +35,8 @@
     apply_url_already_listed: 'This application link is already listed on Fortune Jobs AI. Our team will check it.',
     org_not_verified: 'Approved. It will go live once your organization is verified.',
     expired: 'The closing date has passed. Edit the dates and resubmit.',
+    check_invalidated: 'Your company status or DNS check changed. Please reload and check again.',
+    temporarily_unavailable: 'The verification service is temporarily unavailable. Try again shortly.',
   };
   function say(text, kind) {
     statusEl.textContent = text;
@@ -81,22 +85,42 @@
   const chip = ([label, cls]) => h('span', { class: 'status ' + cls, text: label });
 
   // ── page ───────────────────────────────────────────────────────────────────
+  let renderVersion = 0;
   async function render() {
+    const version = ++renderVersion;
+    // Clear private content immediately on account changes and failed reloads.
+    $('orgs').replaceChildren(); $('queue').replaceChildren();
+    for (const id of ['signed-out', 'register', 'operator', 'workspace-summary', 'employer-signout', 'add-company']) $(id).hidden = true;
+    $('workspace-account').textContent = '';
     const user = await FJ.user();
+    if (version !== renderVersion) return;
     if (!user) {
       $('signin').href = FJ.loginUrl('employers.html');
       $('signed-out').hidden = false;
       say('Sign in to post jobs.', 'info');
       return;
     }
+    $('employer-signout').hidden = false;
+    $('workspace-account').textContent = 'Signed in as ' + (user.email || 'your account');
     let state;
     try { state = await rpc('employer_my_state'); }
-    catch (e) { say(errorText(e), 'error'); return; }
+    catch (e) {
+      if (version !== renderVersion) return;
+      say(/PGRST202|could not find.*function|does not exist/i.test(String(e.code || '') + ' ' + String(e.message || ''))
+        ? 'Employer setup is being prepared. Please try again shortly or contact info@fortunejobsai.com. Your job seeker account is still available.' : errorText(e), 'error'); return;
+    }
+    if (version !== renderVersion) return;
+    if (!state || !Array.isArray(state.orgs) || !state.plan) { say('Company details could not be loaded. Please reload.', 'error'); return; }
     statusEl.className = 'msg';
     $('register').hidden = state.orgs.length > 0;
     const host = $('orgs');
     host.replaceChildren(...state.orgs.map((o) => orgCard(o, state.plan)));
-    renderOperator();
+    $('summary-companies').textContent = String(state.orgs.length);
+    $('summary-active').textContent = String(state.orgs.reduce((n, o) => n + (Number(o.active_posts) || 0), 0));
+    $('summary-review').textContent = String(state.orgs.reduce((n, o) => n + o.posts.filter(p => p.status === 'pending_review').length, 0));
+    $('workspace-summary').hidden = state.orgs.length === 0;
+    $('add-company').hidden = state.orgs.length === 0 || state.orgs.length >= 3;
+    renderOperator(version);
   }
 
   function orgCard(o, plan) {
@@ -305,20 +329,25 @@
       });
       const body = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(body.error || 'failed');
-      if (body.verified) { say('Domain confirmed. Our team will review your organization next.', 'ok'); await render(); }
+      if (body.verified) { await render(); say('Domain confirmed. Our team will review your organization next.', 'ok'); }
       else { out.textContent = 'The TXT record was not found yet. DNS changes can take a while; try again in a few minutes.'; out.className = 'msg error show'; }
     } catch (e) { out.textContent = errorText(e); out.className = 'msg error show'; }
   }
 
+  let actionBusy = false;
   async function run(fn, okText) {
-    try { await fn(); say(okText, 'ok'); await render(); }
-    catch (e) { say(errorText(e), 'error'); await render(); }
+    if (actionBusy) return;
+    actionBusy = true;
+    try { await fn(); await render(); say(okText, 'ok'); }
+    catch (e) { await render(); say(errorText(e), 'error'); }
+    finally { actionBusy = false; }
   }
 
   // ── reviewer panel (shown only if the server says the caller is a reviewer) ─
-  async function renderOperator() {
+  async function renderOperator(version) {
     let q;
-    try { q = await rpc('operator_queue'); } catch { $('operator').hidden = true; return; }
+    try { q = await rpc('operator_queue'); } catch { if (version === renderVersion) $('operator').hidden = true; return; }
+    if (version !== renderVersion) return;
     $('operator').hidden = false;
     const box = $('queue');
     const items = [];
@@ -326,7 +355,7 @@
       h('div', {}, h('strong', { text: o.name }), ' ', h('span', { class: 'meta', text: `${o.domain} · domain ${o.domain_verified ? 'proved' : 'not proved'}` })),
       h('div', { class: 'actions' },
         h('button', { class: 'btn btn-sm btn-primary', type: 'button', disabled: !o.domain_verified,
-          on: { click: () => run(() => rpc('operator_set_org_status', { p_org: o.id, p_status: 'verified', p_note: 'reviewed' }), 'Organization verified.') } }, 'Verify'),
+          on: { click: () => { const note = prompt('Record how you verified that the company name matches its domain:'); if (note && note.trim()) run(() => rpc('operator_set_org_status', { p_org: o.id, p_status: 'verified', p_note: note.trim() }), 'Organization verified.'); } } }, 'Verify'),
         h('button', { class: 'btn btn-sm btn-danger', type: 'button',
           on: { click: () => { const n = prompt('Reason for rejecting this organization?'); if (n) run(() => rpc('operator_set_org_status', { p_org: o.id, p_status: 'rejected', p_note: n }), 'Organization rejected.'); } } }, 'Reject'))));
     for (const p of q.posts) items.push(h('div', { class: 'post' },
@@ -344,12 +373,18 @@
   }
 
   // ── start ──────────────────────────────────────────────────────────────────
+  $('add-company').addEventListener('click', () => { $('register').hidden = !$('register').hidden; if (!$('register').hidden) $('org-name').focus(); });
+  $('employer-signout').addEventListener('click', async () => {
+    $('employer-signout').disabled = true;
+    try { const {error} = await FJ.sb.auth.signOut(); if (error) throw error; location.href = 'employer-login.html'; }
+    catch (error) { say('Could not sign out. Please try again.', 'error'); $('employer-signout').disabled = false; }
+  });
   $('register-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = $('org-name').value.trim();
     const domain = $('org-domain').value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '');
-    try { await rpc('employer_register_org', { p_name: name, p_domain: domain }); say('Registered. Next, prove you control your domain.', 'ok'); await render(); }
-    catch (err) { say(errorText(err), 'error'); }
+    if (!name || !domain) { say('Enter your company name and website domain.', 'error'); return; }
+    await run(() => rpc('employer_register_org', { p_name: name, p_domain: domain }), 'Registered. Next, prove you control your domain.');
   });
 
   if (!FJ) { say('Accounts are unavailable right now. Please try again later.', 'error'); return; }

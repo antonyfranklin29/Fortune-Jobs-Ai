@@ -1,5 +1,7 @@
 # Employer feed backend — October 15, 2026
 
+**Deployment update, October 16:** Employer database migrations through `20261019_employer_pending_account_cleanup.sql` have now been installed, and the `employer-submissions` domain-verification function is deployed. The feed worker itself remains undeployed/disabled; no reviewer, employer, feed or paid entitlement was created. Read `docs/employer-launch-progress-2026-10-16.md` for current evidence and the separate sign-in/workspace release. The historical implementation status below predates this deployment.
+
 Scope is backend only, following Franklin's latest instruction. No website HTML, design or account interface changed.
 
 ## Implemented
