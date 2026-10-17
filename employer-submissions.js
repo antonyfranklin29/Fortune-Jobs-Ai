@@ -37,6 +37,8 @@
     expired: 'The closing date has passed. Edit the dates and resubmit.',
     check_invalidated: 'Your company status or DNS check changed. Please reload and check again.',
     temporarily_unavailable: 'The verification service is temporarily unavailable. Try again shortly.',
+    candidate_list_changed: 'Your career feed changed while you were choosing jobs. Open Choose postings again and review the latest list.',
+    source_not_publishable: 'This feed is awaiting approval or its permission has expired. Contact info@fortunejobsai.com for help.',
   };
   function say(text, kind) {
     statusEl.textContent = text;

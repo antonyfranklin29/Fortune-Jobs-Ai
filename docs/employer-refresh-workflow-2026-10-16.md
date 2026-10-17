@@ -72,14 +72,17 @@ owner's settings. Both repository opt-in and the database switch are currently
 off; scheduled collection and alerting are not active.
 
 At one source per 15-minute tick, nominal six-hour capacity is 24 sources before
-retries. This is a bounded pilot configuration, not proof of nationwide coverage,
+retries. Normalisation currently accepts supported U.S. roles with explicit state
+evidence. Larger boards may exceed the 500-record bound and need a separately
+reviewed pagination budget; incomplete collection never authorises a closure.
+This is a bounded pilot configuration, not proof of nationwide coverage,
 unlimited feeds, 100 concurrent users or a production load test. GitHub schedules
 can be delayed. Scale from measured provider latency and queue health.
 
 ## Validation
 
-- Full application suite: 195 passing after final integration (including 12 new
-  SQL/coordinator cases and three runner cases).
+- Full application suite: 196 passing after final integration (including 12 new
+  SQL/coordinator cases, three runner cases and an atomic-chooser UI case).
 - Deno: 17 Edge Function entrypoint/security cases pass. The exact 35 KB bundled
   deployment artifact also passes its three entrypoint cases with no network.
 - Native PostgreSQL 17.11: all existing 31 named concurrency scenarios and six
