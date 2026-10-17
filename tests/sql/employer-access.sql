@@ -59,7 +59,8 @@ grant select on all tables in schema t to public;
 
 -- ── fixtures ─────────────────────────────────────────────────────────────────
 insert into t.ids values ('A', gen_random_uuid()), ('M', gen_random_uuid()), ('B', gen_random_uuid()),
-  ('OP', gen_random_uuid()), ('JS', gen_random_uuid()), ('JSU', gen_random_uuid()), ('T', gen_random_uuid());
+  ('OP', gen_random_uuid()), ('JS', gen_random_uuid()), ('JSU', gen_random_uuid()), ('T', gen_random_uuid()),
+  ('JSC', gen_random_uuid()), ('SUB', gen_random_uuid());
 insert into auth.users (id, email, email_confirmed_at, raw_user_meta_data) values
   (t.id('A'),  'owner@acme-a.com', now(), '{}'),
   (t.id('M'),  'member@acme-a.com', now(), '{}'),
@@ -68,7 +69,11 @@ insert into auth.users (id, email, email_confirmed_at, raw_user_meta_data) value
   -- A job seeker who CLAIMS operator and employer status in metadata. No code may read it.
   (t.id('JS'), 'seeker@gmail.com', now(), '{"role":"employer","is_operator":true,"roles":["operator"],"employer":true}'),
   (t.id('JSU'), 'unconfirmed@gmail.com', null, '{}'),
-  (t.id('T'),  'owner@targetco.com', now(), '{}');
+  (t.id('T'),  'owner@targetco.com', now(), '{}'),
+  -- A company employee who may register their own company (matching address).
+  (t.id('JSC'), 'recruiter@js-corp.com', now(), '{}'),
+  -- An address in a subdomain of newco-s.com may claim the parent company domain.
+  (t.id('SUB'), 'sam@staff.newco-s.com', now(), '{}');
 insert into public.employer_operators (user_id) values (t.id('OP'));
 
 -- ── 1. catalogue: nothing the public can reach ───────────────────────────────
@@ -206,7 +211,10 @@ select t.fails(format($q$select public.employer_close_post(%L)$q$, t.get('postA1
 select t.fails(format($q$select public.employer_set_keep_on_downgrade(%L, true)$q$, t.get('postA1')), 'post_not_found');
 select t.fails(format($q$select public.employer_select_feed_jobs(%L, '{x}', true)$q$, t.get('srcA')), 'source_not_found');
 select t.fails(format($q$select public.employer_list_feed_candidates(%L)$q$, t.get('srcA')), 'source_not_found');
--- The job seeker registers their own company: pending, and it cannot publish.
+-- A job seeker on a personal address cannot claim a company, whatever name they give.
+select t.fails($q$select public.employer_register_org('Js Corp', 'js-corp.com')$q$, 'company_email_required');
+-- A company employee registers their own company: pending, and it cannot publish.
+select t.as('JSC');
 select t.put('orgC', (public.employer_register_org('Js Corp', 'js-corp.com')->>'org_id'));
 select t.ok(jsonb_array_length(public.employer_my_state()->'orgs') = 1
   and (public.employer_my_state()->'orgs'->0->>'id') = t.get('orgC'),
@@ -221,7 +229,7 @@ select t.ok((select status from public.employer_posts where id = t.get('postC'):
   and (select published_job_id from public.employer_posts where id = t.get('postC')::uuid) is null
   and (select org_id from public.employer_posts where id = t.get('postC')::uuid) = t.get('orgC')::uuid,
   'client-supplied status, approval, org and job fields are ignored');
-set role authenticated; select t.as('JS');
+set role authenticated; select t.as('JSC');
 select t.fails(format($q$select public.employer_activate_post(%L)$q$, t.get('postC')), 'review_required');
 reset role;
 select t.as('OP');
@@ -271,7 +279,7 @@ reset role;
 -- ── 7. reviewer rules ────────────────────────────────────────────────────────
 set role authenticated; select t.as('OP');
 select t.fails(format($q$select public.operator_set_org_status(%L, 'verified', '')$q$, t.get('orgA')), 'note_required');
-select t.put('orgO', (public.employer_register_org('Ops Co', 'ops-co.com')->>'org_id'));
+select t.put('orgO', (public.employer_register_org('Ops Co', 'fortunejobsai.com')->>'org_id'));
 select t.put('postO', (public.employer_save_post(t.get('orgO')::uuid, null, t.post())->>'id'));
 select public.employer_submit_post(t.get('postO')::uuid);
 select t.fails(format($q$select public.operator_review_post(%L, 1, 'approve', null)$q$, t.get('postO')),
@@ -374,10 +382,9 @@ select t.ok(t.active(t.get('orgA')::uuid) = 15
   'the revived-but-blocked posting stayed expired and took no slot');
 
 -- ── 9. squatting: a job seeker cannot block a company from registering ──────
+-- A job seeker on a personal address cannot register someone else's company at all.
 set role authenticated; select t.as('JS');
-select t.put('orgSquat', (public.employer_register_org('Target Co (unverified)', 'targetco.com')->>'org_id'));
-select t.put('boardSquat', public.employer_submit_source(t.get('orgC')::uuid, 'greenhouse', 'global', 'targetco',
-  '{jobs.targetco.com}', '{"display":true,"refresh":true}', 'v1')->>'id');
+select t.fails($q$select public.employer_register_org('Target Co (unverified)', 'targetco.com')$q$, 'company_email_required');
 reset role;
 set role authenticated; select t.as('T');
 select t.put('orgT', (public.employer_register_org('Target Co', 'targetco.com')->>'org_id'));
@@ -389,17 +396,14 @@ set role service_role;
 select public.employer_mark_domain_verified(t.get('orgT')::uuid, t.get('tokT'));
 reset role;
 set role authenticated; select t.as('OP');
-select t.fails(format($q$select public.operator_set_org_status(%L, 'verified', 'squat check')$q$, t.get('orgSquat')),
-  'domain_not_verified');
 select public.operator_set_org_status(t.get('orgT')::uuid, 'verified', 'Checked: Target Co owns targetco.com');
-select t.fails(format($q$select public.operator_review_source(%L, 1, 'approve', '{jobs.targetco.com}', '', false,
-  now() + interval '30 days', 'ref-squat', 'n')$q$, t.get('boardSquat')), 'organization_not_verified');
 select public.operator_review_source(t.get('boardT'), 1, 'approve', '{jobs.targetco.com}', 'Target Co', false,
   now() + interval '30 days', 'written-permission-2026-10-15', 'Target Co signed permission');
 reset role;
 select t.ok((select status from public.employer_sources where id = t.get('boardT')) = 'approved',
   'the real company''s board is approved despite the earlier pending claim');
-set role authenticated; select t.as('JS');
+-- A verified domain cannot be claimed twice, even by an address at that same company.
+set role authenticated; select t.as('T');
 select t.fails($q$select public.employer_register_org('Target Copy', 'targetco.com')$q$, 'domain_already_registered');
 reset role;
 
@@ -416,6 +420,21 @@ update public.employer_orgs set status = 'suspended' where id = t.get('orgA')::u
 set role anon;
 select t.ok(t.anon_count(t.get('orgA')::uuid) = 0, 'suspending an organisation hides its listings immediately');
 reset role;
+
+-- ── 8. company domain rule: the registrant's sign-in address must be at the company domain
+-- or a subdomain of it. Free-mail providers never qualify, on either side.
+set role authenticated; select t.as('A');
+select t.fails($q$select public.employer_register_org('Acme Mail', 'gmail.com')$q$, 'free_email_domain_not_allowed');
+select t.fails($q$select public.employer_register_org('Beta Labs Copy', 'beta-b.com')$q$, 'email_domain_mismatch');
+select t.fails($q$select public.employer_register_org('Suffix Trick', 'a.com')$q$, 'email_domain_mismatch');
+reset role;
+set role authenticated; select t.as('SUB');
+select t.ok((public.employer_register_org('Newco Staff', 'newco-s.com')->>'status') = 'pending',
+  'an address at a subdomain may claim the parent company domain');
+reset role;
+-- The registration audit records the email match that was checked, not a guess.
+select t.ok(exists (select 1 from public.employer_audit where action = 'registered' and detail->>'email_domain_matches' = 'true'),
+  'registration is audited with the email-domain check');
 
 select 'PASS: employer access review';
 rollback;

@@ -8,7 +8,8 @@ const files=['20261016_employer_feed_runs.sql','20261016_employer_submissions.sq
  '20261019_employer_pending_account_cleanup.sql','20261019_employer_concurrency_hardening.sql',
  '20261020_employer_post_actions.sql','20261021_employer_feed_concurrency_hardening.sql',
  '20261022_employer_paused_post_state.sql','20261023_employer_refresh_workflow.sql',
- '20261024_employer_url_conflicts.sql','20261025_employer_maintenance.sql'];
+ '20261024_employer_url_conflicts.sql','20261025_employer_maintenance.sql',
+ '20261026_employer_email_domain_rule.sql'];
 function build(){
  const parts=files.map(name=>{const sql=fs.readFileSync(path.join(root,'migrations/pending',name),'utf8');
   return '-- '+name+' SHA256 '+crypto.createHash('sha256').update(sql).digest('hex')+'\n'+sql.replace(/^\s*(begin|commit);\s*$/gmi,'');});

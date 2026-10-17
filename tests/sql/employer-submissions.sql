@@ -87,8 +87,11 @@ select t.as('B');
 alter table t_org add column b uuid;
 update t_org set b = (public.employer_register_org('Beta Labs', 'beta-b.com')->>'org_id')::uuid;
 -- A pending claim does not block the company that owns the domain (see 20261018 hardening).
+select t.as('A2');
 select t.ok((public.employer_register_org('Acme Copy', 'acme-a.com')->>'status') = 'pending', 'pending duplicate allowed');
-select t.fails('select public.employer_register_org(''Bad'', ''localhost'')', 'violates check|check constraint');
+-- A host that is not a company domain cannot reach the table check: the sign-in address
+-- rule refuses it first, because no real address sits at 'localhost'.
+select t.fails('select public.employer_register_org(''Bad'', ''localhost'')', 'email_domain_mismatch|violates check|check constraint');
 reset role;
 insert into public.employer_org_members (org_id, user_id, role) select a, t.id('A2'), 'member' from t_org;
 insert into public.employer_org_members (org_id, user_id, role) select a, t.id('OPA'), 'member' from t_org;
@@ -96,9 +99,9 @@ insert into public.employer_org_members (org_id, user_id, role) select a, t.id('
 -- ── 3. org isolation ─────────────────────────────────────────────────────────
 set role authenticated;
 select t.as('B');
-select t.ok(jsonb_array_length(public.employer_my_state()->'orgs') = 2
+select t.ok(jsonb_array_length(public.employer_my_state()->'orgs') = 1
   and not exists (select 1 from jsonb_array_elements(public.employer_my_state()->'orgs') e where e->>'name' = 'Acme Analytics'),
-  'B sees only its own two organisations (Beta and its pending Acme Copy claim), never A''s');
+  'B sees only its own organisation (Beta), never A''s');
 select t.ok(public.employer_my_state()->'orgs'->0->>'name' = 'Beta Labs', 'B sees Beta');
 select t.fails(format('select public.employer_save_post(%L, null, t.post())', (select a from t_org)), 'not_a_member');
 
