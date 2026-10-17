@@ -276,6 +276,13 @@ Deno.serve(async (req: Request) => {
   const searchId = `s_${Date.now().toString(36)}_${crypto.randomUUID().replace(/-/g, "").slice(0, 12)}`;
   const dryRun = TEST_KEY !== "" && req.headers.get("x-fj-test-key") === TEST_KEY;
 
+  // Refuse an unconfigured gateway BEFORE admission, so the request consumes no
+  // visitor allowance and reserves no capacity. Authorised dry runs stay usable
+  // before Make is connected; they never dispatch a paid workflow.
+  if (!dryRun && (!MAKE_URL || !MAKE_SECRET)) {
+    return json({ status: "error", reason: "gateway_not_configured" }, 503, origin, { "retry-after": "60" });
+  }
+
   const queueStart = Date.now();
   const deadline = queueStart + cfg.queue_wait_ms;
   let decision: Record<string, unknown> | null = null;
@@ -312,11 +319,6 @@ Deno.serve(async (req: Request) => {
     // Holds its slot exactly like a real search so saturation and recovery can be
     // exercised honestly, but never calls Make, so no scraping is paid for.
     return json({ status: "accepted", search_id: searchId, dry_run: true, queued_ms: waitedMs }, 202, origin);
-  }
-
-  if (!MAKE_URL || !MAKE_SECRET) {
-    await rpc("live_search_settle", { p_search_id: searchId, p_status: "failed", p_outcome: "gateway_not_configured" }).catch(() => {});
-    return json({ status: "error", reason: "gateway_not_configured" }, 503, origin, { "retry-after": "60" });
   }
 
   try {
