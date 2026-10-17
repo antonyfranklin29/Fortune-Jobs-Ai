@@ -86,6 +86,9 @@ function seedMarket() {
 type FeedListing = { id: string; title: string; area: string[]; display?: string; created: string };
 let feedMarket: FeedListing[] = [];
 let feedTruncateAfter = Infinity;
+let failUpsert = false;                 // injected store failure for recovery tests
+let providerDelayMs = 0;                // slows the fake provider so overlap can be tested
+let onProviderCall: (() => void) | null = null;
 function feedAdzuna(url: URL) {
   assertEquals(url.searchParams.get("category"), "it-jobs");
   assert(!url.searchParams.has("location1") && !url.searchParams.has("title_only"), "feed asks for the whole country");
@@ -125,6 +128,8 @@ globalThis.fetch = (async (input: Request | URL | string, init?: RequestInit) =>
   if (url.hostname === "api.adzuna.com") {
     assertEquals(url.searchParams.get("app_key"), "adzuna-test-key");
     assert(!url.searchParams.has("resume") && !url.searchParams.has("user_id"), "no user data sent to the source");
+    if (providerDelayMs) await new Promise((r) => setTimeout(r, providerDelayMs));
+    onProviderCall?.();
     return adzuna(url);
   }
   if (!url.href.startsWith(SB)) throw new Error(`unexpected network call: ${url.host}`);
@@ -132,7 +137,11 @@ globalThis.fetch = (async (input: Request | URL | string, init?: RequestInit) =>
   const body = init?.body ? JSON.parse(String(init.body)) : null;
   const p = url.pathname, q = url.searchParams;
   if (p === "/rest/v1/rpc/ingest_budget_used") return Response.json(budgetUsed());
-  if (p === "/rest/v1/rpc/ingest_upsert_jobs") return Response.json(upsert(body.p_rows));
+  if (p === "/rest/v1/rpc/ingest_total_used") return Response.json(db.runs.filter((r) => r.source === "adzuna").reduce((a, r) => a + r.requests_used, 0));
+  if (p === "/rest/v1/rpc/ingest_upsert_jobs") {
+    if (failUpsert) return new Response("store unavailable", { status: 500 });
+    return Response.json(upsert(body.p_rows));
+  }
   if (p === "/rest/v1/rpc/ingest_close_feed_unseen") { try { return Response.json(closeFeedUnseen(body)); } catch (e) { return new Response(String(e), { status: 400 }); } }
   if (p === "/rest/v1/ingest_feeds" && method === "POST") { db.feeds.set(body.feed, { ...(db.feeds.get(body.feed) ?? {}), ...body }); return new Response(null, { status: 201 }); }
   if (p === "/rest/v1/ingest_feeds") { const f = db.feeds.get(q.get("feed")!.slice(3)); return Response.json(f ? [f] : []); }
@@ -142,11 +151,16 @@ globalThis.fetch = (async (input: Request | URL | string, init?: RequestInit) =>
     db.runs.push(row); return Response.json([row]);
   }
   if (p === "/rest/v1/ingest_runs" && method === "PATCH") {
-    Object.assign(db.runs.find((r) => r.id === Number(q.get("id")!.slice(3)))!, body); return new Response(null, { status: 204 });
+    const idq = q.get("id");
+    const hit = idq ? db.runs.filter((r) => r.id === Number(idq.slice(3)))
+                    : db.runs.filter((r) => r.status === "running" && r.started_at < q.get("started_at")!.slice(3));
+    for (const r of hit) Object.assign(r, body);
+    return new Response(null, { status: 204 });
   }
   if (p === "/rest/v1/ingest_runs") {
     const since = q.get("started_at")!.slice(3);
-    return Response.json(db.runs.filter((r) => r.status === "running" && r.started_at > since).map((r) => ({ id: r.id })));
+    const below = q.get("id") ? Number(q.get("id")!.slice(3)) : Infinity;
+    return Response.json(db.runs.filter((r) => r.status === "running" && r.started_at > since && r.id < below).map((r) => ({ id: r.id })));
   }
   if (p === "/rest/v1/ingest_cells" && method === "POST") {
     const k = `${body.source}:${body.canonical_role}:${body.state_code}`;
@@ -361,6 +375,90 @@ Deno.test("feed: an implausible mass closure is refused", async () => {
   assertEquals(r.close_error, "close_refused");
   assertEquals(r.closed, 0);
   assertEquals(feedRows().filter((j) => !j.closed_at).length, open);
+});
+
+// ── recovery, lifetime allowance and overlap ───────────────────────────────────
+const workerRaw = (body: unknown) => (globalThis as any).__worker(new Request("https://w", { method: "POST",
+  headers: { "x-ingest-secret": "test-secret-123" }, body: JSON.stringify(body) }))
+  .then(async (x: Response) => ({ status: x.status, body: await x.json() }));
+const sumUsed = () => db.runs.filter((r) => r.source === "adzuna").reduce((a, r) => a + r.requests_used, 0);
+
+Deno.test("a failed store write leaves the feed cursor and watermark where they were", async () => {
+  freshRuns();
+  db.feeds.clear();
+  feedMarket = seedFeed(330);
+  await worker({ mode: "feed", budget: 2 });                          // establish a checkpoint
+  const before = { ...db.feeds.get("adzuna-us-it") };
+  feedMarket = feedMarket.concat(seedFeed(40, 2000, 0.5));            // new postings for the head
+  failUpsert = true;
+  let r: any;
+  try { r = await worker({ mode: "feed", budget: 4 }); } finally { failUpsert = false; }
+  assertEquals(r.error, "write_failed", JSON.stringify(r));
+  const after = db.feeds.get("adzuna-us-it");
+  assertEquals(after.next_page, before.next_page, "cursor not advanced past pages that were not stored");
+  assertEquals(after.watermark, before.watermark, "watermark not advanced past listings that were not stored");
+  assertEquals(r.closed, 0);
+});
+
+Deno.test("provider calls are recorded on the run while it is still in progress", async () => {
+  freshRuns();
+  db.feeds.clear();
+  feedMarket = seedFeed(330);
+  const seen: number[] = [];
+  onProviderCall = () => { const run = db.runs.at(-1); seen.push(run.status === "running" ? run.requests_used : -1); };
+  try { await worker({ mode: "feed", budget: 3 }); } finally { onProviderCall = null; }
+  assertEquals(seen, [0, 1, 2], "each call is on the run record before the next call is made");
+});
+
+Deno.test("an interrupted run is closed out, and the calls it made still count against the allowance", async () => {
+  freshRuns();
+  const stale = { id: db.nextRun++, source: "adzuna", note: "feed adzuna-us-it", started_at: new Date(Date.now() - 20 * 60000).toISOString(), status: "running", requests_used: 4 };
+  db.runs.push(stale);
+  feedMarket = seedFeed(330);
+  const r = await workerRaw({ mode: "feed", budget: 2 });
+  assertEquals(r.status, 200, "not blocked by a run that stopped without finishing");
+  assertEquals(stale.status, "failed");
+  assert(String(stale.note).includes("interrupted"), String(stale.note));
+  assert(r.body.used_before.day >= 4, JSON.stringify(r.body.used_before));
+});
+
+Deno.test("a lifetime allowance stops the worker before the account's total is spent", async () => {
+  freshRuns();
+  db.feeds.clear();
+  feedMarket = seedFeed(330);
+  Deno.env.set("ADZUNA_LIMIT_TOTAL", String(sumUsed() + 3));
+  try {
+    const first = await workerRaw({ mode: "feed", budget: 10 });
+    assertEquals(first.body.requests_used, 3, JSON.stringify(first.body));
+    const calls = adzunaCalls;
+    Deno.env.set("ADZUNA_LIMIT_TOTAL", String(sumUsed()));          // every call is now spent
+    const second = await workerRaw({ mode: "feed", budget: 10 });
+    assertEquals(second.body.status, "blocked", JSON.stringify(second.body));
+    assertEquals(adzunaCalls, calls, "no provider call once the total is spent");
+  } finally { Deno.env.delete("ADZUNA_LIMIT_TOTAL"); }
+});
+
+Deno.test("an unreadable lifetime allowance blocks calls rather than allowing unlimited ones", async () => {
+  freshRuns();
+  feedMarket = seedFeed(330);
+  const calls = adzunaCalls;
+  Deno.env.set("ADZUNA_LIMIT_TOTAL", "twenty-five");
+  try {
+    const r = await workerRaw({ mode: "feed", budget: 10 });
+    assertEquals(r.body.status, "blocked", JSON.stringify(r.body));
+    assertEquals(adzunaCalls, calls, "no provider call");
+  } finally { Deno.env.delete("ADZUNA_LIMIT_TOTAL"); }
+});
+
+Deno.test("two runs started at the same moment: only one proceeds", async () => {
+  freshRuns();
+  db.feeds.clear();
+  feedMarket = seedFeed(330);
+  providerDelayMs = 20;
+  try {
+    const [a, b] = await Promise.all([workerRaw({ mode: "feed", budget: 2 }), workerRaw({ mode: "feed", budget: 2 })]);
+    assertEquals([a.status, b.status].sort(), [200, 409], JSON.stringify([a.body, b.body]));
+  } finally { providerDelayMs = 0; }
 });
 
 globalThis.addEventListener("unload", () => { globalThis.fetch = realFetch; });

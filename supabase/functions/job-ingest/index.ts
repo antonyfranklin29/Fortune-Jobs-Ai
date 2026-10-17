@@ -16,7 +16,8 @@
 //   - No user data (résumé, identity, search history) is ever sent to a source.
 //
 // Secrets: INGEST_SECRET, ADZUNA_APP_ID, ADZUNA_APP_KEY.
-// Optional overrides: ADZUNA_LIMIT_MINUTE/DAY/WEEK/MONTH. Defaults follow the
+// Optional overrides: ADZUNA_LIMIT_MINUTE/DAY/WEEK/MONTH, and ADZUNA_LIMIT_TOTAL
+// for a lifetime cap (a test plan's remaining calls; unset means no lifetime cap). Defaults follow the
 // paid "API access" plan in Adzuna's activation email (500/day, 5,000/month; no
 // weekly figure, so the monthly one applies). The per-minute cap is a
 // conservative guess. The provider enforces its own limits regardless; these
@@ -39,12 +40,26 @@ const INGEST_SECRET = Deno.env.get("INGEST_SECRET") ?? "";
 const APP_ID        = Deno.env.get("ADZUNA_APP_ID") ?? "";
 const APP_KEY       = Deno.env.get("ADZUNA_APP_KEY") ?? "";
 
-const LIMITS = {
-  minute: Number(Deno.env.get("ADZUNA_LIMIT_MINUTE") ?? 25),
-  day:    Number(Deno.env.get("ADZUNA_LIMIT_DAY")    ?? 500),
-  week:   Number(Deno.env.get("ADZUNA_LIMIT_WEEK")   ?? 5000),
-  month:  Number(Deno.env.get("ADZUNA_LIMIT_MONTH")  ?? 5000),
-};
+// Read on every call, so a changed allowance takes effect without a redeploy.
+// ADZUNA_LIMIT_TOTAL caps every request ever made to the source. Set it to the
+// remaining allowance of a test plan; leave it unset on a plan with no lifetime cap.
+function limits() {
+  // An unreadable value fails closed: it allows no calls rather than unlimited ones.
+  const num = (k: string, d: number | null) => {
+    const v = Deno.env.get(k);
+    if (v === undefined || v === "") return d;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  };
+  return {
+    minute: num("ADZUNA_LIMIT_MINUTE", 25) as number,
+    day:    num("ADZUNA_LIMIT_DAY", 500) as number,
+    week:   num("ADZUNA_LIMIT_WEEK", 5000) as number,
+    month:  num("ADZUNA_LIMIT_MONTH", 5000) as number,
+    total:  num("ADZUNA_LIMIT_TOTAL", null),
+  };
+}
+const STALE_RUN_MS     = 15 * 60_000;   // a run still "running" after this has stopped
 const RUN_HARD_CAP     = 50;      // never more than this many requests in one run
 const SPACING_MS       = Number(Deno.env.get("INGEST_SPACING_MS") ?? 2600);  // stays under 25/minute
 const MAX_ATTEMPTS     = 3;
@@ -145,9 +160,44 @@ async function fetchWithRetry(get: () => Promise<Page>, spend: () => boolean): P
 
 async function budgetFor(requested: number) {
   const used = await rpc("ingest_budget_used", { p_source: L.SOURCE_ADZUNA });
-  const budget = Math.max(0, Math.min(requested,
-    LIMITS.minute - used.minute, LIMITS.day - used.day, LIMITS.week - used.week, LIMITS.month - used.month));
-  return { used, budget };
+  const lim = limits();
+  const caps = [lim.minute - used.minute, lim.day - used.day, lim.week - used.week, lim.month - used.month];
+  if (lim.total !== null) caps.push(lim.total - Number(await rpc("ingest_total_used", { p_source: L.SOURCE_ADZUNA })));
+  return { used, budget: Math.max(0, Math.min(requested, ...caps)) };
+}
+
+// Each provider request is written to its run as it happens, so a run that stops
+// before it finishes still shows every call it made.
+async function recordSpend(runId: number | null, requestsUsed: number) {
+  if (runId === null) return;
+  await db(`/rest/v1/ingest_runs?id=eq.${runId}`, { method: "PATCH", headers: { prefer: "return=minimal" },
+    body: JSON.stringify({ requests_used: requestsUsed }) }).catch(() => {});
+}
+
+// A run that never recorded its end (the worker stopped, or the final write was
+// lost) is closed as failed. Its calls were already recorded, so they still count.
+async function closeInterruptedRuns() {
+  const cutoff = new Date(Date.now() - STALE_RUN_MS).toISOString();
+  await db(`/rest/v1/ingest_runs?source=eq.${L.SOURCE_ADZUNA}&status=eq.running&started_at=lt.${cutoff}`, {
+    method: "PATCH", headers: { prefer: "return=minimal" },
+    body: JSON.stringify({ status: "failed", finished_at: new Date().toISOString(),
+                           note: "interrupted: no completion recorded" }) }).catch(() => {});
+}
+
+// Claim a run before anything is spent. Of any runs in progress, the lowest id
+// proceeds and the others are refused, so two simultaneous starts cannot both
+// read the same remaining allowance and both spend it.
+async function claimRun(note: string): Promise<{ id: number } | { conflict: true }> {
+  await closeInterruptedRuns();
+  const id = await startRun(note);
+  const since = new Date(Date.now() - STALE_RUN_MS).toISOString();
+  const r = await db(`/rest/v1/ingest_runs?source=eq.${L.SOURCE_ADZUNA}&status=eq.running&started_at=gt.${since}&id=lt.${id}&select=id`);
+  const earlier = r.ok ? await r.json() : null;
+  if (!earlier || earlier.length) {
+    await finishRun(id, { status: "blocked", note: "superseded: another run was already in progress" });
+    return { conflict: true };
+  }
+  return { id };
 }
 
 // ── nationwide feed ───────────────────────────────────────────────────────────
@@ -173,10 +223,9 @@ async function runFeed(body: Record<string, unknown>): Promise<Response> {
     return json({ status: "blocked", reason: "adzuna_credentials_missing",
       message: "Adzuna API access is not active. The catalogue was not touched." });
   }
-  if (!dryRun) {
-    const r = await db(`/rest/v1/ingest_runs?source=eq.${L.SOURCE_ADZUNA}&status=eq.running&started_at=gt.${new Date(Date.now() - 15 * 60_000).toISOString()}&select=id`);
-    if (r.ok && (await r.json()).length) return json({ status: "rejected", reason: "run_in_progress" }, 409);
-  }
+  const claim = dryRun ? null : await claimRun(`feed ${feedId}`);
+  if (claim && "conflict" in claim) return json({ status: "rejected", reason: "run_in_progress" }, 409);
+  const runId = claim ? claim.id : null;
 
   const { used, budget } = fixture ? { used: null, budget: requested } : await budgetFor(requested);
   const stR = await db(`/rest/v1/ingest_feeds?feed=eq.${feedId}&select=*`);
@@ -188,11 +237,10 @@ async function runFeed(body: Record<string, unknown>): Promise<Response> {
     passes_completed: saved?.passes_completed ?? 0,
   };
   if (budget === 0) {
-    if (!dryRun) { const id = await startRun(`blocked: provider allowance exhausted (${feedId})`); await finishRun(id, { status: "blocked" }); }
+    if (runId !== null) await finishRun(runId, { status: "blocked", note: `blocked: provider allowance exhausted (${feedId})` });
     return json({ status: "blocked", reason: "allowance_exhausted", used });
   }
 
-  const runId = dryRun ? null : await startRun(`feed ${feedId}`);
   const startedAt = new Date();
   const passStarted = st.pass_started_at ?? startedAt.toISOString();
   const fetchedAt = startedAt.toISOString();
@@ -203,9 +251,11 @@ async function runFeed(body: Record<string, unknown>): Promise<Response> {
   const rejected: Record<string, number> = {};
   const rows: Record<string, unknown>[] = [];
   const spend = () => (requestsUsed < budget ? (requestsUsed++, true) : false);
-  const get = (page: number) => async (): Promise<Page> => fixture
-    ? ({ ok: true, ...(fixture[fixtureIdx++] ?? { count: 0, results: [] }) })
-    : fetchAdzuna(page, params);
+  const get = (page: number) => async (): Promise<Page> => {
+    if (fixture) return { ok: true, ...(fixture[fixtureIdx++] ?? { count: 0, results: [] }) };
+    try { return await fetchAdzuna(page, params); }
+    finally { await recordSpend(runId, requestsUsed); }
+  };
 
   const take = (results: unknown[]) => {
     let fresh = 0;
@@ -271,23 +321,29 @@ async function runFeed(body: Record<string, unknown>): Promise<Response> {
     }
     if (writeFailed) error = error ?? "write_failed";
 
-    const next: Record<string, unknown> = { feed: feedId, source: feed.source, updated_at: new Date().toISOString(),
+    const next: Record<string, unknown> = { feed: feedId, source: feed.source, updated_at: new Date().toISOString() };
+    // The cursor and watermark move only past listings that were actually stored.
+    // After a failed write they stay where they were, so the next run fetches the
+    // same pages again instead of skipping them.
+    if (!writeFailed) {
       // If the head ran out of budget before reaching the old watermark, keep it,
       // so the next run's head covers the gap instead of skipping it.
-      watermark: headReached && newestMs !== null ? new Date(newestMs).toISOString() : st.watermark, last_count: reportedCount || null };
-    if (outcome === "end" && !error) {
-      // Complete pass: only now may unseen feed listings be retired.
-      try { closed = await rpc("ingest_close_feed_unseen", { p_feed: feedId, p_pass_started: passStarted }); }
-      catch (e) { closeError = "close_refused"; }
-      Object.assign(next, { pass_started_at: null, next_page: 1, passes_completed: st.passes_completed + 1,
-                            last_pass_completed_at: new Date().toISOString() });
-    } else if (outcome === "truncated") {
-      // The provider stopped returning pages before its reported total. Never
-      // treat that as complete; restart the pass and surface it.
-      error = error ?? "provider_truncated";
-      Object.assign(next, { pass_started_at: null, next_page: 1 });
-    } else {
-      Object.assign(next, { pass_started_at: passStarted, next_page: Math.max(1, lastDone + 1) });
+      Object.assign(next, { last_count: reportedCount || null,
+        watermark: headReached && newestMs !== null ? new Date(newestMs).toISOString() : st.watermark });
+      if (outcome === "end" && !error) {
+        // Complete pass: only now may unseen feed listings be retired.
+        try { closed = await rpc("ingest_close_feed_unseen", { p_feed: feedId, p_pass_started: passStarted }); }
+        catch (e) { closeError = "close_refused"; }
+        Object.assign(next, { pass_started_at: null, next_page: 1, passes_completed: st.passes_completed + 1,
+                              last_pass_completed_at: new Date().toISOString() });
+      } else if (outcome === "truncated") {
+        // The provider stopped returning pages before its reported total. Never
+        // treat that as complete; restart the pass and surface it.
+        error = error ?? "provider_truncated";
+        Object.assign(next, { pass_started_at: null, next_page: 1 });
+      } else {
+        Object.assign(next, { pass_started_at: passStarted, next_page: Math.max(1, lastDone + 1) });
+      }
     }
     if (error) Object.assign(next, { last_failure_at: new Date().toISOString(), last_error: error });
     else Object.assign(next, { last_success_at: new Date().toISOString() });
@@ -343,15 +399,14 @@ export async function handler(req: Request): Promise<Response> {
   }
 
   // Refuse to overlap another live run: budgets and checkpoints assume one writer.
-  if (!dryRun) {
-    const r = await db(`/rest/v1/ingest_runs?source=eq.${L.SOURCE_ADZUNA}&status=eq.running&started_at=gt.${new Date(Date.now() - 15 * 60_000).toISOString()}&select=id`);
-    if (r.ok && (await r.json()).length) return json({ status: "rejected", reason: "run_in_progress" }, 409);
-  }
+  const claim = dryRun ? null : await claimRun(`${runRoles.map((r) => r.id).join(",")} × ${runRegions.map((r: { code: string }) => r.code).join(",")}`);
+  if (claim && "conflict" in claim) return json({ status: "rejected", reason: "run_in_progress" }, 409);
+  const runId = claim ? claim.id : null;
 
   // Budget: the smallest remaining allowance across every provider window.
-  const used = await rpc("ingest_budget_used", { p_source: L.SOURCE_ADZUNA });
-  const budget = fixture ? requested : Math.max(0, Math.min(requested,
-    LIMITS.minute - used.minute, LIMITS.day - used.day, LIMITS.week - used.week, LIMITS.month - used.month));
+  const bud = await budgetFor(requested);
+  const used = bud.used;
+  const budget = fixture ? requested : bud.budget;
 
   // Current state of each cell, to aim the budget at the biggest shortfalls.
   const cov = await db(`/rest/v1/ingest_coverage?select=role_id,state,fresh_distinct&role_id=in.(${runRoles.map((r) => r.id).join(",")})&state=in.(${runRegions.map((r: { code: string }) => r.code).join(",")})`);
@@ -370,14 +425,13 @@ export async function handler(req: Request): Promise<Response> {
     target: ROLES.target_per_region ?? 100, budget, perPage: L.ADZUNA_PER_PAGE });
 
   if (!plan.length) {
-    if (!dryRun) {
-      const id = await startRun(budget === 0 ? "blocked: provider allowance exhausted" : "nothing due");
-      await finishRun(id, { status: budget === 0 ? "blocked" : "succeeded", deferred_cells: deferred.length });
+    if (runId !== null) {
+      await finishRun(runId, { status: budget === 0 ? "blocked" : "succeeded", deferred_cells: deferred.length,
+                               note: budget === 0 ? "blocked: provider allowance exhausted" : "nothing due" });
     }
     return json({ status: budget === 0 ? "blocked" : "nothing_due", budget, used, deferred });
   }
 
-  const runId = dryRun ? null : await startRun(`${runRoles.map((r) => r.id).join(",")} × ${runRegions.map((r: { code: string }) => r.code).join(",")}`);
   const sweepStarted = new Date();
   const fetchedAt = sweepStarted.toISOString();
   let requestsUsed = 0, fetched = 0;
@@ -405,6 +459,7 @@ export async function handler(req: Request): Promise<Response> {
       requestsUsed++;
       try { page = await fetchPage(role.query, region.name, step.page, FRESH_DAYS); }
       catch { page = { retry: true, status: 0 }; }
+      await recordSpend(runId, requestsUsed);
       if (page.ok || !page.retry) break;
       await sleep(L.backoffMs(attempt + 1));
     }
