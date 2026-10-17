@@ -28,4 +28,6 @@ Deno.serve(createEmployerRefreshHandler({secret,stage,
   finish:(ticket:string,run:string)=>rpc('employer_refresh_finish',{p_ticket:ticket,p_run:run}),
   fail:(ticket:string,reason:string)=>rpc('employer_refresh_fail',{p_ticket:ticket,p_reason:reason}),
   health:()=>rpc('employer_refresh_health'),
+  maintenancePreview:()=>rpc('employer_maintenance_run',{p_apply:false,p_limit:25}),
+  maintenanceHealth:()=>rpc('employer_maintenance_health'),
 }));

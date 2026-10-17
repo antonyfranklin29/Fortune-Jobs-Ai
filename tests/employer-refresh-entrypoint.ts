@@ -57,3 +57,21 @@ Deno.test('private health endpoint neither collects nor mutates catalogue',async
   globalThis.fetch=(async(input:any)=>{assertEquals(String(input),DB+'/rest/v1/rpc/employer_refresh_health');return Response.json({enabled:false,eligible_sources:0});}) as typeof fetch;
   try{const res=await fn(request('health'));assertEquals(await res.json(),{enabled:false,eligible_sources:0});}finally{globalThis.fetch=old;}
 });
+
+Deno.test('maintenance routes use private RPCs with an unchangeable dry-run argument and never collect',async()=>{
+  const fn=await load();const old=fetch;const calls:string[]=[];
+  globalThis.fetch=(async(input:any,init?:RequestInit)=>{
+    const url=String(input);calls.push(url);
+    assertEquals(new Headers(init?.headers).get('authorization'),'Bearer '+KEY);
+    if(url.endsWith('/employer_maintenance_run')){
+      assertEquals(JSON.parse(String(init?.body)),{p_apply:false,p_limit:25});return Response.json({status:'dry_run',payloads_removed:0});
+    }
+    assertEquals(url,DB+'/rest/v1/rpc/employer_maintenance_health');return Response.json({cleanup_enabled:false,overdue:false});
+  }) as typeof fetch;
+  try{
+    assertEquals((await fn(request('maintenance_preview'))).status,200);assertEquals((await fn(request('maintenance_health'))).status,200);
+    assertEquals(calls.length,2);
+    const forged=new Request('https://refresh.example',{method:'POST',headers:{'x-ingest-secret':SECRET},body:JSON.stringify({action:'maintenance_preview',apply:true})});
+    assertEquals((await fn(forged)).status,400);assertEquals(calls.length,2);
+  }finally{globalThis.fetch=old;}
+});

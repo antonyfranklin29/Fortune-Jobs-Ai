@@ -1,0 +1,22 @@
+[
+  {
+    "check": "maintenance RPC",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "check": "maintenance table",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "check": "worker missing private secret",
+    "status": 401,
+    "code": "unauthorised"
+  },
+  {
+    "check": "public jobs",
+    "status": 200,
+    "rows": 1
+  }
+]

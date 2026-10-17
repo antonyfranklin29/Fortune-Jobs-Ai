@@ -46,6 +46,7 @@ const CHAIN = [
   'migrations/pending/20261022_employer_paused_post_state.sql',
   'migrations/pending/20261023_employer_refresh_workflow.sql',
   ...(FIX_ON && existsSync(root + FIX_FILE) ? [FIX_FILE] : []),
+  'migrations/pending/20261025_employer_maintenance.sql',
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

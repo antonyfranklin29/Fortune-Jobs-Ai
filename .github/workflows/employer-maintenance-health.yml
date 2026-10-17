@@ -1,0 +1,19 @@
+name: Employer maintenance health
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '45 8 * * *'
+permissions:
+  contents: read
+jobs:
+  monitor:
+    if: vars.EMPLOYER_MAINTENANCE_MONITOR_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Check private maintenance status; never invoke cleanup
+        env:
+          EMPLOYER_REFRESH_URL: https://hqgakkcxcyspqhnlnscv.supabase.co/functions/v1/employer-refresh
+          INGEST_SECRET: ${{ secrets.INGEST_SECRET }}
+        run: node scripts/employer-maintenance-health.mjs

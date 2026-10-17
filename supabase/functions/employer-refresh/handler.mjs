@@ -12,20 +12,23 @@ async function bodyOf(request){
  * No user-selected URL, publication list or closure list is accepted from HTTP.
  * @param {{secret?:string, stage?:(request:Request)=>Promise<Response>,
  * claim?:(source:string|null)=>Promise<any>, finish?:(ticket:string,run:string)=>Promise<any>,
- * fail?:(ticket:string,reason:string)=>Promise<any>, health?:()=>Promise<any>}} options
+ * fail?:(ticket:string,reason:string)=>Promise<any>, health?:()=>Promise<any>,
+ * maintenancePreview?:()=>Promise<any>,maintenanceHealth?:()=>Promise<any>}} options
  */
-export function createEmployerRefreshHandler({secret,stage,claim,finish,fail,health}={}){
+export function createEmployerRefreshHandler({secret,stage,claim,finish,fail,health,maintenancePreview,maintenanceHealth}={}){
   return async request=>{
     if(request.method!=='POST')return json({status:'rejected',reason:'method_not_allowed'},405);
     if(!secret)return json({status:'unavailable',reason:'worker_not_configured'},503);
     if(!sameSecret(request.headers.get('x-ingest-secret')||'',secret))return json({status:'rejected',reason:'unauthorised'},401);
     let body;try{body=await bodyOf(request);}catch{return json({status:'rejected',reason:'invalid_body'},400);}
     if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!['action','source_id'].includes(k))||
-      !['refresh','health'].includes(body.action)||
+      !['refresh','health','maintenance_preview','maintenance_health'].includes(body.action)||
       (body.source_id!==undefined&&(typeof body.source_id!=='string'||!/^[a-zA-Z0-9_-]{1,100}$/.test(body.source_id)))||
-      (body.action==='health'&&body.source_id!==undefined))return json({status:'rejected',reason:'invalid_body'},400);
+      (body.action!=='refresh'&&body.source_id!==undefined))return json({status:'rejected',reason:'invalid_body'},400);
     try{
       if(body.action==='health')return json(await health());
+      if(body.action==='maintenance_preview')return json(await maintenancePreview());
+      if(body.action==='maintenance_health')return json(await maintenanceHealth());
       const admitted=await claim(body.source_id??null);
       if(admitted?.status==='disabled')return json({status:'disabled',reason:'employer_refresh_disabled'},503);
       if(admitted?.status==='busy')return json({status:'busy'},409);

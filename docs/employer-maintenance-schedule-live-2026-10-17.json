@@ -1,0 +1,33 @@
+{
+  "health": {
+    "plan": {
+      "run_limit": 25,
+      "payload_days": 7,
+      "summary_days": 30,
+      "payload_limit": 1000,
+      "runs_eligible": 0,
+      "payloads_eligible": 0,
+      "snapshots_eligible": 0,
+      "stale_collecting_runs": 0,
+      "protected_current_runs": 0
+    },
+    "overdue": false,
+    "last_status": "dry_run",
+    "cleanup_enabled": false,
+    "last_checked_at": "2026-10-17T18:00:00.093686+00:00",
+    "last_cleanup_at": null,
+    "last_failure_at": null,
+    "schedule_active": true,
+    "last_cron_status": "succeeded",
+    "attention_required": false,
+    "last_cron_finished_at": "2026-10-17T18:00:00.095118+00:00"
+  },
+  "schedule": {
+    "active": true,
+    "command": "select public.employer_maintenance_run(false,25);",
+    "schedule": "15 8 * * *",
+    "timezone": "GMT"
+  },
+  "anon_cron_schema": false,
+  "authenticated_cron_schema": false
+}
