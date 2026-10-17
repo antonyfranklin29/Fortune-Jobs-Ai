@@ -36,7 +36,7 @@ const CHAIN = [
   ...(FIX ? ['migrations/pending/20261019_employer_concurrency_hardening.sql',
     'migrations/pending/20261020_employer_post_actions.sql',
     'migrations/pending/20261021_employer_feed_concurrency_hardening.sql',
-    'migrations/pending/20261022_employer_paused_post_state.sql'] : []),
+    'migrations/pending/20261022_employer_paused_post_state.sql', 'migrations/pending/20261023_employer_lease_selection_url_hardening.sql'] : []),
 ];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

@@ -7,7 +7,7 @@ const files=['20261016_employer_feed_runs.sql','20261016_employer_submissions.sq
  '20261017_employer_search_visibility.sql','20261018_employer_access_hardening.sql',
  '20261019_employer_pending_account_cleanup.sql','20261019_employer_concurrency_hardening.sql',
  '20261020_employer_post_actions.sql','20261021_employer_feed_concurrency_hardening.sql',
- '20261022_employer_paused_post_state.sql'];
+ '20261022_employer_paused_post_state.sql','20261023_employer_lease_selection_url_hardening.sql'];
 function build(){
  const parts=files.map(name=>{const sql=fs.readFileSync(path.join(root,'migrations/pending',name),'utf8');
   return '-- '+name+' SHA256 '+crypto.createHash('sha256').update(sql).digest('hex')+'\n'+sql.replace(/^\s*(begin|commit);\s*$/gmi,'');});
@@ -75,6 +75,34 @@ commit;
 select '${feed?'employer_feed_upgrade_applied_payments_disabled':'employer_concurrency_upgrade_applied_payments_disabled'}' as result;
 `;
 }
+// Upgrade for an installation that already has 20261021 and 20261022 (production as of 2026-10-16).
+// Refuses to run twice. Same ACL check as the feed upgrade; changes no rows.
+function buildLeaseUpgrade(){
+ const name='20261023_employer_lease_selection_url_hardening.sql';
+ const sql=fs.readFileSync(path.join(root,'migrations/pending',name),'utf8');
+ return `begin;
+set local lock_timeout='5s';
+set local statement_timeout='30s';
+do $$ begin
+ if position('feed_closed_approver_deleted' in pg_get_functiondef('public.employer_before_account_deleted()'::regprocedure))=0 then raise exception 'apply 20261021 and 20261022 first'; end if;
+ if position('Lost a concurrent URL claim' in pg_get_functiondef('public.employer_publish_post_internal(uuid,uuid,text)'::regprocedure))>0 then raise exception 'lease and URL upgrade already present; review before applying'; end if;
+end $$;
+create temporary table employer_upgrade_acl on commit drop as
+ select p.oid,p.proacl::text as acl from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+ where n.nspname='public' and (p.proname like 'employer_%' or p.proname like 'operator_%');
+-- 20261023 SHA256 ${crypto.createHash('sha256').update(sql).digest('hex')}
+${sql.replace(/^\s*(begin|commit);\s*$/gmi,'')}
+do $$ begin
+ if exists(select 1 from employer_upgrade_acl a join pg_proc p on p.oid=a.oid where p.proacl::text is distinct from a.acl)
+ then raise exception 'existing employer function grants changed'; end if;
+ if not exists(select 1 from employer_billing_config where id and free_active_posts=15 and monthly_price_cents=1499
+   and currency='USD' and not paid_publishing_enabled and paid_active_limit is null) then raise exception 'billing must remain disabled'; end if;
+end $$;
+notify pgrst,'reload schema';
+commit;
+select 'employer_lease_selection_upgrade_applied_payments_disabled' as result;
+`;
+}
 const buildFeedUpgrade=()=>buildUpgrade({feed:true});
-module.exports={build,files,buildUpgrade,buildFeedUpgrade};
-if(require.main===module)process.stdout.write(process.argv.includes('--feed-upgrade')?buildFeedUpgrade():process.argv.includes('--concurrency-upgrade')?buildUpgrade():build());
+module.exports={build,files,buildUpgrade,buildFeedUpgrade,buildLeaseUpgrade};
+if(require.main===module)process.stdout.write(process.argv.includes('--lease-upgrade')?buildLeaseUpgrade():process.argv.includes('--feed-upgrade')?buildFeedUpgrade():process.argv.includes('--concurrency-upgrade')?buildUpgrade():build());
