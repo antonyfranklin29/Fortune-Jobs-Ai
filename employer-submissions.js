@@ -305,16 +305,15 @@
     });
     const form = h('form', { class: 'card stack', style: 'margin-top:14px' },
       h('h3', { text: 'Choose postings to show' }),
-      h('p', { class: 'sub', text: 'Each chosen posting that goes live uses one of your active-post slots.' }),
+      h('p', { class: 'sub', text: 'Each chosen posting that goes live uses one of your active-post slots. Choices are applied during the next enabled feed refresh; saving does not publish immediately.' }),
       boxes,
       h('button', { class: 'btn btn-primary', type: 'submit' }, 'Save choices'));
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const all = boxes.map((b) => b.querySelector('input'));
       run(async () => {
-        await rpc('employer_select_feed_jobs', { p_source: s.id, p_ids: all.filter((b) => b.checked).map((b) => b.dataset.id), p_selected: true });
-        await rpc('employer_select_feed_jobs', { p_source: s.id, p_ids: all.filter((b) => !b.checked).map((b) => b.dataset.id), p_selected: false });
-      }, 'Choices saved.');
+        await rpc('employer_replace_feed_selection', { p_source: s.id, p_ids: all.filter((b) => b.checked).map((b) => b.dataset.id) });
+      }, 'Choices saved for the next enabled feed refresh.');
     });
     hostEl.replaceChildren(form);
   }

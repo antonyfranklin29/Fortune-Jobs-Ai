@@ -1,0 +1,54 @@
+[
+  {
+    "rpc": "employer_refresh_claim",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "rpc": "employer_refresh_finish",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "rpc": "employer_refresh_fail",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "rpc": "employer_refresh_health",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "rpc": "employer_replace_feed_selection",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "table": "employer_refresh_control",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "table": "employer_refresh_schedule",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "table": "employer_refresh_attempts",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "endpoint": "employer-refresh",
+    "status": 401,
+    "body": {
+      "status": "rejected",
+      "reason": "unauthorised"
+    }
+  },
+  {
+    "catalogue": 206,
+    "range": "0-0/736"
+  }
+]

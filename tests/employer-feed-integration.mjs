@@ -5,11 +5,12 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {PGlite} from '@electric-sql/pglite';
 import {createEmployerFeedHandler} from '../supabase/functions/employer-feed/handler.mjs';
+import {createEmployerRefreshHandler} from '../supabase/functions/employer-refresh/handler.mjs';
 import {normalizeEmployerJob} from '../supabase/functions/employer-feed/lib.mjs';
 import {compileRoles,regionIndex} from '../supabase/functions/job-ingest/lib.mjs';
 import {ROLES,REGIONS} from '../supabase/functions/job-ingest/config.mjs';
 import {createRequire} from 'node:module';
-const {build:buildEmployerBackend,buildUpgrade,buildFeedUpgrade,files:employerMigrations}=createRequire(import.meta.url)('../scripts/build-employer-backend.cjs');
+const {build:buildEmployerBackend,buildUpgrade,buildFeedUpgrade,buildRefreshUpgrade,files:employerMigrations}=createRequire(import.meta.url)('../scripts/build-employer-backend.cjs');
 let db;
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 before(async()=>{
@@ -27,12 +28,13 @@ before(async()=>{
     'migrations/pending/20261019_employer_concurrency_hardening.sql',
     'migrations/pending/20261020_employer_post_actions.sql',
     'migrations/pending/20261021_employer_feed_concurrency_hardening.sql',
-    'migrations/pending/20261022_employer_paused_post_state.sql']){
+    'migrations/pending/20261022_employer_paused_post_state.sql',
+    'migrations/pending/20261023_employer_refresh_workflow.sql']){
     try{await db.exec(read(path));}catch(e){throw Error(`${path}: ${e.message}`);}
   }
 });
 after(async()=>{await db?.close();});
-beforeEach(async()=>{await db.exec('reset role; truncate public.employer_feed_staging,public.employer_feed_leases,public.employer_feed_runs,public.pre_scraped_jobs,public.employer_orgs,auth.users cascade;');});
+beforeEach(async()=>{await db.exec('reset role; truncate public.employer_feed_staging,public.employer_feed_leases,public.employer_feed_runs,public.pre_scraped_jobs,public.employer_orgs,auth.users cascade; update employer_refresh_control set enabled=false,active_ticket=null,lease_until=null;');});
 const OWNER='11111111-1111-1111-1111-111111111111',OPERATOR='22222222-2222-2222-2222-222222222222';
 const ORG='33333333-3333-3333-3333-333333333333',SOURCE='fixture-source';
 async function seed(){
@@ -368,6 +370,11 @@ test('incremental deployment preserves existing records and grants; refuses a re
     assert.equal((await isolated.query('select count(*)::int n from pre_scraped_jobs')).rows[0].n,1);
     assert.equal((await isolated.query("select has_function_privilege('anon','public.employer_set_keep_on_downgrade(uuid,boolean)','EXECUTE') allowed")).rows[0].allowed,false);
     assert.equal((await isolated.query("select has_function_privilege('authenticated','public.employer_set_keep_on_downgrade(uuid,boolean)','EXECUTE') allowed")).rows[0].allowed,true);
+    await isolated.exec(buildRefreshUpgrade());
+    assert.equal((await isolated.query('select enabled from employer_refresh_control')).rows[0].enabled,false);
+    assert.equal((await isolated.query('select count(*)::int n from pre_scraped_jobs')).rows[0].n,1);
+    assert.equal((await isolated.query('select count(*)::int n from employer_orgs')).rows[0].n,1);
+    await assert.rejects(isolated.exec(buildRefreshUpgrade()),/refresh upgrade already present/);await isolated.exec('rollback');
     await assert.rejects(isolated.exec(buildFeedUpgrade()),/feed upgrade already present/);await isolated.exec('rollback');
     await assert.rejects(isolated.exec(buildUpgrade()),/upgrade already present/);await isolated.exec('rollback');
   }finally{await isolated.close();}
@@ -400,4 +407,143 @@ test('deleted source approver frees allowance; re-approval cannot publish old ca
   const stale=await publish(['job-0'],3);assert.equal(stale.published,0);assert.equal(stale.skipped[0].reason,'stale_candidate_revision');
   await handler(1)(request());await selectJobs(['job-0']);
   assert.equal((await publish(['job-0'],3)).published,1);
+});
+
+
+const refreshClaim=source=>call('employer_refresh_claim',['text'],[source]);
+const refreshFinish=(ticket,run)=>call('employer_refresh_finish',['uuid','uuid'],[ticket,run]);
+const refreshFail=(ticket,reason)=>call('employer_refresh_fail',['uuid','text'],[ticket,reason]);
+const refreshHealth=()=>call('employer_refresh_health',[],[]);
+const coordinator=(n,patch={})=>createEmployerRefreshHandler({secret:'fixture-secret',stage:handler(n),
+  claim:refreshClaim,finish:refreshFinish,fail:refreshFail,health:refreshHealth,...patch});
+const refreshRequest=(body={action:'refresh'})=>new Request('https://refresh.example',{
+  method:'POST',headers:{'x-ingest-secret':'fixture-secret'},body:JSON.stringify(body)});
+async function due(){await db.exec("update employer_refresh_schedule set next_due_at=now()-interval '1 minute'");}
+async function enable(){await db.exec('update employer_refresh_control set enabled=true');}
+async function executeRefresh(n,patch={}){const res=await coordinator(n,patch)(refreshRequest());return{http:res.status,...await res.json()};}
+async function stageClaim(n,patch={}){
+  await due();const claim=await refreshClaim(SOURCE);assert.equal(claim.status,'claimed');
+  const response=await handler(n,patch)(request());const run=await response.json();assert.equal(response.status,200);
+  return{ticket:claim.ticket,run:run.run_id};
+}
+
+test('refresh is disabled by default and auth/strict input gates run before provider or SQL access',async()=>{
+  await seed();let calls=0;
+  const fn=coordinator(1,{claim:async()=>{calls++;throw Error('unexpected');}});
+  assert.equal((await fn(new Request('https://refresh.example',{method:'POST',body:'{}'}))).status,401);
+  for(const body of [{action:'refresh',url:'https://evil.test'}, {action:'refresh',source_id:'../evil'},
+    {action:'health',source_id:SOURCE},{action:'publish'},Array(5000).fill('x')])assert.equal((await fn(refreshRequest(body))).status,400);
+  assert.equal(calls,0);assert.equal((await executeRefresh(1)).status,'disabled');
+  assert.equal((await db.query('select count(*)::int n from employer_feed_runs')).rows[0].n,0);
+});
+
+test('coordinator collects, queues choices, enforces 15 slots and provides private health counts',async()=>{
+  await seed();await enable();
+  const first=await executeRefresh(16);assert.equal(first.status,'complete');assert.equal(first.published,0);assert.equal(first.accepted,16);
+  await selectJobs(jobs(16).map(j=>j.id));await due();
+  const second=await executeRefresh(16);assert.equal(second.status,'complete');assert.equal(second.published,15);assert.equal(second.blocked_quota,1);
+  assert.equal((await db.query('select employer_active_count($1) n',[ORG])).rows[0].n,15);
+  const health=await refreshHealth();assert.equal(health.eligible_sources,1);assert.equal(health.failed_24h,0);assert.equal(health.busy,false);
+  assert(!JSON.stringify(health).includes('fixture-private-reference'));
+  const idle=await executeRefresh(16);assert.equal(idle.status,'idle');
+});
+
+test('clean sweep closes only missing/deselected jobs, then fills freed allowance in the same transaction',async()=>{
+  await seed();await enable();await executeRefresh(16);await selectJobs(jobs(16).map(j=>j.id));await due();await executeRefresh(16);
+  await due();const current=jobs(16).slice(1);
+  const res=await executeRefresh(0,{stage:handler(0,{fetchPage:async()=>current})});
+  assert.equal(res.closed,1);assert.equal(res.published,1);assert.equal(res.updated,14);assert.equal(res.reconciled,true);
+  assert.equal((await db.query("select closed_at is not null closed from pre_scraped_jobs where source_listing_id=$1",[SOURCE+':job-0'])).rows[0].closed,true);
+  await call('employer_select_feed_jobs',['text','text[]','boolean'],[SOURCE,['job-1'],false]);await due();
+  assert.equal((await executeRefresh(0,{stage:handler(0,{fetchPage:async()=>current})})).closed,1);
+  const visible=await call('employer_list_feed_candidates',['text'],[SOURCE]);assert.equal(visible.length,15);assert(!visible.some(c=>c.provider_post_id==='job-0'));
+});
+
+test('partial and rejected enumerations never close existing vacancies',async()=>{
+  await seed();await enable();await handler(1)(request());await selectJobs(['job-0']);await publish(['job-0']);
+  const page=Array.from({length:100},(_,i)=>({...jobs(1)[0],id:'other-'+i,applyUrl:'https://jobs.lever.co/synthetic/other-'+i+'/apply'}));
+  await db.exec('update employer_refresh_control set max_requests=1');
+  let res=await executeRefresh(0,{stage:handler(0,{fetchPage:async()=>page})});assert.equal(res.status,'partial');assert.equal(res.closed,0);
+  await due();res=await executeRefresh(0,{stage:handler(0,{fetchPage:async()=>[{...jobs(1)[0],country:'GB'}]})});
+  assert.equal(res.status,'degraded');assert.equal(res.closed,0);
+  assert.equal((await db.query('select count(*)::int n from pre_scraped_jobs where closed_at is null')).rows[0].n,1);
+});
+
+test('provider failure keeps catalogue intact and records retryable, sanitised operational failure',async()=>{
+  await seed();await enable();await handler(1)(request());await selectJobs(['job-0']);await publish(['job-0']);
+  const res=await executeRefresh(0,{stage:handler(0,{fetchPage:async()=>{throw Error('private provider message');}})});
+  assert.equal(res.http,503);assert.equal(res.closed,0);assert(!JSON.stringify(res).includes('private provider message'));
+  assert.equal((await refreshHealth()).failed_24h,1);
+  assert.equal((await db.query('select count(*)::int n from pre_scraped_jobs where closed_at is null')).rows[0].n,1);
+  assert.equal((await refreshClaim(SOURCE)).status,'idle');
+});
+
+test('empty feed needs two clean runs separated by five minutes under unchanged approval',async()=>{
+  await seed();await enable();await handler(1)(request());await selectJobs(['job-0']);await publish(['job-0']);
+  let res=await executeRefresh(0);assert.equal(res.reason,'empty_confirmation_required');assert.equal(res.closed,0);
+  await due();res=await executeRefresh(0);assert.equal(res.closed,0);
+  await db.exec("update employer_refresh_schedule set next_due_at=now(),empty_seen_at=now()-interval '6 minutes'");
+  res=await executeRefresh(0);assert.equal(res.closed,1);assert.equal(res.reconciled,true);assert.equal(res.status,'complete');
+});
+
+test('failed run interrupts the empty-feed confirmation sequence',async()=>{
+  await seed();await enable();await executeRefresh(0);await due();
+  await executeRefresh(0,{stage:handler(0,{fetchPage:async()=>{throw Error();}})});await due();
+  assert.equal((await executeRefresh(0)).reason,'empty_confirmation_required');
+});
+
+test('global claim, ticket expiry and newest-run fences block stale workers',async()=>{
+  await seed();await enable();const claimed=await stageClaim(1);
+  assert.equal((await refreshClaim(SOURCE)).status,'busy');
+  await handler(1)(request()); // a newer independently staged run invalidates the old finalizer
+  await assert.rejects(refreshFinish(claimed.ticket,claimed.run),/stale_batch/);
+  await refreshFail(claimed.ticket,'fixture_failure');await due();const expired=await stageClaim(1);
+  await db.query("update employer_refresh_attempts set lease_until=now()-interval '1 second' where id=$1",[expired.ticket]);
+  await assert.rejects(refreshFinish(expired.ticket,expired.run),/stale_ticket/);
+  assert.equal((await db.query('select count(*)::int n from pre_scraped_jobs')).rows[0].n,0);
+});
+
+test('finalization is idempotent; mismatched candidates and revoked permissions cannot publish',async()=>{
+  await seed();await enable();const a=await stageClaim(1);await selectJobs(['job-0']);
+  const first=await refreshFinish(a.ticket,a.run);assert.equal(first.published,1);
+  assert.deepEqual(await refreshFinish(a.ticket,a.run),first);
+  const b=await stageClaim(1);await db.exec("update employer_feed_candidates set payload=jsonb_set(payload,'{job_title}','\"Changed job\"'::jsonb)");
+  await assert.rejects(refreshFinish(b.ticket,b.run),/candidate_batch_changed/);await refreshFail(b.ticket,'fixture_failure');
+  const c=await stageClaim(1);await db.query('update employer_sources set revision=revision+1,enabled=false where id=$1',[SOURCE]);
+  await assert.rejects(refreshFinish(c.ticket,c.run),/stale_batch/);
+});
+
+test('publisher exception rolls back closure and is recorded separately',async()=>{
+  await seed();await enable();await handler(1)(request());await selectJobs(['job-0']);await publish(['job-0']);
+  await db.exec(`create or replace function employer_publish_feed_jobs(p_source text,p_revision integer,p_provider_ids text[]) returns jsonb language plpgsql as $$ begin raise exception 'fixture publisher failure'; end $$;`);
+  try{
+    const res=await executeRefresh(0,{stage:handler(0,{fetchPage:async()=>[{...jobs(1)[0],id:'job-new',applyUrl:'https://jobs.lever.co/synthetic/job-new/apply'}]})});
+    assert.equal(res.reason,'settlement_failed');assert.equal((await refreshHealth()).failed_24h,1);
+    assert.equal((await db.query('select count(*)::int n from pre_scraped_jobs where closed_at is null')).rows[0].n,1);
+  }finally{await db.exec(read('migrations/pending/20261017_employer_feed_publish_hardening.sql'));}
+});
+
+test('refresh RPCs/tables are service-only by effective privileges; trigger helper stays private',async()=>{
+  for(const role of ['anon','authenticated']){
+    for(const fn of ['employer_refresh_claim(text)','employer_refresh_fail(uuid,text)','employer_refresh_finish(uuid,uuid)','employer_refresh_health()'])
+      assert.equal((await db.query("select has_function_privilege($1,$2,'EXECUTE') ok",[role,'public.'+fn])).rows[0].ok,false);
+    for(const table of ['employer_refresh_control','employer_refresh_schedule','employer_refresh_attempts'])
+      assert.equal((await db.query("select has_table_privilege($1,$2,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE') ok",[role,table])).rows[0].ok,false);
+  }
+  assert.equal((await db.query("select has_function_privilege('service_role','employer_refresh_selection_changed()','EXECUTE') ok")).rows[0].ok,false);
+});
+
+test('atomic employer choices replace the whole selection; stale lists and other users change nothing',async()=>{
+  await seed();await handler(3)(request());await selectJobs(['job-0','job-1']);
+  await db.exec('set role authenticated');
+  try{
+    assert.equal(await call('employer_replace_feed_selection',['text','text[]'],[SOURCE,['job-2']]),1);
+    await assert.rejects(call('employer_replace_feed_selection',['text','text[]'],[SOURCE,['missing-job']]),/candidate_list_changed/);
+    await db.query("select set_config('request.jwt.claim.sub',$1,false)",[OPERATOR]);
+    await assert.rejects(call('employer_replace_feed_selection',['text','text[]'],[SOURCE,[]]),/source_not_found/);
+  }finally{await db.exec('reset role');}
+  assert.deepEqual((await db.query('select provider_post_id from employer_feed_candidates where selected')).rows,[{provider_post_id:'job-2'}]);
+  await db.exec('set role anon');
+  try{await assert.rejects(call('employer_replace_feed_selection',['text','text[]'],[SOURCE,[]]),e=>e.code==='42501');}
+  finally{await db.exec('reset role');}
 });

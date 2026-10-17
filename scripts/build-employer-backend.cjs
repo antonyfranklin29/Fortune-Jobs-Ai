@@ -7,7 +7,7 @@ const files=['20261016_employer_feed_runs.sql','20261016_employer_submissions.sq
  '20261017_employer_search_visibility.sql','20261018_employer_access_hardening.sql',
  '20261019_employer_pending_account_cleanup.sql','20261019_employer_concurrency_hardening.sql',
  '20261020_employer_post_actions.sql','20261021_employer_feed_concurrency_hardening.sql',
- '20261022_employer_paused_post_state.sql'];
+ '20261022_employer_paused_post_state.sql','20261023_employer_refresh_workflow.sql'];
 function build(){
  const parts=files.map(name=>{const sql=fs.readFileSync(path.join(root,'migrations/pending',name),'utf8');
   return '-- '+name+' SHA256 '+crypto.createHash('sha256').update(sql).digest('hex')+'\n'+sql.replace(/^\s*(begin|commit);\s*$/gmi,'');});
@@ -76,5 +76,35 @@ select '${feed?'employer_feed_upgrade_applied_payments_disabled':'employer_concu
 `;
 }
 const buildFeedUpgrade=()=>buildUpgrade({feed:true});
-module.exports={build,files,buildUpgrade,buildFeedUpgrade};
-if(require.main===module)process.stdout.write(process.argv.includes('--feed-upgrade')?buildFeedUpgrade():process.argv.includes('--concurrency-upgrade')?buildUpgrade():build());
+function buildRefreshUpgrade(){
+ const sql=fs.readFileSync(path.join(root,'migrations/pending/20261023_employer_refresh_workflow.sql'),'utf8').replace(/^\s*(begin|commit);\s*$/gmi,'');
+ return `begin;
+set local lock_timeout='5s';
+set local statement_timeout='30s';
+do $$ begin
+ if to_regprocedure('public.employer_feed_stage_registered_run(uuid,uuid,bigint,jsonb,jsonb)') is null
+   or to_regprocedure('public.employer_my_state()') is null then raise exception 'employer baseline missing'; end if;
+ if to_regclass('public.employer_refresh_control') is not null then raise exception 'refresh upgrade already present'; end if;
+end $$;
+create temporary table employer_refresh_old_acl on commit drop as
+ select oid,proacl::text acl from pg_proc where pronamespace='public'::regnamespace
+   and (proname like 'employer_%' or proname like 'operator_%');
+${sql}
+do $$ begin
+ if exists(select 1 from employer_refresh_old_acl a join pg_proc p on p.oid=a.oid where p.proacl::text is distinct from a.acl)
+   then raise exception 'existing employer grants changed'; end if;
+ if not exists(select 1 from employer_refresh_control where id and not enabled)
+   then raise exception 'refresh must remain disabled'; end if;
+ if exists(select 1 from pg_proc where pronamespace='public'::regnamespace and proname like 'employer_refresh_%'
+   and (has_function_privilege('anon',oid,'EXECUTE') or has_function_privilege('authenticated',oid,'EXECUTE')))
+   then raise exception 'unexpected public refresh function'; end if;
+ if not exists(select 1 from employer_billing_config where id and free_active_posts=15 and monthly_price_cents=1499
+   and currency='USD' and not paid_publishing_enabled and paid_active_limit is null) then raise exception 'billing must remain disabled'; end if;
+end $$;
+notify pgrst,'reload schema';
+commit;
+select employer_refresh_health() as refresh_workflow_installed;
+`;
+}
+module.exports={build,files,buildUpgrade,buildFeedUpgrade,buildRefreshUpgrade};
+if(require.main===module)process.stdout.write(process.argv.includes('--refresh-upgrade')?buildRefreshUpgrade():process.argv.includes('--feed-upgrade')?buildFeedUpgrade():process.argv.includes('--concurrency-upgrade')?buildUpgrade():build());

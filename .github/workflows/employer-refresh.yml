@@ -1,0 +1,24 @@
+name: Employer feed refresh
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: employer-feed-refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    # Opt-in repository variable AND the disabled-by-default database switch.
+    # Until both are configured, no feed collection takes place.
+    if: vars.EMPLOYER_REFRESH_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Refresh one due approved source and check operational health
+        env:
+          EMPLOYER_REFRESH_URL: https://hqgakkcxcyspqhnlnscv.supabase.co/functions/v1/employer-refresh
+          INGEST_SECRET: ${{ secrets.INGEST_SECRET }}
+        run: node scripts/employer-refresh.mjs

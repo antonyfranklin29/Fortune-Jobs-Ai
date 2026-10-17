@@ -109,7 +109,8 @@ want(name) as (select unnest(array[
   'employer_register_org','employer_save_post','employer_select_feed_jobs','employer_set_keep_on_downgrade',
   'employer_submit_post','employer_submit_source','operator_close_post','operator_queue','operator_review_post',
   'operator_review_source','operator_revoke_source','operator_set_org_status','operator_verify_domain',
-  'employer_public_listing_keys']))
+  'employer_public_listing_keys']) union select 'employer_replace_feed_selection'
+    where to_regprocedure('public.employer_replace_feed_selection(text,text[])') is not null)
 select t.ok(not exists (select name from got except select name from want)
         and not exists (select name from want except select name from got),
   'signed-in functions are exactly the reviewed set (no service function is granted to users)');
