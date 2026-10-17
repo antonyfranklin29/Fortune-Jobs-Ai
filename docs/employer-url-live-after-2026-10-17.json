@@ -1,0 +1,17 @@
+{
+  "orgs": 0,
+  "open_jobs": 736,
+  "reviewers": 0,
+  "closure_digest": "6c1341990a31751c1f51c9103248cde2",
+  "staging_digest": "a2bce8d5f246c8c7e8fe4ac94d6b155a",
+  "billing_enabled": false,
+  "refresh_enabled": false,
+  "url_fix_present": true,
+  "catalogue_digest": "5c3d88868a4a0f25e5c3540cf3c4f822",
+  "feed_url_fix_present": true,
+  "private_anon_execute": 0,
+  "ordinary_private_table_grants": 0,
+  "catalogue_unchanged": true,
+  "staging_unchanged": true,
+  "closure_unchanged": true
+}

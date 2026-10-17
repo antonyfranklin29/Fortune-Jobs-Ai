@@ -10,7 +10,7 @@ import {normalizeEmployerJob} from '../supabase/functions/employer-feed/lib.mjs'
 import {compileRoles,regionIndex} from '../supabase/functions/job-ingest/lib.mjs';
 import {ROLES,REGIONS} from '../supabase/functions/job-ingest/config.mjs';
 import {createRequire} from 'node:module';
-const {build:buildEmployerBackend,buildUpgrade,buildFeedUpgrade,buildRefreshUpgrade,files:employerMigrations}=createRequire(import.meta.url)('../scripts/build-employer-backend.cjs');
+const {build:buildEmployerBackend,buildUpgrade,buildFeedUpgrade,buildRefreshUpgrade,buildUrlUpgrade,buildUrlRollback,files:employerMigrations}=createRequire(import.meta.url)('../scripts/build-employer-backend.cjs');
 let db;
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 before(async()=>{
@@ -29,7 +29,7 @@ before(async()=>{
     'migrations/pending/20261020_employer_post_actions.sql',
     'migrations/pending/20261021_employer_feed_concurrency_hardening.sql',
     'migrations/pending/20261022_employer_paused_post_state.sql',
-    'migrations/pending/20261023_employer_refresh_workflow.sql']){
+    'migrations/pending/20261023_employer_refresh_workflow.sql','migrations/pending/20261024_employer_url_conflicts.sql']){
     try{await db.exec(read(path));}catch(e){throw Error(`${path}: ${e.message}`);}
   }
 });
@@ -515,12 +515,13 @@ test('finalization is idempotent; mismatched candidates and revoked permissions 
 
 test('publisher exception rolls back closure and is recorded separately',async()=>{
   await seed();await enable();await handler(1)(request());await selectJobs(['job-0']);await publish(['job-0']);
+  const original=(await db.query("select pg_get_functiondef('employer_publish_feed_jobs(text,integer,text[])'::regprocedure) definition")).rows[0].definition;
   await db.exec(`create or replace function employer_publish_feed_jobs(p_source text,p_revision integer,p_provider_ids text[]) returns jsonb language plpgsql as $$ begin raise exception 'fixture publisher failure'; end $$;`);
   try{
     const res=await executeRefresh(0,{stage:handler(0,{fetchPage:async()=>[{...jobs(1)[0],id:'job-new',applyUrl:'https://jobs.lever.co/synthetic/job-new/apply'}]})});
     assert.equal(res.reason,'settlement_failed');assert.equal((await refreshHealth()).failed_24h,1);
     assert.equal((await db.query('select count(*)::int n from pre_scraped_jobs where closed_at is null')).rows[0].n,1);
-  }finally{await db.exec(read('migrations/pending/20261017_employer_feed_publish_hardening.sql'));}
+  }finally{await db.exec(original);}
 });
 
 test('refresh RPCs/tables are service-only by effective privileges; trigger helper stays private',async()=>{
@@ -546,4 +547,39 @@ test('atomic employer choices replace the whole selection; stale lists and other
   await db.exec('set role anon');
   try{await assert.rejects(call('employer_replace_feed_selection',['text','text[]'],[SOURCE,[]]),e=>e.code==='42501');}
   finally{await db.exec('reset role');}
+});
+
+test('URL conflict recovery never masks an unrelated uniqueness failure',async()=>{
+  await seed();await handler(2)(request());await selectJobs(['job-0','job-1']);await publish(['job-0']);
+  await db.exec('create unique index fixture_other_unique on pre_scraped_jobs(job_title)');
+  try{
+    await assert.rejects(publish(['job-1']),e=>e.code==='23505'&&e.constraint==='fixture_other_unique');
+    assert.equal((await db.query('select count(*)::int n from pre_scraped_jobs')).rows[0].n,1);
+  }finally{await db.exec('drop index fixture_other_unique');}
+});
+
+test('URL upgrade and rollback preserve a populated 736-job catalogue, audit rows and coordinator definitions',async()=>{
+  const isolated=await PGlite.create();
+  try{
+    for(const p of ['tests/sql/supabase-shim.sql','migrations/20261015_ingest_taxonomy.sql','migrations/20261015_ingest_catalogue.sql','migrations/20261015_ingest_feed.sql',
+      ...employerMigrations.filter(n=>n!=='20261024_employer_url_conflicts.sql').map(n=>'migrations/pending/'+n)])await isolated.exec(read(p));
+    await isolated.exec(`insert into auth.users(id,email,email_confirmed_at) values('${OWNER}','synthetic@synthetic-careers.com',now());
+      insert into employer_orgs(id,name,primary_domain,status,created_by) values('${ORG}','Existing synthetic company','synthetic-careers.com','pending','${OWNER}');
+      insert into pre_scraped_jobs(category,job_title,apply_url) select 'Data Analyst','Synthetic listing '||i,'https://synthetic.com/job-'||i from generate_series(1,736) i;
+      select employer_audit_log(null,'service','${ORG}','org','${ORG}','upgrade_probe','{}');`);
+    const snapshot=async()=> (await isolated.query(`select jsonb_build_object(
+      'jobs',(select md5(jsonb_agg(to_jsonb(j) order by id)::text) from pre_scraped_jobs j),
+      'orgs',(select jsonb_agg(to_jsonb(o) order by id) from employer_orgs o),
+      'users',(select jsonb_agg(to_jsonb(u) order by id) from auth.users u),
+      'audit',(select jsonb_agg(to_jsonb(a) order by id) from employer_audit a),
+      'closure',pg_get_functiondef('employer_refresh_finish(uuid,uuid)'::regprocedure),
+      'staging',pg_get_functiondef('employer_feed_stage_registered_run(uuid,uuid,bigint,jsonb,jsonb)'::regprocedure),
+      'control',(select to_jsonb(c) from employer_refresh_control c)) state`)).rows[0].state;
+    const before=await snapshot();await isolated.exec(buildUrlUpgrade());assert.deepEqual(await snapshot(),before);
+    await assert.rejects(isolated.exec(buildUrlUpgrade()),/URL upgrade already present/);await isolated.exec('rollback');
+    await isolated.exec(buildUrlRollback());assert.deepEqual(await snapshot(),before);
+    await assert.rejects(isolated.exec(buildUrlRollback()),/URL upgrade not present/);await isolated.exec('rollback');
+    await isolated.exec(buildUrlUpgrade());assert.deepEqual(await snapshot(),before);
+    assert.equal((await isolated.query('select count(*)::int n from pre_scraped_jobs')).rows[0].n,736);
+  }finally{await isolated.close();}
 });

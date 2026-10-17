@@ -7,7 +7,8 @@ const files=['20261016_employer_feed_runs.sql','20261016_employer_submissions.sq
  '20261017_employer_search_visibility.sql','20261018_employer_access_hardening.sql',
  '20261019_employer_pending_account_cleanup.sql','20261019_employer_concurrency_hardening.sql',
  '20261020_employer_post_actions.sql','20261021_employer_feed_concurrency_hardening.sql',
- '20261022_employer_paused_post_state.sql','20261023_employer_refresh_workflow.sql'];
+ '20261022_employer_paused_post_state.sql','20261023_employer_refresh_workflow.sql',
+ '20261024_employer_url_conflicts.sql'];
 function build(){
  const parts=files.map(name=>{const sql=fs.readFileSync(path.join(root,'migrations/pending',name),'utf8');
   return '-- '+name+' SHA256 '+crypto.createHash('sha256').update(sql).digest('hex')+'\n'+sql.replace(/^\s*(begin|commit);\s*$/gmi,'');});
@@ -106,5 +107,36 @@ commit;
 select employer_refresh_health() as refresh_workflow_installed;
 `;
 }
-module.exports={build,files,buildUpgrade,buildFeedUpgrade,buildRefreshUpgrade};
-if(require.main===module)process.stdout.write(process.argv.includes('--refresh-upgrade')?buildRefreshUpgrade():process.argv.includes('--feed-upgrade')?buildFeedUpgrade():process.argv.includes('--concurrency-upgrade')?buildUpgrade():build());
+function buildUrlUpgrade({rollback=false}={}){
+ const name='20261024_employer_url_conflicts.sql';
+ const sql=fs.readFileSync(path.join(root,'migrations',rollback?'rollback':'pending',name),'utf8').replace(/^\s*(begin|commit);\s*$/gmi,'');
+ return `begin;
+set local lock_timeout='5s';
+set local statement_timeout='30s';
+do $$ begin
+ if to_regclass('public.employer_refresh_control') is null then raise exception 'refresh baseline missing'; end if;
+ if exists(select 1 from employer_refresh_control where enabled) then raise exception 'pause refresh before upgrade'; end if;
+ if (position('Recover only the apply URL unique index' in pg_get_functiondef('public.employer_publish_post_internal(uuid,uuid,text)'::regprocedure))>0) ${rollback?'is not true':'is true'}
+   then raise exception '${rollback?'URL upgrade not present':'URL upgrade already present'}'; end if;
+end $$;
+create temporary table employer_url_old_functions on commit drop as
+ select oid,proacl::text acl,pg_get_functiondef(oid) definition,proname from pg_proc
+ where pronamespace='public'::regnamespace and (proname like 'employer_%' or proname like 'operator_%');
+${sql}
+do $$ begin
+ if exists(select 1 from employer_url_old_functions a join pg_proc p on p.oid=a.oid where p.proacl::text is distinct from a.acl)
+   then raise exception 'existing employer grants changed'; end if;
+ if exists(select 1 from employer_url_old_functions a join pg_proc p on p.oid=a.oid
+   where a.proname not in ('employer_publish_post_internal','employer_publish_feed_jobs') and pg_get_functiondef(p.oid)<>a.definition)
+   then raise exception 'unrelated employer function changed'; end if;
+ if not exists(select 1 from employer_billing_config where id and free_active_posts=15 and monthly_price_cents=1499
+   and currency='USD' and not paid_publishing_enabled and paid_active_limit is null) then raise exception 'billing must remain disabled'; end if;
+end $$;
+notify pgrst,'reload schema';
+commit;
+select '${rollback?'employer_url_upgrade_rolled_back':'employer_url_upgrade_installed'}' as result;
+`;
+}
+const buildUrlRollback=()=>buildUrlUpgrade({rollback:true});
+module.exports={build,files,buildUpgrade,buildFeedUpgrade,buildRefreshUpgrade,buildUrlUpgrade,buildUrlRollback};
+if(require.main===module)process.stdout.write(process.argv.includes('--url-rollback')?buildUrlRollback():process.argv.includes('--url-upgrade')?buildUrlUpgrade():process.argv.includes('--refresh-upgrade')?buildRefreshUpgrade():process.argv.includes('--feed-upgrade')?buildFeedUpgrade():process.argv.includes('--concurrency-upgrade')?buildUpgrade():build());

@@ -33,7 +33,7 @@ const CHAIN = [
     'migrations/pending/20261019_employer_concurrency_hardening.sql',
     'migrations/pending/20261020_employer_post_actions.sql',
     'migrations/pending/20261021_employer_feed_concurrency_hardening.sql',
-    'migrations/pending/20261022_employer_paused_post_state.sql','migrations/pending/20261023_employer_refresh_workflow.sql',
+    'migrations/pending/20261022_employer_paused_post_state.sql','migrations/pending/20261023_employer_refresh_workflow.sql','migrations/pending/20261024_employer_url_conflicts.sql',
 ];
 
 const psql = (args) => spawnSync('psql', ['-X', '-v', 'ON_ERROR_STOP=1', '-d', db, ...args], { cwd: root, encoding: 'utf8' });

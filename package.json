@@ -13,7 +13,8 @@
     "test:employer-access": "node --test tests/employer-access-db.mjs",
     "test:employer-concurrency": "node --test tests/employer-concurrency-db.mjs",
     "test:employer-feed-concurrency": "node --test tests/employer-feed-concurrency-db.mjs",
-    "test:employer-refresh-concurrency": "node --test tests/employer-refresh-concurrency-db.mjs"
+    "test:employer-refresh-concurrency": "node --test tests/employer-refresh-concurrency-db.mjs",
+    "test:employer-url-concurrency": "node --test tests/employer-lease-selection-url-db.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.10",

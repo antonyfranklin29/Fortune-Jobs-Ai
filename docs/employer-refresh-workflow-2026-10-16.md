@@ -1,5 +1,8 @@
 # Employer feed refresh: implemented and deployed, collection disabled
 
+**October 17 follow-up:** Claude’s shared-URL review is integrated and deployed
+without replacing staging or closure. See [the current integration report](employer-url-integration-2026-10-17.md).
+
 The employer feed backend now connects collection, employer selections, shared
 quota publication, vacancy closure, private operational logs and a scheduled
 runner. The database upgrade and `employer-refresh` Edge Function were applied

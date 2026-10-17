@@ -1,0 +1,77 @@
+{
+  "label": "with integrated URL fix and deployed coordinator",
+  "results": [
+    {
+      "name": "L1 revocation between claim and batch",
+      "expected": "a batch for a source revoked after claim is rejected; no candidate is staged",
+      "observed": "stage: {\"reason\":\"source_changed\",\"status\":\"rejected\"}; candidates 0",
+      "pass": true
+    },
+    {
+      "name": "L2 batch parked on org lock, revocation queued",
+      "expected": "staging and revocation queued together: revoked source cannot publish; no open or visible listing",
+      "observed": "stage: {\"status\":\"staged\",\"accepted\":1,\"candidates_promoted\":1}; revoke: 0; publish: ERROR P0001: source_not_publishable; open 0; visible 0",
+      "pass": true
+    },
+    {
+      "name": "L3 lease takeover: expired run cannot promote",
+      "expected": "after takeover only the new run promotes; the expired run is rejected with no candidate",
+      "observed": "new run: staged; expired run: {\"reason\":\"stale_batch\",\"status\":\"rejected\"}; candidates P1 0, P2 1",
+      "pass": true
+    },
+    {
+      "name": "L4 approval withdrawn and re-granted before old batch",
+      "expected": "a batch collected under the old approval never promotes after re-approval",
+      "observed": "re-approval: {\"id\":\"src_355d063aa159477080816fe538bba471\",\"stat; stage: {\"reason\":\"source_changed\",\"status\":\"rejected\"}; candidates 0",
+      "pass": true
+    },
+    {
+      "name": "L5 partial batch does not withdraw selections",
+      "expected": "partial batch reports partial and does not withdraw an earlier selection",
+      "observed": "partial batch: {\"status\":\"partial\",\"accepted\":1,\"candidates_promoted\":1}; publish P1: published 1, skipped []",
+      "pass": true
+    },
+    {
+      "name": "L6 complete batch withdraws absent listings",
+      "expected": "staging never withdraws; a clean complete coordinator settlement closes the absent listing",
+      "observed": "initial publish 1; staged open 1; settled {\"closed\":1,\"reason\":null,\"run_id\":\"ba7c7d76-5058-4331-86b3-628291f9e923\",\"status\":\"complete\",\"skipped\":0,\"updated\":0,\"accepted\":1,\"published\":1,\"reconciled\":true,\"blocked_quota\":0,\"requests_used\":\"1\"}; live P1 open 0",
+      "pass": true
+    },
+    {
+      "name": "C1 deselect while publication waits",
+      "expected": "selection queued first takes the shared company lock before publication and prevents publication",
+      "observed": "{\"d\":\"1\",\"p\":{\"limit\":15,\"state\":null,\"skipped\":[{\"id\":\"P1\",\"reason\":\"not_selected\"}],\"updated\":0,\"published\":0,\"blocked_quota\":0}}",
+      "pass": true
+    },
+    {
+      "name": "C2 refresh of a selected listing keeps its selection",
+      "expected": "refresh under the granted refresh permission keeps the selection and publishes the refreshed content",
+      "observed": "restage: staged; publish: published 1; live description \"Refreshed description\"",
+      "pass": true
+    },
+    {
+      "name": "C3 selection change behind publication",
+      "expected": "selection change behind a publication: no deadlock or error; publication uses the selection it read",
+      "observed": "publish: published 1; deselect: 1; open after 1",
+      "pass": true
+    },
+    {
+      "name": "U1 two companies, one application URL (manual)",
+      "expected": "one company lists the shared URL; the other gets a clean apply_url_already_listed, not an error",
+      "observed": "listings for URL 1; A: {\"id\":\"eabbabc9-d8ed-4e96-ad89-247e25de60fe\",\"job_id\":1,\"published\":true}; B: {\"id\":\"35c8f6bf-0297-4bfb-bdb7-3a2c4de21d58\",\"state\":\"apply_url_already_listed\",\"published",
+      "pass": true
+    },
+    {
+      "name": "U2a feed batch behind manual claim, one application URL",
+      "expected": "exactly one listing holds the URL; the feed batch keeps its other listing and reports the collision",
+      "observed": "order manual-first; listings for URL 1; feed: {\"limit\":15,\"state\":null,\"skipped\":[{\"id\":\"P1\",\"reason\":\"apply_url_already_listed\"}],\"updated\":0,\"published\":1; manual: {\"id\":\"acb4606f-bce5-46b1-b30a-01033f7665cb\",\"job_id\":1,\"published\":true}; P2 open 1",
+      "pass": true
+    },
+    {
+      "name": "U2b manual claim behind feed batch, one application URL",
+      "expected": "exactly one listing holds the URL; the feed batch keeps its other listing and reports the collision",
+      "observed": "order feed-first; listings for URL 1; feed: {\"limit\":15,\"state\":null,\"skipped\":[],\"updated\":0,\"published\":2,\"blocked_quota\":0}; manual: {\"id\":\"fbe77b89-a492-4f87-b904-3b4144753020\",\"state\":\"apply_url_already_listed\",; P2 open 1",
+      "pass": true
+    }
+  ]
+}

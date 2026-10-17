@@ -1,0 +1,15 @@
+[
+  {
+    "rpc": "employer_publish_feed_jobs",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "rpc": "employer_publish_post_internal",
+    "status": 401,
+    "code": "42501"
+  },
+  {
+    "public_catalogue": 200
+  }
+]
