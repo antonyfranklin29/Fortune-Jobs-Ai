@@ -87,6 +87,7 @@ type FeedListing = { id: string; title: string; area: string[]; display?: string
 let feedMarket: FeedListing[] = [];
 let feedTruncateAfter = Infinity;
 let failUpsert = false;                 // injected store failure for recovery tests
+let failSpendRecord = false;            // injected allowance-ledger failure
 let providerDelayMs = 0;                // slows the fake provider so overlap can be tested
 let onProviderCall: (() => void) | null = null;
 function feedAdzuna(url: URL) {
@@ -151,6 +152,8 @@ globalThis.fetch = (async (input: Request | URL | string, init?: RequestInit) =>
     db.runs.push(row); return Response.json([row]);
   }
   if (p === "/rest/v1/ingest_runs" && method === "PATCH") {
+    if (failSpendRecord && q.get("id") && body.requests_used !== undefined)
+      return new Response("ledger unavailable", { status: 503 });
     const idq = q.get("id");
     const hit = idq ? db.runs.filter((r) => r.id === Number(idq.slice(3)))
                     : db.runs.filter((r) => r.status === "running" && r.started_at < q.get("started_at")!.slice(3));
@@ -407,7 +410,22 @@ Deno.test("provider calls are recorded on the run while it is still in progress"
   const seen: number[] = [];
   onProviderCall = () => { const run = db.runs.at(-1); seen.push(run.status === "running" ? run.requests_used : -1); };
   try { await worker({ mode: "feed", budget: 3 }); } finally { onProviderCall = null; }
-  assertEquals(seen, [0, 1, 2], "each call is on the run record before the next call is made");
+  assertEquals(seen, [1, 2, 3], "each call is reserved on the run record before the provider is called");
+});
+
+Deno.test("a failed spend reservation makes no provider request", async () => {
+  freshRuns();
+  db.feeds.clear();
+  feedMarket = seedFeed(120);
+  const before = adzunaCalls;
+  failSpendRecord = true;
+  try {
+    let failed = false;
+    try { await workerRaw({ mode: "feed", budget: 2 }); }
+    catch (e) { failed = String(e).includes("provider allowance ledger unavailable"); }
+    assert(failed, "the worker must fail closed when the ledger cannot reserve a call");
+    assertEquals(adzunaCalls, before, "no provider call was made without a reservation");
+  } finally { failSpendRecord = false; }
 });
 
 Deno.test("an interrupted run is closed out, and the calls it made still count against the allowance", async () => {

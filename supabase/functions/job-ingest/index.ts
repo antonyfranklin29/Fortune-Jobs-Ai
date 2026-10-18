@@ -146,11 +146,16 @@ const fetchPage = (roleQuery: string, regionName: string, page: number, maxDaysO
   fetchAdzuna(page, { title_only: roleQuery, location1: regionName, max_days_old: String(maxDaysOld) });
 
 type Page = { ok?: boolean; retry?: boolean; status?: number; count?: number; results?: unknown[] };
+class SpendRecordError extends Error {}
 async function fetchWithRetry(get: () => Promise<Page>, spend: () => boolean): Promise<Page | null> {
   let page: Page | null = null;
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     if (!spend()) break;
-    try { page = await get(); } catch { page = { retry: true, status: 0 }; }
+    try { page = await get(); }
+    catch (e) {
+      if (e instanceof SpendRecordError) throw e;
+      page = { retry: true, status: 0 };
+    }
     if (page.ok || !page.retry) break;
     await sleep(L.backoffMs(attempt + 1));
   }
@@ -166,12 +171,15 @@ async function budgetFor(requested: number) {
   return { used, budget: Math.max(0, Math.min(requested, ...caps)) };
 }
 
-// Each provider request is written to its run as it happens, so a run that stops
-// before it finishes still shows every call it made.
+// Reserve each provider request before it is sent. A failed ledger write blocks
+// the request; an interrupted run can only overcount, never silently overspend.
 async function recordSpend(runId: number | null, requestsUsed: number) {
   if (runId === null) return;
-  await db(`/rest/v1/ingest_runs?id=eq.${runId}`, { method: "PATCH", headers: { prefer: "return=minimal" },
-    body: JSON.stringify({ requests_used: requestsUsed }) }).catch(() => {});
+  try {
+    const response = await db(`/rest/v1/ingest_runs?id=eq.${runId}`, { method: "PATCH", headers: { prefer: "return=minimal" },
+      body: JSON.stringify({ requests_used: requestsUsed }) });
+    if (!response.ok) throw new Error(`ledger returned ${response.status}`);
+  } catch { throw new SpendRecordError("provider allowance ledger unavailable"); }
 }
 
 // A run that never recorded its end (the worker stopped, or the final write was
@@ -253,8 +261,8 @@ async function runFeed(body: Record<string, unknown>): Promise<Response> {
   const spend = () => (requestsUsed < budget ? (requestsUsed++, true) : false);
   const get = (page: number) => async (): Promise<Page> => {
     if (fixture) return { ok: true, ...(fixture[fixtureIdx++] ?? { count: 0, results: [] }) };
-    try { return await fetchAdzuna(page, params); }
-    finally { await recordSpend(runId, requestsUsed); }
+    await recordSpend(runId, requestsUsed);
+    return fetchAdzuna(page, params);
   };
 
   const take = (results: unknown[]) => {
@@ -457,9 +465,9 @@ export async function handler(req: Request): Promise<Response> {
       if (fixture) { page = { ok: true, count: Number(fixture.count) || 0, results: (fixture.results as unknown[]) ?? [] }; break; }
       if (requestsUsed >= budget) break;
       requestsUsed++;
+      await recordSpend(runId, requestsUsed);
       try { page = await fetchPage(role.query, region.name, step.page, FRESH_DAYS); }
       catch { page = { retry: true, status: 0 }; }
-      await recordSpend(runId, requestsUsed);
       if (page.ok || !page.retry) break;
       await sleep(L.backoffMs(attempt + 1));
     }

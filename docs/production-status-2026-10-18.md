@@ -20,9 +20,9 @@ Employer Plus billing is disabled, and there are no real employer feeds or posts
 
 ## Adzuna catalogue
 
-The October 15 runs were manual five-call tests. No `job-ingest` schedule was installed. The feed has not “crashed”; it has not been invoked again. The recovery branch fixes cursor movement after failed writes, accounts for provider calls while a run is active, blocks overlapping runs, and adds an optional lifetime limit. Those changes are in the repository, but the new allowance SQL is not applied and the recovered worker is not deployed. Do not schedule it against a 25-call test allowance or assume 500 calls/day is available. The documented full pass is roughly 5,304 pages; at six calls/hour it takes about 37 days, so the intended coverage needs a budget and scope redesign.
+The October 15 runs were manual five-call tests. No `job-ingest` schedule was installed. The feed has not “crashed”; it has not been invoked again. The recovery patch fixes cursor movement after failed writes, accounts for provider calls while a run is active, blocks overlapping runs, and adds an optional lifetime limit. The private lifetime-counter SQL was applied on October 18; effective privileges are anon/authenticated denied and service role allowed, and it returned 10 used calls. The recovered worker was deployed on October 18 and its source was checked after reload against the tested file. `ADZUNA_LIMIT_TOTAL=25` was saved, so the worker is capped at 25 recorded lifetime calls. This is not a scheduler, and no provider call was made during deployment. Do not schedule it against a 25-call test allowance or assume 500 calls/day is available. The documented full pass is roughly 5,304 pages; at six calls/hour it takes about 37 days, so the intended coverage needs a budget and scope redesign.
 
-Before deploying, review how `recordSpend` handles a failed or non-2xx database PATCH: the current worker ignores that failure, which can undercount calls. Add a regression test that fails when spend recording fails, and make the worker stop further provider calls. This is a launch blocker for any automated limited-quota run.
+The recovery review found that `recordSpend` ignored a failed or non-2xx database PATCH. The worker now reserves each call in the run ledger before contacting Adzuna and fails closed if that reservation fails. A fixture test confirms a failed ledger write makes zero provider calls. This change is deployed. An automatic schedule still needs an approved allowance and coverage plan. The counter sees worker-recorded calls only; any Adzuna calls made outside this worker must be reconciled against the provider dashboard before using the remaining test allowance.
 
 ## Security findings
 
@@ -34,7 +34,7 @@ No 100-user paid load test or restore drill has been run. Stripe and subscriptio
 
 ## Next release gates
 
-1. Fix and test durable Adzuna spend accounting, decide a provider allowance and practical coverage scope, then schedule a capped refresh.
+1. Reconcile Adzuna's own usage with the worker's 10 recorded calls, decide a provider allowance and practical coverage scope, then schedule a capped refresh.
 2. Verify current direct Make searches with a capped test; install the secret filter and gateway secrets, then cut over and rotate the direct webhook.
 3. Test employer registration with a real company-domain account and reviewer approval without granting a fabricated employer production rights.
 4. Review the public result fields, owner-scoped account data, helper RPCs, backups and restore procedure. Keep the paid Supabase upgrade pending unless the owner changes that decision.
