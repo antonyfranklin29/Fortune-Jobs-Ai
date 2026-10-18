@@ -1,5 +1,10 @@
--- PENDING — NOT APPLIED. Employer domain rule (decided by the owner on 2026-10-17:
--- "Company domain and subdomains"). Apply AFTER every 20261016–20261025 employer migration.
+-- APPLIED MANUALLY TO PRODUCTION on 2026-10-18. The live function body and
+-- supabase_migrations.schema_migrations entry 20261017225112 were verified.
+-- Keep this historical source here because the employer bundle and tests read
+-- migrations/pending/. DO NOT replay it on the existing production project.
+-- Employer domain rule (decided by the owner on 2026-10-17:
+-- "Company domain and subdomains"). On a new installation, apply AFTER every
+-- 20261016–20261025 employer migration.
 --
 -- An organisation can be registered only by someone whose sign-in email is at the company
 -- domain or a subdomain of it (username@organisation.com, or username@team.organisation.com).
