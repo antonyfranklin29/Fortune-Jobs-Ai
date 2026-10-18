@@ -420,17 +420,28 @@ Deno.test("a failed spend reservation makes no provider request", async () => {
   const before = adzunaCalls;
   failSpendRecord = true;
   try {
-    let failed = false;
-    try { await workerRaw({ mode: "feed", budget: 2 }); }
-    catch (e) { failed = String(e).includes("provider allowance ledger unavailable"); }
-    assert(failed, "the worker must fail closed when the ledger cannot reserve a call");
+    const response = await workerRaw({ mode: "feed", budget: 2 });
+    assertEquals(response.status, 503);
+    assertEquals(response.body.reason, "allowance_ledger_unavailable");
     assertEquals(adzunaCalls, before, "no provider call was made without a reservation");
   } finally { failSpendRecord = false; }
 });
 
+Deno.test("a 20-minute live run still blocks a second run", async () => {
+  freshRuns();
+  const active = { id: db.nextRun++, source: "adzuna", note: "active run", started_at: new Date(Date.now() - 20 * 60000).toISOString(), status: "running", requests_used: 4 };
+  db.runs.push(active);
+  feedMarket = seedFeed(330);
+  const before = adzunaCalls;
+  const response = await workerRaw({ mode: "feed", budget: 2 });
+  assertEquals(response.status, 409);
+  assertEquals(active.status, "running");
+  assertEquals(adzunaCalls, before);
+});
+
 Deno.test("an interrupted run is closed out, and the calls it made still count against the allowance", async () => {
   freshRuns();
-  const stale = { id: db.nextRun++, source: "adzuna", note: "feed adzuna-us-it", started_at: new Date(Date.now() - 20 * 60000).toISOString(), status: "running", requests_used: 4 };
+  const stale = { id: db.nextRun++, source: "adzuna", note: "feed adzuna-us-it", started_at: new Date(Date.now() - 3 * 60 * 60000).toISOString(), status: "running", requests_used: 4 };
   db.runs.push(stale);
   feedMarket = seedFeed(330);
   const r = await workerRaw({ mode: "feed", budget: 2 });

@@ -17,10 +17,9 @@
 //
 // Secrets: INGEST_SECRET, ADZUNA_APP_ID, ADZUNA_APP_KEY.
 // Optional overrides: ADZUNA_LIMIT_MINUTE/DAY/WEEK/MONTH, and ADZUNA_LIMIT_TOTAL
-// for a lifetime cap (a test plan's remaining calls; unset means no lifetime cap). Defaults follow the
-// paid "API access" plan in Adzuna's activation email (500/day, 5,000/month; no
-// weekly figure, so the monthly one applies). The per-minute cap is a
-// conservative guess. The provider enforces its own limits regardless; these
+// for a lifetime cap (a test plan's remaining calls; unset means no lifetime cap). Defaults follow
+// Adzuna's published standard limits. Account-specific limits may be lower or
+// higher and must be confirmed before scheduling. The provider enforces its own limits; these
 // only stop the worker from spending calls it knows it does not have.
 //
 // Two modes:
@@ -53,18 +52,21 @@ function limits() {
   };
   return {
     minute: num("ADZUNA_LIMIT_MINUTE", 25) as number,
-    day:    num("ADZUNA_LIMIT_DAY", 500) as number,
-    week:   num("ADZUNA_LIMIT_WEEK", 5000) as number,
-    month:  num("ADZUNA_LIMIT_MONTH", 5000) as number,
+    day:    num("ADZUNA_LIMIT_DAY", 250) as number,
+    week:   num("ADZUNA_LIMIT_WEEK", 1000) as number,
+    month:  num("ADZUNA_LIMIT_MONTH", 2500) as number,
     total:  num("ADZUNA_LIMIT_TOTAL", null),
   };
 }
-const STALE_RUN_MS     = 15 * 60_000;   // a run still "running" after this has stopped
+// A 50-call run with retries can exceed 15 minutes. Keep its reservation active
+// for longer than the worst bounded request/retry cycle so a later run cannot
+// reclaim its slot while it is still making provider calls.
+const STALE_RUN_MS     = 2 * 60 * 60_000;
 const RUN_HARD_CAP     = 50;      // never more than this many requests in one run
 const SPACING_MS       = Number(Deno.env.get("INGEST_SPACING_MS") ?? 2600);  // stays under 25/minute
 const MAX_ATTEMPTS     = 3;
 const REQUEST_TIMEOUT  = 15_000;
-const REFRESH_HOURS    = 24;
+const REFRESH_HOURS    = 6 * 24;
 const FRESH_DAYS       = ROLES.fresh_days ?? 30;
 
 type Role = { id: string; name: string; query: string; review: string; inc: RegExp[]; exc: RegExp[] };
@@ -384,7 +386,16 @@ export async function handler(req: Request): Promise<Response> {
 
   let body: Record<string, unknown> = {};
   try { body = await req.json(); } catch { /* defaults */ }
-  if (body.mode === "feed") return runFeed(body);
+  try {
+    if (body.mode === "feed") return await runFeed(body);
+    return await runCells(body);
+  } catch (e) {
+    if (e instanceof SpendRecordError) return json({ status: "blocked", reason: "allowance_ledger_unavailable" }, 503);
+    throw e;
+  }
+}
+
+async function runCells(body: Record<string, unknown>): Promise<Response> {
   const dryRun = body.dry_run === true;
   const wantRoles = Array.isArray(body.roles) ? body.roles.map(String) : ["data-analyst"];
   const wantRegions = Array.isArray(body.regions) ? body.regions.map((s: unknown) => String(s).toUpperCase()) : ["NC", "SC"];
