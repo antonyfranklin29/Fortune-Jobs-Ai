@@ -325,9 +325,10 @@ Deno.serve(async (req: Request) => {
     const upstream = await fetch(MAKE_URL, {
       method: "POST",
       headers: { "content-type": "application/json", "x-fj-gateway-secret": MAKE_SECRET },
+      // The secret travels in the header only. Make keeps request bodies in its
+      // execution history, so a body copy would be stored there in plain text.
       body: JSON.stringify({
-        text, mode: "live", search_id: searchId, results_limit: 10,
-        gateway_secret: MAKE_SECRET, ...filters,
+        text, mode: "live", search_id: searchId, results_limit: 10, ...filters,
       }),
       signal: AbortSignal.timeout(DISPATCH_TIMEOUT_MS),
     });
