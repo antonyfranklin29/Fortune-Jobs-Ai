@@ -112,16 +112,25 @@ test('eligibility needs a real date, recent sighting and an open listing', () =>
   assert.ok(!L.isEligible({ ...base, closed_at: '2026-10-14T00:00:00Z' }, cfg, now), 'closed');
 });
 
-test('planning spends the budget on the biggest shortfalls and reports what it deferred', () => {
+test('planning covers states before deeper pages and reports unfinished sweeps', () => {
   const regions = regCfg.regions.filter((r) => ['NC', 'SC'].includes(r.code));
   const cells = new Map([['data-analyst:NC', { fresh: 3 }], ['data-analyst:SC', { fresh: 1 }]]);
   const { plan, deferred } = L.planRequests({ cells, roles: [DA], regions, target: 100, budget: 4, now });
   assert.equal(plan.length, 4, 'never exceeds the budget');
-  assert.deepEqual(plan.slice(0, 3).map((p) => `${p.region}:${p.page}`), ['SC:1', 'SC:2', 'SC:3'], 'SC is furthest short');
-  assert.equal(plan[3].region, 'NC');
-  assert.equal(deferred.length, 1);
-  assert.equal(deferred[0].region, 'NC');
-  assert.equal(deferred[0].pages, 2);
+  assert.deepEqual(plan.map((p) => `${p.region}:${p.page}`),
+                   ['SC:1', 'NC:1', 'SC:2', 'NC:2']);
+  assert.equal(plan[0].requestedPages, 3, 'a partial run must not count as a full sweep');
+  assert.equal(deferred.length, 2);
+  assert.deepEqual(deferred.map((c) => `${c.region}:${c.pages}`), ['SC:1', 'NC:1']);
+});
+
+test('a limited budget samples distinct states before repeating a state', () => {
+  const { plan, deferred } = L.planRequests({ cells: new Map(), roles: [DA], regions: regCfg.regions,
+    target: 100, budget: 15, now });
+  assert.equal(plan.length, 15);
+  assert.equal(new Set(plan.map((p) => p.region)).size, 15);
+  assert.ok(plan.every((p) => p.page === 1 && p.requestedPages === 3));
+  assert.equal(deferred.length, 51);
 });
 
 test('quota exhaustion: zero budget plans nothing and defers everything', () => {
@@ -136,7 +145,7 @@ test('a full, recently swept cell gets one incremental page; cells not yet due a
   const cells = new Map([['data-analyst:NC', { fresh: 120, lastFullSweepAt: '2026-10-13T00:00:00Z' }],
                          ['data-analyst:SC', { fresh: 5, nextDueAt: '2026-10-16T00:00:00Z' }]]);
   const { plan } = L.planRequests({ cells, roles: [DA], regions, target: 100, budget: 50, now });
-  assert.deepEqual(plan, [{ role: 'data-analyst', region: 'NC', page: 1, mode: 'refresh' }]);
+  assert.deepEqual(plan, [{ role: 'data-analyst', region: 'NC', page: 1, mode: 'refresh', requestedPages: 1 }]);
 });
 
 test('a full cell is fully re-swept before its listings could age out of the seen window', () => {

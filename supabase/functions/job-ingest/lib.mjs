@@ -202,8 +202,10 @@ export function isEligible(row, cfg, now = new Date()) {
 }
 
 // ── planning ──────────────────────────────────────────────────────────────────
-// Choose which (role, state, page) requests to spend a run's budget on. Cells
-// that are due and furthest from target go first.
+// Choose which (role, state, page) requests to spend a run's budget on. Give
+// every due cell its first page before spending calls on deeper pages, while
+// prioritizing the largest shortages within each round. This avoids spending
+// a small budget on page 2/3 of a few states while other states get nothing.
 //
 // A cell gets a FULL sweep (enough pages for the target plus one for rejected
 // titles, capped) when it is short, has never been fully swept, or its last
@@ -231,12 +233,20 @@ export function planRequests({ cells, roles, regions, target, budget, maxPagesPe
   due.sort((a, b) => b.shortage - a.shortage || a.role.localeCompare(b.role) || a.region.localeCompare(b.region));
   const plan = [], deferred = [];
   let left = budget;
+  const taken = new Map();
+  for (let p = 1; left > 0 && due.some((cell) => cell.pages >= p); p++) {
+    for (const cell of due) {
+      if (left <= 0) break;
+      if (cell.pages < p) continue;
+      plan.push({ role: cell.role, region: cell.region, page: p, mode: cell.mode,
+                  requestedPages: cell.pages });
+      taken.set(`${cell.role}:${cell.region}`, p);
+      left--;
+    }
+  }
   for (const cell of due) {
-    if (left <= 0) { deferred.push(cell); continue; }
-    const take = Math.min(cell.pages, left);
-    for (let p = 1; p <= take; p++) plan.push({ role: cell.role, region: cell.region, page: p, mode: cell.mode });
-    left -= take;
-    if (take < cell.pages) deferred.push({ ...cell, pages: cell.pages - take });
+    const remaining = cell.pages - (taken.get(`${cell.role}:${cell.region}`) ?? 0);
+    if (remaining > 0) deferred.push({ ...cell, pages: remaining });
   }
   return { plan, deferred };
 }

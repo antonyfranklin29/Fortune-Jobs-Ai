@@ -462,10 +462,10 @@ async function runCells(body: Record<string, unknown>): Promise<Response> {
   const rejected: Record<string, number> = {};
   const rows: Record<string, unknown>[] = [];
   const cellResult = new Map<string, { ok: boolean; error: string | null; complete: boolean; pages: number; reported: number }>();
-  const plannedPages = new Map<string, { mode: string; pages: number }>();
+  const plannedPages = new Map<string, { mode: string; requestedPages: number }>();
   for (const s of plan) {
     const k = `${s.role}:${s.region}`;
-    plannedPages.set(k, { mode: s.mode, pages: (plannedPages.get(k)?.pages ?? 0) + 1 });
+    plannedPages.set(k, { mode: s.mode, requestedPages: s.requestedPages });
   }
 
   for (const step of plan) {
@@ -525,7 +525,7 @@ async function runCells(body: Record<string, unknown>): Promise<Response> {
         catch { /* leave listings open rather than close on an error */ }
       }
       const planned = plannedPages.get(key);
-      const fullSwept = s.complete || (planned?.mode === "fill" && s.pages >= planned.pages);
+      const fullSwept = s.complete || (planned?.mode === "fill" && s.pages >= planned.requestedPages);
       await recordCell(role, region, s.ok, s.error, s.ok ? 0 : (cells.get(key)?.failures ?? 0) + 1, fullSwept);
     }
   }
