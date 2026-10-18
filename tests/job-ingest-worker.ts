@@ -20,10 +20,10 @@ const DAY = 86400000;
 type Job = Record<string, any>;
 const db = { runs: [] as any[], cells: new Map<string, any>(), jobs: [] as Job[], nextRun: 1, feeds: new Map<string, any>() };
 
-function coverage(role: string, state: string) {
+function coverage(role: string, state: string, source = "adzuna") {
   const now = Date.now(), keys = new Set<string>();
   for (const j of db.jobs) {
-    if (j.closed_at || j.canonical_role !== role || j.state_code !== state) continue;
+    if (j.closed_at || j.source !== source || j.canonical_role !== role || j.state_code !== state) continue;
     if (!j.posted_at || now - Date.parse(j.posted_at) > 30 * DAY) continue;
     if (!j.last_seen_at || now - Date.parse(j.last_seen_at) > (j.ingest_feed ? 30 : 7) * DAY) continue;
     keys.add(`${j.job_title}|${j.company ?? ""}|${j.location ?? ""}`.toLowerCase());
@@ -170,7 +170,8 @@ globalThis.fetch = (async (input: Request | URL | string, init?: RequestInit) =>
     db.cells.set(k, { ...(db.cells.get(k) ?? {}), ...body }); return new Response(null, { status: 201 });
   }
   if (p === "/rest/v1/ingest_cells") return Response.json([...db.cells.values()]);
-  if (p === "/rest/v1/ingest_coverage") {
+  if (p === "/rest/v1/ingest_source_coverage") {
+    assertEquals(q.get("source"), "eq.adzuna");
     const rolesQ = q.get("role_id")!.slice(4, -1).split(","), statesQ = q.get("state")!.slice(4, -1).split(",");
     return Response.json(rolesQ.flatMap((r) => statesQ.map((s) => ({ role_id: r, state: s, fresh_distinct: coverage(r, s) }))));
   }
@@ -437,6 +438,16 @@ Deno.test("a 20-minute live run still blocks a second run", async () => {
   assertEquals(response.status, 409);
   assertEquals(active.status, "running");
   assertEquals(adzunaCalls, before);
+});
+
+Deno.test("another provider's jobs do not satisfy an Adzuna cell shortage", async () => {
+  const adzunaBefore = coverage("data-analyst", "NC");
+  const row = { source: "indeed", canonical_role: "data-analyst", state_code: "NC", job_title: "Data Analyst", company: "Other Co", location: "Raleigh, NC", posted_at: new Date().toISOString(), last_seen_at: new Date().toISOString(), closed_at: null };
+  db.jobs.push(row);
+  try {
+    assertEquals(coverage("data-analyst", "NC"), adzunaBefore);
+    assertEquals(coverage("data-analyst", "NC", "indeed"), 1);
+  } finally { db.jobs.pop(); }
 });
 
 Deno.test("an interrupted run is closed out, and the calls it made still count against the allowance", async () => {
