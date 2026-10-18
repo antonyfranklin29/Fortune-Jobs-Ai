@@ -3,3 +3,4 @@ private-backups/
 .env
 .env.*
 *.fjb
+supabase/.temp/
