@@ -10,10 +10,12 @@
 -- Requires the paid Adzuna "API access" plan (500/day, 5,000/month); the free
 -- Pending Activation plan has only 25 calls in total.
 --
--- Hourly nationwide IT feed, 6 requests per run = 144/day, about 4,300/month,
--- leaving ~700/month for targeted cell top-ups. Each request returns up to 50
--- U.S. IT listings (about 7,200 a day), classified into the 18 IT roles × 51
--- regions. The worker also enforces the provider windows itself.
+-- Hourly nationwide IT feed, 3 requests per run = 72/day, at most 2,232
+-- in a 31-day month. This fits the worker's conservative 2,500/month default
+-- and leaves at least 268 calls for targeted top-ups. Each request returns
+-- up to 50 U.S. IT listings, classified into the 18 IT roles × 51 regions.
+-- If the owner activates a 5,000/month plan, raise the worker limits and
+-- schedule only after checking actual coverage, provider use and costs.
 
 create extension if not exists pg_cron;
 create extension if not exists pg_net;
@@ -27,7 +29,7 @@ select cron.schedule(
     headers := jsonb_build_object(
                  'content-type', 'application/json',
                  'x-ingest-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'ingest_secret')),
-    body    := jsonb_build_object('mode', 'feed', 'feed', 'adzuna-us-it', 'budget', 6),
+    body    := jsonb_build_object('mode', 'feed', 'feed', 'adzuna-us-it', 'budget', 3),
     timeout_milliseconds := 300000);
   $$);
 
