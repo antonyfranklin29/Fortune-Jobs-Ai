@@ -19,6 +19,18 @@ test('live source metadata supports skill evidence and profiles without skills p
  const jobs=[{job_title:'Engineer',source_metadata:JSON.stringify({snippet:'React TypeScript'})}];
  assert.match(R.rank(jobs,{skills:['React']},A.metadata)[0].match_reason,/React/);assert.equal(R.rank(jobs,null,A.metadata),jobs);
 });
+test('job-specific fit gives evidence, withholds scores for sparse listings, and never invents skills',()=>{
+ const profile={current_title:'Data Analyst',skills:['SQL','Python'],years_experience:2};
+ const job={job_title:'Data Analyst',job_description:'We seek a Data Analyst with 3 years of experience. The work uses SQL, Python, Tableau and Power BI to build trusted reports for business teams.'};
+ const fit=R.assess(job,profile,A.metadata);
+ assert.ok(fit.score>0&&fit.score<100);
+ assert.deepEqual(fit.matched,['Python','SQL']);
+ assert.deepEqual(fit.missing,['Power BI','Tableau']);
+ assert.equal(fit.experience,'review');
+ assert.equal(R.assess({job_title:'Data Analyst',job_description:'Data analyst role'},profile,A.metadata),null);
+ assert.equal(R.assess(job,{skills:[]},A.metadata),null);
+ assert.deepEqual(profile.skills,['SQL','Python']);
+});
 const html=fs.readFileSync('profile.html','utf8');
 function source(name){return html.match(new RegExp('^(?:async )?function '+name+'\\([^]*?^}', 'm'))[0];}
 test('all profile inline scripts parse',()=>{for(const m of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g))if(m[1].trim())new vm.Script(m[1]);});

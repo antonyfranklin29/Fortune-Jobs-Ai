@@ -1,6 +1,6 @@
 # Fortune Jobs AI — next AI features checklist
 
-**Status: planned, not started.** Begin this checklist after the current release gates in `docs/production-status-2026-10-18.md` are complete: reliable job coverage and search, secure employer publishing, account and data protections, and working subscriptions. This document is a product backlog, not a claim that any feature below is live.
+**Status: first matching slice implemented October 24; generative AI remains planned.** Core release gates still take priority. Billing is deferred by the owner; these features must not depend on an unavailable subscription. The current fit estimate is a transparent, local rules-based calculation, not a language-model feature or hiring prediction.
 
 ## Job seeker: AI résumé builder
 
@@ -16,6 +16,8 @@
 - [ ] Explain the score: matched requirements, missing or uncertain requirements, location/work-style fit, and how the user could improve the résumé truthfully.
 - [ ] Recalculate after accepted edits. Never force a 100/100 score by inserting unsupported claims; a perfect score is possible only when the available evidence supports it.
 - [ ] Test scoring against diverse roles and résumé formats, including sparse résumés, missing salary/location, and requirements the applicant does not meet. Check that small wording changes do not cause wild score swings.
+
+Initial slice: result cards show a fit estimate only when the user has confirmed résumé skills and the listing has enough text with at least two recognizable skills. The card explains matched and unconfirmed skills, title and years of experience. It does not claim to assess all requirements, location or work style yet, and it shows no number for sparse listings. The full checklist items above remain open until those cases are addressed and validated with real users.
 
 ## Employer: AI-assisted job post draft
 

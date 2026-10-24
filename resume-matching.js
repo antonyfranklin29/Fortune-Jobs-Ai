@@ -22,5 +22,34 @@
       return {job:{...job,match_reason:[job.match_reason,evidence].filter(Boolean).join(' ')+caution},rank:hits.length*10-shortfall*3,index};
     }).sort((a,b)=>b.rank-a.rank||a.index-b.index).map(x=>x.job);
   }
-  return {suggest,rank,contains};
+  // This is an explainable estimate from stated job requirements and confirmed
+  // profile facts. A sparse listing cannot support a numeric fit estimate.
+  function assess(job,profile,metadata){
+    if(!profile || !Array.isArray(profile.skills) || !profile.skills.length)return null;
+    const data=typeof metadata==='function'?metadata(job)||{}:{};
+    const description=[job.job_description,data.snippet,data.requirements?.description]
+      .filter(value=>typeof value==='string').join(' ');
+    if(description.trim().length<80)return null;
+    const requirementText=[description,JSON.stringify(data.requirements?.skills||[])].join(' ');
+    const required=[...new Set(skills)].filter(skill=>contains(requirementText,skill)).slice(0,12);
+    if(required.length<2)return null;
+    const evidence=[...(profile.skills||[]),profile.resume_text||''].filter(value=>typeof value==='string').join(' ');
+    const matched=required.filter(skill=>contains(evidence,skill));
+    const missing=required.filter(skill=>!contains(evidence,skill));
+    const titleKnown=typeof profile.current_title==='string'&&profile.current_title.trim();
+    const titleFit=titleKnown&&contains(job.job_title||'',profile.current_title.trim());
+    const yearsMatch=description.match(/\b(\d{1,2})\+?\s+years?\s+(?:of\s+)?experience\b/i);
+    const years=profile.years_experience==null?null:Number(profile.years_experience);
+    const experienceKnown=!!yearsMatch&&Number.isFinite(years);
+    const experienceFits=experienceKnown&&years>=Number(yearsMatch[1]);
+    const score=Math.round(80*matched.length/required.length+(titleFit?20:0));
+    const adjusted=experienceKnown&&!experienceFits?Math.max(0,score-10):score;
+    return {
+      score:Math.min(100,adjusted),matched,missing,
+      title:!titleKnown?'unknown':titleFit?'matched':'review',
+      experience:!yearsMatch?'not stated':!experienceKnown?'unknown':experienceFits?'matched':'review',
+      limited:true
+    };
+  }
+  return {suggest,rank,contains,assess};
 });

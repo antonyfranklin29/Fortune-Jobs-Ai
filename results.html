@@ -220,6 +220,9 @@ footer{background:#080E1A;padding:52px 64px 32px;}
 .job-company{font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:3px;}
 .job-location{font-size:12px;color:var(--gray-400);margin-bottom:12px;font-weight:400;}
 .job-reason{font-size:12px;color:var(--gray-600);margin-bottom:14px;line-height:1.65;padding:10px 12px;background:var(--gray-50);border-radius:var(--radius-sm);border-left:2.5px solid var(--gold);}
+.fit-details{font-size:12px;color:var(--gray-600);margin:0 0 14px;padding:11px 12px;background:#f6f8fc;border:1px solid var(--gray-200);border-radius:var(--radius-sm);line-height:1.6;}
+.fit-details summary{cursor:pointer;color:var(--navy);font-weight:700;}
+.fit-details p{margin:8px 0 0;}
 .job-footer{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:12px;border-top:1px solid var(--gray-100);}
 .job-salary{font-size:12px;color:var(--gray-600);font-weight:600;}
 .apply-btn{background:var(--navy);color:var(--white);border:none;padding:9px 18px;border-radius:var(--radius-md);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);text-decoration:none;transition:all 0.15s;display:inline-block;letter-spacing:-0.1px;}
@@ -1016,6 +1019,14 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
     const letter = (job.company && job.company.length > 0) ? job.company[0].toUpperCase() : '?';
     const applyUrl = safe(FJDataSafety.httpUrl(job.apply_url) || '#');
     const isSaved = window.FJ && acct.savedKeys.has(FJ.jobKey(job));
+    const assessment = window.FJResume && FJResume.assess(job, matchProfile(), FJAccuracy.metadata);
+    const fitDetails = assessment ? `<details class="fit-details"><summary>Résumé fit estimate: ${assessment.score}/100 · See why</summary>
+      <p>Based on detected skills in this listing and the résumé details you confirmed. This is not an ATS score or a hiring prediction.</p>
+      <p><strong>Found in your résumé:</strong> ${assessment.matched.length ? assessment.matched.map(safe).join(', ') : 'None of the detected skills yet'}</p>
+      <p><strong>Not found in your résumé:</strong> ${assessment.missing.length ? assessment.missing.map(safe).join(', ') : 'None of the detected skills'}. Add a skill only if you have it.</p>
+      <p><strong>Job title:</strong> ${assessment.title === 'matched' ? 'Matches your confirmed title.' : 'Check how your experience relates to this title.'} <strong>Experience:</strong> ${assessment.experience === 'matched' ? 'Meets the stated years.' : assessment.experience === 'review' ? 'Review the stated years.' : 'Not enough information to assess.'}</p>
+      <p>Check the original listing for complete requirements. <a href="${guestResumeProfile ? 'resume-search.html?edit=1' : 'profile.html#resume'}">Review your résumé details</a>.</p>
+    </details>` : '';
     return `
       <div class="job-card">
         <div class="job-card-top">
@@ -1026,6 +1037,7 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
         <div class="job-company">${safe(job.company || 'Company')}</div>
         <div class="job-location">📍 ${safe(job.location || 'Location not listed')}</div>
         ${job.match_reason ? `<div class="job-reason">💡 ${safe(job.match_reason)}</div>` : ''}
+        ${fitDetails}
         <div class="job-footer">
           <div class="job-salary">${safe(job.salary || 'Salary not listed')}</div>
           <div class="job-actions">
@@ -1689,9 +1701,11 @@ function rememberSearch(query, mode, filters) {
 // Keep private profile details local when submitting live searches.
 function accountPayload() { return {}; }
 function personalizeJobs(jobs) {
-  const guestFlow=typeof location!=='undefined' && typeof URLSearchParams!=='undefined' && new URLSearchParams(location.search).get('resume')==='1';
-  const profile=typeof guestResumeProfile!=='undefined' && guestResumeProfile ? guestResumeProfile : (guestFlow ? null : (typeof acct!=='undefined' ? acct.profile : null));
-  return window.FJResume ? FJResume.rank(jobs, profile, FJAccuracy.metadata) : jobs;
+  return window.FJResume ? FJResume.rank(jobs, matchProfile(), FJAccuracy.metadata) : jobs;
+}
+function matchProfile() {
+  const guestFlow=new URLSearchParams(location.search).get('resume')==='1';
+  return guestResumeProfile || (guestFlow ? null : acct.profile);
 }
 
 function renderResumeSearchSummary() {
