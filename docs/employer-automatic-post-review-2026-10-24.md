@@ -1,6 +1,6 @@
 # Employer routine-post approval — October 24, 2026
 
-Status: implemented and tested locally; **not deployed**. The live employer page and database still use manual post review. Apply the single pending migration before publishing the accompanying page copy and script.
+Status: database change deployed to production on October 24, 2026. Supabase returned success, and a read-only query confirmed that the live function contains the automatic rule, `anon` has no EXECUTE permission, and `authenticated` retains EXECUTE. The page change is published with the corresponding commit. No real employer post has yet been submitted through the new path.
 
 ## Experience
 
@@ -14,9 +14,9 @@ This is a deliberately narrow first version. Genuine jobs using an external appl
 
 ## Deployment gate
 
-1. Confirm the production migrations through employer concurrency hardening, URL-conflict handling, and the email-domain rule are already present. Apply `migrations/pending/20261024_employer_routine_post_approval.sql` **alone**. Do not replay historical pending migrations on the live database.
-2. Repeat the local database scenarios against a disposable PostgreSQL server if available; the included PGlite test covers pending company, ordinary publication, outside link, suspicious copy, risky edit, three-per-day review routing and the 15-active-job cap.
-3. Deploy the employer page and script together only after the database update. Test one verified synthetic company and one pending synthetic company end to end. Inspect the private audit trail and public catalogue, then roll back the function if either path behaves incorrectly.
-4. Assign an independent reviewer for first-time company claims and exception jobs. Current production reportedly has no reviewer account; until one is set up, `fortunejobs` stays pending and cannot use the automatic path. The owner account must not approve its own company.
+1. The database migration was applied **alone** after confirming the concurrency and publisher functions exist. Do not replay historical pending migrations on the live database.
+2. The included PGlite test covers pending company, ordinary publication, outside link, suspicious copy, risky edit, three-per-day review routing, cross-account denial, effective anon permissions and the 15-active-job cap. A real end-to-end employer post remains untested because production has no verified employer and no reviewer.
+3. Monitor the first live submissions through the private audit trail and public catalogue. If an unexpected post appears, suspend its company or close the post using the existing operator controls, then restore the previous `employer_submit_post` function.
+4. Assign an independent reviewer for first-time company claims and exception jobs. Production had zero reviewer accounts at deployment; until one is set up, `fortunejobs` stays pending and cannot use the automatic path. The owner account must not approve its own company.
 
 The free active-post allowance remains 15. Employer Plus billing remains disabled.

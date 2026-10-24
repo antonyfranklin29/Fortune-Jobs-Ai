@@ -1,4 +1,7 @@
--- Apply after the employer concurrency and URL-conflict migrations.
+-- APPLIED MANUALLY TO PRODUCTION on 2026-10-24. The SQL editor returned
+-- "Success. No rows returned"; pg_get_functiondef and effective EXECUTE grants
+-- were verified afterward. Do not replay on the existing production project.
+-- On a fresh install, apply after employer concurrency and URL-conflict migrations.
 -- Company verification remains a separate, one-time human decision. Once verified,
 -- an owner may publish a low-risk, first-party direct post without another reviewer.
 -- Everything else stays in the existing review queue. No client-supplied approval
