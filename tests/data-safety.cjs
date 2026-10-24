@@ -33,11 +33,11 @@ test('foreign file paths cannot trigger storage or profile mutations',async()=>{
 });
 test('account export scopes all reads to the owner and includes paginated history',async()=>{
  const scopes=[],ranges=[];
- const sb={from(table){return{select(){return this},eq(k,v){scopes.push([table,k,v]);return this},async single(){return{data:{id:'u',resume_text:'synthetic'}}},order(){return this},async range(a,b){ranges.push([table,a,b]);return{data:table==='search_history'&&a===0?Array.from({length:100},(_,id)=>({id})):[{id:100}]}}}}};
- const result=await S.exportAccount(sb,'u');assert.equal(result.search_history.length,101);assert.equal(result.profile.resume_text,'synthetic');assert.ok(scopes.every(c=>c[2]==='u'));assert.deepEqual(ranges.filter(c=>c[0]==='search_history').map(c=>c[1]),[0,100]);
+ const sb={from(table){return{select(){return this},eq(k,v){scopes.push([table,k,v]);return this},async single(){return{data:{id:'u',resume_text:'synthetic'}}},async maybeSingle(){return{data:{user_id:'u',subscribed:false}}},order(){return this},async range(a,b){ranges.push([table,a,b]);return{data:table==='search_history'&&a===0?Array.from({length:100},(_,id)=>({id})):[{id:100}]}}}}};
+ const result=await S.exportAccount(sb,'u');assert.equal(result.search_history.length,101);assert.equal(result.profile.resume_text,'synthetic');assert.equal(result.newsletter_preferences.user_id,'u');assert.ok(scopes.every(c=>c[2]==='u'));assert.deepEqual(ranges.filter(c=>c[0]==='search_history').map(c=>c[1]),[0,100]);
 });
 test('account export does not return a misleading partial copy after an error',async()=>{
- const sb={from(){return{select(){return this},eq(){return this},async single(){return{data:{id:'u'}}},order(){return this},async range(){return{error:true}}}}};
+ const sb={from(){return{select(){return this},eq(){return this},async single(){return{data:{id:'u'}}},async maybeSingle(){return{error:true}},order(){return this},async range(){return{error:true}}}}};
  await assert.rejects(S.exportAccount(sb,'u'),/no partial file/);await assert.rejects(S.exportAccount(sb,''),/Sign in/);
 });
 

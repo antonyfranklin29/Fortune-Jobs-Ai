@@ -101,8 +101,11 @@
       if (!v.ok) { show(el.panel, false); return; }
       setBusy(true);
       el.status.textContent = 'Deleting your account. Keep this page open…';
-      const { data } = await FJ.sb.auth.getSession();
-      const token = data && data.session ? data.session.access_token : '';
+      let token = '';
+      try {
+        const { data } = await FJ.sb.auth.getSession();
+        token = data && data.session ? data.session.access_token : '';
+      } catch { /* Treat a session read failure as a sign-in failure. */ }
       const r = token ? await submit(env.fetch, url, token, el.phrase.value.trim(), el.email.value.trim()) : { status: 401, body: { reason: 'not_authenticated' } };
       const o = outcome(r.status, r.body);
       if (o.kind === 'deleted') {

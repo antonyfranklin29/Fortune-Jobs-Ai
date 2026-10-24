@@ -507,6 +507,11 @@ body[data-page="find"] .hero{min-height:65vh}
 // ═══════════════════════════════════════
 const WEBHOOK_URL_LIVE  = 'https://hook.us2.make.com/nx71muhgk5j6mvou21zrcvm9dhje8it4';
 const WEBHOOK_URL_QUICK = 'https://hook.us2.make.com/nx71muhgk5j6mvou21zrcvm9dhje8it4';
+// Cutover switch, left OFF. When true, Live Search goes through the secured gateway,
+// which mints the search id and keeps the Make secret on the server. Turn it on only
+// after Make enforces the secret header and this page is deployed with it.
+const LIVE_SEARCH_VIA_GATEWAY = false;
+const LIVE_SEARCH_GATEWAY_URL = 'https://hqgakkcxcyspqhnlnscv.supabase.co/functions/v1/live-search';
 
 const SUPABASE_URL = 'https://hqgakkcxcyspqhnlnscv.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxZ2Fra2N4Y3lzcHFobmxuc2N2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1ODk2NjEsImV4cCI6MjA5MDE2NTY2MX0.6KMFrVZtp0Qfb3qlvZCQfSmK0HQX0W3oA0pAGimHVik';
@@ -623,6 +628,16 @@ function isSearchCompletion(row) {
   return stripCodeFence(row.job_title) === 'No matching jobs found'
     && Number(row.match_score) === 0 && stripCodeFence(row.match_reason) === 'Search complete';
 }
+// Make's explicit outcome signal. Rows without a signal are old-style markers: they end a
+// search but prove nothing about whether it succeeded.
+function searchSignal(row) {
+  const meta = row && row.source_metadata;
+  return meta && typeof meta === 'object' ? String(meta.signal || '') : '';
+}
+// Sentinels returned by fetchJobs so polling can tell the outcomes apart from
+// "still running" (null) and "finished, nothing matched" ([]).
+const SEARCH_FAILED = { outcome: 'failed' };
+const SEARCH_UNCONFIRMED = { outcome: 'unconfirmed' };
 
 // ═══════════════════════════════════════
 // FETCH JOBS FROM SUPABASE
@@ -664,14 +679,22 @@ async function fetchJobs(signal, sinceISO, searchId, search = '', filters = {}) 
   const cleaned = FJAccuracy.filterJobs(candidates, search, filters).map(job=>({...job,match_reason:FJAccuracy.matchReason(job,search,filters)}));
   cleaned.sort((a, b) => (parseInt(b.match_score) || 0) - (parseInt(a.match_score) || 0));
   const personalized = personalizeJobs(cleaned);
+  const failed = rows.some(r => searchSignal(r) === 'failure');
   if (cleaned.length) {
     const results = personalized.slice(0, FREE_RESULTS);
-    results.completed = rows.some(isSearchCompletion);
+    results.completed = failed || rows.some(isSearchCompletion);
+    results.failed = failed;
     return results;
   }
-  // Make writes this sentinel after the final listing, including empty searches.
-  // An empty database response still means the request is running.
-  return rows.some(isSearchCompletion) ? [] : null;
+  // A workflow or scraper failure is never reported as "no jobs found".
+  if (failed) return SEARCH_FAILED;
+  // Make writes a completion marker after the final listing, including empty searches.
+  // Only an explicit success signal proves that nothing matched. An unsigned marker is
+  // reported as unconfirmed. No marker at all means the search is still running.
+  if (rows.some(isSearchCompletion)) {
+    return rows.some(r => searchSignal(r) === 'success') ? [] : SEARCH_UNCONFIRMED;
+  }
+  return null;
 }
 
 // ═══════════════════════════════════════
@@ -800,6 +823,75 @@ function showSearchError(message) {
   document.getElementById('jobsGrid').innerHTML = '<div class="empty-state"><h3>Please try again</h3><p>We could not finish this search. Your search settings are still available above.</p></div>';
 }
 
+// Failure and unconfirmed endings. Neither is ever shown as "no jobs found".
+function showLiveSearchOutcome(search, outcome) {
+  const failed = outcome === 'failed';
+  document.getElementById('resultsTitle').textContent = failed
+    ? `Live Search did not finish for "${search}"`
+    : `We could not confirm Live Search finished for "${search}"`;
+  document.getElementById('resultsCount').textContent = failed
+    ? 'The live source stopped before it could finish. This is not a sign that no jobs exist.'
+    : 'Live Search did not report a finished result. This is not a sign that no jobs exist.';
+  const badge = document.getElementById('resultsModeBadge');
+  badge.className = 'results-mode-badge live';
+  badge.textContent = '🔴 Live Search';
+  document.getElementById('resultsSection').classList.add('active');
+  shownJobs = [];
+  document.getElementById('jobsGrid').innerHTML = `
+    <div class="empty-state">
+      <h3>${failed ? 'Live Search stopped early' : 'Live Search result not confirmed'}</h3>
+      <p>Try the search again in a moment, or use Quick Match for saved listings.</p>
+      <button class="retry-btn" onclick="handleSearch();">Try again</button>
+      <button class="retry-btn" onclick="setMode('quick');handleSearch();">Try Quick Match</button>
+    </div>`;
+  document.getElementById('resultsSection').scrollIntoView({ behavior: 'instant', block: 'start' });
+}
+
+// Cutover path only (LIVE_SEARCH_VIA_GATEWAY). The gateway mints the search id and
+// answers 202 when the search is admitted. Every refusal keeps Quick Match available.
+async function submitLiveSearchViaGateway(text, filters) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), SEARCH_REQUEST_TIMEOUT_MS);
+  try {
+    const res = await fetch(LIVE_SEARCH_GATEWAY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, mode: 'live', results_limit: FREE_RESULTS, ...filters, ...accountPayload() }),
+      mode: 'cors', signal: controller.signal
+    });
+    const body = await res.json().catch(() => ({}));
+    if (res.status === 202 && body.search_id) return { ok: true, searchId: String(body.search_id) };
+    if (res.status === 429 || res.status === 503 || res.status === 502) {
+      return { ok: false, message: body.message || 'Live Search is busy right now. Quick Match is still available.' };
+    }
+    return { ok: false, message: 'Live Search could not start. Quick Match is still available.' };
+  } catch (error) {
+    return { ok: false, message: 'Live Search could not be reached. Quick Match is still available.' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Gateway path only. While no rows have arrived, ask the gateway what became of the
+// search, so a lapsed slot or a refused workflow ends as a failure instead of a long
+// wait. The reply is a state and a count, never query text or account data. Rows stay
+// authoritative: any error here just means "keep polling".
+async function fetchGatewayOutcome(searchId, signal) {
+  try {
+    const res = await fetch(`${LIVE_SEARCH_GATEWAY_URL}?search_id=${encodeURIComponent(searchId)}`, {
+      cache: 'no-store', mode: 'cors', signal
+    });
+    if (!res.ok) return null;
+    const { state } = await res.json();
+    if (state === 'failed') return SEARCH_FAILED;
+    if (state === 'empty') return [];
+    if (state === 'indeterminate') return SEARCH_UNCONFIRMED;
+    return null; // pending, complete (rows not visible yet), unknown
+  } catch {
+    return null;
+  }
+}
+
 function showLiveSearchEmpty(search) {
   document.getElementById('resultsTitle').textContent = `No live results for "${search}"`;
   document.getElementById('resultsCount').textContent = 'Live Search finished; no verified jobs matched your title and selected filters.';
@@ -817,12 +909,13 @@ function showLiveSearchEmpty(search) {
   document.getElementById('resultsSection').scrollIntoView({ behavior: 'instant', block: 'start' });
 }
 
-function startPolling(search, generation, sinceISO, mode, searchId, filters = {}) {
+function startPolling(search, generation, sinceISO, mode, searchId, filters = {}, viaGateway = false) {
   showPollingBar();
   let displayed = false;
   let lastResults = '';
   let consecutiveErrors = 0;
   let inFlight = false;
+  let idlePolls = 0;
   const poll = async () => {
     if (generation !== searchGeneration || inFlight) return;
     inFlight = true;
@@ -830,8 +923,23 @@ function startPolling(search, generation, sinceISO, mode, searchId, filters = {}
     const controller = new AbortController();
     activeAbortCtrl = controller;
     try {
-      const jobs = await fetchJobs(controller.signal, sinceISO, searchId, search, filters);
+      let jobs = await fetchJobs(controller.signal, sinceISO, searchId, search, filters);
       if (generation !== searchGeneration || controller.signal.aborted) return;
+      // Nothing in the table yet: on the gateway path, check its status every other poll.
+      if (jobs === null && viaGateway && !displayed && ++idlePolls % 2 === 0) {
+        jobs = await fetchGatewayOutcome(searchId, controller.signal);
+        if (generation !== searchGeneration || controller.signal.aborted) return;
+      }
+      if (jobs === SEARCH_FAILED || jobs === SEARCH_UNCONFIRMED) {
+        stopPolling();
+        if (displayed) {
+          document.getElementById('resultsCount').textContent += jobs === SEARCH_FAILED
+            ? ' · Live Search stopped before it finished' : ' · Live Search could not confirm it finished';
+        } else {
+          showLiveSearchOutcome(search, jobs === SEARCH_FAILED ? 'failed' : 'unconfirmed');
+        }
+        return;
+      }
       if (jobs && jobs.length === 0) {
         stopPolling();
         if (!displayed) showLiveSearchEmpty(search);
@@ -844,6 +952,7 @@ function startPolling(search, generation, sinceISO, mode, searchId, filters = {}
           lastResults = signature;
         }
         displayed = true;
+        if (jobs.failed) document.getElementById('resultsCount').textContent += ' · Live Search stopped before it finished';
         if (jobs.completed || jobs.length >= FREE_RESULTS) { stopPolling(); return; }
         document.getElementById('pollingBarText').textContent = 'Results found — checking for more…';
       }
@@ -1037,6 +1146,18 @@ async function handleSearch() {
     return;
   }
 
+  if (LIVE_SEARCH_VIA_GATEWAY) {
+    showLoading(mode);
+    hideLoading();
+    const gateway = await submitLiveSearchViaGateway(input, filters);
+    if (myGeneration !== searchGeneration) return;
+    if (!gateway.ok) { showSearchError(gateway.message); return; }
+    currentSearchId = gateway.searchId;
+    startPolling(input, myGeneration, sinceISO, mode, gateway.searchId, filters, true);
+    return;
+  }
+
+  // Direct route (production today): the browser posts to Make and polls by the id it made.
   // Start checking independently of the webhook response; Make may hold it open.
   showLoading(mode);
   hideLoading();

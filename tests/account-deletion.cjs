@@ -20,7 +20,7 @@ function setup({ responses = [], email = 'person@example.test', session = true }
   const calls = { fetch: [], signOut: [] };
   const FJ = {
     sb: { auth: {
-      getSession: async () => ({ data: { session: session ? { access_token: 'tok' } : null } }),
+      getSession: async () => { if (session === 'throw') throw new Error('session unavailable'); return { data: { session: session ? { access_token: 'tok' } : null } }; },
       signOut: async (opts) => { calls.signOut.push(opts || null); return { error: null }; },
     } },
     loginUrl: (next) => 'login.html' + (next ? '?next=' + encodeURIComponent(next) : ''),
@@ -143,4 +143,12 @@ test('a network failure does not claim anything was deleted', async () => {
   fill(); ctl.start(); await ctl.confirm();
   assert.equal(calls.signOut.length, 0);
   assert.match(n('delStatus').textContent, /cannot confirm/);
+});
+
+test('a failed session read offers sign-in again without leaving the button stuck', async () => {
+  const { n, ctl, calls, fill } = setup({ session: 'throw' });
+  fill(); ctl.start(); await ctl.confirm();
+  assert.equal(calls.fetch.length, 0);
+  assert.equal(n('delConfirm').disabled, false);
+  assert.equal(n('delReauth').hidden, false);
 });

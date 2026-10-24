@@ -52,8 +52,12 @@
       }
       throw Error('Your export is too large for this tool. Contact support for a complete export.');
     }
-    const [saved,history]=await Promise.all([rows('saved_jobs'),rows('search_history')]);
-    return {exported_at:new Date().toISOString(),profile:profile.data,saved_jobs:saved,search_history:history,note:'Includes saved profile and extracted resume text. Original resume and avatar files are not included.'};
+    const [saved,history,preferences]=await Promise.all([
+      rows('saved_jobs'),rows('search_history'),
+      sb.from('newsletter_preferences').select('*').eq('user_id',userId).maybeSingle()
+    ]);
+    if(preferences.error)throw Error('Could not finish your export. Please retry; no partial file was created.');
+    return {exported_at:new Date().toISOString(),profile:profile.data,saved_jobs:saved,search_history:history,newsletter_preferences:preferences.data||null,note:'Includes saved profile, extracted resume text and email preferences. Original resume and avatar files are not included.'};
   }
   const api={adzunaAttribution,httpUrl,ownedPath,avatarPath,removeResume,exportAccount};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FJDataSafety=api;

@@ -1,6 +1,6 @@
 # Account deletion: backend hardening and profile UI, 2026-10-24
 
-Branch `claude/account-deletion-hardening`. **Implemented and tested locally. Not deployed.** Production `delete-account` is still version 6, the source from de499aa. No real account was deleted, and no real file was touched.
+Integrated on October 24. The hardened `delete-account` Edge Function was deployed to production through the Supabase editor, which reported a successful update. A request without a user token returned HTTP 401. The profile control and matching privacy text are included in the site release. No real account was deleted, and no real file was touched by our checks.
 
 ## Backend fixes (`supabase/functions/delete-account/index.ts`)
 
@@ -51,13 +51,11 @@ Through the `auth.users` cascade, deletion also removes `newsletter_preferences`
   - No horizontal overflow.
   - This check also found and fixed a hidden checkbox and a visible "Sign in again" button.
 
-## Not done, and why
+## Remaining acceptance
 
-- **Deployment.** Not requested. Deploy the function before, or together with, the page, because the old function would still accept refreshed tokens.
-- **`privacy.html`** still says "A complete self-service account deletion feature is not available yet." It must change in the same release as the page. Proposed replacement for that sentence:
-  > Delete your account, at the bottom of your profile, permanently deletes your profile, extracted resume text, uploaded resume and photo files, saved jobs, search history and email preferences, then closes your account. You may be asked to sign in again first. Deleted data cannot be restored. Live Search usage records are kept without your account attached. If you are the last owner of an employer company, its live listings are closed.
-- **The account export** (`data-safety.js`, a shared file) does not include `newsletter_preferences`. It is proposed for the owner of that file.
-- **`package.json`.** The new tests are not yet in the `npm test` list. This is a shared file.
+- The privacy page now describes the self-service control, and `data-safety.js` includes `newsletter_preferences` in the account export. The site release must contain those changes alongside the profile page.
+- `npm test` includes the UI test. The Deno backend test is available as `npm run test:account-deletion`; all nine backend cases passed during integration. A real deletion has not been attempted.
+- The final storage-upload race described above remains. A future storage-policy change should require the owner identity to exist before accepting uploads.
 
 ## User-assisted acceptance (two explicitly disposable accounts, never the owner's real account)
 
