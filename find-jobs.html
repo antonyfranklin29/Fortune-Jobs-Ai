@@ -112,6 +112,7 @@ a.nav-cta{text-decoration:none;display:inline-block;}
 .hero-actions{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;}
 .upload-btn{background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);padding:10px 20px;border-radius:var(--radius-md);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:7px;transition:all 0.15s;}
 .upload-btn:hover{color:var(--white);border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.06);}
+a.upload-btn{text-decoration:none;}
 .hero-note{color:var(--gray-500);font-size:13px;font-weight:400;}
 
 /* ── STATS BAR ── */
@@ -454,6 +455,7 @@ body[data-page="find"] .hero{min-height:65vh}
       Upload Résumé · No account needed
     </button>
     <input type="file" id="resumeInput" accept=".pdf,.docx" style="display:none" onchange="handleResumeUpload(this)"/>
+    <a class="upload-btn" href="resume-builder.html">Build a résumé →</a>
     <span class="hero-note">Free to use · Real jobs · <a href="login.html?mode=signup" style="color:var(--gold-light)">Free account</a> saves your jobs</span>
   </div>
 </section>
@@ -499,7 +501,7 @@ body[data-page="find"] .hero{min-height:65vh}
       </a>
       <p>Your AI-powered job search assistant. Discover opportunities for your next career move.</p>
     </div>
-    <div class="footer-links"><h4>Product</h4><ul><li><a href="find-jobs.html">Find Jobs</a></li><li><a href="resume-search.html">Upload Resume</a></li></ul></div>
+    <div class="footer-links"><h4>Product</h4><ul><li><a href="find-jobs.html">Find Jobs</a></li><li><a href="resume-search.html">Upload Resume</a></li><li><a href="resume-builder.html">Build a résumé</a></li></ul></div>
     <div class="footer-links"><h4>Company</h4><ul><li><a href="about.html">About Us</a></li><li><a href="contact.html">Contact &amp; Feedback</a></li><li><a href="mailto:info@fortunejobsai.com">info@fortunejobsai.com</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="terms.html">Terms of Use</a></li></ul></div>
     <div class="footer-links"><h4>Job Categories</h4><ul><li><a href="results.html?mode=quick&amp;q=Data+Analyst">Data Analyst</a></li><li><a href="results.html?mode=quick&amp;q=Software+Engineer">Software Engineer</a></li><li><a href="results.html?mode=quick&amp;q=Product+Manager">Product Manager</a></li><li><a href="results.html?mode=quick&amp;q=Marketing">Marketing</a></li></ul></div>
   </div>
