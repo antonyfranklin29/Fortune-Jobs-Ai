@@ -1,0 +1,7 @@
+# Public catalogue health, 24 October 2026
+
+The read-only check in `scripts/catalogue-health.mjs` pages through open public listings. It reports the number posted within 30 days, which of the 50 US states have a recent listing, and the newest `last_seen_at`. A daily GitHub Actions job runs the same check. It fails when there are fewer than 300 recent jobs, any US state has no recent listing, or no listing was seen in the last 72 hours. A failed run is visible in GitHub Actions; email notifications depend on the repository owner's GitHub notification settings. The check never invokes ingestion or incurs Adzuna API calls.
+
+At the time of the initial check, the public catalogue had 756 open listings, 507 posted within 30 days across 35 US states plus Washington, DC, and the latest `last_seen_at` was 2026-10-17 20:23 UTC. The job therefore correctly reports `missing_recent_states` and `catalogue_not_refreshed`. These counts do not prove relevance for any role/state pair or that application links still work.
+
+Restoring and expanding the feed is separate work. Adzuna currently offers only 25 total test calls until its paid API plan is activated; do not schedule an ingest or promise 100 jobs per state and role against that allowance. Check the actual remaining budget, approved countries, rights and attribution terms, then design a controlled US state rotation, followed by Canada, the UK and India where the provider permits. Do not treat legacy Dice/Indeed rows as permission to scrape or republish new listings.
