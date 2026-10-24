@@ -34,6 +34,12 @@ test('workspace overview and private companies come only from authenticated serv
  assert.match(b.node('orgs').textContent,/Private Synthetic Company/);assert.equal(b.node('summary-active').textContent,'2');
  assert.equal(b.node('summary-companies').textContent,'1');assert.equal(b.node('workspace-summary').hidden,false);assert.equal(b.node('operator').hidden,true);
 });
+test('pending employer sees review guidance without a DNS task or token',async()=>{
+ const pending={...company,status:'pending',domain_verified:false,dns_record:'_fortunejobsai.synthetic.com',dns_value:'secret-fixture'};
+ const b=await setup({user:{email:'hr@synthetic.com'},state:{orgs:[pending],plan:{free_active_posts:15,monthly_price_cents:1499}}});
+ assert.match(b.node('orgs').textContent,/awaiting review/);
+ assert.doesNotMatch(b.node('orgs').textContent,/secret-fixture|_fortunejobsai|Check DNS now/);
+});
 test('sign-out immediately clears company and reviewer content',async()=>{
  const b=await setup({user:{email:'fixture@synthetic.com'},state:{orgs:[company],plan:{free_active_posts:15,monthly_price_cents:1499}}});
  await b.change(null);assert.equal(b.node('orgs').textContent,'');assert.equal(b.node('queue').textContent,'');assert.equal(b.node('workspace-account').textContent,'');assert.equal(b.node('signed-out').hidden,false);
@@ -56,6 +62,17 @@ test('reviewer verification requires an entered reason and sends that reason to 
   const calls=b.calls.filter(([fn])=>fn==='operator_set_org_status');assert.equal(calls.length,note?1:0);
   if(note)assert.equal(calls[0][1].p_note,note);
  }
+});
+test('independent reviewer can verify without asking the employer to edit DNS',async()=>{
+ const queue={orgs:[{id:'pending-fixture',name:'Pending Synthetic',domain:'synthetic.com',domain_verified:false}],posts:[],sources:[]};
+ const b=await setup({user:{email:'reviewer@other.com'},queue,note:'Called company using the number on its public site; authorized HR contact confirmed.'});
+ const find=n=>n.tag==='button'&&n.textContent==='Verify'?n:n.children.map(find).find(Boolean);
+ const button=find(b.node('queue'));assert.ok(button);assert.equal(button.attrs.disabled,undefined);
+ button.events.click();await tick();
+ const calls=b.calls.filter(([name])=>['operator_verify_domain','operator_set_org_status'].includes(name));
+ assert.deepEqual(calls.map(([name])=>name),['operator_verify_domain','operator_set_org_status']);
+ assert.equal(calls[0][1].p_org,'pending-fixture');
+ assert.equal(calls[1][1].p_status,'verified');
 });
 
 test('reopening follows server approval; reviewer takedowns have no Make live action',async()=>{

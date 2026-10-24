@@ -38,7 +38,6 @@
     apply_url_already_listed: 'This application link is already listed on Fortune Jobs AI. Our team will check it.',
     org_not_verified: 'Approved. It will go live once your organization is verified.',
     expired: 'The closing date has passed. Edit the dates and resubmit.',
-    check_invalidated: 'Your company status or DNS check changed. Please reload and check again.',
     temporarily_unavailable: 'The verification service is temporarily unavailable. Try again shortly.',
     candidate_list_changed: 'Your career feed changed while you were choosing jobs. Open Choose postings again and review the latest list.',
     source_not_publishable: 'This feed is awaiting approval or its permission has expired. Contact info@fortunejobsai.com for help.',
@@ -135,16 +134,8 @@
       h('h2', {}, o.name, ' ', chip(ORG_STATUS[o.status] || [o.status, ''])),
       h('p', { class: 'sub', text: o.primary_domain }));
 
-    if (!o.domain_verified) {
-      const result = h('p', { class: 'msg', role: 'status' });
-      card.append(h('div', { class: 'stack', style: 'margin-top:16px' },
-        h('h3', { text: 'Prove you control ' + o.primary_domain }),
-        h('p', { text: 'Ask whoever manages your DNS to add this TXT record, then check it here. DNS changes can take a few minutes.' }),
-        h('div', { class: 'dns' }, 'Name: ', o.dns_record, h('br'), 'Value: ', o.dns_value),
-        h('button', { class: 'btn btn-outline', type: 'button', on: { click: () => checkDomain(o.id, result) } }, 'Check DNS now'),
-        result));
-    } else if (o.status === 'pending') {
-      card.append(h('p', { class: 'msg info show', text: 'Domain confirmed. Our team is reviewing your organization; you can prepare posts meanwhile.' }));
+    if (o.status === 'pending') {
+      card.append(h('p', { class: 'msg info show', text: 'Your company is awaiting review. You can prepare job drafts now; nothing goes public until our team approves the company and the posting. No DNS changes are needed.' }));
     }
 
     // Plan and quota — read from the server only.
@@ -323,22 +314,6 @@
     hostEl.replaceChildren(form);
   }
 
-  async function checkDomain(orgId, out) {
-    out.textContent = 'Checking…'; out.className = 'msg info show';
-    try {
-      const { data: s } = await FJ.sb.auth.getSession();
-      const r = await fetch(`${window.FJ_CONFIG.url}/functions/v1/employer-submissions`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', authorization: `Bearer ${s.session.access_token}`, apikey: window.FJ_CONFIG.key },
-        body: JSON.stringify({ action: 'check_domain', org_id: orgId }),
-      });
-      const body = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(body.error || 'failed');
-      if (body.verified) { await render(); say('Domain confirmed. Our team will review your organization next.', 'ok'); }
-      else { out.textContent = 'The TXT record was not found yet. DNS changes can take a while; try again in a few minutes.'; out.className = 'msg error show'; }
-    } catch (e) { out.textContent = errorText(e); out.className = 'msg error show'; }
-  }
-
   let actionBusy = false;
   async function run(fn, okText) {
     if (actionBusy) return;
@@ -357,10 +332,13 @@
     const box = $('queue');
     const items = [];
     for (const o of q.orgs) items.push(h('div', { class: 'post' },
-      h('div', {}, h('strong', { text: o.name }), ' ', h('span', { class: 'meta', text: `${o.domain} · domain ${o.domain_verified ? 'proved' : 'not proved'}` })),
+      h('div', {}, h('strong', { text: o.name }), ' ', h('span', { class: 'meta', text: `${o.domain} · ${o.domain_verified ? 'proof recorded' : 'proof needed'}` })),
       h('div', { class: 'actions' },
-        h('button', { class: 'btn btn-sm btn-primary', type: 'button', disabled: !o.domain_verified,
-          on: { click: () => { const note = prompt('Record how you verified that the company name matches its domain:'); if (note && note.trim()) run(() => rpc('operator_set_org_status', { p_org: o.id, p_status: 'verified', p_note: note.trim() }), 'Organization verified.'); } } }, 'Verify'),
+        h('button', { class: 'btn btn-sm btn-primary', type: 'button',
+          on: { click: () => { const note = prompt('Record independent evidence that this account is authorized to represent the company (for example, a confirmed company contact or documented company record). A matching email address alone is not enough:'); if (note && note.trim()) run(async () => {
+            if (!o.domain_verified) await rpc('operator_verify_domain', { p_org: o.id, p_note: note.trim() });
+            await rpc('operator_set_org_status', { p_org: o.id, p_status: 'verified', p_note: note.trim() });
+          }, 'Organization verified.'); } } }, 'Verify'),
         h('button', { class: 'btn btn-sm btn-danger', type: 'button',
           on: { click: () => { const n = prompt('Reason for rejecting this organization?'); if (n) run(() => rpc('operator_set_org_status', { p_org: o.id, p_status: 'rejected', p_note: n }), 'Organization rejected.'); } } }, 'Reject'))));
     for (const p of q.posts) items.push(h('div', { class: 'post' },
@@ -389,7 +367,7 @@
     const name = $('org-name').value.trim();
     const domain = $('org-domain').value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '');
     if (!name || !domain) { say('Enter your company name and website domain.', 'error'); return; }
-    await run(() => rpc('employer_register_org', { p_name: name, p_domain: domain }), 'Registered. Next, prove you control your domain.');
+    await run(() => rpc('employer_register_org', { p_name: name, p_domain: domain }), 'Registered. Your company is awaiting review; you can prepare job drafts now.');
   });
 
   if (!FJ) { say('Accounts are unavailable right now. Please try again later.', 'error'); return; }

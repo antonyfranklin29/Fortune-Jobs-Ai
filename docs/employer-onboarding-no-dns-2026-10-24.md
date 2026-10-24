@@ -1,0 +1,9 @@
+# Employer onboarding without a DNS task — October 24, 2026
+
+The public workspace now asks for a work email, company name and website domain, then shows **Awaiting review**. It does not ask the employer to publish a TXT record or click a DNS check. The employer can prepare drafts while review is pending. No post or career feed becomes public merely because a company registered.
+
+The existing reviewer-only `operator_verify_domain` function supplies the manual proof path. A reviewer must independently confirm that the requester is authorized to represent the company, record the evidence, then separately mark the organization verified. The reviewer UI performs those two server-checked actions in order. A matching email address alone is not sufficient evidence. Self-review remains blocked by `employer_require_operator`. Existing DNS verification remains available internally for unusual cases; it is no longer part of normal employer onboarding.
+
+This is a frontend change only. It does not grant reviewer access, auto-approve a company, change the 15-active-post allowance, or enable the $14.99 plan. Production currently has no named reviewer, so an operator must be appointed and trained before promising a review turnaround. Verification should use a trusted company contact channel or documented records, never just the claimed website text. Store only a concise evidence reference in the audit note, not an identity document or secret.
+
+Acceptance before inviting employers: a real authorized work email registers as pending; the employer sees no DNS instructions; a reviewer who is not a company member records independent evidence and verifies; the first post still waits for separate review; a suspicious or unverified claim is rejected. The test suite covers the UI and reviewer action order with synthetic accounts, not a real company approval.
