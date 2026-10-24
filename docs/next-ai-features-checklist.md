@@ -1,6 +1,6 @@
 # Fortune Jobs AI — next AI features checklist
 
-**Status: first matching slice implemented October 24; generative AI remains planned.** Core release gates still take priority. Billing is deferred by the owner; these features must not depend on an unavailable subscription. The current fit estimate is a transparent, local rules-based calculation, not a language-model feature or hiring prediction.
+**Status: first matching slice and private résumé workspace implemented October 24; generative AI remains planned.** Core release gates still take priority. Billing is deferred by the owner; these features must not depend on an unavailable subscription. The current fit estimate and workspace are transparent, local tools, not language-model features or hiring predictions.
 
 ## Job seeker: AI résumé builder
 
@@ -9,6 +9,8 @@
 - [ ] Never invent employers, dates, degrees, skills, achievements, or numbers. Mark missing facts for the user to supply instead of silently filling them in.
 - [ ] Let the user request focused edits (for example, shorten a summary or clarify a bullet). Show before/after text and require the user to accept changes before saving.
 - [ ] Save drafts only to the correct account; allow export and deletion. Tell the user what résumé data is sent to an AI provider, and avoid retaining raw documents longer than needed.
+
+Initial workspace: users can start with a blank form, edit a live plain-text preview, receive factual-completeness prompts and print/save a PDF. It keeps the draft only in the current tab and sends nothing to an AI provider. Importing an existing résumé or profile, DOCX export, saved drafts, and model-written suggestions remain open. Do not market this initial workspace as AI-generated writing.
 
 ## Job seeker: job-specific match score
 
