@@ -244,8 +244,41 @@ section{scroll-margin-top:140px;}
       <button class="btn btn-primary" type="button" id="exportAccountBtn" onclick="exportAccountData()">Download my data</button>
       <p id="exportAccountStatus" role="status" style="margin-top:12px"></p>
     </section>
+    <style>#delete-account [hidden],#delDone[hidden]{display:none!important}</style>
+    <section class="card" id="delete-account" style="padding:24px;margin:24px 0;border-color:var(--red)" aria-labelledby="delTitle">
+      <h2 id="delTitle">Delete your account</h2>
+      <p style="margin:12px 0">This permanently deletes your profile, extracted resume text, uploaded resume and photo files, saved jobs, search history and email preferences, then closes your account. It cannot be undone, and deleted data cannot be restored. Download your data first if you want a copy.</p>
+      <p style="margin:12px 0" class="sub">If you are the last owner of a company on Fortune Jobs AI, its live job listings are closed. Search usage records are kept without your account attached. For your security you may be asked to sign in again first.</p>
+      <div class="field">
+        <label for="delPhrase">Type DELETE MY ACCOUNT</label>
+        <input class="input" id="delPhrase" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="delPhraseErr">
+        <p class="hint" id="delPhraseErr" role="alert" style="color:var(--red)"></p>
+      </div>
+      <div class="field">
+        <label for="delEmail">Your account email</label>
+        <input class="input" id="delEmail" type="email" autocomplete="off" spellcheck="false" aria-describedby="delEmailErr">
+        <p class="hint" id="delEmailErr" role="alert" style="color:var(--red)"></p>
+      </div>
+      <div class="field">
+        <label for="delUnderstand" style="display:flex;align-items:flex-start;gap:10px;font-size:14px;font-weight:600;cursor:pointer"><input id="delUnderstand" type="checkbox" aria-describedby="delUnderstandErr" style="width:18px;height:18px;margin-top:2px;flex-shrink:0"> I understand this is permanent and cannot be undone.</label>
+        <p class="hint" id="delUnderstandErr" role="alert" style="color:var(--red)"></p>
+      </div>
+      <button class="btn btn-outline" type="button" id="delStart" style="color:var(--red);border-color:var(--red)">Delete my account…</button>
+      <div id="delConfirmPanel" hidden role="group" aria-labelledby="delConfirmText" style="margin-top:16px;padding:16px;border:1px solid var(--red);border-radius:12px;background:var(--red-bg)">
+        <p id="delConfirmText" style="margin-bottom:12px"><strong>Last step.</strong> Your account and data will be deleted now.</p>
+        <button class="btn btn-primary" type="button" id="delConfirm" style="background:var(--red);border-color:var(--red)">Delete permanently</button>
+        <button class="btn btn-ghost" type="button" id="delCancel">Cancel</button>
+      </div>
+      <p id="delStatus" role="status" aria-live="polite" style="margin-top:12px"></p>
+      <button class="btn btn-primary" type="button" id="delReauth" hidden>Sign in again</button>
+    </section>
   </main>
 </div>
+<section class="card" id="delDone" hidden tabindex="-1" style="max-width:620px;margin:80px auto;padding:28px">
+  <h2>Your account has been deleted</h2>
+  <p style="margin:12px 0">Your profile, files, saved jobs, history and email preferences have been removed, and you have been signed out on this device.</p>
+  <a class="btn btn-primary" href="index.html">Go to the home page</a>
+</section>
 
 <div class="toast" id="toast" role="status"></div>
 
@@ -254,6 +287,7 @@ section{scroll-margin-top:140px;}
 <script src="data-safety.js?v=20261015-source-footer"></script>
 <script src="auth.js?v=20261015-employer-entry"></script>
 <script src="resume-matching.js"></script>
+<script src="account-deletion.js?v=20261024-delete-account"></script>
 <script src="vendor/mammoth.browser.js" defer></script>
 <script src="job-titles.js" defer></script>
 <script>
@@ -626,7 +660,12 @@ function fillDatalists() {
   loadSaved(); loadHistory();
   if (window.JOB_SUGGESTIONS) fillDatalists(); else window.addEventListener('load', fillDatalists);
   if (new URLSearchParams(location.search).get('welcome')) toast('Welcome to Fortune Jobs AI! Complete your profile to get better matches.');
-  FJ.sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT') location.replace('login.html'); });
+  // Deletion is never started here: only the final button in #delete-account sends it.
+  if (window.FJAccountDeletion) FJAccountDeletion.mount({ doc: document, FJ, user, location, fetch: window.fetch.bind(window),
+    url: window.FJ_CONFIG.url.replace(/\/$/, '') + '/functions/v1/delete-account' });
+  FJ.sb.auth.onAuthStateChange(ev => {
+    if (ev === 'SIGNED_OUT' && !(window.FJAccountDeletion && FJAccountDeletion.handlesSignOut())) location.replace('login.html');
+  });
 })();
 </script>
 </body>

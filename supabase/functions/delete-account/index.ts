@@ -5,19 +5,30 @@
 // credential that deletes an auth user. That credential lives only here.
 //
 // What this removes, for the caller and nobody else:
-//   resumes/<uid>/*  and  avatars/<uid>/*   storage objects
+//   resumes/<uid>/**  and  avatars/<uid>/**  storage objects, nested folders included
 //   saved_jobs, search_history              rows owned by the caller
 //   profiles                                the caller's row
 //   auth user                               last of all
+// Deleting the auth user also removes, by ON DELETE CASCADE, newsletter_preferences
+// and newsletter_deliveries; employer memberships are handled by the employer
+// account-deletion trigger.
 //
 // live_search_admissions keeps its rows but loses account_id. Those rows are
 // capacity accounting, not personal data; unlinking removes the person without
 // corrupting the rate-limit and cost history.
 //
-// Ordering matters. The auth user goes LAST: if any earlier step fails the
-// caller can still sign in and retry, and every step is idempotent so a retry
-// resumes rather than breaking. Deleting the auth user first would strand the
+// Ordering and what "partial" means. Every step deletes for real: a file or row
+// removed by an earlier step is gone even if a later step fails, and nothing is
+// restored. The auth user goes LAST, so while anything remains the caller can
+// still sign in and retry, and every step is idempotent so a retry resumes where
+// the last attempt stopped. Deleting the auth user first would strand the
 // remaining data with nobody able to ask for it again.
+//
+// Known race: the storage policies let the signed-in user upload into their own
+// folder. Uploads that land while deletion runs are caught by re-listing until
+// the folder is empty (up to STORAGE_ROUNDS); an upload in the moments between
+// that final check and the auth deletion, or one made afterwards with a still
+// unexpired access token, is not. The page signs the session out after success.
 //
 // verify_jwt is off and authentication is done in the handler instead. That is
 // deliberate and stricter, not weaker: the platform check accepts any token this
@@ -39,13 +50,25 @@ const ALLOWED_ORIGINS = [
   "https://antonyfranklin29.github.io",
 ];
 
-// How recently the caller must have actually authenticated. A refreshed access
-// token does not count: freshness is read from the authentication event.
+// How recently the caller must have actually authenticated. Only an interactive
+// authentication event counts: the token's issue time does not, because a
+// silently refreshed token is issued now for a sign-in that may be weeks old.
 const REAUTH_WINDOW_SECONDS = 15 * 60;
+const CLOCK_SKEW_SECONDS    = 60;
+// amr methods that record the person actually authenticating. Anything else,
+// including a missing or unrecognised method, fails closed.
+const INTERACTIVE_AMR = new Set(["password", "oauth", "otp", "magiclink", "sso/saml", "totp", "mfa/totp", "mfa/phone"]);
 const CONFIRM_PHRASE        = "DELETE MY ACCOUNT";
 const MAX_BODY_BYTES        = 2_000;
 const STEP_TIMEOUT_MS       = 8_000;
 const BUCKETS               = ["resumes", "avatars"] as const;
+// Storage walk bounds. Exceeding any of them fails closed; a retry continues,
+// because the objects already deleted stay deleted.
+const LIST_PAGE             = 100;
+const DELETE_BATCH          = 100;
+const MAX_OBJECTS           = 10_000;
+const MAX_DEPTH             = 8;
+const STORAGE_ROUNDS        = 3;
 
 function corsHeaders(origin: string | null) {
   const allow = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
@@ -109,58 +132,111 @@ async function resolveCaller(token: string): Promise<{ id: string; email: string
   return { id: u.id, email: typeof u.email === "string" ? u.email : "" };
 }
 
-// Seconds since the caller last actually authenticated, from the token's amr
-// claim. Returns null when the token carries no usable evidence.
-function secondsSinceAuth(token: string): number | null {
+// Seconds since the caller last interactively authenticated, read from the amr
+// claim of a token that resolveCaller() has already validated with Auth. Returns
+// null (fail closed) when there is no usable evidence: no amr, a malformed amr,
+// no interactive method, or a timestamp in the future. The iat claim is never
+// used, so a refreshed token cannot satisfy the window.
+export function secondsSinceAuth(token: string, nowSeconds = Math.floor(Date.now() / 1000)): number | null {
   try {
     const part = token.split(".")[1];
     if (!part) return null;
     const pad = "=".repeat((4 - (part.length % 4)) % 4);
     const payload = JSON.parse(atob(part.replace(/-/g, "+").replace(/_/g, "/") + pad));
-    const now = Math.floor(Date.now() / 1000);
-    const stamps: number[] = Array.isArray(payload?.amr)
-      ? payload.amr.map((m: Record<string, unknown>) => Number(m?.timestamp)).filter(Number.isFinite)
-      : [];
-    if (stamps.length) return now - Math.max(...stamps);
-    const iat = Number(payload?.iat);
-    return Number.isFinite(iat) ? now - iat : null;
+    if (!Array.isArray(payload?.amr)) return null;
+    const stamps: number[] = [];
+    for (const m of payload.amr) {
+      if (!m || typeof m !== "object") continue;
+      const method = typeof m.method === "string" ? m.method : "";
+      const ts = typeof m.timestamp === "number" ? m.timestamp : NaN;
+      if (!INTERACTIVE_AMR.has(method) || !Number.isInteger(ts) || ts <= 0) continue;
+      if (ts > nowSeconds + CLOCK_SKEW_SECONDS) return null;   // a future event is not evidence
+      stamps.push(ts);
+    }
+    if (!stamps.length) return null;
+    return Math.max(0, nowSeconds - Math.max(...stamps));
   } catch { return null; }
 }
 
 type StepResult = { step: string; ok: boolean; removed?: number; error?: string };
 
-// Remove every object the caller owns in one bucket. Owner scoping is the
-// "<uid>/" prefix, matching the storage policies already in place.
+class StorageWalkError extends Error {}
+
+// One page of one folder. Folder entries (id === null) are returned separately so
+// the walk can descend into them. Anything that is not a well-formed listing fails.
+async function listFolder(bucket: string, folder: string, offset: number) {
+  const res = await admin(`/storage/v1/object/list/${bucket}`, {
+    method: "POST",
+    body: JSON.stringify({ prefix: `${folder}/`, limit: LIST_PAGE, offset, sortBy: { column: "name", order: "asc" } }),
+  });
+  if (!res.ok) throw new StorageWalkError(`list_${res.status}`);
+  let rows: unknown;
+  try { rows = await res.json(); } catch { throw new StorageWalkError("list_malformed"); }
+  if (!Array.isArray(rows)) throw new StorageWalkError("list_malformed");
+  const files: string[] = [];
+  const folders: string[] = [];
+  for (const r of rows) {
+    if (!r || typeof r !== "object") throw new StorageWalkError("list_malformed");
+    const name = (r as Record<string, unknown>).name;
+    // A name inside a folder listing is a single path segment.
+    if (typeof name !== "string" || !name || name === "." || name === ".." || name.includes("/")) {
+      throw new StorageWalkError("list_malformed");
+    }
+    if ((r as Record<string, unknown>).id === null) folders.push(`${folder}/${name}`);
+    else files.push(`${folder}/${name}`);
+  }
+  return { files, folders, count: rows.length };
+}
+
+// Every object under <uid>/, depth first, bounded.
+async function collectOwned(bucket: string, uid: string): Promise<string[]> {
+  const out: string[] = [];
+  const stack: { folder: string; depth: number }[] = [{ folder: uid, depth: 0 }];
+  while (stack.length) {
+    const { folder, depth } = stack.pop()!;
+    if (depth > MAX_DEPTH) throw new StorageWalkError("too_deep");
+    for (let offset = 0; ; offset += LIST_PAGE) {
+      const page = await listFolder(bucket, folder, offset);
+      for (const f of page.files) {
+        if (!f.startsWith(`${uid}/`)) throw new StorageWalkError("outside_owner_folder");
+        out.push(f);
+        if (out.length > MAX_OBJECTS) throw new StorageWalkError("too_many_objects");
+      }
+      for (const d of page.folders) stack.push({ folder: d, depth: depth + 1 });
+      if (page.count < LIST_PAGE) break;
+      if (offset / LIST_PAGE > MAX_OBJECTS / LIST_PAGE) throw new StorageWalkError("too_many_pages");
+    }
+  }
+  return out;
+}
+
+// Remove every object the caller owns in one bucket through the Storage API, then
+// prove the folder is empty. Owner scoping is the "<uid>/" folder, matching the
+// storage policies already in place.
 async function purgeBucket(bucket: string, uid: string): Promise<StepResult> {
   const step = `storage:${bucket}`;
   let removed = 0;
   try {
-    for (let page = 0; page < 20; page++) {
-      const listed = await admin(`/storage/v1/object/list/${bucket}`, {
-        method: "POST",
-        body: JSON.stringify({ prefix: `${uid}/`, limit: 100, offset: 0 }),
-      });
-      if (!listed.ok) return { step, ok: false, removed, error: `list_${listed.status}` };
-      const rows = await listed.json().catch(() => []);
-      if (!Array.isArray(rows) || rows.length === 0) break;
-
-      const names = rows
-        .map((r: Record<string, unknown>) => String(r?.name ?? ""))
-        .filter(Boolean)
-        .map((n) => `${uid}/${n}`);
-      if (!names.length) break;
-
-      const del = await admin(`/storage/v1/object/${bucket}`, {
-        method: "DELETE",
-        body: JSON.stringify({ prefixes: names }),
-      });
-      if (!del.ok) return { step, ok: false, removed, error: `delete_${del.status}` };
-      removed += names.length;
-      if (rows.length < 100) break;
+    for (let round = 0; round < STORAGE_ROUNDS; round++) {
+      const paths = await collectOwned(bucket, uid);
+      if (!paths.length) return { step, ok: true, removed };
+      for (let i = 0; i < paths.length; i += DELETE_BATCH) {
+        const batch = paths.slice(i, i + DELETE_BATCH);
+        const del = await admin(`/storage/v1/object/${bucket}`, {
+          method: "DELETE",
+          body: JSON.stringify({ prefixes: batch }),
+        });
+        if (!del.ok) return { step, ok: false, removed, error: `delete_${del.status}` };
+        removed += batch.length;
+      }
+      // Loop: re-list to confirm, and to catch anything uploaded meanwhile.
     }
+    const left = await collectOwned(bucket, uid);
+    if (left.length) return { step, ok: false, removed, error: "storage_not_empty" };
     return { step, ok: true, removed };
   } catch (e) {
-    return { step, ok: false, removed, error: String(e).slice(0, 120) };
+    const error = e instanceof StorageWalkError ? e.message : String(e).slice(0, 120);
+    return { step, ok: false, removed, error };
   }
 }
 
@@ -210,6 +286,9 @@ Deno.serve(async (req: Request) => {
   let body: Record<string, unknown>;
   try { body = JSON.parse(raw || "{}"); }
   catch { return json({ status: "rejected", reason: "invalid_request", detail: "body is not valid JSON" }, 400, origin); }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return json({ status: "rejected", reason: "invalid_request", detail: "body must be a JSON object" }, 400, origin);
+  }
 
   // Explicit confirmation: the exact phrase, plus the caller's own email typed
   // back. Neither value can select a different account; they only confirm.
@@ -247,32 +326,31 @@ Deno.serve(async (req: Request) => {
 
   steps.push(await purgeRows("profiles", `id=eq.${uid}`));
 
-  // Nothing is irreversible until every earlier step has succeeded.
+  // Anything already removed above is permanently gone. The identity is kept only
+  // so the caller can sign in and finish the job.
   const failed = steps.filter((s) => !s.ok);
   if (failed.length) {
     return json({
-      status: "incomplete",
-      message: "Some of your data could not be removed yet. Your account is still active — please try again.",
+      status: "incomplete", reason: "partial_cleanup",
+      message: "We could not finish deleting your data. Anything already removed is permanently deleted and cannot be restored. Your account is still open, so you can sign in and try again.",
       retryable: true,
       steps,
     }, 409, origin);
   }
 
+  const identityFailed = (error: string) => {
+    steps.push({ step: "auth:user", ok: false, error });
+    return json({
+      status: "incomplete", reason: "identity_not_closed", retryable: true, steps,
+      message: "Your data was permanently deleted, but the account itself could not be closed. Please try again.",
+    }, 409, origin);
+  };
   try {
     const res = await admin(`/auth/v1/admin/users/${uid}`, { method: "DELETE" });
-    if (!res.ok && res.status !== 404) {
-      steps.push({ step: "auth:user", ok: false, error: `http_${res.status}` });
-      return json({
-        status: "incomplete",
-        message: "Your data was removed but the account itself could not be closed. Please try again.",
-        retryable: true, steps,
-      }, 409, origin);
-    }
+    if (!res.ok && res.status !== 404) return identityFailed(`http_${res.status}`);
     steps.push({ step: "auth:user", ok: true, removed: res.status === 404 ? 0 : 1 });
   } catch (e) {
-    steps.push({ step: "auth:user", ok: false, error: String(e).slice(0, 120) });
-    return json({ status: "incomplete", retryable: true, steps,
-      message: "Your data was removed but the account itself could not be closed. Please try again." }, 409, origin);
+    return identityFailed(String(e).slice(0, 120));
   }
 
   return json({ status: "deleted", message: "Your account and personal data have been deleted.", steps }, 200, origin);
