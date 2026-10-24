@@ -872,6 +872,26 @@ async function submitLiveSearchViaGateway(text, filters) {
   }
 }
 
+// Gateway path only. While no rows have arrived, ask the gateway what became of the
+// search, so a lapsed slot or a refused workflow ends as a failure instead of a long
+// wait. The reply is a state and a count, never query text or account data. Rows stay
+// authoritative: any error here just means "keep polling".
+async function fetchGatewayOutcome(searchId, signal) {
+  try {
+    const res = await fetch(`${LIVE_SEARCH_GATEWAY_URL}?search_id=${encodeURIComponent(searchId)}`, {
+      cache: 'no-store', mode: 'cors', signal
+    });
+    if (!res.ok) return null;
+    const { state } = await res.json();
+    if (state === 'failed') return SEARCH_FAILED;
+    if (state === 'empty') return [];
+    if (state === 'indeterminate') return SEARCH_UNCONFIRMED;
+    return null; // pending, complete (rows not visible yet), unknown
+  } catch {
+    return null;
+  }
+}
+
 function showLiveSearchEmpty(search) {
   document.getElementById('resultsTitle').textContent = `No live results for "${search}"`;
   document.getElementById('resultsCount').textContent = 'Live Search finished; no verified jobs matched your title and selected filters.';
@@ -889,12 +909,13 @@ function showLiveSearchEmpty(search) {
   document.getElementById('resultsSection').scrollIntoView({ behavior: 'instant', block: 'start' });
 }
 
-function startPolling(search, generation, sinceISO, mode, searchId, filters = {}) {
+function startPolling(search, generation, sinceISO, mode, searchId, filters = {}, viaGateway = false) {
   showPollingBar();
   let displayed = false;
   let lastResults = '';
   let consecutiveErrors = 0;
   let inFlight = false;
+  let idlePolls = 0;
   const poll = async () => {
     if (generation !== searchGeneration || inFlight) return;
     inFlight = true;
@@ -902,8 +923,13 @@ function startPolling(search, generation, sinceISO, mode, searchId, filters = {}
     const controller = new AbortController();
     activeAbortCtrl = controller;
     try {
-      const jobs = await fetchJobs(controller.signal, sinceISO, searchId, search, filters);
+      let jobs = await fetchJobs(controller.signal, sinceISO, searchId, search, filters);
       if (generation !== searchGeneration || controller.signal.aborted) return;
+      // Nothing in the table yet: on the gateway path, check its status every other poll.
+      if (jobs === null && viaGateway && !displayed && ++idlePolls % 2 === 0) {
+        jobs = await fetchGatewayOutcome(searchId, controller.signal);
+        if (generation !== searchGeneration || controller.signal.aborted) return;
+      }
       if (jobs === SEARCH_FAILED || jobs === SEARCH_UNCONFIRMED) {
         stopPolling();
         if (displayed) {
@@ -1127,7 +1153,7 @@ async function handleSearch() {
     if (myGeneration !== searchGeneration) return;
     if (!gateway.ok) { showSearchError(gateway.message); return; }
     currentSearchId = gateway.searchId;
-    startPolling(input, myGeneration, sinceISO, mode, gateway.searchId, filters);
+    startPolling(input, myGeneration, sinceISO, mode, gateway.searchId, filters, true);
     return;
   }
 

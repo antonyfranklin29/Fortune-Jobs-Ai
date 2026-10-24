@@ -52,10 +52,10 @@ const MARKER = (signal) => RESULT_ROW({
 let failures = 0;
 // The page is settled once it shows any outcome, or result cards.
 const OUTCOME = /did not finish|could not confirm|No live results|Search unavailable/i;
-async function scenario(name, { hashRoute, rows, gateway, expect }) {
+async function scenario(name, { hashRoute, rows, gateway, statusState = 'pending', expect }) {
   const browser = globalThis.__browser;
   const page = await browser.newPage();
-  const seen = { jobMatchesUrls: [], gatewayBodies: [], makeCalls: 0 };
+  const seen = { jobMatchesUrls: [], gatewayBodies: [], statusUrls: [], makeCalls: 0 };
   await page.route('**/results.html**', (route) => {
     let html = readFileSync(join(root, 'results.html'), 'utf8');
     if (hashRoute === 'gateway') html = html.replace('const LIVE_SEARCH_VIA_GATEWAY = false;', 'const LIVE_SEARCH_VIA_GATEWAY = true;');
@@ -64,6 +64,10 @@ async function scenario(name, { hashRoute, rows, gateway, expect }) {
   await page.route(MAKE, (route) => { seen.makeCalls++; route.fulfill({ status: 200, headers: CORS, body: 'Accepted' }); });
   await page.route(`${GATEWAY}**`, (route) => {
     if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
+    if (route.request().method() === 'GET') {
+      seen.statusUrls.push(route.request().url());
+      return route.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'application/json' }, body: JSON.stringify({ state: statusState, results: 0 }) });
+    }
     seen.gatewayBodies.push(route.request().postData() || '');
     const g = gateway || { status: 202, body: { status: 'accepted', search_id: 's_test_1' } };
     route.fulfill({ status: g.status, headers: { ...CORS, 'content-type': 'application/json' }, body: JSON.stringify(g.body) });
@@ -162,6 +166,42 @@ try {
       check: ({ seen, cards }) => ({
         ok: cards >= 1 && seen.jobMatchesUrls.length > 0 && seen.jobMatchesUrls.every((u) => u.includes('search_id=eq.s_test_1')) && seen.makeCalls === 0,
         why: 'every result read must filter by the gateway search id, and Make must not be called directly',
+      }),
+    },
+  });
+  await scenario('gateway status "failed" with no rows ends as a failure, not a long wait', {
+    hashRoute: 'gateway',
+    rows: () => [],
+    statusState: 'failed',
+    expect: {
+      settled: (t, c, cards) => cards > 0 || OUTCOME.test(t),
+      check: ({ title, seen }) => ({
+        ok: /did not finish/i.test(title) && seen.statusUrls.length > 0
+          && seen.statusUrls.every((u) => u.includes('search_id=s_test_1')) && seen.makeCalls === 0,
+        why: 'a failed admission must be reported from the gateway status, by the gateway search id',
+      }),
+    },
+  });
+  await scenario('gateway status "indeterminate" is unconfirmed, never no jobs', {
+    hashRoute: 'gateway',
+    rows: () => [],
+    statusState: 'indeterminate',
+    expect: {
+      settled: (t, c, cards) => cards > 0 || OUTCOME.test(t),
+      check: ({ title }) => ({
+        ok: /could not confirm/i.test(title),
+        why: 'an unsignalled ending is not proof that nothing matched',
+      }),
+    },
+  });
+  await scenario('direct route never calls the gateway status endpoint', {
+    hashRoute: 'direct',
+    rows: () => [MARKER('success')],
+    expect: {
+      settled: (t, c, cards) => cards > 0 || OUTCOME.test(t),
+      check: ({ seen }) => ({
+        ok: seen.statusUrls.length === 0 && seen.gatewayBodies.length === 0 && seen.makeCalls === 1,
+        why: 'with the switch off, the page must use only the existing Make route',
       }),
     },
   });
