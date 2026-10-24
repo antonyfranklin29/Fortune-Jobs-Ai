@@ -75,6 +75,18 @@ test('independent reviewer can verify without asking the employer to edit DNS',a
  assert.equal(calls[1][1].p_status,'verified');
 });
 
+test('submit explains whether automatic checks published the job or queued review',async()=>{
+ const find=(n,p)=>p(n)?n:n.children.map(c=>find(c,p)).find(Boolean);
+ const draft={id:'post-fixture',job_title:'Data Analyst',status:'draft',city:'Newark',state_code:'NJ',employment_type:'Full-time',work_mode:'hybrid',closing_date:'2026-11-20'};
+ for(const [result,expected] of [[{published:true,review:'automatic'},/job is live/],[{published:false,review:'manual'},/needs a team review/]]){
+  const b=await setup({user:{email:'hr@synthetic.com'},state:{orgs:[{...company,posts:[draft]}],plan:{free_active_posts:15,monthly_price_cents:1499}},
+   rpcResults:{employer_submit_post:{data:result}}});
+  await find(b.node('orgs'),n=>n.tag==='button'&&n.textContent==='Submit job').events.click();
+  assert.match(b.node('status').textContent,expected);
+  assert.equal(b.calls.filter(([name])=>name==='employer_submit_post').length,1);
+ }
+});
+
 test('reopening follows server approval; reviewer takedowns have no Make live action',async()=>{
  const buttons=n=>[...(n.tag==='button'?[n.textContent]:[]),...n.children.flatMap(buttons)];
  for(const can_activate of [true,false,undefined]){

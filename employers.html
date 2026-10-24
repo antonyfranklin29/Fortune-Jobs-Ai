@@ -59,16 +59,16 @@ legend{font-weight:600;margin-bottom:8px}
 
   <section id="signed-out" class="card" hidden>
     <h2>Your company has its own space</h2>
-    <p class="sub">Use your work email to manage hiring. Our team reviews the company and each posting before it can appear in search.</p>
+    <p class="sub">Use your work email to manage hiring. We verify your company once; routine posts can then go live after automatic checks. Posts that need extra checks go to our team.</p>
     <p style="margin-top:14px"><a class="btn btn-primary" id="signin" href="employer-login.html">Employer sign in</a> <a class="btn btn-outline" href="employer-login.html?mode=signup">Create employer account</a></p>
-    <div class="onboarding-steps"><div><b>1. Register your company</b>Use your work email and tell us your company website.</div><div><b>2. We review it</b>Prepare job drafts while our team checks the company. No DNS changes are needed.</div><div><b>3. Manage your postings</b>Approved jobs go live within your company’s allowance.</div></div>
+    <div class="onboarding-steps"><div><b>1. Register your company</b>Use your work email and tell us your company website.</div><div><b>2. We verify it once</b>Prepare job drafts while our team checks the company. No DNS changes are needed.</div><div><b>3. Post jobs</b>Routine posts can go live after automatic checks; others receive a team review.</div></div>
   </section>
 
   <section id="workspace-summary" class="summary-grid" aria-label="Company overview" hidden><div class="card"><strong id="summary-companies">0</strong>Companies</div><div class="card"><strong id="summary-active">0</strong>Active jobs</div><div class="card"><strong id="summary-review">0</strong>Posts in review</div></section>
 
   <section id="register" class="card" hidden>
     <h2>Register your organization</h2>
-    <p class="sub">Registration starts as pending. Our team checks your company and may contact your work email for more evidence. You can prepare job drafts meanwhile; posts go live only after review.</p>
+    <p class="sub">Registration starts as pending. Our team checks your company and may contact your work email for more evidence. You can prepare job drafts meanwhile. After company verification, routine posts can pass automatic checks.</p>
     <form id="register-form" class="stack" novalidate>
       <div class="field"><label for="org-name">Organisation name</label><input class="input" id="org-name" maxlength="200" required autocomplete="organization"></div>
       <div class="field"><label for="org-domain">Company website domain</label><input class="input" id="org-domain" maxlength="253" required placeholder="example.com" inputmode="url" autocapitalize="off" spellcheck="false"><span class="hint">Just the domain, like acme.com. Not a URL.</span></div>
@@ -87,6 +87,6 @@ legend{font-weight:600;margin-bottom:8px}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="auth.js?v=20261015-employer-entry"></script>
-<script src="employer-submissions.js?v=20261024-reviewed-onboarding"></script>
+<script src="employer-submissions.js?v=20261024-routine-approval"></script>
 </body>
 </html>

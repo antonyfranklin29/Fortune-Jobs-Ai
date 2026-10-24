@@ -135,7 +135,7 @@
       h('p', { class: 'sub', text: o.primary_domain }));
 
     if (o.status === 'pending') {
-      card.append(h('p', { class: 'msg info show', text: 'Your company is awaiting review. You can prepare job drafts now; nothing goes public until our team approves the company and the posting. No DNS changes are needed.' }));
+      card.append(h('p', { class: 'msg info show', text: 'Your company is awaiting review. You can prepare job drafts now; nothing goes public until the company is verified and the posting passes its checks. No DNS changes are needed.' }));
     }
 
     // Plan and quota — read from the server only.
@@ -186,7 +186,10 @@
     const actions = [];
     const act = (label, fn, cls) => actions.push(h('button', { class: 'btn btn-sm ' + (cls || 'btn-outline'), type: 'button', on: { click: fn } }, label));
     if (['draft', 'rejected', 'approved', 'published', 'paused', 'pending_review'].includes(p.status)) act('Edit', () => row.after(postForm(o, p)), 'btn-ghost');
-    if (p.status === 'draft') act('Submit for review', () => run(() => rpc('employer_submit_post', { p_post: p.id }), 'Submitted for review.'));
+    if (p.status === 'draft') act('Submit job', () => run(() => rpc('employer_submit_post', { p_post: p.id }),
+      (result) => result && result.published ? 'Your job is live.' : result && result.review === 'automatic'
+        ? 'Automatic checks passed, but this job could not go live. Check its status below.'
+        : 'Submitted. This job needs a team review before it appears in search.'));
     if (p.status === 'closed' && p.can_activate !== true) notes.push('Reopening is unavailable. Contact info@fortunejobsai.com for help.');
     if (p.can_activate === true)
       act('Make live', () => run(async () => {
@@ -318,7 +321,7 @@
   async function run(fn, okText) {
     if (actionBusy) return;
     actionBusy = true;
-    try { await fn(); await render(); say(okText, 'ok'); }
+    try { const result = await fn(); await render(); say(typeof okText === 'function' ? okText(result) : okText, 'ok'); }
     catch (e) { await render(); say(errorText(e), 'error'); }
     finally { actionBusy = false; }
   }
