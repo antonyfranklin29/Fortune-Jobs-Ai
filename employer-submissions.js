@@ -191,7 +191,12 @@
     const notes = [];
     if (p.publish_state) notes.push(MESSAGES[p.publish_state] || p.publish_state);
     if (p.has_unreviewed_changes) notes.push('Edits are waiting for review; the live version is unchanged.');
-    if (p.status === 'rejected' && p.review_note) notes.push('Reviewer note: ' + p.review_note);
+    // review_note holds only a rejection reason (approval clears it). A rejected edit to a
+    // live post leaves the post published, so the reason must not depend on status alone.
+    if (p.review_note && !p.has_unreviewed_changes) {
+      if (p.status === 'published' || p.status === 'paused') notes.push('Your latest edits were not approved; the live version is unchanged. Reviewer note: ' + p.review_note);
+      else notes.push('Reviewer note: ' + p.review_note);
+    }
     const actions = [];
     const act = (label, fn, cls) => actions.push(h('button', { class: 'btn btn-sm ' + (cls || 'btn-outline'), type: 'button', on: { click: fn } }, label));
     if (['draft', 'rejected', 'approved', 'published', 'paused', 'pending_review'].includes(p.status)) act('Edit', () => row.after(postForm(o, p)), 'btn-ghost');

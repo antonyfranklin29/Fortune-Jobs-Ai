@@ -69,6 +69,22 @@ test('reopening follows server approval; reviewer takedowns have no Make live ac
  }
 });
 
+test('a reviewer reason reaches the employer, including a rejected edit to a live post',async()=>{
+ // Shapes match employer_my_state after operator_review_post (tests/sql/employer-approval-flow.sql).
+ const render=async post=>{const b=await setup({user:{email:'fixture@synthetic.com'},state:{orgs:[{...company,posts:[{
+  id:'post-fixture',job_title:'Data Analyst',...post}]}],plan:{free_active_posts:15,monthly_price_cents:1499}}});return b.node('orgs').textContent;};
+ // A rejected edit leaves the approved version live: status stays published, nothing awaits review.
+ const live=await render({status:'published',has_unreviewed_changes:false,review_note:'Title must match the role on your careers page'});
+ assert.match(live,/Title must match the role on your careers page/);
+ assert.match(live,/live version is unchanged/);
+ // A rejected new post keeps its existing wording.
+ assert.match(await render({status:'rejected',has_unreviewed_changes:false,review_note:'Add the salary range'}),/Reviewer note: Add the salary range/);
+ // While a new revision waits for review, the old reason is not shown as the current decision.
+ assert.doesNotMatch(await render({status:'published',has_unreviewed_changes:true,review_note:'Old reason'}),/Old reason/);
+ // Approval clears the note, so nothing is shown.
+ assert.doesNotMatch(await render({status:'published',has_unreviewed_changes:false,review_note:null}),/Reviewer note|not approved/);
+});
+
 test('saving feed choices makes one atomic call and explains deferred publication or a changed feed',async()=>{
  const find=(n,p)=>p(n)?n:n.children.map(c=>find(c,p)).find(Boolean);
  for(const changed of [false,true]){
