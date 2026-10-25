@@ -1,6 +1,6 @@
 # Live Search readiness (updated 2026-10-24)
 
-Integrated on October 24. The header-only-secret `live-search` Edge Function was deployed through the Supabase editor, which reported success. The page changes are included in the site release with the gateway switch **off**. Make configuration and the gateway cutover remain pending.
+Integrated on October 24. The header-only-secret `live-search` Edge Function was deployed through the Supabase editor, which reported success. The page changes are included in the site release with the gateway switch **off**. Make now writes completion signals through an applied normalizer; the gateway secret filter and cutover remain pending. See `docs/make-live-search-signals-2026-10-24.md` for the current Make record.
 
 ## Implemented vs deployed
 
@@ -13,7 +13,7 @@ Integrated on October 24. The header-only-secret `live-search` Edge Function was
 | Make secret sent in the header only (`live-search` function) | Yes | Deployed October 24. |
 | Supabase secrets `MAKE_LIVE_WEBHOOK_URL`, `MAKE_GATEWAY_SECRET` | n/a | Not set. A no-key production POST returned `503 gateway_not_configured` before admission on October 24. |
 | Make check of the secret header | n/a | Not present. The scenario 4555354 router filter checks `mode` only. |
-| Make outcome signal `source_metadata.signal` | n/a | Not sent. No production row carries one. |
+| Make outcome signal `source_metadata.signal` | n/a | Success and Apify-failure mappings saved October 24; an end-to-end marker remains unverified without a capped Apify search. The database normalizer is applied. |
 
 ## Where live search runs
 
@@ -38,15 +38,14 @@ Live searches run on `results.html`. `index.html` and `find-jobs.html` redirect 
 - Deno `tests/live-search-dispatch.ts` and `tests/live-search-config-gate.ts`: 5 of 5 pass. The secret is in the header and absent from the body.
 - Production: the updated function was deployed successfully; a no-key POST returned `503 gateway_not_configured`. The browser tests passed 8/8 and the two dispatch tests plus three configuration-gate tests passed 5/5 without provider calls.
 
-## Cutover sequence (each step needs Tony's go-ahead)
+## Remaining cutover sequence
 
 1. **Done October 24:** deploy the `live-search` function with the header-only secret. It refuses before admission while the secrets are unset.
-2. Set `MAKE_LIVE_WEBHOOK_URL` and `MAKE_GATEWAY_SECRET` in Supabase. Do step 1 first, so the secret never travels in a body that Make logs.
-3. Dry run with `GATEWAY_TEST_KEY`. This admits a request but never calls Make.
-4. In Make, make sure the webhook passes request headers to the scenario, then filter the Live Search route on `x-fj-gateway-secret` equal to the stored secret. The header option and the filter syntax were not verified in this session.
-5. In the same release as step 4, deploy `results.html` with `LIVE_SEARCH_VIA_GATEWAY = true`. The live site sends no secret, so enforcing step 4 before the flag flips would break live search.
-6. Make writes `source_metadata.signal` (`success` or `failure`) on the completion marker, and its error handlers write `failure`. See `docs/make-input-json-fix-2026-10-13.md`.
-7. Watch admissions, reads by search id, and Make errors.
+2. Run one capped Live Search to verify the new Make success marker arrives as an object. That calls Apify and has not been done.
+3. Create a separate gateway-only Make webhook with its secret filter enabled from the start. Keep the existing direct webhook working for cached pages.
+4. Set `MAKE_LIVE_WEBHOOK_URL` and `MAKE_GATEWAY_SECRET` in Supabase without displaying the values. Dry-run the gateway with `GATEWAY_TEST_KEY`.
+5. Deploy `results.html` with `LIVE_SEARCH_VIA_GATEWAY = true`, then watch admissions, reads by search id, and Make errors.
+6. Retire or rotate the direct webhook only after its traffic has stopped. See `docs/make-live-search-signals-2026-10-24.md`.
 
 **Rollback:** deploy `results.html` with the flag set to `false` first, then remove the Make filter. The direct route stays in the same file.
 

@@ -1,13 +1,13 @@
-# Make: Live Search completion signals, escaping check and secret filter (prepared 2026-10-24)
+# Make: Live Search completion signals and gateway cutover (updated 2026-10-24)
 
-Branch `claude/make-completion-signals`, based on main 822c46a. **Make and the database were updated later the same evening.** See "Applied on 2026-10-24". No Apify run was made and no secret was read.
+The Make scenario and database normalizer were updated on October 24; see "Applied on 2026-10-24" below. The gateway secret filter and website switch remain off. No Apify run was made and no secret was read.
 
-## What production shows (read only)
+## Baseline before the Make change (read only)
 
 - **The site expects the signal on the completion marker.** `results.html` on main reads `source_metadata.signal` from the job_matches row that ends a search, and only when it is a JSON object. The gateway switch is off.
 - **The database already reads signals.** The `live_search_mark_completed` trigger in production is the explicit-signal version.
 - **Only `service_role` can write to `job_matches`.** Make writes as that role.
-- **Make sends no signal today.** All 64 completion markers in the last 30 days have `source_metadata = null`, including one at 18:51 UTC on Oct 24.
+- **Make sent no signal before this update.** All 64 completion markers in the preceding 30 days had `source_metadata = null`, including one at 18:51 UTC on Oct 24.
 - **Make's job rows store `source_metadata` as a JSON-encoded string, not an object.** That shows Make maps the column as text.
 
 ## The contract, proven locally
@@ -26,7 +26,7 @@ So Make must deliver an **object**, and the marker must carry the search's `sear
 
 **Fallback, now applied:** `migrations/pending/20261027_live_search_marker_signal_normalize.sql` is a BEFORE INSERT trigger. On the completion marker row only, it converts a JSON string holding `{"signal":"success"|"failure",…}` into the object. Job rows, non-JSON text and unknown signals are left alone. The same test covers it. Applied after confirming that Make's Supabase module cannot send an object.
 
-## Changes to make in scenario 4555354 (once signed in)
+## Configuration checklist used for scenario 4555354 (completed for the success and Apify-failure paths)
 
 1. **Confirm the saved escaping.** Apify module 4's Input JSON should still be the Oct 13 expression, with `escapeJSON(trim(2.result))`, `escapeJSON(1.location)` and `escapeJSON(replace(upper(ifempty(1.country; "US")); "GB"; "UK"))`. Record any difference before changing anything.
 2. **Success marker.** On the module that writes the "No matching jobs found / Search complete / 0" row, set `source_metadata` to the object `{"signal":"success"}` and `search_id` to `{{1.search_id}}`. If the Supabase module only offers a text field, use the pending normalizer instead of a workaround that puts credentials into an HTTP module.
