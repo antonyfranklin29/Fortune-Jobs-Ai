@@ -40,6 +40,17 @@ select pg_temp.ok((select outcome from public.live_search_admissions where searc
 select pg_temp.ok(pg_temp.state('s_p1_none') = 'indeterminate', 'an unsigned marker stays indeterminate');
 select pg_temp.ok(pg_temp.state('s_p1_rows') = 'complete', 'results then a success marker read as complete');
 
+-- If Make ever wrote both markers for one search, failure must win and stay won.
+-- (The Make error handler is built so this does not happen; this is the backstop.)
+select pg_temp.admit('s_p1_fail_then_ok');
+set role service_role;
+select pg_temp.marker('s_p1_fail_then_ok', '{"signal":"failure","stage":"apify"}');
+select pg_temp.marker('s_p1_fail_then_ok', '{"signal":"success"}');
+reset role;
+select pg_temp.ok(pg_temp.state('s_p1_fail_then_ok') = 'failed', 'a success marker after a failure does not overturn it');
+select pg_temp.ok((select outcome from public.live_search_admissions where search_id = 's_p1_fail_then_ok') not like '%success%',
+  'the late success marker is not recorded on the settled admission');
+
 -- ── phase 2: with the pending normalizer ─────────────────────────────────────
 \i migrations/pending/20261027_live_search_marker_signal_normalize.sql
 select pg_temp.admit(x) from unnest(array['s_p2_str_ok','s_p2_str_fail','s_p2_str_junk','s_p2_str_other','s_p2_rows']) x;

@@ -30,7 +30,10 @@ So Make must deliver an **object**, and the marker must carry the search's `sear
 
 1. **Confirm the saved escaping.** Apify module 4's Input JSON should still be the Oct 13 expression, with `escapeJSON(trim(2.result))`, `escapeJSON(1.location)` and `escapeJSON(replace(upper(ifempty(1.country; "US")); "GB"; "UK"))`. Record any difference before changing anything.
 2. **Success marker.** On the module that writes the "No matching jobs found / Search complete / 0" row, set `source_metadata` to the object `{"signal":"success"}` and `search_id` to `{{1.search_id}}`. If the Supabase module only offers a text field, use the pending normalizer instead of a workaround that puts credentials into an HTTP module.
-3. **Failure marker.** Add an error handler on the Apify module (and on the keyword step, `stage` set to the module name). It writes the same marker row with `source_metadata` `{"signal":"failure","stage":"apify"}` and `search_id` `{{1.search_id}}`, then Ignores, so the error does not also mark the run incomplete.
+3. **Failure marker, and never both markers.** Add an error handler on the Apify module, and on the keyword step with `stage` set to that step. It writes the same marker row with `source_metadata` `{"signal":"failure","stage":"apify"}` and `search_id` `{{1.search_id}}`, then ends that bundle with a directive (Ignore or Commit) so the normal route stops.
+   - The success marker must stay the last module on the normal route, after Apify and the job-row writes. Then an error anywhere before it means it is never reached.
+   - Confirm in the editor that, after the handler runs, nothing downstream of the failed module runs for that bundle.
+   - **Backstop, tested:** if both markers did arrive for one `search_id`, failure wins and stays. The admission stays `failed` and the late success is not recorded. The page checks for a failure row before anything else. The reverse order (a failure after the success marker) is not covered by the backstop and must be prevented by the module order above. The status endpoint would still say empty, while the page would show failed.
 4. **Save, without running.** Do not use "Run once". Every Live Search run calls Apify.
 
 ## Free escaping check (no Apify)
@@ -72,6 +75,6 @@ The gateway sends `x-fj-gateway-secret` as a header only (function deployed). Ma
 3. **First real check, paid and approved separately:** one capped Live Search. Confirm in Supabase that its marker has `source_metadata` as an object with `signal=success`, and that `live_search_status` reports `complete` or `empty`. A deliberate failure test needs a way to fail Apify without a paid run, such as an invalid actor input in the test scenario. Decide this together.
 4. Set the Supabase secrets `MAKE_GATEWAY_SECRET`, plus `MAKE_LIVE_WEBHOOK_URL` for the chosen webhook, without echoing them. Run a gateway dry run with `GATEWAY_TEST_KEY`.
 5. Activate the Make filter by the chosen option, and flip `LIVE_SEARCH_VIA_GATEWAY = true` in `results.html`. That edit touches a shared file, so Codex coordinates it.
-6. Retire or rotate the direct webhook. Watch admissions, status and Make errors.
+6. Keep the old direct route working while cached pages may still post to it, then verify. Watch for direct-webhook executions falling to zero, gateway admissions settling, and status and Make errors. Only then retire the old route and change its webhook address. Agreed with Codex: use the separate gateway-only webhook.
 
 **Rollback:** flip the site switch back to `false` first, then remove or relax the filter.
