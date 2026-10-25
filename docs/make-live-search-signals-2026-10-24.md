@@ -1,6 +1,6 @@
 # Make: Live Search completion signals, escaping check and secret filter (prepared 2026-10-24)
 
-Branch `claude/make-completion-signals`, based on main 822c46a. **Make itself has not been changed yet**: the Make session in Chrome was signed out. Everything below was prepared and tested locally or read-only. No Apify run was made and no secret was read.
+Branch `claude/make-completion-signals`, based on main 822c46a. **Make and the database were updated later the same evening.** See "Applied on 2026-10-24". No Apify run was made and no secret was read.
 
 ## What production shows (read only)
 
@@ -24,7 +24,7 @@ Branch `claude/make-completion-signals`, based on main 822c46a. **Make itself ha
 
 So Make must deliver an **object**, and the marker must carry the search's `search_id` (`{{1.search_id}}` from the webhook).
 
-**Fallback, pending and not applied:** `migrations/pending/20261027_live_search_marker_signal_normalize.sql` is a BEFORE INSERT trigger. On the completion marker row only, it converts a JSON string holding `{"signal":"success"|"failure",…}` into the object. Job rows, non-JSON text and unknown signals are left alone. The same test covers it. Apply it only if Make's Supabase module cannot send an object, and only with approval.
+**Fallback, now applied:** `migrations/pending/20261027_live_search_marker_signal_normalize.sql` is a BEFORE INSERT trigger. On the completion marker row only, it converts a JSON string holding `{"signal":"success"|"failure",…}` into the object. Job rows, non-JSON text and unknown signals are left alone. The same test covers it. Applied after confirming that Make's Supabase module cannot send an object.
 
 ## Changes to make in scenario 4555354 (once signed in)
 
@@ -68,10 +68,37 @@ The gateway sends `x-fj-gateway-secret` as a header only (function deployed). Ma
   Nothing breaks at any point, but the two paths must be kept in step until the old one is removed. This needs Franklin's agreement, because it creates a scenario.
 - **Single webhook.** Add the filter in the same release that flips the site switch, accepting a few seconds where cached pages still post directly. Then rotate the webhook URL, since the current one is public in the page source.
 
+## Applied on 2026-10-24 (evening)
+
+**Make scenario 4555354, saved, still Active.** The editor was reloaded and every mapping below was re-read.
+
+| Step | Saved configuration |
+|---|---|
+| Apify 4, Input JSON | Unchanged and confirmed: `{"keyword":"{{escapeJSON(trim(2.Result))}}","location":"{{escapeJSON(1.location)}}","country":"{{escapeJSON(replace(upper(ifempty(1.country; "US")); "GB"; "UK"))}}","maxItems":10,"searchMode":"basic","proxyConfig":{"useApifyProxy":true}}`. Actor `kaix~indeed-scraper`, maximum cost 0.10. |
+| Supabase Create a Row, normal route (last step) | `source_metadata` changed from `get(15.Array[]; 14.index)` to `ifempty(get(15.Array[]; 14.index); {"signal":"success"})`. The completion marker is the matching Claude step's appended `{"index":0,…,"match_reason":"Search complete"}` item. Index 0 has no Apify item, so only the marker takes the success value, and job rows keep their Apify metadata. `search_id` was already `1.search_id`. |
+| Apify 4, error route | **Retry removed.** It retried the paid actor 3 times, minutes apart, long after the visitor's page gave up, and could write a late success after a failure. It is replaced by Supabase Create a Row **21**: `job_title` "No matching jobs found", `match_reason` "Search complete", `match_score` 0, `search_id` `1.search_id`, `source_metadata` `{"signal":"failure","stage":"apify"}`, other fields empty. That is followed by **Skip 22**, which discards the failed bundle, so nothing downstream, including the success marker, runs for that search. |
+
+**Database (production): the normalizer was applied**, ledger `20261025002938`. Why: Make's Create a Row module stores `source_metadata` as text, so the string `{"signal":"success"}` would otherwise read as no signal.
+- A rolled-back rehearsal on production first showed a string-encoded success stored as an object with state `empty`, and a string-encoded failure with state `failed`.
+- After the apply: the trigger is enabled, `anon` cannot execute it, and the release trigger is unchanged.
+
+**Free escaping check, passed.** A throwaway scenario (6766241, now deleted) with one Parse JSON step applied `escapeJSON` to six test strings and parsed the result back. That used 1 Make operation and no Apify call. Every value round-tripped exactly.
+
+| Input | Inside the JSON string |
+|---|---|
+| `Senior Engineer "III"` | `Senior Engineer \"III\"` |
+| `C:\dev engineer` | `C:\\dev engineer` |
+| `O'Brien \ "R&D" lead` | `O'Brien \\ \"R&D\" lead` |
+| `back\\slash x2` | `back\\\\slash x2` |
+| `Café ünïcode — dash` | unchanged |
+| `Newark, "NJ"` | `Newark, \"NJ\"` |
+
+**Not yet verified:** a real marker arriving in Supabase as an object. That needs one Live Search, which calls Apify. Until then the evidence is the production rehearsal of the same trigger. Other steps (Claude keyword 2, Apify dataset 11, Claude matching 5, Parse JSON 12) still have no error route. If one of them fails, the search ends without a marker: the page times out, and on the gateway path the admission expires to `failed`. It is never shown as "no jobs".
+
 ## Remaining cutover steps (in order)
 
-1. Franklin signs in to Make in Chrome.
-2. Claude confirms the escaping, adds the success and failure markers, saves, and runs the free escaping check.
+1. ~~Make sign-in, the success and failure markers, the escaping check~~ (done, see above).
+2. Optional: add failure routes to steps 2, 11, 5 and 12 in the same way, using `stage` `claude`, `apify_dataset`, `claude_match` and `parse`.
 3. **First real check, paid and approved separately:** one capped Live Search. Confirm in Supabase that its marker has `source_metadata` as an object with `signal=success`, and that `live_search_status` reports `complete` or `empty`. A deliberate failure test needs a way to fail Apify without a paid run, such as an invalid actor input in the test scenario. Decide this together.
 4. Set the Supabase secrets `MAKE_GATEWAY_SECRET`, plus `MAKE_LIVE_WEBHOOK_URL` for the chosen webhook, without echoing them. Run a gateway dry run with `GATEWAY_TEST_KEY`.
 5. Activate the Make filter by the chosen option, and flip `LIVE_SEARCH_VIA_GATEWAY = true` in `results.html`. That edit touches a shared file, so Codex coordinates it.

@@ -1,5 +1,7 @@
--- PENDING — NOT APPLIED. Fallback only: apply if Make's Supabase module cannot send
--- source_metadata as a JSON object.
+-- APPLIED TO PRODUCTION on 2026-10-24 (migration ledger 20261025002938) after Make's
+-- Supabase "Create a Row" module was confirmed to store source_metadata as text: its existing
+-- mapping passes a structured Apify item and Supabase still receives a JSON string. A rolled-back
+-- rehearsal on production preceded the apply. Kept here because tests read this path.
 --
 -- Make maps job_matches.source_metadata as text, so PostgREST stores what Make sends as a
 -- JSON *string* ("{\"signal\":\"success\"}"). Both the release trigger and the results page
