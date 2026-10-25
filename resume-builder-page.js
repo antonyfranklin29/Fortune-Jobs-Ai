@@ -3,7 +3,7 @@
   const form=document.getElementById('resumeForm');
   const ids=['name','email','phone','location','link','target','summary','skills','experience','education','projects'];
   const preview=document.getElementById('preview'),advice=document.getElementById('advice');
-  let importGeneration=0,importSuggestions=null;
+  let importGeneration=0,importSuggestions=null,profileGeneration=0,profileSuggestions=null;
   const value=()=>Object.fromEntries(ids.map(id=>[id,document.getElementById(id).value]));
   const el=(tag,text,cls)=>{const node=document.createElement(tag);node.textContent=text;if(cls)node.className=cls;return node;};
   function section(label,content,list=false){
@@ -27,7 +27,35 @@
   form.addEventListener('input',render);form.addEventListener('change',render);
   form.addEventListener('submit',event=>event.preventDefault());
   document.getElementById('export').addEventListener('click',()=>{render();if(!document.getElementById('export').disabled)window.print();});
-  document.getElementById('clear').addEventListener('click',()=>{if(!window.confirm('Clear all résumé details in this tab?'))return;++importGeneration;importSuggestions=null;document.getElementById('sourceText').textContent='';document.getElementById('sourceDetails').hidden=true;document.getElementById('useSuggestions').hidden=true;document.getElementById('importStatus').textContent='';form.reset();render();});
+  document.getElementById('clear').addEventListener('click',()=>{if(!window.confirm('Clear all résumé details in this tab?'))return;++importGeneration;++profileGeneration;importSuggestions=null;profileSuggestions=null;document.getElementById('sourceText').textContent='';document.getElementById('sourceDetails').hidden=true;document.getElementById('useSuggestions').hidden=true;document.getElementById('importStatus').textContent='';document.getElementById('profilePreview').replaceChildren();document.getElementById('profilePreview').hidden=true;document.getElementById('useProfile').hidden=true;document.getElementById('profileSignIn').hidden=true;document.getElementById('profileStatus').textContent='';form.reset();render();});
+  document.getElementById('loadProfile').addEventListener('click',async()=>{
+    const generation=++profileGeneration,status=document.getElementById('profileStatus');
+    profileSuggestions=null;document.getElementById('profilePreview').replaceChildren();document.getElementById('profilePreview').hidden=true;document.getElementById('useProfile').hidden=true;document.getElementById('profileSignIn').hidden=true;
+    status.textContent='Reading your saved profile…';
+    try{
+      if(!window.FJ)throw new Error('Accounts are unavailable right now. Try again later.');
+      const user=await FJ.user();if(generation!==profileGeneration)return;
+      if(!user){status.textContent='Sign in to read your saved profile, or keep using the blank form.';document.getElementById('profileSignIn').hidden=false;return;}
+      const {data,error}=await FJ.sb.from('profiles').select('full_name,email,current_title,skills,preferred_locations').eq('id',user.id).maybeSingle();
+      if(generation!==profileGeneration)return;
+      if(error)throw new Error('Could not read your profile. Try again later.');
+      profileSuggestions=FJResumeBuilder.profileSuggestions(data,user.email);
+      const labels={name:'Name',email:'Email',target:'Current title',skills:'Confirmed skills',location:'Preferred location'};
+      const list=document.getElementById('profilePreview');
+      for(const [key,label] of Object.entries(labels))if(profileSuggestions[key])list.append(el('li',label+': '+profileSuggestions[key].replace(/\n/g,', ')));
+      if(!list.childNodes.length){status.textContent='Your profile has no details to add yet. You can fill the form directly.';return;}
+      list.hidden=false;document.getElementById('useProfile').hidden=false;
+      status.textContent='Review these saved details before adding them to empty fields.';
+    }catch(error){if(generation!==profileGeneration)return;status.textContent=error.message||'Could not read your profile. Try again later.';}
+  });
+  document.getElementById('useProfile').addEventListener('click',()=>{
+    if(!profileSuggestions)return;
+    for(const [key,suggestion] of Object.entries(profileSuggestions)){
+      const field=document.getElementById(key);if(field&&suggestion&&!field.value.trim())field.value=suggestion;
+    }
+    document.getElementById('confirmed').checked=false;render();
+    document.getElementById('profileStatus').textContent='Profile details added to empty fields. Check every fact before exporting; your saved profile has not changed.';
+  });
   document.getElementById('importFile').addEventListener('change',async event=>{
     const file=event.target.files[0];event.target.value='';if(!file)return;
     const generation=++importGeneration,status=document.getElementById('importStatus');

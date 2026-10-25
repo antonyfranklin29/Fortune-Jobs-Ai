@@ -10,7 +10,7 @@
 - [ ] Let the user request focused edits (for example, shorten a summary or clarify a bullet). Show before/after text and require the user to accept changes before saving.
 - [ ] Save drafts only to the correct account; allow export and deletion. Tell the user what résumé data is sent to an AI provider, and avoid retaining raw documents longer than needed.
 
-Initial workspace: users can start with a blank form or locally read an existing text-based PDF/DOCX for title and skill suggestions, edit a live plain-text preview, receive factual-completeness prompts and print/save a PDF. Imported facts enter the draft only after the user clicks to accept suggestions. It keeps the draft only in the current tab and sends nothing to an AI provider. Importing a saved account profile, DOCX export, saved drafts, and model-written suggestions remain open. Do not market this initial workspace as AI-generated writing.
+Initial workspace: users can start with a blank form, review selected details from their saved profile, or locally read an existing text-based PDF/DOCX for title and skill suggestions. They can edit a live plain-text preview, receive factual-completeness prompts and print/save a PDF. Imported facts enter the draft only after the user clicks to accept them. It keeps the draft only in the current tab and sends nothing to an AI provider. DOCX export, saved drafts, and model-written suggestions remain open. Do not market this initial workspace as AI-generated writing.
 
 ## Job seeker: job-specific match score
 

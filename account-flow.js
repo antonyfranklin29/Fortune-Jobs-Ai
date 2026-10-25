@@ -1,6 +1,6 @@
 (function(root){
  'use strict';
- const pages=new Set(['index.html','find-jobs.html','results.html','profile.html','resume-search.html','about.html','contact.html','privacy.html','email-preferences.html','employers.html']);
+ const pages=new Set(['index.html','find-jobs.html','results.html','profile.html','resume-search.html','resume-builder.html','about.html','contact.html','privacy.html','email-preferences.html','employers.html']);
  function next(value,fallback='profile.html'){
   if(typeof value!=='string'||value.length>1800||/[\\\s\u0000-\u001f\u007f]/.test(value))return fallback;
   const pathname=value.split(/[?#]/)[0];

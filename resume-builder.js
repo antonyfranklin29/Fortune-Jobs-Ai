@@ -21,5 +21,11 @@
     if(data.experience.some(line=>/^\s*(responsible for|worked on)\b/i.test(line)))items.push('Consider describing what you did and the outcome; include numbers only if you can verify them.');
     return items;
   }
-  return {draft,advice};
+  function profileSuggestions(profile,email){
+    if(!profile||typeof profile!=='object')return {};
+    const skills=Array.isArray(profile.skills)?profile.skills.filter(s=>typeof s==='string').map(clean).filter(Boolean).slice(0,30):[];
+    const locations=Array.isArray(profile.preferred_locations)?profile.preferred_locations.filter(s=>typeof s==='string').map(clean).filter(Boolean):[];
+    return {name:clean(profile.full_name).slice(0,120),email:clean(email||profile.email).slice(0,200),target:clean(profile.current_title).slice(0,120),skills:skills.join('\n').slice(0,2000),location:clean(locations[0]).slice(0,120)};
+  }
+  return {draft,advice,profileSuggestions};
 });

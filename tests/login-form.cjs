@@ -16,6 +16,7 @@ test('account page inline scripts parse',()=>{new vm.Script(controller);for(cons
 const flow=require('../account-flow.js');
 test('OAuth return destinations are restricted to real local product pages',()=>{
  assert.equal(flow.next('results.html?q=Data+Analyst&country=us'),'results.html?q=Data+Analyst&country=us');
+ assert.equal(flow.next('resume-builder.html'),'resume-builder.html');
  for(const value of ['https://evil.example','//evil.example','javascript:alert(1)','login.html?mode=reset','unknown.html','profile.html\\evil','profile.html\n'])assert.equal(flow.next(value),'profile.html');
 });
 test('provider availability fails closed and callback errors never expose raw details',()=>{
