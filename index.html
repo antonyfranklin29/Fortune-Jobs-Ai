@@ -215,7 +215,8 @@ footer{background:#080E1A;padding:52px 64px 32px;}
 .job-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-xl);padding:22px;transition:all 0.18s;display:flex;flex-direction:column;box-shadow:var(--shadow-sm);}
 .job-card:hover{border-color:rgba(212,168,67,0.4);box-shadow:0 8px 32px rgba(212,168,67,0.1);transform:translateY(-2px);}
 .job-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
-.company-logo{width:42px;height:42px;background:var(--gold-pale);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:var(--gold);flex-shrink:0;}
+.company-logo{position:relative;width:56px;height:56px;background:var(--gold-pale);border:1px solid var(--gray-200);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;color:var(--gold);flex-shrink:0;overflow:hidden;}
+.company-logo-image{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;padding:6px;box-sizing:border-box;}
 .match-badge{background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;padding:3px 10px;border-radius:40px;border:1px solid var(--green-border);letter-spacing:0.02em;}
 .job-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:5px;line-height:1.3;letter-spacing:-0.3px;}
 .job-company{font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:3px;}
@@ -286,7 +287,7 @@ body[data-page="results"] .polling-bar{position:static}
 body[data-page="results"] .results-back{display:inline-block;color:var(--gold);margin-bottom:24px}
 body[data-page="find"] .hero{min-height:65vh}
 </style>
-<link rel="stylesheet" href="landing-experience.css?v=20261026-fit1">
+<link rel="stylesheet" href="landing-experience.css?v=20261026-logo1">
 </head>
 <body>
 
@@ -584,8 +585,9 @@ body[data-page="find"] .hero{min-height:65vh}
 <script src="job-titles.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
+<script src="company-logos.js?v=20261026"></script>
 <script src="data-safety.js?v=20261015-source-footer"></script>
-<script src="featured-jobs.js?v=20261026-fit1"></script>
+<script src="featured-jobs.js?v=20261026-logo1"></script>
 <script src="auth.js?v=20261015-employer-entry"></script>
 <script src="guest-resume.js"></script>
 <script src="location-regions.js?v=20261026-country-scope"></script>
@@ -1032,13 +1034,12 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
   section.classList.add('active');
   shownJobs = jobs;
   document.getElementById('jobsGrid').innerHTML = jobs.map((job, i) => {
-    const letter = (job.company && job.company.length > 0) ? job.company[0].toUpperCase() : '?';
     const applyUrl = safe(FJDataSafety.httpUrl(job.apply_url) || '#');
     const isSaved = window.FJ && acct.savedKeys.has(FJ.jobKey(job));
     return `
       <div class="job-card">
         <div class="job-card-top">
-          <div class="company-logo">${safe(letter)}</div>
+          ${FJCompanyLogos.html(job, safe)}
           <div class="match-badge">✓ Relevant match</div>
         </div>
         <div class="job-title">${safe(job.job_title)}</div>

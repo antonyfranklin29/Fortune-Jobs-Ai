@@ -117,8 +117,13 @@
 
   function renderDetail(row) {
     detail.replaceChildren();
-    detail.append(el('h3', '', row.job_title));
-    detail.append(el('p', 'featured-company', row.company));
+    const heading = el('div', 'featured-detail-heading');
+    heading.append(root.FJCompanyLogos.element(row));
+    const headingText = el('div', 'featured-detail-heading-text');
+    headingText.append(el('h3', '', row.job_title));
+    headingText.append(el('p', 'featured-company', row.company));
+    heading.append(headingText);
+    detail.append(heading);
     detail.append(el('p', 'featured-meta', `${meta(row)} · ${age(row)}`));
     const assessment = fit(row);
     if (assessment) {
@@ -172,7 +177,7 @@
       button.type = 'button';
       button.setAttribute('aria-pressed', index === 0 ? 'true' : 'false');
       button.setAttribute('aria-label', `View ${row.job_title} at ${row.company}`);
-      button.append(el('span', 'featured-logo', row.company.trim().charAt(0).toUpperCase()));
+      button.append(root.FJCompanyLogos.element(row));
       const content = el('span', 'featured-card-content');
       content.append(el('h3', '', row.job_title));
       content.append(el('p', 'featured-company', row.company));
