@@ -6,6 +6,9 @@ test('accepts one exact company identity, including legal suffix', () => {
   assert.equal(chooseCandidate('Acme, Inc.', [{ name: 'Acme', domain: 'acme.com' }]), 'acme.com');
   assert.equal(chooseCandidate('Acme Staffing', [{ name: 'Acme', domain: 'acme.com' }]), null);
   assert.equal(chooseCandidate('Acme', [{ name: 'Acme', domain: 'acme.com' }, { name: 'Acme', domain: 'acme.co' }]), null);
+  assert.equal(chooseCandidate('Accenture', [{ name: 'Accenture', domain: 'accenture.com' }, { name: 'Accenture', domain: 'accenturealumni.com' }]), 'accenture.com');
+  assert.equal(chooseCandidate('ABC', [{ name: 'ABC', domain: 'abc.com' }, { name: 'ABC', domain: 'abc.net' }]), null);
+  assert.equal(chooseCandidate('Acme Labs', [{ name: 'Acme Labs', domain: 'unrelated.com' }, { name: 'Acme Labs', domain: 'acmelabs.com' }]), null);
 });
 
 test('publishes only matched domains and never includes the secret key', () => {

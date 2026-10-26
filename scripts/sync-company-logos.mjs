@@ -21,12 +21,22 @@ export function chooseCandidate(company, candidates) {
   const exact = candidates.filter(item => comparableName(item?.name) === target &&
     typeof item.domain === 'string' && /^(?:[a-z0-9-]+\.)+[a-z]{2,}$/i.test(item.domain));
   const domains = [...new Set(exact.map(item => item.domain.toLowerCase()))];
-  return domains.length === 1 ? domains[0] : null;
+  if (domains.length === 1) return domains[0];
+  // Some well-known brands have many regional, alumni and merchandise domains.
+  // Accept the main domain only when the provider ranks it first and its label
+  // independently agrees with the entire company name.
+  const first = candidates[0];
+  if (target.length >= 5 && exact.includes(first)) {
+    const domain = first.domain.toLowerCase();
+    const label = domain.split('.')[0].replace(/[^a-z0-9]/g, '');
+    if (label === target && domain.split('.').length === 2) return domain;
+  }
+  return null;
 }
 
 export function renderMap(state, publishableKey) {
   if (!/^[a-zA-Z0-9_-]{8,}$/.test(publishableKey)) throw new Error('Invalid publishable key');
-  const map = {};
+  const map = Object.create(null);
   for (const [name, entry] of Object.entries(state)) {
     if (entry.status !== 'matched' || !/^(?:[a-z0-9-]+\.)+[a-z]{2,}$/i.test(entry.domain || '')) continue;
     map[name] = `https://img.logo.dev/${entry.domain.toLowerCase()}?token=${encodeURIComponent(publishableKey)}&size=96&format=png`;
@@ -61,13 +71,15 @@ async function main() {
   }
   if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)) throw new Error('Invalid Supabase URL');
   const companies = await catalogueCompanies(url, anonKey);
-  let state = {};
-  try { state = JSON.parse(await readFile(STATE, 'utf8')); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+  const state = Object.create(null);
+  try {
+    for (const [name, entry] of Object.entries(JSON.parse(await readFile(STATE, 'utf8')))) state[name] = entry;
+  } catch (error) { if (error.code !== 'ENOENT') throw error; }
   let queried = 0;
   for (const company of companies) {
     const previous = state[company];
     if (previous?.status === 'matched' ||
-      (previous?.checked_at && Date.now() - Date.parse(previous.checked_at) < 30 * DAY)) continue;
+      (previous?.resolver_version === 2 && previous?.checked_at && Date.now() - Date.parse(previous.checked_at) < 30 * DAY)) continue;
     const request = new URL('https://api.logo.dev/v2/search');
     request.searchParams.set('q', company);
     request.searchParams.set('limit', '25');
@@ -75,7 +87,10 @@ async function main() {
     if (!response.ok) throw new Error(`Logo search stopped at HTTP ${response.status}; saved progress remains local`);
     const body = await response.json();
     const domain = chooseCandidate(company, body.data);
-    state[company] = { status: domain ? 'matched' : 'review', domain, checked_at: new Date().toISOString() };
+    state[company] = {
+      status: domain ? 'matched' : 'review', domain, checked_at: new Date().toISOString(), resolver_version: 2,
+      ...(domain ? {} : { candidates: (Array.isArray(body.data) ? body.data : []).slice(0, 5).map(item => ({ name: item.name, domain: item.domain })) })
+    };
     queried++;
     // Stay below the free plan's 500 search requests per minute.
     await new Promise(resolve => setTimeout(resolve, 150));
