@@ -19,11 +19,10 @@ jobs:
       - name: Resolve new companies
         env:
           FJ_SUPABASE_URL: https://hqgakkcxcyspqhnlnscv.supabase.co
-          FJ_SUPABASE_ANON_KEY: ${{ secrets.FJ_SUPABASE_ANON_KEY }}
           LOGO_DEV_SECRET_KEY: ${{ secrets.LOGO_DEV_SECRET_KEY }}
           LOGO_DEV_PUBLISHABLE_KEY: ${{ secrets.LOGO_DEV_PUBLISHABLE_KEY }}
         run: |
-          if [ -z "$FJ_SUPABASE_ANON_KEY" ] || [ -z "$LOGO_DEV_SECRET_KEY" ] || [ -z "$LOGO_DEV_PUBLISHABLE_KEY" ]; then
+          if [ -z "$LOGO_DEV_SECRET_KEY" ] || [ -z "$LOGO_DEV_PUBLISHABLE_KEY" ]; then
             echo 'Logo provider is not configured; no changes made.'
             exit 0
           fi

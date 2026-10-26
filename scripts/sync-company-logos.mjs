@@ -52,11 +52,12 @@ async function catalogueCompanies(url, anonKey) {
 
 async function main() {
   const url = process.env.FJ_SUPABASE_URL?.replace(/\/$/, '');
-  const anonKey = process.env.FJ_SUPABASE_ANON_KEY;
+  const publicConfig = await readFile(new URL('config.js', ROOT), 'utf8');
+  const anonKey = process.env.FJ_SUPABASE_ANON_KEY || publicConfig.match(/\bkey:\s*'([^']+)'/)?.[1];
   const secret = process.env.LOGO_DEV_SECRET_KEY;
   const publishable = process.env.LOGO_DEV_PUBLISHABLE_KEY;
   if (!url || !anonKey || !secret || !publishable) {
-    throw new Error('Set FJ_SUPABASE_URL, FJ_SUPABASE_ANON_KEY, LOGO_DEV_SECRET_KEY and LOGO_DEV_PUBLISHABLE_KEY in the environment. Never commit the secret key.');
+    throw new Error('Set FJ_SUPABASE_URL, LOGO_DEV_SECRET_KEY and LOGO_DEV_PUBLISHABLE_KEY in the environment. Never commit the secret key.');
   }
   if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)) throw new Error('Invalid Supabase URL');
   const companies = await catalogueCompanies(url, anonKey);
@@ -76,6 +77,8 @@ async function main() {
     const domain = chooseCandidate(company, body.data);
     state[company] = { status: domain ? 'matched' : 'review', domain, checked_at: new Date().toISOString() };
     queried++;
+    // Stay below the free plan's 500 search requests per minute.
+    await new Promise(resolve => setTimeout(resolve, 150));
     if (queried % 20 === 0) {
       await mkdir(new URL('data/', ROOT), { recursive: true });
       await writeFile(STATE, `${JSON.stringify(state, null, 2)}\n`);
