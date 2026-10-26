@@ -286,6 +286,7 @@ body[data-page="results"] .polling-bar{position:static}
 body[data-page="results"] .results-back{display:inline-block;color:var(--gold);margin-bottom:24px}
 body[data-page="find"] .hero{min-height:65vh}
 </style>
+<link rel="stylesheet" href="landing-experience.css?v=20261026">
 </head>
 <body>
 
@@ -307,20 +308,13 @@ body[data-page="find"] .hero{min-height:65vh}
 <!-- NAV -->
 <nav>
   <a href="index.html" class="logo">
-    <div class="logo-icon">
-      <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-        <path d="M3 14 L7 8 L11 14 L15 9 L19 15" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="7" cy="8" r="2" fill="#0F172A"/>
-        <circle cx="15" cy="9" r="2" fill="#0F172A"/>
-        <circle cx="19" cy="15" r="2" fill="#0F172A"/>
-      </svg>
-    </div>
+    <img class="brand-mark" src="newsletter-logo.png" width="38" height="38" alt="">
     <span class="logo-text">Fortune Jobs AI</span>
   </a>
   <ul class="nav-links">
-    <li><a href="index.html">Home</a></li>
-    <li><a href="about.html">About</a></li>
     <li><a href="find-jobs.html" class="find-jobs-link">Find Jobs</a></li>
+    <li><a href="resume-builder.html">Résumé studio</a></li>
+    <li><a href="profile.html#saved">Saved jobs</a></li>
     <li><a href="employers.html">For employers</a></li>
   </ul>
   <div class="nav-account" id="navAccount">
@@ -332,9 +326,17 @@ body[data-page="find"] .hero{min-height:65vh}
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">✦ AI-Powered Job Matching</div>
-  <h1>Find Your <span>Dream Job</span><br>with AI</h1>
-  <p class="hero-sub-text">Type a job title and where you want to work, anywhere in the world. Our AI picks the best matches for you.</p>
+  <div class="landing-shell">
+  <div class="landing-intro">
+    <div class="hero-badge">✦ SEARCH · RÉSUMÉ · HIRING</div>
+    <h1>Find your role.<br><span>Shape your future.</span></h1>
+    <p class="hero-sub-text">Search real jobs, understand why they fit, and build a stronger résumé in one place.</p>
+  </div>
+  <div class="landing-grid">
+  <div class="search-panel">
+    <div class="panel-kicker">FIND JOBS</div>
+    <h2>Start with a role and location</h2>
+    <p class="panel-sub">Choose how you want to search, then narrow the results with filters.</p>
 
   <!-- MODE TOGGLE -->
   <div class="mode-toggle" id="modeToggle">
@@ -361,7 +363,7 @@ body[data-page="find"] .hero{min-height:65vh}
         <input type="text" id="locationInput" aria-label="Location" placeholder="City, state or region"
                autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cityList"/>
       </label>
-      <button onclick="handleSearch()">Find My Job →</button>
+      <button onclick="handleSearch()">Search jobs →</button>
     </div>
     <ul class="city-list" id="cityList" role="listbox" aria-label="City suggestions"></ul>
     <ul class="city-list" id="titleList" role="listbox" aria-label="Job title suggestions"></ul>
@@ -449,16 +451,29 @@ body[data-page="find"] .hero{min-height:65vh}
       <button class="filter-reset" id="filterReset" type="button" onclick="resetFilters()">Reset filters</button>
     </div>
   </div>
-  <div class="hero-actions">
-    <button class="upload-btn" onclick="goUploadResume()">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 5l4-4 4 4M2 12h12v2H2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Upload Résumé · No account needed
-    </button>
-    <input type="file" id="resumeInput" accept=".pdf,.docx" style="display:none" onchange="handleResumeUpload(this)"/>
-    <a class="upload-btn" href="resume-builder.html">Build a résumé →</a>
-    <span class="hero-note">Free to use · Real jobs · <a href="login.html?mode=signup" style="color:var(--gold-light)">Free account</a> saves your jobs</span>
+  </div>
+  <aside class="toolkit-panel" aria-labelledby="toolkit-title">
+    <div class="panel-kicker">YOUR RÉSUMÉ TOOLKIT</div>
+    <h2 id="toolkit-title">More than a job search</h2>
+    <p>Use your own experience to improve your résumé and understand your fit for a role.</p>
+    <div class="hero-actions">
+      <button class="upload-btn" onclick="goUploadResume()" type="button">
+        <span aria-hidden="true" class="tool-icon">↥</span><span><strong>Upload your résumé</strong><small>Find matching jobs and see fit estimates when available.</small></span><span aria-hidden="true">→</span>
+      </button>
+      <input type="file" id="resumeInput" accept=".pdf,.docx" style="display:none" onchange="handleResumeUpload(this)"/>
+      <a class="upload-btn" href="resume-builder.html"><span aria-hidden="true" class="tool-icon">✦</span><span><strong>Build a résumé</strong><small>Draft and format it from facts you review.</small></span><span aria-hidden="true">→</span></a>
+      <a class="upload-btn" href="profile.html#saved"><span aria-hidden="true" class="tool-icon">♧</span><span><strong>Saved jobs &amp; profile</strong><small>Keep opportunities and update your details.</small></span><span aria-hidden="true">→</span></a>
+    </div>
+    <p class="toolkit-note">No account needed to search or try résumé matching. Create a free account to save jobs.</p>
+  </aside>
+  </div>
   </div>
 </section>
+
+<section class="employer-banner" aria-label="Employer tools"><div><span class="panel-kicker">FOR EMPLOYERS</span><h2>Build your next great team.</h2><p>Create an employer workspace, prepare job posts, and connect an approved career feed.</p></div><a href="employers.html">Explore employer tools →</a></section>
+
+<nav class="mobile-tabs" aria-label="Mobile navigation"><a href="find-jobs.html"><span aria-hidden="true">⌕</span>Search</a><a href="profile.html#saved"><span aria-hidden="true">♧</span>Saved</a><a href="resume-builder.html"><span aria-hidden="true">▤</span>Résumé</a><a href="profile.html"><span aria-hidden="true">◯</span>Profile</a></nav>
+
 
 <!-- HOW IT WORKS -->
 <section class="how-it-works">

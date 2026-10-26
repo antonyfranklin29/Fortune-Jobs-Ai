@@ -288,6 +288,7 @@ body[data-page="results"] .polling-bar{position:static}
 body[data-page="results"] .results-back{display:inline-block;color:var(--gold);margin-bottom:24px}
 body[data-page="find"] .hero{min-height:65vh}
 </style>
+<link rel="stylesheet" href="landing-experience.css?v=20261026">
 </head>
 <body data-page="results">
 
@@ -309,20 +310,13 @@ body[data-page="find"] .hero{min-height:65vh}
 <!-- NAV -->
 <nav>
   <a href="index.html" class="logo">
-    <div class="logo-icon">
-      <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-        <path d="M3 14 L7 8 L11 14 L15 9 L19 15" stroke="#0F172A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="7" cy="8" r="2" fill="#0F172A"/>
-        <circle cx="15" cy="9" r="2" fill="#0F172A"/>
-        <circle cx="19" cy="15" r="2" fill="#0F172A"/>
-      </svg>
-    </div>
+    <img class="brand-mark" src="newsletter-logo.png" width="38" height="38" alt="">
     <span class="logo-text">Fortune Jobs AI</span>
   </a>
   <ul class="nav-links">
-    <li><a href="index.html">Home</a></li>
-    <li><a href="about.html">About</a></li>
     <li><a href="find-jobs.html" class="find-jobs-link">Find Jobs</a></li>
+    <li><a href="resume-builder.html">Résumé studio</a></li>
+    <li><a href="profile.html#saved">Saved jobs</a></li>
     <li><a href="employers.html">For employers</a></li>
   </ul>
   <div class="nav-account" id="navAccount">
@@ -493,6 +487,7 @@ body[data-page="find"] .hero{min-height:65vh}
 </section>
 
 <!-- FOOTER -->
+<nav class="mobile-tabs" aria-label="Mobile navigation"><a href="find-jobs.html"><span aria-hidden="true">⌕</span>Search</a><a href="profile.html#saved"><span aria-hidden="true">♧</span>Saved</a><a href="resume-builder.html"><span aria-hidden="true">▤</span>Résumé</a><a href="profile.html"><span aria-hidden="true">◯</span>Profile</a></nav>
 <footer><p>© 2026 Fortune Jobs AI. All rights reserved. · <a href="privacy.html">Privacy</a> · <a href="contact.html">Contact &amp; Feedback</a> · <a href="mailto:info@fortunejobsai.com">info@fortunejobsai.com</a></p></footer>
 
 <script src="job-titles.js" defer></script>
