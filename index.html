@@ -286,7 +286,7 @@ body[data-page="results"] .polling-bar{position:static}
 body[data-page="results"] .results-back{display:inline-block;color:var(--gold);margin-bottom:24px}
 body[data-page="find"] .hero{min-height:65vh}
 </style>
-<link rel="stylesheet" href="landing-experience.css?v=20261026-job-browser4">
+<link rel="stylesheet" href="landing-experience.css?v=20261026-fit1">
 </head>
 <body>
 
@@ -331,6 +331,12 @@ body[data-page="find"] .hero{min-height:65vh}
     <div class="hero-badge">✦ SEARCH · RÉSUMÉ · HIRING</div>
     <h1>Find your role.<br><span>Shape your future.</span></h1>
     <p class="hero-sub-text">Search real jobs, understand why they fit, and build a stronger résumé in one place.</p>
+    <div class="start-choices" aria-label="Choose how to start">
+      <span>Personalize your search (optional)</span>
+      <a href="resume-search.html">Upload résumé</a>
+      <a href="resume-search.html?manual=1">Enter experience</a>
+      <a href="find-jobs.html?resume=0#jobSearchInput">Search directly</a>
+    </div>
   </div>
   <div class="landing-grid">
   <div class="search-column">
@@ -470,10 +476,11 @@ body[data-page="find"] .hero{min-height:65vh}
         <span aria-hidden="true" class="tool-icon">↥</span><span><strong>Upload your résumé</strong><small>Find matching jobs and see fit estimates when available.</small></span><span aria-hidden="true">→</span>
       </button>
       <input type="file" id="resumeInput" accept=".pdf,.docx" style="display:none" onchange="handleResumeUpload(this)"/>
+      <a class="upload-btn" href="resume-search.html?manual=1"><span aria-hidden="true" class="tool-icon">✎</span><span><strong>Enter experience and skills</strong><small>Get job fit scores without uploading a file.</small></span><span aria-hidden="true">→</span></a>
       <a class="upload-btn" href="resume-builder.html"><span aria-hidden="true" class="tool-icon">✦</span><span><strong>Build a résumé</strong><small>Draft and format it from facts you review.</small></span><span aria-hidden="true">→</span></a>
       <a class="upload-btn" href="profile.html#saved"><span aria-hidden="true" class="tool-icon">♧</span><span><strong>Saved jobs &amp; profile</strong><small>Keep opportunities and update your details.</small></span><span aria-hidden="true">→</span></a>
     </div>
-    <p class="toolkit-note">No account needed to search or try résumé matching. Create a free account to save jobs.</p>
+    <p class="toolkit-note"><a href="find-jobs.html?resume=0">Search jobs without a résumé</a>. No account needed to search or try experience matching.</p>
   </aside>
   </div>
   </div>
@@ -578,7 +585,7 @@ body[data-page="find"] .hero{min-height:65vh}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="data-safety.js?v=20261015-source-footer"></script>
-<script src="featured-jobs.js?v=20261026-job-browser4"></script>
+<script src="featured-jobs.js?v=20261026-fit1"></script>
 <script src="auth.js?v=20261015-employer-entry"></script>
 <script src="guest-resume.js"></script>
 <script src="location-regions.js?v=20261026-country-scope"></script>
@@ -1101,6 +1108,8 @@ async function handleSearch() {
 
   if (document.body.dataset.page !== 'results') {
     const params = new URLSearchParams({q: input, mode: currentMode, v:'20261010-accuracy'});
+    if (new URLSearchParams(location.search || '').get('resume') === '0') params.set('resume', '0');
+    else if (typeof guestResumeProfile !== 'undefined' && guestResumeProfile) { params.set('resume', '1'); params.set('resume_id', guestResumeProfile.match_id); }
     Object.entries(getFilters()).forEach(([key, value]) => {
       if (value !== null && value !== '') params.set(key, String(value));
     });
@@ -1616,7 +1625,11 @@ function handleResumeUpload(input) {
 // ═══════════════════════════════════════
 const acct = { user: null, profile: null, savedKeys: new Set() };
 let guestResumeProfile = null;
-try { if (new URLSearchParams(location.search).get('resume') === '1') guestResumeProfile = FJGuestResume.load(sessionStorage,Date.now(),new URLSearchParams(location.search).get('resume_id')||''); } catch {}
+try {
+  const resumeParams = new URLSearchParams(location.search);
+  const resumeChoice = resumeParams.get('resume');
+  if (resumeChoice !== '0') guestResumeProfile = FJGuestResume.load(sessionStorage, Date.now(), resumeChoice === '1' ? resumeParams.get('resume_id') || '' : null);
+} catch {}
 
 let shownJobs = [];
 
@@ -1692,20 +1705,21 @@ function rememberSearch(query, mode, filters) {
 // Keep private profile details local when submitting live searches.
 function accountPayload() { return {}; }
 function personalizeJobs(jobs) {
-  const guestFlow=typeof location!=='undefined' && typeof URLSearchParams!=='undefined' && new URLSearchParams(location.search).get('resume')==='1';
-  const profile=typeof guestResumeProfile!=='undefined' && guestResumeProfile ? guestResumeProfile : (guestFlow ? null : (typeof acct!=='undefined' ? acct.profile : null));
+  const resumeChoice=typeof location!=='undefined' && typeof URLSearchParams!=='undefined' ? new URLSearchParams(location.search||'').get('resume') : null;
+  const guest=typeof guestResumeProfile!=='undefined' ? guestResumeProfile : null;
+  const profile=resumeChoice==='0'?null:(guest || (resumeChoice==='1'?null:(typeof acct!=='undefined'?acct.profile:null)));
   return window.FJResume ? FJResume.rank(jobs, profile, FJAccuracy.metadata) : jobs;
 }
 
 function renderResumeSearchSummary() {
-  if(new URLSearchParams(location.search).get('resume')!=='1')return;
+  if(!guestResumeProfile && new URLSearchParams(location.search).get('resume')!=='1')return;
   const box=document.getElementById('resumeSearchSummary');box.hidden=false;box.replaceChildren();
-  const title=document.createElement('strong');title.textContent='Résumé matching · No account needed';box.append(title);
+  const title=document.createElement('strong');title.textContent='Experience-based matching · Fit scores on detailed listings';box.append(title);
   const text=document.createElement('p');text.style.margin='12px 0';
-  if(guestResumeProfile){const p=guestResumeProfile;text.textContent=[p.current_title,p.years_experience==null?'Experience not specified':(p.experienceEstimated?'About ':'')+p.years_experience+' years of experience',p.scope==='region'?'Across '+p.region:[p.city,p.region].filter(Boolean).join(', '),p.skills.length+' matching skills'].join(' · ');}
+  if(guestResumeProfile){const p=guestResumeProfile;text.textContent=[p.current_title,p.years_experience==null?'Experience not specified':(p.experienceEstimated?'About ':'')+p.years_experience+' years of experience',p.scope==='region'?'Across '+p.region:[p.city,p.region].filter(Boolean).join(', '),p.skills.length+' skills supplied'].filter(Boolean).join(' · ');}
   else text.textContent='Temporary résumé details have expired or are unavailable. This search uses the displayed title and area without résumé personalization.';
   box.append(text);
-  const edit=document.createElement('a');edit.href='resume-search.html?edit=1&mode='+(new URLSearchParams(location.search).get('mode')==='quick'?'quick':'live');edit.textContent=guestResumeProfile?'Edit résumé search details':'Upload résumé again';edit.style.marginRight='20px';box.append(edit);
+  const edit=document.createElement('a');edit.href='resume-search.html?edit=1';edit.textContent=guestResumeProfile?'Edit experience and skills':'Add experience and skills';edit.style.marginRight='20px';box.append(edit);
   if(guestResumeProfile){const clear=document.createElement('button');clear.textContent='Clear résumé details';clear.className='retry-btn';clear.onclick=()=>{try{FJGuestResume.clear(sessionStorage);}catch{}guestResumeProfile=null;location.href='find-jobs.html';};box.append(clear);}
 }
 
@@ -1754,7 +1768,8 @@ function runSearchFromUrl() {
       }
     }
   } finally {
-    if (fromUrl) { renderResumeSearchSummary(); handleSearch(); }
+    renderResumeSearchSummary();
+    if (fromUrl) handleSearch();
   }
 })();
 

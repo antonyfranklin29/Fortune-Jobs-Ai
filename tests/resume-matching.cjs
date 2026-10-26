@@ -31,6 +31,11 @@ test('job-specific fit gives evidence, withholds scores for sparse listings, and
  assert.equal(R.assess(job,{skills:[]},A.metadata),null);
  assert.deepEqual(profile.skills,['SQL','Python']);
 });
+test('fit can recognize a confirmed skill beyond the starter vocabulary',()=>{
+ const job={job_title:'Data Engineer',job_description:'Build and maintain analytics pipelines using SQL, Python and Snowflake. Collaborate with data teams to ship reliable models and monitor quality.'};
+ const fit=R.assess(job,{current_title:'Data Engineer',skills:['SQL','Snowflake']},A.metadata);
+ assert.ok(fit);assert.ok(fit.matched.includes('Snowflake'));assert.ok(fit.missing.includes('Python'));
+});
 const html=fs.readFileSync('profile.html','utf8');
 function source(name){return html.match(new RegExp('^(?:async )?function '+name+'\\([^]*?^}', 'm'))[0];}
 test('all profile inline scripts parse',()=>{for(const m of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g))if(m[1].trim())new vm.Script(m[1]);});

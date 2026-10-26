@@ -105,11 +105,26 @@
     return parts.join(' · ');
   }
 
+  function fit(row) {
+    if (!root.FJResume || !root.FJGuestResume || new URLSearchParams(location.search).get('resume') === '0') return null;
+    let profile = null;
+    try {
+      const params = new URLSearchParams(location.search);
+      profile = root.FJGuestResume.load(sessionStorage, Date.now(), params.get('resume') === '1' ? params.get('resume_id') || '' : null);
+    } catch {}
+    return profile ? root.FJResume.assess(row, profile) : null;
+  }
+
   function renderDetail(row) {
     detail.replaceChildren();
     detail.append(el('h3', '', row.job_title));
     detail.append(el('p', 'featured-company', row.company));
     detail.append(el('p', 'featured-meta', `${meta(row)} · ${age(row)}`));
+    const assessment = fit(row);
+    if (assessment) {
+      detail.append(el('p', 'featured-fit', `Estimated job fit: ${assessment.score}/100`));
+      detail.append(el('p', 'featured-fit-note', assessment.missing.length ? `To improve: show a real example using ${assessment.missing[0]}, if you have that experience.` : 'To improve: show measurable results from the matching skills you have.'));
+    }
     const facts = el('div', 'featured-facts');
     facts.append(el('h4', '', 'At a glance'));
     const factList = document.createElement('ul');
@@ -132,7 +147,16 @@
     apply.rel = 'noopener noreferrer';
     actions.append(apply);
     const similar = el('a', 'featured-similar', 'Search similar jobs →');
-    similar.href = `results.html?mode=quick&q=${encodeURIComponent(row.job_title)}`;
+    const similarParams = new URLSearchParams({ mode: 'quick', q: row.job_title });
+    const resumeParams = new URLSearchParams(location.search);
+    if (resumeParams.get('resume') === '0') similarParams.set('resume', '0');
+    else {
+      try {
+        const profile = root.FJGuestResume?.load(sessionStorage, Date.now(), resumeParams.get('resume') === '1' ? resumeParams.get('resume_id') || '' : null);
+        if (profile) { similarParams.set('resume', '1'); similarParams.set('resume_id', profile.match_id); }
+      } catch {}
+    }
+    similar.href = `results.html?${similarParams}`;
     actions.append(similar);
     detail.append(actions);
     detail.append(el('p', 'featured-detail-note', 'Check requirements and availability on the original listing.'));
@@ -154,6 +178,8 @@
       content.append(el('p', 'featured-company', row.company));
       content.append(el('p', 'featured-location', meta(row)));
       content.append(el('p', 'featured-snippet', shorten(row.job_description, 115) || 'Read the full description on the original listing.'));
+      const assessment = fit(row);
+      if (assessment) content.append(el('strong', 'featured-fit', `Job fit ${assessment.score}/100`));
       content.append(el('span', 'featured-source', age(row)));
       button.append(content);
       button.addEventListener('click', () => {

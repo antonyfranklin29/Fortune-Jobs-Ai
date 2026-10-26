@@ -216,6 +216,8 @@ footer{background:#080E1A;padding:52px 64px 32px;}
 .job-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
 .company-logo{width:42px;height:42px;background:var(--gold-pale);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:var(--gold);flex-shrink:0;}
 .match-badge{background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;padding:3px 10px;border-radius:40px;border:1px solid var(--green-border);letter-spacing:0.02em;}
+.match-badge.fit-score{background:#fbf3e0;color:#09294c;border-color:#d4a843;font-size:13px;font-weight:800}
+.fit-tip{font-size:12px;line-height:1.5;color:var(--gray-600);margin:0 0 12px}
 .job-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:5px;line-height:1.3;letter-spacing:-0.3px;}
 .job-company{font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:3px;}
 .job-location{font-size:12px;color:var(--gray-400);margin-bottom:12px;font-weight:400;}
@@ -1052,11 +1054,14 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
     const letter = (job.company && job.company.length > 0) ? job.company[0].toUpperCase() : '?';
     const applyUrl = safe(FJDataSafety.httpUrl(job.apply_url) || '#');
     const isSaved = window.FJ && acct.savedKeys.has(FJ.jobKey(job));
-    const assessment = window.FJResume && FJResume.assess(job, matchProfile(), FJAccuracy.metadata);
-    const fitDetails = assessment ? `<details class="fit-details"><summary>Résumé fit estimate: ${assessment.score}/100 · See why</summary>
-      <p>Based on detected skills in this listing and the résumé details you confirmed. This is not an ATS score or a hiring prediction.</p>
-      <p><strong>Found in your résumé:</strong> ${assessment.matched.length ? assessment.matched.map(safe).join(', ') : 'None of the detected skills yet'}</p>
-      <p><strong>Not found in your résumé:</strong> ${assessment.missing.length ? assessment.missing.map(safe).join(', ') : 'None of the detected skills'}. Add a skill only if you have it.</p>
+    const profile = matchProfile();
+    const assessment = window.FJResume && FJResume.assess(job, profile, FJAccuracy.metadata);
+    const fitBadge = assessment ? `<div class="match-badge fit-score" aria-label="Estimated job fit ${assessment.score} out of 100">Job fit ${assessment.score}/100</div>` : `<div class="match-badge">${profile ? 'Fit score unavailable' : 'Explore job'}</div>`;
+    const fitTip = assessment ? `<p class="fit-tip"><strong>Improve your match:</strong> ${assessment.missing.length ? `If you have ${safe(assessment.missing[0])} experience, add a concrete example to your résumé; otherwise consider learning it.` : 'Show specific results from the skills you already have.'}</p>` : profile ? '<p class="fit-tip">This listing needs more detail for a responsible fit score. Check its original requirements.</p>' : '';
+    const fitDetails = assessment ? `<details class="fit-details"><summary>Why this score? See skills and experience</summary>
+      <p>Estimate from skills named in this listing and the details you confirmed. This is not an ATS score or a hiring prediction.</p>
+      <p><strong>Your matching skills:</strong> ${assessment.matched.length ? assessment.matched.map(safe).join(', ') : 'None of the detected skills yet'}</p>
+      <p><strong>Skills to review:</strong> ${assessment.missing.length ? assessment.missing.map(safe).join(', ') : 'None of the detected skills'}. Add a skill only if you have it.</p>
       <p><strong>Job title:</strong> ${assessment.title === 'matched' ? 'Matches your confirmed title.' : 'Check how your experience relates to this title.'} <strong>Experience:</strong> ${assessment.experience === 'matched' ? 'Meets the stated years.' : assessment.experience === 'review' ? 'Review the stated years.' : 'Not enough information to assess.'}</p>
       <p>Check the original listing for complete requirements. <a href="${guestResumeProfile ? 'resume-search.html?edit=1' : 'profile.html#resume'}">Review your résumé details</a>.</p>
     </details>` : '';
@@ -1064,12 +1069,13 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
       <div class="job-card">
         <div class="job-card-top">
           <div class="company-logo">${safe(letter)}</div>
-          <div class="match-badge">✓ Relevant match</div>
+          ${fitBadge}
         </div>
         <div class="job-title">${safe(job.job_title)}</div>
         <div class="job-company">${safe(job.company || 'Company')}</div>
         <div class="job-location">📍 ${safe(job.location || 'Location not listed')}</div>
         ${job.match_reason ? `<div class="job-reason">💡 ${safe(job.match_reason)}</div>` : ''}
+        ${fitTip}
         ${fitDetails}
         <div class="job-footer">
           <div class="job-salary">${safe(job.salary || 'Salary not listed')}</div>
@@ -1134,6 +1140,8 @@ async function handleSearch() {
 
   if (document.body.dataset.page !== 'results') {
     const params = new URLSearchParams({q: input, mode: currentMode, v:'20261010-accuracy'});
+    if (new URLSearchParams(location.search || '').get('resume') === '0') params.set('resume', '0');
+    else if (typeof guestResumeProfile !== 'undefined' && guestResumeProfile) { params.set('resume', '1'); params.set('resume_id', guestResumeProfile.match_id); }
     Object.entries(getFilters()).forEach(([key, value]) => {
       if (value !== null && value !== '') params.set(key, String(value));
     });
@@ -1661,7 +1669,11 @@ function handleResumeUpload(input) {
 // ═══════════════════════════════════════
 const acct = { user: null, profile: null, savedKeys: new Set() };
 let guestResumeProfile = null;
-try { if (new URLSearchParams(location.search).get('resume') === '1') guestResumeProfile = FJGuestResume.load(sessionStorage,Date.now(),new URLSearchParams(location.search).get('resume_id')||''); } catch {}
+try {
+  const resumeParams = new URLSearchParams(location.search);
+  const resumeChoice = resumeParams.get('resume');
+  if (resumeChoice !== '0') guestResumeProfile = FJGuestResume.load(sessionStorage, Date.now(), resumeChoice === '1' ? resumeParams.get('resume_id') || '' : null);
+} catch {}
 
 let shownJobs = [];
 
@@ -1740,19 +1752,19 @@ function personalizeJobs(jobs) {
   return window.FJResume ? FJResume.rank(jobs, matchProfile(), FJAccuracy.metadata) : jobs;
 }
 function matchProfile() {
-  const guestFlow=new URLSearchParams(location.search).get('resume')==='1';
-  return guestResumeProfile || (guestFlow ? null : acct.profile);
+  const resumeChoice=new URLSearchParams(location.search).get('resume');
+  return resumeChoice==='0'?null:(guestResumeProfile || (resumeChoice==='1'?null:acct.profile));
 }
 
 function renderResumeSearchSummary() {
-  if(new URLSearchParams(location.search).get('resume')!=='1')return;
+  if(!guestResumeProfile && new URLSearchParams(location.search).get('resume')!=='1')return;
   const box=document.getElementById('resumeSearchSummary');box.hidden=false;box.replaceChildren();
-  const title=document.createElement('strong');title.textContent='Résumé matching · No account needed';box.append(title);
+  const title=document.createElement('strong');title.textContent='Experience-based matching · Fit scores on detailed listings';box.append(title);
   const text=document.createElement('p');text.style.margin='12px 0';
-  if(guestResumeProfile){const p=guestResumeProfile;text.textContent=[p.current_title,p.years_experience==null?'Experience not specified':(p.experienceEstimated?'About ':'')+p.years_experience+' years of experience',p.scope==='region'?'Across '+p.region:[p.city,p.region].filter(Boolean).join(', '),p.skills.length+' matching skills'].join(' · ');}
+  if(guestResumeProfile){const p=guestResumeProfile;text.textContent=[p.current_title,p.years_experience==null?'Experience not specified':(p.experienceEstimated?'About ':'')+p.years_experience+' years of experience',p.scope==='region'?'Across '+p.region:[p.city,p.region].filter(Boolean).join(', '),p.skills.length+' skills supplied'].filter(Boolean).join(' · ');}
   else text.textContent='Temporary résumé details have expired or are unavailable. This search uses the displayed title and area without résumé personalization.';
   box.append(text);
-  const edit=document.createElement('a');edit.href='resume-search.html?edit=1&mode='+(new URLSearchParams(location.search).get('mode')==='quick'?'quick':'live');edit.textContent=guestResumeProfile?'Edit résumé search details':'Upload résumé again';edit.style.marginRight='20px';box.append(edit);
+  const edit=document.createElement('a');edit.href='resume-search.html?edit=1';edit.textContent=guestResumeProfile?'Edit experience and skills':'Add experience and skills';edit.style.marginRight='20px';box.append(edit);
   if(guestResumeProfile){const clear=document.createElement('button');clear.textContent='Clear résumé details';clear.className='retry-btn';clear.onclick=()=>{try{FJGuestResume.clear(sessionStorage);}catch{}guestResumeProfile=null;location.href='find-jobs.html';};box.append(clear);}
 }
 
@@ -1801,7 +1813,8 @@ function runSearchFromUrl() {
       }
     }
   } finally {
-    if (fromUrl) { renderResumeSearchSummary(); handleSearch(); }
+    renderResumeSearchSummary();
+    if (fromUrl) handleSearch();
   }
 })();
 

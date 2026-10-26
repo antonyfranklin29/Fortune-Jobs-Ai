@@ -31,7 +31,10 @@
       .filter(value=>typeof value==='string').join(' ');
     if(description.trim().length<80)return null;
     const requirementText=[description,JSON.stringify(data.requirements?.skills||[])].join(' ');
-    const required=[...new Set(skills)].filter(skill=>contains(requirementText,skill)).slice(0,12);
+    // Include user-confirmed skills beyond the built-in vocabulary (for example
+    // Snowflake), but count them only when the listing actually names them.
+    const required=[...new Set([...skills,...profile.skills.filter(skill=>typeof skill==='string'&&skill.trim())])]
+      .filter(skill=>contains(requirementText,skill)).slice(0,12);
     if(required.length<2)return null;
     const evidence=[...(profile.skills||[]),profile.resume_text||''].filter(value=>typeof value==='string').join(' ');
     const matched=required.filter(skill=>contains(evidence,skill));
