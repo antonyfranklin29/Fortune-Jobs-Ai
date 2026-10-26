@@ -430,19 +430,20 @@ async function runCells(body: Record<string, unknown>): Promise<Response> {
   // Count only this provider's eligible listings. Other sources may already
   // serve a visitor but cannot certify that an Adzuna sweep was complete.
   const cov = await db(`/rest/v1/ingest_source_coverage?source=eq.${L.SOURCE_ADZUNA}&select=role_id,state,fresh_distinct&role_id=in.(${runRoles.map((r) => r.id).join(",")})&state=in.(${runRegions.map((r: { code: string }) => r.code).join(",")})`);
-  const due = await db(`/rest/v1/ingest_cells?source=eq.${L.SOURCE_ADZUNA}&select=canonical_role,state_code,next_due_at,consecutive_failures,last_full_sweep_at`);
+  const due = await db(`/rest/v1/ingest_cells?source=eq.${L.SOURCE_ADZUNA}&select=canonical_role,state_code,next_due_at,consecutive_failures,last_full_sweep_at,last_attempt_at`);
   if (!cov.ok || !due.ok) {
     if (runId !== null) await finishRun(runId, { status: "blocked", note: "provider coverage unavailable" });
     return json({ status: "blocked", reason: "provider_coverage_unavailable" }, 503);
   }
-  type Cell = { fresh: number; nextDueAt: string | null; failures: number; lastFullSweepAt: string | null };
+  type Cell = { fresh: number; nextDueAt: string | null; failures: number; lastFullSweepAt: string | null; lastAttemptAt: string | null };
   const cells = new Map<string, Cell>();
-  for (const c of await cov.json()) cells.set(`${c.role_id}:${c.state}`, { fresh: c.fresh_distinct, nextDueAt: null, failures: 0, lastFullSweepAt: null });
+  for (const c of await cov.json()) cells.set(`${c.role_id}:${c.state}`, { fresh: c.fresh_distinct, nextDueAt: null, failures: 0, lastFullSweepAt: null, lastAttemptAt: null });
   for (const c of await due.json()) {
     const k = `${c.canonical_role}:${c.state_code}`;
-    const cur = cells.get(k) ?? { fresh: 0, nextDueAt: null, failures: 0, lastFullSweepAt: null };
+    const cur = cells.get(k) ?? { fresh: 0, nextDueAt: null, failures: 0, lastFullSweepAt: null, lastAttemptAt: null };
     cells.set(k, { ...cur, nextDueAt: body.force === true ? null : c.next_due_at,
-                   failures: c.consecutive_failures, lastFullSweepAt: c.last_full_sweep_at });
+                   failures: c.consecutive_failures, lastFullSweepAt: c.last_full_sweep_at,
+                   lastAttemptAt: c.last_attempt_at });
   }
 
   const { plan, deferred } = L.planRequests({ cells, roles: runRoles, regions: runRegions,

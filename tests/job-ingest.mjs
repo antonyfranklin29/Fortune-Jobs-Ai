@@ -133,6 +133,17 @@ test('a limited budget samples distinct states before repeating a state', () => 
   assert.equal(deferred.length, 51);
 });
 
+test('a limited budget reaches untouched states before revisiting an earlier state', () => {
+  const regions = regCfg.regions.filter((r) => ['AL', 'AK', 'AR'].includes(r.code));
+  const cells = new Map([
+    ['data-analyst:AL', { fresh: 0, lastAttemptAt: '2026-10-01T00:00:00Z' }],
+    ['data-analyst:AK', { fresh: 0 }],
+    ['data-analyst:AR', { fresh: 0, lastAttemptAt: '2026-10-02T00:00:00Z' }],
+  ]);
+  const { plan } = L.planRequests({ cells, roles: [DA], regions, target: 100, budget: 2, now });
+  assert.deepEqual(plan.map((p) => p.region), ['AK', 'AL']);
+});
+
 test('quota exhaustion: zero budget plans nothing and defers everything', () => {
   const regions = regCfg.regions;
   const { plan, deferred } = L.planRequests({ cells: new Map(), roles: [DA], regions, target: 100, budget: 0, now });

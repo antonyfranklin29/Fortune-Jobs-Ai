@@ -228,9 +228,14 @@ export function planRequests({ cells, roles, regions, target, budget, maxPagesPe
     const sweptRecently = c.lastFullSweepAt && now - new Date(c.lastFullSweepAt) < fullSweepDays * 86400000;
     const full = shortage > 0 || !sweptRecently;
     const pages = full ? Math.min(maxPagesPerCell, Math.ceil(Math.max(shortage, target) / perPage) + 1) : 1;
-    due.push({ role: role.id, region: reg.code, shortage, pages, mode: full ? 'fill' : 'refresh' });
+    due.push({ role: role.id, region: reg.code, shortage, pages, mode: full ? 'fill' : 'refresh',
+               lastAttemptAt: c.lastAttemptAt ?? null });
   }
-  due.sort((a, b) => b.shortage - a.shortage || a.role.localeCompare(b.role) || a.region.localeCompare(b.region));
+  // A limited hourly budget must reach every role/state before revisiting
+  // the first alphabetic cells once their cooldown expires.
+  due.sort((a, b) => (a.lastAttemptAt === null ? -1 : b.lastAttemptAt === null ? 1
+    : new Date(a.lastAttemptAt) - new Date(b.lastAttemptAt))
+    || b.shortage - a.shortage || a.role.localeCompare(b.role) || a.region.localeCompare(b.region));
   const plan = [], deferred = [];
   let left = budget;
   const taken = new Map();
