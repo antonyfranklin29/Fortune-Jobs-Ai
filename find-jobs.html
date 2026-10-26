@@ -286,7 +286,7 @@ body[data-page="results"] .polling-bar{position:static}
 body[data-page="results"] .results-back{display:inline-block;color:var(--gold);margin-bottom:24px}
 body[data-page="find"] .hero{min-height:65vh}
 </style>
-<link rel="stylesheet" href="landing-experience.css?v=20261026">
+<link rel="stylesheet" href="landing-experience.css?v=20261026-featured">
 </head>
 <body data-page="find">
 
@@ -333,6 +333,7 @@ body[data-page="find"] .hero{min-height:65vh}
     <p class="hero-sub-text">Search real jobs, understand why they fit, and build a stronger résumé in one place.</p>
   </div>
   <div class="landing-grid">
+  <div class="search-column">
   <div class="search-panel">
     <div class="panel-kicker">FIND JOBS</div>
     <h2>Start with a role and location</h2>
@@ -452,6 +453,11 @@ body[data-page="find"] .hero{min-height:65vh}
     </div>
   </div>
   </div>
+  <section class="featured-jobs" aria-labelledby="featured-title">
+    <div class="featured-head"><div><div class="panel-kicker">RECENT OPENINGS</div><h2 id="featured-title">Explore jobs hiring now</h2><p>Real listings from our saved job catalogue.</p></div><a href="results.html?mode=quick">See all jobs →</a></div>
+    <div class="featured-grid" id="featuredJobs" aria-live="polite"><p class="featured-status">Loading recent jobs…</p></div>
+  </section>
+  </div>
   <aside class="toolkit-panel" aria-labelledby="toolkit-title">
     <div class="panel-kicker">YOUR RÉSUMÉ TOOLKIT</div>
     <h2 id="toolkit-title">More than a job search</h2>
@@ -530,6 +536,7 @@ body[data-page="find"] .hero{min-height:65vh}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="data-safety.js?v=20261015-source-footer"></script>
+<script src="featured-jobs.js?v=20261026"></script>
 <script src="auth.js?v=20261015-employer-entry"></script>
 <script src="guest-resume.js"></script>
 <script src="location-regions.js"></script>
