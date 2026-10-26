@@ -251,6 +251,15 @@ Deno.serve(async (req: Request) => {
 
   if (req.method !== "POST") return json({ status: "rejected", reason: "method_not_allowed" }, 405, origin);
 
+  // A caller that asks for a dry run must never be given a real one. Without this, a
+  // mistyped or rotated test key on a configured gateway would silently dispatch a paid
+  // search. Checked before the body is read or anything is admitted, so a refused dry run
+  // uses no allowance or slot, and a probe with an invalid body is safe on any version.
+  const dryRun = TEST_KEY !== "" && req.headers.get("x-fj-test-key") === TEST_KEY;
+  if (!dryRun && req.headers.get("x-fj-dry-run") === "1") {
+    return json({ status: "rejected", reason: "dry_run_unauthorized" }, 403, origin);
+  }
+
   const raw = await readBounded(req, MAX_BODY_BYTES);
   if (raw === null) {
     return json({ status: "rejected", reason: "invalid_request", detail: "body too large" }, 413, origin);
@@ -274,7 +283,6 @@ Deno.serve(async (req: Request) => {
 
   const clientHash = await sha256(`${await effectiveSalt()}:${clientAddress(req)}`);
   const searchId = `s_${Date.now().toString(36)}_${crypto.randomUUID().replace(/-/g, "").slice(0, 12)}`;
-  const dryRun = TEST_KEY !== "" && req.headers.get("x-fj-test-key") === TEST_KEY;
 
   // Refuse an unconfigured gateway BEFORE admission, so the request consumes no
   // visitor allowance and reserves no capacity. Authorised dry runs stay usable

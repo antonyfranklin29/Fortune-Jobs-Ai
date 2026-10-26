@@ -79,3 +79,18 @@ Deno.test("a refused dispatch releases its slot and reports upstream_rejected", 
   assertEquals(dbCalls.filter((p) => p.endsWith("/live_search_settle")).length, 1, "a conclusive refusal settles the slot");
   makeStatus = 202;
 });
+
+Deno.test("a requested dry run without a valid test key is refused and never dispatched", async () => {
+  const cases: Record<string, string>[] = [{ "x-fj-dry-run": "1" }, { "x-fj-dry-run": "1", "x-fj-test-key": "wrong-or-rotated-key" }];
+  for (const extra of cases) {
+    dbCalls = []; makeRequests = []; makeStatus = 202;
+    const req = search();
+    const res = await serve(new Request(req.url, {
+      method: "POST", headers: { ...Object.fromEntries(req.headers), ...extra }, body: await req.text(),
+    }));
+    assertEquals(res.status, 403);
+    assertEquals((await res.json()).reason, "dry_run_unauthorized");
+    assertEquals(makeRequests.length, 0, "a dry-run request must never reach Make");
+    assertEquals(dbCalls.filter((p) => p.endsWith("/live_search_try_admit")).length, 0, "refused before admission");
+  }
+});
