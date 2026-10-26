@@ -1,4 +1,4 @@
-/* Employer marks are curated by exact company name. Unknown employers keep an initial. */
+/* Resolve marks only for an exact employer identity; unknown employers keep an initial. */
 (function (root) {
   'use strict';
   const domains = Object.freeze({
@@ -56,12 +56,21 @@
   function urlFor(job) {
     const domain = domains[name(job).toLowerCase().replace(/\s+/g, ' ')];
     if (domain) return `assets/company-logos/${domain}.png`;
-    return trustedFeedLogo(job);
+    const feedLogo = trustedFeedLogo(job);
+    if (feedLogo) return feedLogo;
+    const brand = root.FJ_COMPANY_BRANDS?.[name(job).toLowerCase().replace(/\s+/g, ' ')];
+    if (brand && typeof brand === 'string') {
+      try {
+        const url = new URL(brand);
+        if (url.protocol === 'https:' && url.hostname === 'img.logo.dev') return url.href;
+      } catch { /* Ignore an invalid catalogue entry. */ }
+    }
+    return null;
   }
   function letterFor(job) { return name(job).charAt(0).toUpperCase() || '?'; }
   function html(job, escapeHtml) {
     const url = urlFor(job);
-    return `<span class="company-logo" aria-hidden="true">${escapeHtml(letterFor(job))}${url ? `<img class="company-logo-image" src="${escapeHtml(url)}" alt="" loading="lazy" decoding="async">` : ''}</span>`;
+    return `<span class="company-logo" aria-hidden="true">${escapeHtml(letterFor(job))}${url ? `<img class="company-logo-image" src="${escapeHtml(url)}" alt="" loading="lazy" decoding="async"${url.startsWith('https://img.logo.dev/') ? ' referrerpolicy="origin"' : ''}>` : ''}</span>`;
   }
   function element(job, className = 'featured-logo') {
     const node = document.createElement('span');
@@ -76,6 +85,7 @@
       img.alt = '';
       img.loading = 'lazy';
       img.decoding = 'async';
+      if (url.startsWith('https://img.logo.dev/')) img.referrerPolicy = 'origin';
       img.addEventListener('error', () => img.remove(), { once: true });
       node.append(img);
     }

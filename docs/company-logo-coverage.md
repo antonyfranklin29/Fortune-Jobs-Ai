@@ -1,0 +1,9 @@
+# Company logo coverage
+
+The job catalogue usually contains an employer name without an employer domain or logo. A name alone can refer to several organizations. The website displays local verified marks, source-provided marks, and exact company matches from Logo.dev. It keeps the initial when identity is ambiguous or a mark is unavailable; it never substitutes a guessed logo.
+
+Logo.dev images send only the site origin as their referrer, so a publishable key can be restricted to `fortunejobsai.com` without sharing a search URL or user details. All other page requests keep the site's `no-referrer` policy.
+
+`scripts/sync-company-logos.mjs` reads distinct open employers from the public Supabase catalogue, looks up new names with Logo.dev's server-side Search API, and accepts only a unique exact company-name match (ignoring legal suffixes and punctuation). It writes public, non-secret results to `data/company-logo-resolution.json` and `company-brand-map.js`. Unmatched names are retried after 30 days. Matched names use Logo.dev's domain-specific CDN URL, which can update the artwork without another lookup. The website links to Logo.dev in its public footers to satisfy the free plan's attribution requirement.
+
+To activate automatic refresh, create a Logo.dev account and add three GitHub Actions secrets to this repository: `LOGO_DEV_SECRET_KEY`, `LOGO_DEV_PUBLISHABLE_KEY`, and `FJ_SUPABASE_ANON_KEY` (the last is the public key already in `config.js`). Do not put the secret key in a web page, a commit, or chat. Run the **Refresh company logos** workflow once; it then refreshes daily. The workflow safely does nothing until configured. Inspect `data/company-logo-resolution.json` for `review` entries and correct any mistaken identity before promoting a candidate. Third-party matching cannot promise that every employer will have a verified logo; small or ambiguous companies will retain an initial until their official domain is confirmed.

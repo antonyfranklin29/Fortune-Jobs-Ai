@@ -1,0 +1,38 @@
+name: Refresh company logos
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 8 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Resolve new companies
+        env:
+          FJ_SUPABASE_URL: https://hqgakkcxcyspqhnlnscv.supabase.co
+          FJ_SUPABASE_ANON_KEY: ${{ secrets.FJ_SUPABASE_ANON_KEY }}
+          LOGO_DEV_SECRET_KEY: ${{ secrets.LOGO_DEV_SECRET_KEY }}
+          LOGO_DEV_PUBLISHABLE_KEY: ${{ secrets.LOGO_DEV_PUBLISHABLE_KEY }}
+        run: |
+          if [ -z "$FJ_SUPABASE_ANON_KEY" ] || [ -z "$LOGO_DEV_SECRET_KEY" ] || [ -z "$LOGO_DEV_PUBLISHABLE_KEY" ]; then
+            echo 'Logo provider is not configured; no changes made.'
+            exit 0
+          fi
+          node scripts/sync-company-logos.mjs
+      - name: Commit resolved catalogue
+        run: |
+          if [ -z "$(git status --porcelain -- company-brand-map.js data/company-logo-resolution.json)" ]; then exit 0; fi
+          git config user.name 'fortunejobsai-logo-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add company-brand-map.js data/company-logo-resolution.json
+          git commit -m 'Refresh verified company logo matches'
+          git push

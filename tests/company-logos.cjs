@@ -30,3 +30,14 @@ test('unknown employer falls back to a safe initial', () => {
   assert.match(html, /&lt;/);
   assert.doesNotMatch(html, /<img/);
 });
+
+test('resolved catalogue logo is used only for the exact employer name and trusted CDN', () => {
+  global.FJ_COMPANY_BRANDS = {
+    'acme labs': 'https://img.logo.dev/acme.com?token=pk_public123',
+    'evil company': 'https://untrusted.example/logo.png'
+  };
+  assert.equal(logos.urlFor({ company: 'Acme Labs' }), 'https://img.logo.dev/acme.com?token=pk_public123');
+  assert.equal(logos.urlFor({ company: 'Acme Labs Staffing' }), null);
+  assert.equal(logos.urlFor({ company: 'Evil Company' }), null);
+  delete global.FJ_COMPANY_BRANDS;
+});
