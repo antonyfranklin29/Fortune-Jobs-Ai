@@ -4,6 +4,8 @@ Starting point (9:15 p.m. ET): Quick Match has 756 open stored rows but no sourc
 
 Adzuna update (after 9:30 p.m. ET): Franklin completed the provider subscription in Adzuna. The account page confirmed "Plan change was successful," "Plan: API Access: £8 per month," and allowances of 500 calls/day and 5,000 calls/month. The plan detail also lists 50 calls/minute and 2,000/week. This is separate from the deferred seeker/employer billing. No new Adzuna call was made as part of the confirmation.
 
+Supabase update (later that evening): the `ADZUNA_LIMIT_TOTAL` Edge Function secret was changed from 25 to a conservative lifetime cap of 100, and the dashboard confirmed the update. The already-deployed worker supports the nationwide `adzuna-us-it` feed mode. A single 3-call feed request is staged in its Test panel, awaiting Franklin to enter the existing `INGEST_SECRET` directly and send it; no provider call has been made by Codex. The newer role/state cell fairness change in commit `9c5db44` remains undeployed, but is not required for the feed-mode test. A recurring schedule still requires the same secret in Supabase Vault and a separate review of usage and results.
+
 ## Parallel work
 
 | Owner | Tonight's work | Evidence to finish |
@@ -15,7 +17,7 @@ Adzuna update (after 9:30 p.m. ET): Franklin completed the provider subscription
 
 - Franklin entered billing details and activated Adzuna API Access himself. Check provider usage before spending any new calls.
 - No paid Apify run tonight. A production success marker already observed by Claude may satisfy the success-path check; retain evidence in the Make runbook.
-- The Adzuna worker currently has `ADZUNA_LIMIT_TOTAL=25`. Do not invoke or schedule it after the upgrade until the provider's actual allowance is confirmed and that cap is intentionally revised. The pending hourly schedule uses 3 calls per run, at most 2,232 in a 31-day month, inside the worker's existing 2,500/month cap; it also requires an `INGEST_SECRET` copy in Supabase Vault, entered by Franklin without sharing it in chat.
+- The Adzuna worker now has `ADZUNA_LIMIT_TOTAL=100` as a temporary lifetime cap. At most 90 additional recorded calls remain after the two earlier 5-call tests; confirm the provider dashboard and worker ledger before each expansion. The pending hourly schedule uses 3 calls per run, at most 2,232 in a 31-day month, inside the worker's existing 2,500/month cap; with the temporary total cap it would stop after about 30 runs. Do not apply it until a durable allowance policy and the `INGEST_SECRET` copy in Supabase Vault are in place, entered by Franklin without sharing it in chat.
 - Keep the direct Live Search path working until the separate gateway-only scenario, secret check, frontend switch, cached-page drain and rollback path have been verified as one coordinated cutover. Never expose a webhook URL, API key or secret in documentation or chat.
 - Do not claim 100 jobs in every role and state. Measure real coverage. The Adzuna US IT feed covers 18 tracked IT roles; Canada, the UK and India need separate source approval and scope.
 
