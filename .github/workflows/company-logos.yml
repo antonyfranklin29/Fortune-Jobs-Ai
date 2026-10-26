@@ -34,4 +34,4 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add company-brand-map.js data/company-logo-resolution.json
           git commit -m 'Refresh verified company logo matches'
-          git push
+          git push origin HEAD:main
