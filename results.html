@@ -1084,7 +1084,7 @@ function showQuickMatchEmpty(search, filters) {
   const section = document.getElementById('resultsSection');
   document.getElementById('resultsTitle').textContent = `No quick matches for "${search}"`;
   document.getElementById('resultsCount').textContent =
-    'No saved listings matched your job title and selected filters. Try adjusting your search or use Live Search for fresh listings.';
+    'No recent saved listings matched your job title and filters. Quick Match shows imported jobs posted within 30 days; try adjusting your search or use Live Search.';
   const badge = document.getElementById('resultsModeBadge');
   badge.className = 'results-mode-badge quick';
   badge.textContent = '\u26a1 Quick Match';
@@ -1093,7 +1093,7 @@ function showQuickMatchEmpty(search, filters) {
   document.getElementById('jobsGrid').innerHTML = `
     <div class="empty-state">
       <div class="icon">\u{1F50E}</div>
-      <h3>Nothing saved for this one yet</h3>
+      <h3>No recent saved matches</h3>
       <p>Try Live Search — it finds fresh job listings and shows results as they arrive.</p>
       <button class="retry-btn" onclick="setMode('live');handleSearch();">Try Live Search →</button>
     </div>`;
@@ -1215,7 +1215,7 @@ function getFilters() {
     longitude:    (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lng : null,
     country:      val('filterCountry') || (picked?.country_code || '').toLowerCase(),
     country_name: val('filterCountry') ? sel('filterCountry') : (picked?.country || ''),
-    date_posted:  val('filterDate'),             // max age in days, '' = any time
+    date_posted:  val('filterDate'),             // selected maximum age; default imported-job limit is 30 days
     experience:   val('filterExperience'),
     job_type:     val('filterJobType'),
     work_mode:    val('filterWorkMode'),
