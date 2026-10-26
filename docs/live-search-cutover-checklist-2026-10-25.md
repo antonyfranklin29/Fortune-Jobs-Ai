@@ -28,7 +28,7 @@ Owner: Claude (Make and gateway), with Codex owning page edits and Franklin appr
   - Tests are in `tests/live-search-preflight.mjs` (a stub gateway records any request that could dispatch; it must stay at zero).
   - Run it from a machine that can reach supabase.co (the cloud workspace cannot): `node scripts/live-search-preflight.mjs`. The output is JSON and never contains the key.
 
-## Stage 0: stop empty-body runs (Make, free) **[approve]**
+## Stage 0: stop empty-body runs (Make, free). DONE 2026-10-25, see the runbook
 
 1. In scenario 4555354, open the filter between the router and Claude 2 (Live Search route). Record its current condition exactly; it is expected to be `1.mode = live`.
 2. Add AND conditions: `1.search_id` *exists*, `1.search_id` *not equal* empty, `1.text` *exists*, `1.text` *not equal* empty.
