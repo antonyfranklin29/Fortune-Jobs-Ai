@@ -1,6 +1,8 @@
 # Fortune Jobs AI overnight handoff — 25 October 2026
 
-Starting point (9:15 p.m. ET): Quick Match has 756 open stored rows but no source refresh since 17 October. The Adzuna account is on a 25-call Pending Activation trial. Live Search still uses the public Make webhook; the Supabase gateway switch and Make shared-secret filter are off. Billing for seeker and employer subscriptions remains deferred.
+Starting point (9:15 p.m. ET): Quick Match has 756 open stored rows but no source refresh since 17 October. Live Search still uses the public Make webhook; the Supabase gateway switch and Make shared-secret filter are off. Billing for seeker and employer subscriptions remains deferred.
+
+Adzuna update (after 9:30 p.m. ET): Franklin completed the provider subscription in Adzuna. The account page confirmed "Plan change was successful," "Plan: API Access: £8 per month," and allowances of 500 calls/day and 5,000 calls/month. The plan detail also lists 50 calls/minute and 2,000/week. This is separate from the deferred seeker/employer billing. No new Adzuna call was made as part of the confirmation.
 
 ## Parallel work
 
@@ -11,7 +13,7 @@ Starting point (9:15 p.m. ET): Quick Match has 756 open stored rows but no sourc
 
 ## Boundaries and dependencies
 
-- Franklin will enter billing and card details directly with Adzuna. Do not buy or activate a plan on his behalf. Confirm the active plan and provider usage before spending any new calls.
+- Franklin entered billing details and activated Adzuna API Access himself. Check provider usage before spending any new calls.
 - No paid Apify run tonight. A production success marker already observed by Claude may satisfy the success-path check; retain evidence in the Make runbook.
 - The Adzuna worker currently has `ADZUNA_LIMIT_TOTAL=25`. Do not invoke or schedule it after the upgrade until the provider's actual allowance is confirmed and that cap is intentionally revised. The pending hourly schedule uses 3 calls per run, at most 2,232 in a 31-day month, inside the worker's existing 2,500/month cap; it also requires an `INGEST_SECRET` copy in Supabase Vault, entered by Franklin without sharing it in chat.
 - Keep the direct Live Search path working until the separate gateway-only scenario, secret check, frontend switch, cached-page drain and rollback path have been verified as one coordinated cutover. Never expose a webhook URL, API key or secret in documentation or chat.
