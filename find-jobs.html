@@ -286,7 +286,7 @@ body[data-page="results"] .polling-bar{position:static}
 body[data-page="results"] .results-back{display:inline-block;color:var(--gold);margin-bottom:24px}
 body[data-page="find"] .hero{min-height:65vh}
 </style>
-<link rel="stylesheet" href="landing-experience.css?v=20261026-job-browser">
+<link rel="stylesheet" href="landing-experience.css?v=20261026-job-browser4">
 </head>
 <body data-page="find">
 
@@ -453,6 +453,13 @@ body[data-page="find"] .hero{min-height:65vh}
     </div>
   </div>
   </div>
+  <section class="featured-jobs" aria-labelledby="featured-title">
+    <div class="featured-head"><div><div class="panel-kicker">EXPLORE OPENINGS</div><h2 id="featured-title">Jobs that fit your next move</h2><p id="featuredCount">Loading real listings from our saved catalogue…</p></div><a href="results.html?mode=quick">Search all jobs →</a></div>
+    <div class="featured-browser">
+      <div class="featured-list" id="featuredJobs" aria-label="Recent job listings" aria-live="polite"><p class="featured-status">Loading recent jobs…</p></div>
+      <article class="featured-detail" id="featuredDetail" aria-label="Selected job details" aria-live="polite"><p class="featured-status">Select a job to see its details.</p></article>
+    </div>
+  </section>
   </div>
   <aside class="toolkit-panel" aria-labelledby="toolkit-title">
     <div class="panel-kicker">YOUR RÉSUMÉ TOOLKIT</div>
@@ -469,13 +476,6 @@ body[data-page="find"] .hero{min-height:65vh}
     <p class="toolkit-note">No account needed to search or try résumé matching. Create a free account to save jobs.</p>
   </aside>
   </div>
-  <section class="featured-jobs" aria-labelledby="featured-title">
-    <div class="featured-head"><div><div class="panel-kicker">EXPLORE OPENINGS</div><h2 id="featured-title">Jobs that fit your next move</h2><p id="featuredCount">Loading real listings from our saved catalogue…</p></div><a href="results.html?mode=quick">Search all jobs →</a></div>
-    <div class="featured-browser">
-      <div class="featured-list" id="featuredJobs" aria-label="Recent job listings" aria-live="polite"><p class="featured-status">Loading recent jobs…</p></div>
-      <article class="featured-detail" id="featuredDetail" aria-label="Selected job details" aria-live="polite"><p class="featured-status">Select a job to see its details.</p></article>
-    </div>
-  </section>
   </div>
 </section>
 
@@ -539,7 +539,7 @@ body[data-page="find"] .hero{min-height:65vh}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 <script src="data-safety.js?v=20261015-source-footer"></script>
-<script src="featured-jobs.js?v=20261026-job-browser3"></script>
+<script src="featured-jobs.js?v=20261026-job-browser4"></script>
 <script src="auth.js?v=20261015-employer-entry"></script>
 <script src="guest-resume.js"></script>
 <script src="location-regions.js"></script>

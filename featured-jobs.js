@@ -110,6 +110,16 @@
     detail.append(el('h3', '', row.job_title));
     detail.append(el('p', 'featured-company', row.company));
     detail.append(el('p', 'featured-meta', `${meta(row)} · ${age(row)}`));
+    const facts = el('div', 'featured-facts');
+    facts.append(el('h4', '', 'At a glance'));
+    const factList = document.createElement('ul');
+    const items = [row.location || 'Location on original listing', age(row)];
+    if (row.work_mode || row.is_remote) items.push(row.work_mode ? row.work_mode.replace(/_/g, ' ') : 'Remote');
+    if (row.employment_type) items.push(row.employment_type.replace(/_/g, ' '));
+    if (row.salary) items.push(`Pay: ${row.salary}`);
+    items.slice(0, 4).forEach(item => factList.append(el('li', '', item)));
+    facts.append(factList);
+    detail.append(facts);
     const overview = el('div', 'featured-overview');
     overview.append(el('h4', '', 'About this role'));
     const description = cleanDescription(row.job_description);
