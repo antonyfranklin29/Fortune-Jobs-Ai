@@ -93,12 +93,29 @@ The gateway sends `x-fj-gateway-secret` as a header only (function deployed). Ma
 | `Café ünïcode — dash` | unchanged |
 | `Newark, "NJ"` | `Newark, \"NJ\"` |
 
-**Not yet verified:** a real marker arriving in Supabase as an object. That needs one Live Search, which calls Apify. Until then the evidence is the production rehearsal of the same trigger. Other steps (Claude keyword 2, Apify dataset 11, Claude matching 5, Parse JSON 12) still have no error route. If one of them fails, the search ends without a marker: the page times out, and on the gateway path the admission expires to `failed`. It is never shown as "no jobs".
+**Not yet verified:** a real marker arriving in Supabase as an object. That needs one Live Search, which calls Apify. Until then the evidence is the production rehearsal of the same trigger.
+
+## Failure routes on every step, added 2026-10-25
+
+Saved in scenario 4555354, still Active. The editor was reloaded and each mapping re-read. Each Live Search step that can fail now has an error route: Supabase **Create a Row** into `job_matches`, then **Skip**. Skip discards the failed bundle, so nothing downstream runs for that search, including the normal success marker. Every failure row is identical apart from `stage`:
+- `job_title` "No matching jobs found", `match_reason` "Search complete", `match_score` 0
+- `search_id` `1.search_id` (the webhook's)
+- company, location, salary and apply_url empty
+
+| Step that fails | `source_metadata` written |
+|---|---|
+| Claude keyword step 2 | `{"signal":"failure","stage":"claude"}` |
+| Apify run step 4 (added 2026-10-24) | `{"signal":"failure","stage":"apify"}` |
+| Apify dataset step 11 | `{"signal":"failure","stage":"apify_dataset"}` |
+| Claude matching step 5 | `{"signal":"failure","stage":"claude_match"}` |
+| Parse JSON step 12 | `{"signal":"failure","stage":"parse"}` |
+
+**Not covered:** the Array aggregator (15), the Iterator (14) and the final Supabase write. Aggregator and Iterator are built-in flow tools that do not raise errors on their own input. If the final Supabase write fails, a failure marker would go through the same Supabase connection and would most likely fail too, so it has no route. In those cases the search ends without a marker: the page times out, or the gateway admission expires to `failed`. It is never shown as "no jobs". The Quick Match route (lower branch) was not touched. Nothing was run in Make for this change.
 
 ## Remaining cutover steps (in order)
 
 1. ~~Make sign-in, the success and failure markers, the escaping check~~ (done, see above).
-2. Optional: add failure routes to steps 2, 11, 5 and 12 in the same way, using `stage` `claude`, `apify_dataset`, `claude_match` and `parse`.
+2. ~~Failure routes on steps 2, 11, 5 and 12~~ (done 2026-10-25, see above).
 3. **First real check, paid and approved separately:** one capped Live Search. Confirm in Supabase that its marker has `source_metadata` as an object with `signal=success`, and that `live_search_status` reports `complete` or `empty`. A deliberate failure test needs a way to fail Apify without a paid run, such as an invalid actor input in the test scenario. Decide this together.
 4. Set the Supabase secrets `MAKE_GATEWAY_SECRET`, plus `MAKE_LIVE_WEBHOOK_URL` for the chosen webhook, without echoing them. Run a gateway dry run with `GATEWAY_TEST_KEY`.
 5. Activate the Make filter by the chosen option, and flip `LIVE_SEARCH_VIA_GATEWAY = true` in `results.html`. That edit touches a shared file, so Codex coordinates it.
