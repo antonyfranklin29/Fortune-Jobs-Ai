@@ -821,7 +821,15 @@ async function fetchQuickMatches(input, filters, signal) {
   const rows = await readSearchRows(quickMatchUrl(tokens, filters, false), signal);
   if (!rows || !rows.length) return [];
 
-  return personalizeJobs(FJAccuracy.filterJobs(rows, input, filters)
+  // Imported listings can linger after their source stops refreshing. Keep
+  // verified employer posts eligible while excluding old imported jobs.
+  const recentRows = rows.filter(r => {
+    if (r.source === 'employer_direct' || r.source === 'employer_feed') return true;
+    const posted = Date.parse(r.posted_at || '');
+    return Number.isFinite(posted) && posted <= Date.now() + 3600000
+      && posted >= Date.now() - 30 * 86400000;
+  });
+  return personalizeJobs(FJAccuracy.filterJobs(recentRows, input, filters)
     .map(r => {
       const { score } = scoreJob(r, tokens, phrase, filters);
       return {

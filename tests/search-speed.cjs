@@ -33,7 +33,7 @@ function harness(fetch) {
   vm.runInContext(['readSearchRows', 'stripCodeFence', 'sanitizeJobRow', 'isSearchCompletion', 'fetchJobs', 'queryTokens', 'quickMatchUrl', 'scoreJob', 'fetchQuickMatches', 'personalizeJobs', 'stopPolling', 'startPolling'].map(source).join('\n'), context);
   return { context, timers, async flush() { for (let i = 0; i < 12; i++) await Promise.resolve(); }, async tick(ms) { const entry = [...timers].find(([, value]) => value.ms === ms); assert.ok(entry, 'Missing timer ' + ms); timers.delete(entry[0]); await entry[1].fn(); } };
 }
-const row = { job_title: 'Engineer', company: 'Test', location: 'Remote', apply_url: 'https://test.invalid/apply', match_score: '80' };
+const row = { job_title: 'Engineer', company: 'Test', location: 'Remote', apply_url: 'https://test.invalid/apply', match_score: '80', source: 'adzuna', posted_at: new Date().toISOString() };
 test('search forms navigate to results with mode and filters without submitting twice', async () => {
   const h = harness(() => { throw Error('The form must not request jobs before navigation'); });
   Object.assign(h.context, {URLSearchParams, location: {}, currentMode:'live', getFilters: () => ({location:'London',country:'gb',work_mode:'remote',latitude:51.5})});
@@ -59,6 +59,16 @@ test('Quick Match uses one request even with fewer than ten results and preserve
   assert.equal(calls.length, 1);
   assert.equal(jobs.length, 1);
   assert.equal(jobs[0].apply_url, row.apply_url);
+});
+test('Quick Match excludes old imported jobs but keeps active employer posts', async () => {
+  const oldDate = new Date(Date.now() - 40 * 86400000).toISOString();
+  const h = harness(async () => ({ ok: true, json: async () => [
+    {...row, apply_url:'https://test.invalid/old-import', posted_at:oldDate},
+    {...row, apply_url:'https://test.invalid/employer', source:'employer_direct', posted_at:oldDate},
+    {...row, apply_url:'https://test.invalid/recent-import'}
+  ] }));
+  const jobs = await h.context.fetchQuickMatches('engineer', {}, new AbortController().signal);
+  assert.deepEqual(jobs.map(j => j.apply_url).sort(), ['https://test.invalid/employer','https://test.invalid/recent-import']);
 });
 test('Quick Match surfaces HTTP failures instead of returning an empty list', async () => {
   const { context } = harness(async () => ({ ok: false, status: 503 }));
