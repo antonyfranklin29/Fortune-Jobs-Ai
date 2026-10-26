@@ -69,7 +69,7 @@ async function main() {
       (previous?.checked_at && Date.now() - Date.parse(previous.checked_at) < 30 * DAY)) continue;
     const request = new URL('https://api.logo.dev/v2/search');
     request.searchParams.set('q', company);
-    request.searchParams.set('limit', '5');
+    request.searchParams.set('limit', '25');
     const response = await fetch(request, { headers: { Authorization: `Bearer ${secret}` } });
     if (!response.ok) throw new Error(`Logo search stopped at HTTP ${response.status}; saved progress remains local`);
     const body = await response.json();
