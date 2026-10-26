@@ -1,11 +1,7 @@
--- NOT APPLIED. Apply only after all three are true:
---   1. Adzuna API access is active and ADZUNA_APP_ID / ADZUNA_APP_KEY are set
---      as Edge Function secrets.
---   2. INGEST_SECRET is set as an Edge Function secret AND the same value is
---      stored in Vault:  select vault.create_secret('<value>', 'ingest_secret');
---      (Set by the owner. Never written into this file or the repository.)
---   3. job-ingest is deployed from the repository:
---        supabase functions deploy job-ingest --no-verify-jwt
+-- Applied manually in production on 2026-10-25 after Adzuna API Access
+-- activation, Vault credential setup by the owner, and a successful manual
+-- feed test. Cron job 2 was verified active; a free pg_net dry run returned
+-- HTTP 200. The first scheduled feed execution still needs verification.
 --
 -- Requires the paid Adzuna "API access" plan (500/day, 5,000/month); the free
 -- Pending Activation plan has only 25 calls in total.
@@ -14,8 +10,8 @@
 -- in a 31-day month. This fits the worker's conservative 2,500/month default
 -- and leaves at least 268 calls for targeted top-ups. Each request returns
 -- up to 50 U.S. IT listings, classified into the 18 IT roles × 51 regions.
--- If the owner activates a 5,000/month plan, raise the worker limits and
--- schedule only after checking actual coverage, provider use and costs.
+-- The paid API Access plan permits 5,000/month. The worker intentionally
+-- retains its lower default 2,500/month cap.
 
 create extension if not exists pg_cron;
 create extension if not exists pg_net;
