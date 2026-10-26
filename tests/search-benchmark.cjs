@@ -16,7 +16,7 @@ const context = vm.createContext({fetch, AbortController, setTimeout, clearTimeo
   SUPABASE_URL:value('SUPABASE_URL'), SUPABASE_KEY:value('SUPABASE_KEY'),
   SEARCH_REQUEST_TIMEOUT_MS:10000, QUICK_CANDIDATE_LIMIT:300,
   STOPWORDS:new Set(['a','an','and','the','of','for','to','in','on','at','with','or','jobs','job','role','roles','position','positions','senior','junior','sr','jr'])});
-vm.runInContext(['readSearchRows','queryTokens','quickMatchUrl','scoreJob','fetchQuickMatches', 'personalizeJobs'].map(source).join('\n'),context);
+vm.runInContext(['readSearchRows','queryTokens','quickMatchUrl','scoreJob','mixQuickMatchSources','fetchQuickMatches', 'personalizeJobs'].map(source).join('\n'),context);
 const percentile = (values,p) => [...values].sort((a,b)=>a-b)[Math.ceil(values.length*p)-1];
 async function run(i) {
   const [query,filters] = cases[i%cases.length];

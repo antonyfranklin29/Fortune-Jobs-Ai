@@ -30,7 +30,7 @@ function harness(fetch) {
     showLiveSearchEmpty(search) { context.emptySearches.push(search); },
     displays: [], errors: [], emptySearches: [],
   });
-  vm.runInContext(['readSearchRows', 'stripCodeFence', 'sanitizeJobRow', 'isSearchCompletion', 'fetchJobs', 'queryTokens', 'quickMatchUrl', 'scoreJob', 'fetchQuickMatches', 'personalizeJobs', 'stopPolling', 'startPolling'].map(source).join('\n'), context);
+  vm.runInContext(['readSearchRows', 'stripCodeFence', 'sanitizeJobRow', 'isSearchCompletion', 'fetchJobs', 'queryTokens', 'quickMatchUrl', 'scoreJob', 'mixQuickMatchSources', 'fetchQuickMatches', 'personalizeJobs', 'stopPolling', 'startPolling'].map(source).join('\n'), context);
   return { context, timers, async flush() { for (let i = 0; i < 12; i++) await Promise.resolve(); }, async tick(ms) { const entry = [...timers].find(([, value]) => value.ms === ms); assert.ok(entry, 'Missing timer ' + ms); timers.delete(entry[0]); await entry[1].fn(); } };
 }
 const row = { job_title: 'Engineer', company: 'Test', location: 'Remote', apply_url: 'https://test.invalid/apply', match_score: '80', source: 'adzuna', posted_at: new Date().toISOString() };
@@ -69,6 +69,30 @@ test('Quick Match excludes old imported jobs but keeps active employer posts', a
   ] }));
   const jobs = await h.context.fetchQuickMatches('engineer', {}, new AbortController().signal);
   assert.deepEqual(jobs.map(j => j.apply_url).sort(), ['https://test.invalid/employer','https://test.invalid/recent-import']);
+});
+test('Quick Match mixes other recent sources when the newest page is all Adzuna', async () => {
+  const calls=[];
+  const current=Array.from({length:10},(_,i)=>({...row,job_title:'Data Analyst',apply_url:`https://adzuna.invalid/${i}`}));
+  const alternatives=[
+    {...row,source:'dice',job_title:'Data Analyst',apply_url:'https://dice.invalid/1'},
+    {...row,source:'indeed',job_title:'Data Analyst',apply_url:'https://indeed.invalid/1'},
+    {...row,source:'dice',job_title:'Data Analyst',apply_url:'https://dice.invalid/2'},
+  ];
+  const h=harness(async url=>{calls.push(new URL(url));return {ok:true,json:async()=>calls.length===1?current:alternatives};});
+  const jobs=await h.context.fetchQuickMatches('Data Analyst',{},new AbortController().signal);
+  assert.equal(calls.length,2);
+  assert.equal(calls[1].searchParams.get('source'),'neq.adzuna');
+  assert.deepEqual(Array.from(jobs.slice(0,10),j=>j.source).filter(s=>s!=='adzuna'),['dice','indeed','dice']);
+  assert.equal(jobs.slice(0,10).filter(j=>j.source==='adzuna').length,7);
+});
+test('Quick Match does not invent alternatives when no other matching source exists', async () => {
+  const current=Array.from({length:10},(_,i)=>({...row,job_title:'Data Analyst',apply_url:`https://adzuna.invalid/${i}`}));
+  let requests=0;
+  const h=harness(async()=>({ok:true,json:async()=>++requests===1?current:[]}));
+  const jobs=await h.context.fetchQuickMatches('Data Analyst',{},new AbortController().signal);
+  assert.equal(requests,2);
+  assert.equal(jobs.length,10);
+  assert.ok(jobs.every(j=>j.source==='adzuna'));
 });
 test('Quick Match surfaces HTTP failures instead of returning an empty list', async () => {
   const { context } = harness(async () => ({ ok: false, status: 503 }));

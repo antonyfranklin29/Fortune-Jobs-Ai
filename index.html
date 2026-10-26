@@ -748,12 +748,13 @@ function queryTokens(text) {
 }
 
 // Narrow the candidate read, then verify every selected filter before ranking.
-function quickMatchUrl(tokens, filters, relaxed) {
+function quickMatchUrl(tokens, filters, relaxed, excludeSource = '') {
   const p = [
     'select=job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,closed_at',
     `limit=${QUICK_CANDIDATE_LIMIT}`,
     'closed_at=is.null', 'order=posted_at.desc.nullslast'
   ];
+  if (excludeSource) p.push(`source=neq.${encodeURIComponent(excludeSource)}`);
   if (tokens.length) {
     const ors = tokens.map(t => `search_text.ilike.*${encodeURIComponent(t).replace(/\*/g, '')}*`);
     p.push(`or=(${ors.join(',')})`);
@@ -813,13 +814,42 @@ function scoreJob(job, tokens, phrase, filters) {
   };
 }
 
+function mixQuickMatchSources(jobs) {
+  const first = jobs.slice(0, FREE_RESULTS);
+  if (first.length < FREE_RESULTS) return jobs;
+  const counts = new Map();
+  for (const job of first) counts.set(job.source || '', (counts.get(job.source || '') || 0) + 1);
+  const [dominant, count] = [...counts].sort((a, b) => b[1] - a[1])[0];
+  if (!dominant || count < 8) return jobs;
+  const minimumScore = Number(first.at(-1).match_score) - 10;
+  const alternates = jobs.filter(job => job.source !== dominant && Number(job.match_score) >= minimumScore).slice(0, 3);
+  if (!alternates.length) return jobs;
+  const chosen = new Set(alternates);
+  const remaining = jobs.filter(job => !chosen.has(job));
+  const mixed = [];
+  for (let i = 0; i < FREE_RESULTS; i++) mixed.push(i % 3 === 2 && alternates.length ? alternates.shift() : remaining.shift());
+  return mixed.concat(remaining, alternates);
+}
+
 async function fetchQuickMatches(input, filters, signal) {
   const tokens = queryTokens(input);
   const phrase = input.trim().toLowerCase();
 
-  // A single request respects the selected filters and avoids a second round trip.
-  const rows = await readSearchRows(quickMatchUrl(tokens, filters, false), signal);
+  // Read the freshest candidates first. If one source crowds out the first
+  // page, read other sources separately so older (but still recent) jobs can compete.
+  let rows = await readSearchRows(quickMatchUrl(tokens, filters, false), signal);
   if (!rows || !rows.length) return [];
+
+  const firstSources = rows.slice(0, FREE_RESULTS);
+  if (firstSources.length === FREE_RESULTS && firstSources.every(r => r.source && r.source === firstSources[0].source)) {
+    try {
+      const alternatives = await readSearchRows(quickMatchUrl(tokens, filters, false, firstSources[0].source), signal);
+      rows = rows.concat(alternatives || []);
+    } catch (error) {
+      if (signal?.aborted) throw error;
+      console.warn('Other job sources unavailable; showing primary results', error);
+    }
+  }
 
   // Imported listings can linger after their source stops refreshing. Keep
   // verified employer posts eligible while excluding old imported jobs.
@@ -829,7 +859,7 @@ async function fetchQuickMatches(input, filters, signal) {
     return Number.isFinite(posted) && posted <= Date.now() + 3600000
       && posted >= Date.now() - 30 * 86400000;
   });
-  return personalizeJobs(FJAccuracy.filterJobs(recentRows, input, filters)
+  return mixQuickMatchSources(personalizeJobs(FJAccuracy.filterJobs(recentRows, input, filters)
     .map(r => {
       const { score } = scoreJob(r, tokens, phrase, filters);
       return {
@@ -841,7 +871,7 @@ async function fetchQuickMatches(input, filters, signal) {
         employment_type:r.employment_type, work_mode:r.work_mode, is_remote:r.is_remote, source:r.source
       };
     })
-    .sort((a, b) => parseInt(b.match_score) - parseInt(a.match_score)));
+    .sort((a, b) => parseInt(b.match_score) - parseInt(a.match_score))));
 }
 
 // ═══════════════════════════════════════

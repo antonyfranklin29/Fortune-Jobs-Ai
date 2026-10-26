@@ -7,7 +7,7 @@ const accuracy=require('../search-accuracy.js');
 const context=vm.createContext({fetch,AbortController,setTimeout,clearTimeout,window: {FJResume:require('../resume-matching.js')}, FJResume:require('../resume-matching.js'), FJAccuracy:accuracy,
   SUPABASE_URL:value('SUPABASE_URL'),SUPABASE_KEY:value('SUPABASE_KEY'),SEARCH_REQUEST_TIMEOUT_MS:10000,
   QUICK_CANDIDATE_LIMIT:300,FREE_RESULTS:10,STOPWORDS:new Set(['a','an','and','the','of','for','to','in','on','at','with','or','jobs','job','role','roles','position','positions','senior','junior','sr','jr'])});
-vm.runInContext(['readSearchRows','stripCodeFence','sanitizeJobRow','isSearchCompletion','fetchJobs','queryTokens','quickMatchUrl','scoreJob','fetchQuickMatches', 'personalizeJobs'].map(source).join('\n'),context);
+vm.runInContext(['readSearchRows','stripCodeFence','sanitizeJobRow','isSearchCompletion','fetchJobs','queryTokens','quickMatchUrl','scoreJob','mixQuickMatchSources','fetchQuickMatches', 'personalizeJobs'].map(source).join('\n'),context);
 const cases=[
  ['software engineer',{location:'New York',country:'us'}],
  ['software engineer',{country:'us',job_type:'fulltime'}],
