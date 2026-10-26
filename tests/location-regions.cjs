@@ -20,6 +20,23 @@ test('selected and restored states preserve scope; selecting a city clears state
  f=ctx.getFilters();assert.equal(f.location_scope,'region');assert.equal(f.latitude,null);
  vm.runInContext(source('filtersToSave'),ctx);assert.equal(ctx.filtersToSave(f).location_scope,'region');
 });
+test('a country selection searches nationwide, including an old URL that called it a city',()=>{
+ assert.equal(regions.countryExact('United States').country_code,'us');
+ assert.equal(regions.countryExact('Canada').country_code,'ca');
+ for (const file of ['index.html','find-jobs.html','results.html']) {
+  const page=fs.readFileSync(require('node:path').join(__dirname,'..',file),'utf8');
+  const getFilters=page.match(/^function getFilters\(\) \{[^]*?^\}/m)[0];
+  const values={locationInput:{value:'United States'},filterCountry:{value:'us',selectedIndex:0,options:[{text:'United States'}]}};
+  const ctx=vm.createContext({FJRegions:regions,selectedCity:{name:'United States',country:'United States',scope:'city',lat:39.76,lng:-98.5},document:{getElementById:id=>values[id]||{value:''}}});
+  vm.runInContext(getFilters,ctx);
+  const filters=ctx.getFilters();
+  assert.equal(filters.country,'us',file);
+  assert.equal(filters.location,'',file);
+  assert.equal(filters.city,'',file);
+  assert.equal(filters.latitude,null,file);
+  assert.equal(accuracy.matches({job_title:'Data Analyst',location:'Madison, Madison County',country:'us',apply_url:'https://example.com/jobs/1'},'Data Analyst',filters),true,file);
+ }
+});
 test('state matching accepts multiple NJ cities, ZIP codes and state-only listings; rejects NY and unknown',()=>{
  const filters={location:'New Jersey',region:'New Jersey',location_scope:'region',country:'us'};
  const base={job_title:'Data Analyst',country:'us',apply_url:'https://example.com/jobs/1'};

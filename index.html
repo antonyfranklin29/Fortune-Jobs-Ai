@@ -581,7 +581,7 @@ body[data-page="find"] .hero{min-height:65vh}
 <script src="featured-jobs.js?v=20261026-job-browser4"></script>
 <script src="auth.js?v=20261015-employer-entry"></script>
 <script src="guest-resume.js"></script>
-<script src="location-regions.js"></script>
+<script src="location-regions.js?v=20261026-country-scope"></script>
 <script src="search-accuracy.js"></script>
 <script src="resume-matching.js"></script>
 <script>
@@ -1184,17 +1184,20 @@ const FILTER_IDS = ['filterCountry','filterDate','filterExperience','filterJobTy
 function getFilters() {
   const val = id => document.getElementById(id).value;
   const sel = id => { const s = document.getElementById(id); return s.value ? s.options[s.selectedIndex].text.replace(/^\S+\s(?=[A-Z])/u, '') : ''; };
-  const picked = selectedCity || FJRegions.exact(val('locationInput'), val('filterCountry'));
-  const regionSearch = picked?.scope === 'region';
+  const rawLocation = val('locationInput').trim();
+  const countryLocation = FJRegions.countryExact(rawLocation);
+  const countrySearch = !!countryLocation;
+  const picked = countryLocation || selectedCity || FJRegions.exact(rawLocation, val('filterCountry'));
+  const regionSearch = !countrySearch && picked?.scope === 'region';
   return {
-    location:     document.getElementById('locationInput').value.trim(),
-    city:         regionSearch ? '' : (picked?.name || ''),
-    region:       picked ? (picked.region || picked.admin1 || '') : '',
+    location:     countrySearch ? '' : rawLocation,
+    city:         countrySearch || regionSearch ? '' : (picked?.name || ''),
+    region:       countrySearch ? '' : picked ? (picked.region || picked.admin1 || '') : '',
     location_scope: regionSearch ? 'region' : '',
-    latitude:     (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lat : null,
-    longitude:    (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lng : null,
-    country:      val('filterCountry') || (picked?.country_code || '').toLowerCase(),
-    country_name: val('filterCountry') ? sel('filterCountry') : (picked?.country || ''),
+    latitude:     countrySearch ? null : (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lat : null,
+    longitude:    countrySearch ? null : (typeof selectedCity !== 'undefined' && selectedCity) ? selectedCity.lng : null,
+    country:      countrySearch ? countryLocation.country_code : val('filterCountry') || (picked?.country_code || '').toLowerCase(),
+    country_name: countrySearch ? countryLocation.name : val('filterCountry') ? sel('filterCountry') : (picked?.country || ''),
     date_posted:  val('filterDate'),             // selected maximum age; default imported-job limit is 30 days
     experience:   val('filterExperience'),
     job_type:     val('filterJobType'),
