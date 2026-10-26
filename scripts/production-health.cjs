@@ -1,6 +1,6 @@
 // Read-only smoke checks. No account data, credentials, paid search or scraper runs.
 const fs=require('node:fs');
-const pages=['index.html','find-jobs.html','results.html','resume-search.html','profile.html','privacy.html','contact.html','data-safety.js'];
+const pages=['index.html','find-jobs.html','results.html','resume-search.html','profile.html','privacy.html','contact.html','data-safety.js','landing-experience.css','featured-jobs.js'];
 (async()=>{
  const rows=await Promise.all(pages.map(async page=>{
    const start=Date.now();
