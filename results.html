@@ -284,10 +284,56 @@ footer{padding:40px 20px 24px;}
 <style>
 nav .find-jobs-link{color:var(--gold);font-weight:700;}
 @media(max-width:768px){nav{flex-wrap:wrap;height:auto;min-height:80px;gap:12px;padding:16px 20px}.nav-links{display:flex;flex-wrap:wrap;gap:8px;order:3;width:100%;justify-content:center}}
-body[data-page="results"] .hero{display:none}
-body[data-page="results"] .results-section{display:block;min-height:60vh;padding-top:40px}
+body[data-page="results"] .hero{display:block;min-height:0;padding:22px clamp(18px,4vw,64px);background:#f1f5f9;text-align:left}
+body[data-page="results"] .hero::before,body[data-page="results"] .hero-badge,body[data-page="results"] .hero h1,body[data-page="results"] .hero-sub-text,body[data-page="results"] .hero-actions{display:none}
+body[data-page="results"] .mode-toggle{display:flex;width:min(100%,420px);margin:0 0 12px;background:#e2e8f0;border:0}
+body[data-page="results"] .mode-btn{flex:1;justify-content:center;color:#475569}
+body[data-page="results"] .mode-btn.active{background:#0e3158;color:#fff}
+body[data-page="results"] .mode-desc{color:#53647e;margin:0 0 14px}
+body[data-page="results"] .mode-desc span{color:#0e3158}
+body[data-page="results"] .search-wrapper{max-width:1280px;margin:0 auto}
+body[data-page="results"] .search-bar{box-shadow:none;border:1px solid #d7e0eb}
+body[data-page="results"] .filters{justify-content:flex-start;margin-top:14px}
+body[data-page="results"] .filter-pill select,body[data-page="results"] .pill-input{background-color:#fff;color:#334155;border-color:#d5dfeb}
+body[data-page="results"] .filter-reset{color:#475569}
+body[data-page="results"] .results-section{display:block;min-height:60vh;padding:28px clamp(18px,4vw,64px) 70px;background:#f7f9fc}
 body[data-page="results"] .polling-bar{position:static}
-body[data-page="results"] .results-back{display:inline-block;color:var(--gold);margin-bottom:24px}
+body[data-page="results"] .results-back{display:inline-block;color:#315a86;margin-bottom:18px;font-size:13px;font-weight:700}
+body[data-page="results"] .results-tabs{display:flex;align-items:center;gap:24px;max-width:1280px;margin:0 auto 18px;padding-bottom:12px;border-bottom:1px solid #dce5ef;overflow-x:auto;white-space:nowrap}
+body[data-page="results"] .results-tabs span,body[data-page="results"] .results-tabs a{font-size:14px;font-weight:700;color:#53647e;text-decoration:none;padding:5px 0}
+body[data-page="results"] .results-tabs [aria-current="page"]{color:#0e3158;border-bottom:3px solid #d4a843}
+body[data-page="results"] .results-tabs a:hover{color:#0e3158}
+body[data-page="results"] .results-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;max-width:1280px;margin:0 auto;align-items:start}
+body[data-page="results"] .results-main{min-width:0}
+body[data-page="results"] .results-header{background:#fff;border:1px solid #dce5ef;border-radius:16px;padding:22px;margin-bottom:16px}
+body[data-page="results"] .results-title{font-size:27px}
+body[data-page="results"] .jobs-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:15px}
+body[data-page="results"] .job-card{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:22px;padding:20px;border-color:#dce5ef;box-shadow:0 3px 12px rgba(15,39,72,.04)}
+body[data-page="results"] .job-card.unscored{grid-template-columns:minmax(0,1fr)}
+body[data-page="results"] .job-card:hover{transform:none;border-color:#b6c9de;box-shadow:0 7px 25px rgba(15,39,72,.08)}
+body[data-page="results"] .job-card-main{min-width:0;display:flex;flex-direction:column}
+body[data-page="results"] .job-card-top{margin-bottom:12px}
+body[data-page="results"] .job-title{font-size:19px}
+body[data-page="results"] .job-footer{gap:14px;flex-wrap:wrap}
+body[data-page="results"] .job-score-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#0e3158;border-radius:15px;color:#fff;text-align:center;padding:18px 12px;min-height:170px}
+body[data-page="results"] .job-score-panel.no-score{background:#eef3f8;color:#31506d}
+body[data-page="results"] .score-ring{width:86px;height:86px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(closest-side,#0e3158 79%,transparent 81%),conic-gradient(#d4a843 calc(var(--score) * 1%),#42617e 0);font-size:25px;font-weight:800}
+body[data-page="results"] .score-ring small{font-size:12px;font-weight:600;margin-left:2px}
+body[data-page="results"] .score-ring.unavailable{background:#25486b;color:#d9e5f1}
+body[data-page="results"] .job-score-panel .match-badge{background:transparent;color:#fff;border:0;font-size:12px;line-height:1.4;padding:0}
+body[data-page="results"] .job-score-panel a{color:#f7d784;font-size:11px;line-height:1.4}
+body[data-page="results"] .job-score-panel.no-score .match-badge,body[data-page="results"] .job-score-panel.no-score a{color:#31506d}
+body[data-page="results"] .results-rail{position:sticky;top:84px;display:grid;gap:16px}
+body[data-page="results"] .rail-card{padding:22px;background:#fff;border:1px solid #dce5ef;border-radius:16px;box-shadow:0 3px 12px rgba(15,39,72,.04)}
+body[data-page="results"] .rail-card h2{font-size:17px;color:#0e3158;margin:0 0 10px}
+body[data-page="results"] .rail-card p{color:#52647d;font-size:13px;line-height:1.55;margin:0 0 12px}
+body[data-page="results"] .rail-card a{display:block;color:#0e3158;font-size:13px;font-weight:700;margin-top:10px}
+body[data-page="results"] #resumeSearchSummary{margin:0!important;padding:22px!important}
+body[data-page="results"] #resumeSearchSummary strong{font-size:15px}
+body[data-page="results"] #resumeSearchSummary button{padding:8px 12px;font-size:12px}
+@media(max-width:1000px){body[data-page="results"] nav:not(.mobile-tabs){padding:8px 20px;height:auto;min-height:64px;gap:8px}body[data-page="results"] nav:not(.mobile-tabs) .logo-text{white-space:nowrap;font-size:15px}body[data-page="results"] nav:not(.mobile-tabs) .nav-links{gap:2px}body[data-page="results"] nav:not(.mobile-tabs) .nav-links a{font-size:12px;padding:5px 7px}body[data-page="results"] nav:not(.mobile-tabs) .nav-login,body[data-page="results"] nav:not(.mobile-tabs) .nav-cta{font-size:12px;padding:7px 9px}body[data-page="results"] .results-layout{grid-template-columns:minmax(0,1fr) 250px;gap:16px}body[data-page="results"] .job-card{grid-template-columns:minmax(0,1fr) 120px;gap:12px}}
+@media(max-width:760px){body[data-page="results"] .results-layout{grid-template-columns:minmax(0,1fr)}body[data-page="results"] .results-rail{position:static;grid-row:1}body[data-page="results"] .results-rail .rail-card:last-child{display:none}}
+@media(max-width:600px){body[data-page="results"] .hero{padding:18px}body[data-page="results"] .mode-toggle{flex-direction:row;max-width:none}body[data-page="results"] .search-bar{flex-direction:column}body[data-page="results"] .filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}body[data-page="results"] .job-card{grid-template-columns:minmax(0,1fr)}body[data-page="results"] .job-score-panel{grid-row:1;min-height:0;flex-direction:row;justify-content:flex-start;padding:11px 14px}body[data-page="results"] .score-ring{width:54px;height:54px;font-size:17px;flex:none}body[data-page="results"] .score-ring small{font-size:10px}body[data-page="results"] .results-title{font-size:22px}}
 body[data-page="find"] .hero{min-height:65vh}
 </style>
 <link rel="stylesheet" href="landing-experience.css?v=20261026">
@@ -474,7 +520,9 @@ body[data-page="find"] .hero{min-height:65vh}
 
 <!-- RESULTS -->
 <section class="results-section" id="resultsSection"><a class="results-back" href="find-jobs.html">← Search again</a>
-  <div id="resumeSearchSummary" hidden style="padding:20px;margin-bottom:24px;border:1px solid #D4A843;border-radius:12px;background:#FBF3E0;color:#0F172A"></div>
+  <div class="results-tabs" role="navigation" aria-label="Job search sections"><span aria-current="page">Recommended jobs</span><a href="profile.html#saved">Saved jobs</a><a href="resume-builder.html">Résumé studio</a></div>
+  <div class="results-layout">
+  <div class="results-main">
   <div class="results-header">
     <div>
       <div class="results-title" id="resultsTitle">Your Job Results</div>
@@ -486,6 +534,13 @@ body[data-page="find"] .hero{min-height:65vh}
   </div>
   <div class="jobs-grid" id="jobsGrid"></div>
   <div id="searchSubscription" style="display:flex;justify-content:center;margin-top:28px"></div>
+  </div>
+  <aside class="results-rail" aria-label="Your job search tools">
+    <div id="resumeSearchSummary" hidden style="border:1px solid #D4A843;border-radius:16px;background:#FBF3E0;color:#0F172A"></div>
+    <div class="rail-card" id="fitOnboarding"><h2>See how well a job fits</h2><p>Add a résumé or a few confirmed skills to see an explainable fit estimate on detailed listings. You can keep searching without one.</p><a href="resume-search.html">Upload a résumé →</a><a href="resume-search.html?manual=1">Enter experience instead →</a></div>
+    <div class="rail-card"><h2>Your job search</h2><p>Keep interesting opportunities together and improve your résumé as you explore.</p><a href="profile.html#saved">Saved jobs →</a><a href="resume-builder.html">Résumé studio →</a></div>
+  </aside>
+  </div>
 </section>
 
 <!-- FOOTER -->
@@ -1057,6 +1112,7 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
     const profile = matchProfile();
     const assessment = window.FJResume && FJResume.assess(job, profile, FJAccuracy.metadata);
     const fitBadge = assessment ? `<div class="match-badge fit-score" aria-label="Estimated job fit ${assessment.score} out of 100">Job fit ${assessment.score}/100</div>` : `<div class="match-badge">${profile ? 'Fit score unavailable' : 'Explore job'}</div>`;
+    const scorePanel = profile ? `<div class="job-score-panel${assessment ? '' : ' no-score'}">${assessment ? `<div class="score-ring" style="--score:${assessment.score}" aria-hidden="true">${assessment.score}<small>/100</small></div>` : '<div class="score-ring unavailable" aria-hidden="true">—</div>'}${fitBadge}</div>` : '';
     const fitTip = assessment ? `<p class="fit-tip"><strong>Improve your match:</strong> ${assessment.missing.length ? `If you have ${safe(assessment.missing[0])} experience, add a concrete example to your résumé; otherwise consider learning it.` : 'Show specific results from the skills you already have.'}</p>` : profile ? '<p class="fit-tip">This listing needs more detail for a responsible fit score. Check its original requirements.</p>' : '';
     const fitDetails = assessment ? `<details class="fit-details"><summary>Why this score? See skills and experience</summary>
       <p>Estimate from skills named in this listing and the details you confirmed. This is not an ATS score or a hiring prediction.</p>
@@ -1066,10 +1122,10 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
       <p>Check the original listing for complete requirements. <a href="${guestResumeProfile ? 'resume-search.html?edit=1' : 'profile.html#resume'}">Review your résumé details</a>.</p>
     </details>` : '';
     return `
-      <div class="job-card">
+      <div class="job-card${profile ? '' : ' unscored'}">
+        <div class="job-card-main">
         <div class="job-card-top">
           <div class="company-logo">${safe(letter)}</div>
-          ${fitBadge}
         </div>
         <div class="job-title">${safe(job.job_title)}</div>
         <div class="job-company">${safe(job.company || 'Company')}</div>
@@ -1085,6 +1141,8 @@ function showJobCards(allJobs, search, mode, scrollToResults = true) {
           </div>
         </div>
         ${FJDataSafety.adzunaAttribution?.(job) || ''}
+        </div>
+        ${scorePanel}
       </div>`;
   }).join('');
   if (scrollToResults) section.scrollIntoView({ behavior: 'instant', block: 'start' });
@@ -1757,6 +1815,8 @@ function matchProfile() {
 }
 
 function renderResumeSearchSummary() {
+  const onboarding=document.getElementById('fitOnboarding');
+  if(onboarding)onboarding.hidden=!!matchProfile()?.skills?.length;
   if(!guestResumeProfile && new URLSearchParams(location.search).get('resume')!=='1')return;
   const box=document.getElementById('resumeSearchSummary');box.hidden=false;box.replaceChildren();
   const title=document.createElement('strong');title.textContent='Experience-based matching · Fit scores on detailed listings';box.append(title);
