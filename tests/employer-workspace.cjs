@@ -75,6 +75,31 @@ test('independent reviewer can verify without asking the employer to edit DNS',a
  assert.equal(calls[1][1].p_status,'verified');
 });
 
+test('reviewer sees the requester and exact job facts before approval',async()=>{
+ const find=(n,p)=>p(n)?n:n.children.map(c=>find(c,p)).find(Boolean);
+ const post={id:'post-fixture',org:'Synthetic Company',org_domain:'synthetic.example',org_status:'verified',job_title:'Data Analyst',
+  canonical_role:'data-analyst',description:'Review dashboards and reporting. <script>not executable</script>',
+  city:'Newark',state_code:'NJ',work_mode:'hybrid',employment_type:'Full-time',posting_date:'2026-10-27',closing_date:'2026-11-27',
+  apply_url:'https://synthetic.example/apply',revision:3,status:'pending_review',changes:false};
+ const queue={orgs:[{id:'org-fixture',name:'Synthetic Company',domain:'synthetic.example',registrant_email:'hr@synthetic.example',domain_verified:false}],posts:[post],sources:[]};
+ const b=await setup({user:{email:'reviewer@other.example'},queue});
+ assert.match(b.node('queue').textContent,/hr@synthetic.example/);
+ assert.match(b.node('queue').textContent,/Review dashboards and reporting\. <script>not executable<\/script>/);
+ assert.match(b.node('queue').textContent,/Newark, NJ.*hybrid.*Full-time/);
+ const details=find(b.node('queue'),n=>n.tag==='details');
+ assert.ok(details);
+ const approve=find(details,n=>n.tag==='button'&&n.textContent==='Approve this revision');
+ assert.ok(approve);
+ assert.equal(approve.attrs.disabled,undefined);
+ await approve.events.click();await tick();
+ const calls=b.calls.filter(([fn])=>fn==='operator_review_post');
+ assert.equal(calls.length,1);
+ assert.equal(calls[0][1].p_revision,3);
+ const older=await setup({user:{email:'reviewer@other.example'},queue:{...queue,orgs:[],posts:[{...post,description:undefined}]}});
+ const blocked=find(older.node('queue'),n=>n.tag==='button'&&n.textContent==='Approve this revision');
+ assert.equal(blocked.attrs.disabled,'');
+});
+
 test('submit explains whether automatic checks published the job or queued review',async()=>{
  const find=(n,p)=>p(n)?n:n.children.map(c=>find(c,p)).find(Boolean);
  const draft={id:'post-fixture',job_title:'Data Analyst',status:'draft',city:'Newark',state_code:'NJ',employment_type:'Full-time',work_mode:'hybrid',closing_date:'2026-11-20'};

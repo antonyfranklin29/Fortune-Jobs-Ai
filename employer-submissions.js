@@ -341,6 +341,7 @@
     const items = [];
     for (const o of q.orgs) items.push(h('div', { class: 'post' },
       h('div', {}, h('strong', { text: o.name }), ' ', h('span', { class: 'meta', text: `${o.domain} · ${o.domain_verified ? 'proof recorded' : 'proof needed'}` })),
+      h('p', { class: 'meta', text: `Account requesting access: ${o.registrant_email || 'email unavailable'}. Confirm their authority through an independent company contact before verifying.` }),
       h('div', { class: 'actions' },
         h('button', { class: 'btn btn-sm btn-primary', type: 'button',
           on: { click: () => { const note = prompt('Record independent evidence that this account is authorized to represent the company (for example, a confirmed company contact or documented company record). A matching email address alone is not enough:'); if (note && note.trim()) run(async () => {
@@ -350,11 +351,19 @@
         h('button', { class: 'btn btn-sm btn-danger', type: 'button',
           on: { click: () => { const n = prompt('Reason for rejecting this organization?'); if (n) run(() => rpc('operator_set_org_status', { p_org: o.id, p_status: 'rejected', p_note: n }), 'Organization rejected.'); } } }, 'Reject'))));
     for (const p of q.posts) items.push(h('div', { class: 'post' },
-      h('div', {}, h('strong', { text: p.job_title }), ' ', h('span', { class: 'meta', text: `${p.org} · revision ${p.revision}${p.changes ? ' · edit to a live post' : ''}` }),
-        h('div', { class: 'meta' }, 'Apply link: ', h('a', { href: p.apply_url, rel: 'noopener noreferrer nofollow', target: '_blank', text: p.apply_url }))),
+      h('div', {}, h('strong', { text: p.job_title }), ' ', h('span', { class: 'meta', text: `${p.org} · revision ${p.revision}${p.changes ? ' · edit to a live post' : ''}` })),
+      h('details', {},
+        h('summary', { text: 'Review full submitted job before deciding' }),
+        h('p', { class: 'meta', text: `${p.org} · ${p.org_domain || 'domain unavailable'} · ${p.org_status || 'status unavailable'}` }),
+        h('p', { class: 'meta', text: `${p.city || 'City unavailable'}, ${p.state_code || 'state unavailable'} · ${p.work_mode || 'work mode unavailable'} · ${p.employment_type || 'type unavailable'} · ${p.canonical_role || 'role unavailable'}` }),
+        h('p', { class: 'meta', text: `Posted ${p.posting_date || 'date unavailable'} · Closes ${p.closing_date || 'date unavailable'}` }),
+        h('p', {}, 'Apply link: ', h('a', { href: p.apply_url, rel: 'noopener noreferrer nofollow', target: '_blank', text: p.apply_url })),
+        h('p', { class: 'meta', text: 'Submitted description' }),
+        h('p', { style: 'white-space:pre-wrap', text: p.description || 'Description unavailable. Do not approve until the submitted revision is visible.' }),
+        h('div', { class: 'actions' },
+          h('button', { class: 'btn btn-sm btn-primary', type: 'button', disabled: !p.description,
+            on: { click: () => run(async () => { const r = await rpc('operator_review_post', { p_post: p.id, p_revision: p.revision, p_decision: 'approve', p_note: null }); if (r && r.published === false) throw new Error(r.state); }, 'Approved and published.') } }, 'Approve this revision'))),
       h('div', { class: 'actions' },
-        h('button', { class: 'btn btn-sm btn-primary', type: 'button',
-          on: { click: () => run(async () => { const r = await rpc('operator_review_post', { p_post: p.id, p_revision: p.revision, p_decision: 'approve', p_note: null }); if (r && r.published === false) throw new Error(r.state); }, 'Approved and published.') } }, 'Approve'),
         h('button', { class: 'btn btn-sm btn-danger', type: 'button',
           on: { click: () => { const n = prompt('Reason for the employer?'); if (n) run(() => rpc('operator_review_post', { p_post: p.id, p_revision: p.revision, p_decision: 'reject', p_note: n }), 'Rejected.'); } } }, 'Reject'))));
     for (const s of q.sources) items.push(h('div', { class: 'post' },

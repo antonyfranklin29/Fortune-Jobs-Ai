@@ -26,6 +26,7 @@ const files = [
   'migrations/pending/20261025_employer_maintenance.sql',
   'migrations/pending/20261026_employer_email_domain_rule.sql',
   'migrations/pending/20261024_employer_routine_post_approval.sql',
+  'migrations/pending/20261027_employer_reviewer_queue_details.sql',
 ];
 
 const owner = '11111111-1111-1111-1111-111111111111';
@@ -63,7 +64,17 @@ test('verified company publishes only first-party, low-risk jobs automatically',
     assert.equal(JSON.parse(await scalar(`select public.employer_submit_post('${pending}')::text as value`)).review,'manual',
       'an unverified company must remain in review');
 
+    await db.exec(`select set_config('request.jwt.claim.sub','${outsider}',false)`);
+    await assert.rejects(() => db.query('select public.operator_queue()'),/operator_only/,
+      'ordinary users cannot read the reviewer queue');
     await db.exec(`select set_config('request.jwt.claim.sub','${reviewer}',false)`);
+    const queue = JSON.parse(await scalar('select public.operator_queue()::text as value'));
+    assert.equal(queue.orgs[0].registrant_email,'hr@synthetic.example');
+    assert.equal(queue.posts[0].id,pending);
+    assert.match(queue.posts[0].description,/Build useful dashboards/);
+    assert.equal(queue.posts[0].apply_url,'https://jobs.synthetic.example/one');
+    assert.equal(queue.posts[0].revision,1);
+
     await db.exec(`select public.operator_verify_domain('${org}','Independent company contact confirmed hiring authority')`);
     await db.exec(`select public.operator_set_org_status('${org}','verified','Independent company contact confirmed')`);
     await db.exec(`select set_config('request.jwt.claim.sub','${owner}',false)`);
