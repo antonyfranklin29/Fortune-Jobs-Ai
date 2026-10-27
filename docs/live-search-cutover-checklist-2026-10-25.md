@@ -95,21 +95,23 @@ Built by Claude, saved, reloaded and re-read. Nothing was run and no secret was 
 **Change from the original plan: Make's webhook API key instead of a header filter.**
 - Make webhooks have built-in *API Key authentication* (header `x-make-apikey`). A request without the key is refused before the scenario runs, so it uses no credits.
 - A filter on `x-fj-gateway-secret` would need *Get request headers* = Yes, which puts every header, including the secret, into Make's execution history in plain text.
-- The gateway on branch `claude/live-search-site-cutover` sends the secret as `x-make-apikey` as well as `x-fj-gateway-secret`, in headers only (`tests/live-search-dispatch.ts`). That change must be deployed before stage 4.
+- The gateway on branch `claude/live-search-site-cutover` sends the secret only as `x-make-apikey`, which Make's documentation says is sanitized from module data. No other header and never the body carries it (`tests/live-search-dispatch.ts` asserts exactly one header holds it). That change must be deployed before stage 4.
 
 **Rollback:** delete scenario 6798265 and its webhook. Nothing else uses them.
 
 ## Stage 4: arm the key and point the gateway at the new scenario **[approve]**
 
 0. Deploy `live-search` from main once the `x-make-apikey` change is merged. Verify with the preflight.
-1. Franklin generates one secret locally (password manager; never in chat).
-   - **Make:** scenario 6798265 → webhook module → Edit webhook → API Key authentication → **Add API key** → paste → Save the webhook and the scenario.
-   - **Supabase:** Edge Functions → Secrets: `MAKE_GATEWAY_SECRET` = the same value; `MAKE_LIVE_WEBHOOK_URL` = the new webhook's address (copy it from that module in Make). Set both together.
-2. The site still calls the old webhook directly at this stage, so no visitor traffic reaches the gateway yet.
-3. **Verify:** run the preflight again; it should be all ok.
+1. **The secret.** Franklin creates one random value locally and keeps it in his password manager, never in chat. It goes in exactly two places:
+   - **Make:** scenario 6798265 → webhook module → Edit webhook → API Key authentication → **Add API key** → paste → save the webhook and the scenario.
+   - **Supabase:** Edge Functions → Secrets → `MAKE_GATEWAY_SECRET` = the same value.
+2. **The webhook address (not the secret).** Separately, Franklin copies the new webhook's URL from that module in Make into Supabase `MAKE_LIVE_WEBHOOK_URL`. It tells the gateway where to send; the API key is what authorises the call.
+   - The gateway stays refused (`gateway_not_configured`) until both Supabase values are set, so set them in the same sitting.
+3. The site still calls the old webhook directly at this stage, so no visitor traffic reaches the gateway yet.
+4. **Verify:** run the preflight again; it should be all ok.
    - Do not send a real search yet; that is stage 5.
    - With the new scenario inactive, a real gateway search would be **queued** in Make and would run when the scenario is activated. Before activating at stage 5, check the scenario's queue is empty and clear anything unexpected.
-4. **Rollback:** unset both secrets. The gateway goes back to `gateway_not_configured`. The Make API key can stay; it only blocks callers.
+5. **Rollback:** unset `MAKE_GATEWAY_SECRET` and `MAKE_LIVE_WEBHOOK_URL`. The gateway goes back to `gateway_not_configured`. The Make API key can stay; it only blocks callers.
 
 ## Stage 5: activate and run one real search (paid, capped) **[approve: action-time]**
 
@@ -156,7 +158,7 @@ Built by Claude, saved, reloaded and re-read. Nothing was run and no secret was 
 | 1 | Deploy the merged dry-run guard and CORS update — done 2026-10-27 | free |
 | 2 | Set `GATEWAY_TEST_KEY` and run one dry run | free (one slot) |
 | 3 | Create the inactive gateway-only scenario and its webhook — done 2026-10-27 (scenario 6798265, inactive) | free |
-| 4 | Deploy the `x-make-apikey` gateway change; Franklin adds the Make API key and sets `MAKE_GATEWAY_SECRET` and `MAKE_LIVE_WEBHOOK_URL` | free |
+| 4 | Deploy the `x-make-apikey` gateway change; Franklin puts one random secret in the Make API key and `MAKE_GATEWAY_SECRET`, and copies the new webhook URL into `MAKE_LIVE_WEBHOOK_URL` | free |
 | 5 | Activate the new scenario and run one real search | ~10 Make credits, ≤ $0.10 Apify |
 | 6 | Merge the one-line flip in `results.html` (prepared) | free |
 | 7 | Retire the old route and rotate the webhook | free |

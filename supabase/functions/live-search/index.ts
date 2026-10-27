@@ -333,9 +333,9 @@ Deno.serve(async (req: Request) => {
     const upstream = await fetch(MAKE_URL, {
       method: "POST",
       // x-make-apikey is checked by the Make webhook itself (API key authentication), so a
-      // request without it is refused before the scenario runs and costs nothing. The same
-      // value is also sent as x-fj-gateway-secret for any scenario filter that checks it.
-      headers: { "content-type": "application/json", "x-make-apikey": MAKE_SECRET, "x-fj-gateway-secret": MAKE_SECRET },
+      // request without it is refused before the scenario runs. Make strips this header from
+      // module data. No other header carries the secret.
+      headers: { "content-type": "application/json", "x-make-apikey": MAKE_SECRET },
       // The secret travels in the header only. Make keeps request bodies in its
       // execution history, so a body copy would be stored there in plain text.
       body: JSON.stringify({
