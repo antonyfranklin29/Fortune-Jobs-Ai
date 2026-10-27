@@ -9,13 +9,13 @@ Owners: Claude (Make) and Codex (gateway and page edits), with Franklin approvin
   - The normal route writes the success marker last.
   - Details are in `docs/make-live-search-signals-2026-10-24.md`.
 - **Success-signal storage is proven; the full path is not (corrected 2026-10-27).** The two markers at 11:27 UTC on Oct 25 were written by the empty-body runs: objects with `signal: "success"`, which proves the normalizer, but `search_id` was null, so no admission or status was involved. No Live Search with a `search_id` has run since the signal work (0 rows with an id since 2026-10-24 18:00 UTC; last admission 2026-10-14). The id → marker → `live_search_status` path is proven only by the local contract test. The next organic Live Search proves it at no extra cost (query below); a dedicated paid test is not needed unless cutover is due first.
-- **Gateway `live-search` v15 is deployed (checked 2026-10-27).** Its source predates the dry-run guard. `MAKE_LIVE_WEBHOOK_URL`, `MAKE_GATEWAY_SECRET` and `GATEWAY_TEST_KEY` are all unset, so every valid POST is refused with `gateway_not_configured` before admission.
+- **Gateway `live-search` was updated on 2026-10-27 at 1:24 PM ET.** The dry-run guard and browser CORS header are live. The free production preflight passed every check immediately after deployment. No secrets were changed in this deployment. The Make URL and shared secret were unset at the last configuration check; confirm that state before any cutover work.
 - **Only `results.html` has the switch** (`LIVE_SEARCH_VIA_GATEWAY = false`). `index.html` (around line 1111) and `find-jobs.html` (around line 1072) POST Live Search straight to the old webhook and have no gateway path. **Cutover blocker:** the old webhook cannot be retired until those two pages use the gateway or hand Live Search to `results.html`. That work is Codex's.
 - **Empty-body executions spend money.** Make history shows Live Search runs with an empty webhook body: Oct 16, Oct 19 4:50 PM, Oct 20 7:10 PM, Oct 24 2:50 PM, and two at Oct 25 7:27 AM ET.
   - Each ran the full paid route (about 9.85 credits, 9 operations) and wrote a marker with a null `search_id`.
   - The proposed fix is a filter on the Live Search route requiring `search_id` and `text` to be non-empty (stage 0).
 
-## Safeguards merged into main (zero-cost, not deployed)
+## Safeguards merged into main and deployed (zero-cost)
 
 - **Gateway dry-run guard** in `supabase/functions/live-search/index.ts`. A request carrying `x-fj-dry-run: 1` without the correct `x-fj-test-key` is refused with `403 dry_run_unauthorized`.
   - The check runs before the body is read or anything is admitted.
@@ -58,10 +58,10 @@ Expected: `kind = object`, `signal = success` (or `failure` with a stage). Direc
    ```
 5. **Rollback:** remove the added conditions, restoring the recorded filter.
 
-## Stage 1: deploy the dry-run guard (Supabase, free) **[approve]**
+## Stage 1: deploy the dry-run guard (Supabase, free). DONE 2026-10-27
 
-1. The branch has been reviewed and merged. Deploy the current `live-search` source (it becomes the next version after v15). No secret changes are needed.
-2. **Verify:** the preflight reports `dry_run_guard_deployed: ok`, and the other checks are all ok.
+1. The branch was reviewed and merged; the current `live-search` source was deployed. No secret changes were made.
+2. **Verified:** `node scripts/live-search-preflight.mjs` reported `status: ok`, including `dry_run_guard_deployed` and `cors_dry_run_headers`. Supabase showed a fresh deployment at 1:24 PM ET with no invocation errors.
 3. **Rollback:** redeploy v15. This is harmless, because v15 behaves the same for all real traffic.
 
 ## Stage 2: test key and dry run (Supabase, free) **[approve]**
@@ -143,7 +143,7 @@ Expected: `kind = object`, `signal = success` (or `failure` with a stage). Direc
 | # | Action | Cost |
 |---|---|---|
 | 0 | Empty-body guard filter on the current Live Search route | free |
-| 1 | Deploy the merged dry-run guard and CORS update (next version after v15) | free |
+| 1 | Deploy the merged dry-run guard and CORS update — done 2026-10-27 | free |
 | 2 | Set `GATEWAY_TEST_KEY` and run one dry run | free (one slot) |
 | 3 | Create the inactive gateway-only scenario and its webhook | free |
 | 4 | Set `MAKE_GATEWAY_SECRET` and `MAKE_LIVE_WEBHOOK_URL` | free |
