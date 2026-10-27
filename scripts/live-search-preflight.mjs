@@ -41,6 +41,8 @@ export async function runPreflight({fetchImpl = fetch, url = GATEWAY_URL, testKe
   const allowHeaders = (opt.headers.get('access-control-allow-headers') || '').toLowerCase();
   check('cors_no_secret_header', !allowHeaders.includes('x-fj-gateway-secret'),
     'browsers must not be invited to send the Make secret');
+  check('cors_dry_run_headers', allowHeaders.includes('x-fj-test-key') && allowHeaders.includes('x-fj-dry-run'),
+    'browser dry runs must be able to declare intent and supply the test key');
 
   // 2. Status endpoint: unknown id returns only state and results.
   const probeId = `s_preflight_${Date.now().toString(36)}`;

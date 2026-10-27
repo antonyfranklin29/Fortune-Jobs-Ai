@@ -56,6 +56,19 @@ const search = () =>
     body: JSON.stringify({ text: "data analyst", location: "New Jersey", location_scope: "region" }),
   });
 
+Deno.test("browser preflight allows an explicit dry run but never the Make secret", async () => {
+  const res = await serve(new Request("https://fake.live-search.test/", {
+    method: "OPTIONS",
+    headers: { origin: "https://fortunejobsai.com", "access-control-request-method": "POST",
+      "access-control-request-headers": "content-type, x-fj-test-key, x-fj-dry-run" },
+  }));
+  assertEquals(res.status, 204);
+  const allowed = res.headers.get("access-control-allow-headers") ?? "";
+  assert(allowed.includes("x-fj-test-key"));
+  assert(allowed.includes("x-fj-dry-run"));
+  assert(!allowed.includes("x-fj-gateway-secret"));
+});
+
 Deno.test("the secret reaches Make in the header and never in the body", async () => {
   dbCalls = []; makeRequests = []; makeStatus = 202;
   const res = await serve(search());

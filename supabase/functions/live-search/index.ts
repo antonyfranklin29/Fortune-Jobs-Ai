@@ -40,7 +40,7 @@ function corsHeaders(origin: string | null) {
   const allow = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "access-control-allow-origin": allow,
-    "access-control-allow-headers": "content-type, x-fj-test-key",
+    "access-control-allow-headers": "content-type, x-fj-test-key, x-fj-dry-run",
     "access-control-allow-methods": "GET, POST, OPTIONS",
     "access-control-expose-headers": "retry-after",
     "vary": "origin",

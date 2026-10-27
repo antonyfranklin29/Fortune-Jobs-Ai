@@ -8,13 +8,13 @@ import {runPreflight, SITE_ORIGIN} from '../scripts/live-search-preflight.mjs';
 const URL_ = 'https://gateway.fixture.test/functions/v1/live-search';
 const KEY = 'fixture-test-key';
 
-function gateway({breakCors = false, leakFields = false, acceptMissingText = false, exposeSecretHeader = false, noGuard = false} = {}) {
+function gateway({breakCors = false, leakFields = false, acceptMissingText = false, exposeSecretHeader = false, omitDryRunHeader = false, noGuard = false} = {}) {
   const dispatchable = [];
   const fetchImpl = async (url, init = {}) => {
     const method = init.method || 'GET';
     const headers = new Headers(init.headers || {});
     const cors = {'access-control-allow-origin': breakCors ? 'https://evil.test' : SITE_ORIGIN,
-      'access-control-allow-headers': exposeSecretHeader ? 'content-type, x-fj-test-key, x-fj-gateway-secret' : 'content-type, x-fj-test-key'};
+      'access-control-allow-headers': exposeSecretHeader ? 'content-type, x-fj-test-key, x-fj-dry-run, x-fj-gateway-secret' : omitDryRunHeader ? 'content-type, x-fj-test-key' : 'content-type, x-fj-test-key, x-fj-dry-run'};
     const reply = (status, body) => new Response(body === null ? null : JSON.stringify(body), {status, headers: cors});
     if (method === 'OPTIONS') return reply(204, null);
     if (method === 'GET') return reply(200, leakFields ? {state: 'unknown', results: 0, query: 'x'} : {state: 'unknown', results: 0});
@@ -64,6 +64,7 @@ test('regressions are flagged', async () => {
     [{leakFields: true}, 'status_minimal_fields'],
     [{acceptMissingText: true}, 'rejects_missing_text'],
     [{exposeSecretHeader: true}, 'cors_no_secret_header'],
+    [{omitDryRunHeader: true}, 'cors_dry_run_headers'],
   ]) {
     const r = await runPreflight({fetchImpl: gateway(opts).fetchImpl, url: URL_});
     assert.equal(r.status, 'attention_required', name);
