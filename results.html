@@ -568,7 +568,7 @@ const WEBHOOK_URL_QUICK = 'https://hook.us2.make.com/nx71muhgk5j6mvou21zrcvm9dhj
 // Cutover switch, left OFF. When true, Live Search goes through the secured gateway,
 // which mints the search id and keeps the Make secret on the server. Turn it on only
 // after Make enforces the secret header and this page is deployed with it.
-const LIVE_SEARCH_VIA_GATEWAY = false;
+const LIVE_SEARCH_VIA_GATEWAY = true;   // cutover stage 6: merge only with Franklin's approval
 const LIVE_SEARCH_GATEWAY_URL = 'https://hqgakkcxcyspqhnlnscv.supabase.co/functions/v1/live-search';
 
 const SUPABASE_URL = 'https://hqgakkcxcyspqhnlnscv.supabase.co';
