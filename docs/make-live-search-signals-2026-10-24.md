@@ -95,6 +95,8 @@ The gateway sends `x-fj-gateway-secret` as a header only (function deployed). Ma
 
 **Not yet verified:** a real marker arriving in Supabase as an object. That needs one Live Search, which calls Apify. Until then the evidence is the production rehearsal of the same trigger.
 
+*Update 2026-10-27:* the Oct 25 11:27 UTC empty-body runs stored their markers as objects with `signal: "success"`, so the normalizer works on real Make output. Those markers had a null `search_id`, so a marker that carries a real id has still not been seen in production; see the cutover checklist, stage 0.
+
 ## Failure routes on every step, added 2026-10-25
 
 Saved in scenario 4555354, still Active. The editor was reloaded and each mapping re-read. Each Live Search step that can fail now has an error route: Supabase **Create a Row** into `job_matches`, then **Skip**. Skip discards the failed bundle, so nothing downstream runs for that search, including the normal success marker. Every failure row is identical apart from `stage`:
@@ -122,3 +124,17 @@ Saved in scenario 4555354, still Active. The editor was reloaded and each mappin
 6. Keep the old direct route working while cached pages may still post to it, then verify. Watch for direct-webhook executions falling to zero, gateway admissions settling, and status and Make errors. Only then retire the old route and change its webhook address. Agreed with Codex: use the separate gateway-only webhook.
 
 **Rollback:** flip the site switch back to `false` first, then remove or relax the filter.
+
+## Live Search guard filter, added 2026-10-25 (21:40 ET, approved by Franklin)
+
+**Finding:** the link from the router into Claude keyword step 2 had **no filter**. The "Live Search" filter (`1.mode = live`) sits on a different router link, one that ends at an empty placeholder. So any request to the webhook, including an empty body, ran the full paid route. Six empty-body executions since Oct 16 did exactly that, about 9.85 credits each, writing markers with a null `search_id`.
+
+**Saved** on the router → Claude 2 link, label **"Live Search guard"**. The scenario was saved and is still Active. The editor was reloaded in a fresh tab and every rule re-read:
+- `1.mode` *Text: Equal to* `live`
+- AND `1.search_id` *Text: Matches pattern* `\S`
+- AND `1.text` *Text: Matches pattern* `\S`
+
+All three pages and the gateway always send `mode: 'live'`, a `search_id` and the query `text` to this webhook. Quick Match never calls it. So real searches pass, and empty or partial bodies stop before any paid step. Nothing was run. The placeholder route and the Quick Match route were not touched.
+
+**Verify** on the next real Live Search: its marker arrives with its `search_id` (query in the cutover checklist, stage 0), and history shows no further empty-body run reaching Claude.
+**Rollback:** delete the filter on that link.
