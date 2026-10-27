@@ -77,6 +77,7 @@ Deno.test("the secret reaches Make in the header and never in the body", async (
   assert(String(body.search_id).startsWith("s_"), "the gateway mints the search id");
   assertEquals(makeRequests.length, 1, "exactly one dispatch");
   assertEquals(makeRequests[0].headers.get("x-fj-gateway-secret"), SECRET);
+  assertEquals(makeRequests[0].headers.get("x-make-apikey"), SECRET, "Make's webhook API key authentication receives the secret");
   assert(!makeRequests[0].body.includes(SECRET), "the secret must not appear in the request body");
   const sent = JSON.parse(makeRequests[0].body);
   assertEquals(sent.search_id, body.search_id, "Make receives the id the page will poll with");

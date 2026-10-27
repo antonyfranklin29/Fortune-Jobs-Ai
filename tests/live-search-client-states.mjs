@@ -52,13 +52,16 @@ const MARKER = (signal) => RESULT_ROW({
 let failures = 0;
 // The page is settled once it shows any outcome, or result cards.
 const OUTCOME = /did not finish|could not confirm|No live results|Search unavailable/i;
-async function scenario(name, { hashRoute, rows, gateway, statusState = 'pending', expect }) {
+async function scenario(name, { hashRoute, rows, gateway, statusState = 'pending', expect, query = 'data analyst', startPage = null }) {
   const browser = globalThis.__browser;
   const page = await browser.newPage();
-  const seen = { jobMatchesUrls: [], gatewayBodies: [], statusUrls: [], makeCalls: 0 };
+  const seen = { jobMatchesUrls: [], gatewayBodies: [], statusUrls: [], makeCalls: 0, handedOff: false };
   await page.route('**/results.html**', (route) => {
     let html = readFileSync(join(root, 'results.html'), 'utf8');
-    if (hashRoute === 'gateway') html = html.replace('const LIVE_SEARCH_VIA_GATEWAY = false;', 'const LIVE_SEARCH_VIA_GATEWAY = true;');
+    const want = hashRoute === 'gateway' ? 'true' : 'false';
+    const switched = html.replace(/const LIVE_SEARCH_VIA_GATEWAY = (true|false);/, `const LIVE_SEARCH_VIA_GATEWAY = ${want};`);
+    if (switched === html && !html.includes(`const LIVE_SEARCH_VIA_GATEWAY = ${want};`)) throw new Error('LIVE_SEARCH_VIA_GATEWAY switch not found in results.html');
+    html = switched;
     route.fulfill({ status: 200, contentType: 'text/html', body: html });
   });
   await page.route(MAKE, (route) => { seen.makeCalls++; route.fulfill({ status: 200, headers: CORS, body: 'Accepted' }); });
@@ -90,7 +93,15 @@ async function scenario(name, { hashRoute, rows, gateway, statusState = 'pending
   });
 
   // The results page runs the search from its own URL, exactly as production does.
-  await page.goto(`${base}/results.html?q=data+analyst&mode=live&v=20261010-accuracy`, { waitUntil: 'domcontentloaded' });
+  if (startPage) {
+    // Home and Find Jobs pages: a Live Search must be handed to results.html, never sent to Make.
+    await page.goto(`${base}/${startPage}`, { waitUntil: 'domcontentloaded' });
+    await page.evaluate((q) => { setMode('live'); document.getElementById('jobSearchInput').value = q; handleSearch(); }, query);
+    await page.waitForURL('**/results.html?**', { timeout: 15000 });
+    seen.handedOff = /[?&]mode=live(&|$)/.test(page.url()) && new URL(page.url()).searchParams.get('q') === query;
+  } else {
+    await page.goto(`${base}/results.html?${new URLSearchParams({ q: query, mode: 'live', v: '20261010-accuracy' })}`, { waitUntil: 'domcontentloaded' });
+  }
   const titleOf = () => page.evaluate(() => document.getElementById('resultsTitle').textContent);
   const countOf = () => page.evaluate(() => document.getElementById('resultsCount').textContent);
   const cardsOf = () => page.evaluate(() => document.querySelectorAll('.job-card').length);
@@ -194,6 +205,42 @@ try {
       }),
     },
   });
+  await scenario('gateway path refuses an over-long query with a clear message, before any request', {
+    hashRoute: 'gateway',
+    query: 'senior data analyst '.repeat(7).trim(),
+    expect: {
+      settled: (t, c, cards) => cards > 0 || OUTCOME.test(t),
+      check: ({ count, seen }) => ({
+        ok: /up to 120 characters/.test(count) && seen.gatewayBodies.length === 0 && seen.makeCalls === 0,
+        why: 'a query over the gateway limit must be refused in the page, with no gateway or Make request',
+      }),
+    },
+  });
+  await scenario('gateway path explains a validation refusal instead of a bare failure', {
+    hashRoute: 'gateway',
+    gateway: { status: 400, body: { status: 'rejected', reason: 'invalid_request', detail: 'company is too long' } },
+    expect: {
+      settled: (t, c, cards) => cards > 0 || OUTCOME.test(t),
+      check: ({ count, seen }) => ({
+        ok: /could not use this search/.test(count) && seen.makeCalls === 0,
+        why: 'a 400 from the gateway must read as a fixable search, with Quick Match offered',
+      }),
+    },
+  });
+  for (const startPage of ['index.html', 'find-jobs.html']) {
+    await scenario(`${startPage} hands Live Search to results.html; with the switch on only the gateway is called`, {
+      hashRoute: 'gateway',
+      startPage,
+      rows: (id) => (id === 's_test_1' ? [RESULT_ROW(), MARKER('success')] : []),
+      expect: {
+        settled: (t, c, cards) => cards > 0 || OUTCOME.test(t),
+        check: ({ seen, cards }) => ({
+          ok: seen.handedOff && cards >= 1 && seen.gatewayBodies.length === 1 && seen.makeCalls === 0,
+          why: 'the start page must not post to Make; results.html must use the gateway exactly once',
+        }),
+      },
+    });
+  }
   await scenario('direct route never calls the gateway status endpoint', {
     hashRoute: 'direct',
     rows: () => [MARKER('success')],

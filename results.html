@@ -945,7 +945,18 @@ function showLiveSearchOutcome(search, outcome) {
 
 // Cutover path only (LIVE_SEARCH_VIA_GATEWAY). The gateway mints the search id and
 // answers 202 when the search is admitted. Every refusal keeps Quick Match available.
+// Mirrors live_search_limits.max_query_chars and the gateway's 120-character filter limit,
+// so an over-long search gets a clear message instead of a bare refusal.
+const LIVE_SEARCH_MAX_QUERY_CHARS = 120;
+const LIVE_SEARCH_MAX_FILTER_CHARS = 120;
+
 async function submitLiveSearchViaGateway(text, filters) {
+  if (text.length > LIVE_SEARCH_MAX_QUERY_CHARS) {
+    return { ok: false, message: `Live Search accepts up to ${LIVE_SEARCH_MAX_QUERY_CHARS} characters. Shorten your search, or use Quick Match.` };
+  }
+  if (Object.values(filters).some(v => typeof v === 'string' && v.length > LIVE_SEARCH_MAX_FILTER_CHARS)) {
+    return { ok: false, message: 'A location or company filter is too long for Live Search. Shorten it, or use Quick Match.' };
+  }
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), SEARCH_REQUEST_TIMEOUT_MS);
   try {
@@ -959,6 +970,9 @@ async function submitLiveSearchViaGateway(text, filters) {
     if (res.status === 202 && body.search_id) return { ok: true, searchId: String(body.search_id) };
     if (res.status === 429 || res.status === 503 || res.status === 502) {
       return { ok: false, message: body.message || 'Live Search is busy right now. Quick Match is still available.' };
+    }
+    if (res.status === 400 || res.status === 413) {
+      return { ok: false, message: 'Live Search could not use this search. Shorten it or remove unusual characters, or use Quick Match.' };
     }
     return { ok: false, message: 'Live Search could not start. Quick Match is still available.' };
   } catch (error) {
