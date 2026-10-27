@@ -8,7 +8,7 @@ Owner: Claude (Make and gateway), with Codex owning page edits and Franklin appr
   - Each Live Search step that can fail writes one failure marker and then Skips: `claude`, `apify`, `apify_dataset`, `claude_match`, `parse`.
   - The normal route writes the success marker last.
   - Details are in `docs/make-live-search-signals-2026-10-24.md`.
-- **Success marker proven in production without a paid test.** The real markers at 11:27 UTC on Oct 25 were stored as objects with `signal: "success"`, which shows the normalizer working.
+- **Success-signal storage is proven; the full path is not (corrected 2026-10-27).** The two markers at 11:27 UTC on Oct 25 were written by the empty-body runs: objects with `signal: "success"`, which proves the normalizer, but `search_id` was null, so no admission or status was involved. No Live Search with a `search_id` has run since the signal work (0 rows with an id since 2026-10-24 18:00 UTC; last admission 2026-10-14). The id → marker → `live_search_status` path is proven only by the local contract test. The next organic Live Search proves it at no extra cost (query below); a dedicated paid test is not needed unless cutover is due first.
 - **Gateway `live-search` v12 is deployed.** `MAKE_LIVE_WEBHOOK_URL`, `MAKE_GATEWAY_SECRET` and `GATEWAY_TEST_KEY` are all unset, so every valid POST is refused with `gateway_not_configured` before admission.
 - **Only `results.html` has the switch** (`LIVE_SEARCH_VIA_GATEWAY = false`). `index.html` (around line 1111) and `find-jobs.html` (around line 1072) POST Live Search straight to the old webhook and have no gateway path. **Cutover blocker:** the old webhook cannot be retired until those two pages use the gateway or hand Live Search to `results.html`. That work is Codex's.
 - **Empty-body executions spend money.** Make history shows Live Search runs with an empty webhook body: Oct 16, Oct 19 4:50 PM, Oct 20 7:10 PM, Oct 24 2:50 PM, and two at Oct 25 7:27 AM ET.
@@ -29,6 +29,21 @@ Owner: Claude (Make and gateway), with Codex owning page edits and Franklin appr
   - Run it from a machine that can reach supabase.co (the cloud workspace cannot): `node scripts/live-search-preflight.mjs`. The output is JSON and never contains the key.
 
 ## Stage 0: stop empty-body runs (Make, free). DONE 2026-10-25, see the runbook
+
+Verified 2026-10-27: the only execution since the guard was saved (Oct 26, 11:26:14 PM ET) carried a 5-byte body. It used 1 operation and 1 credit, and Make logged Claude 2 and Supabase Search Rows 20 as "The bundle did not pass through the filter". Each earlier empty-body run cost about 9.85 credits plus the Apify actor.
+
+**What the guard does not stop:** a deliberate, well-formed request to the public webhook (`mode=live` plus any `search_id` and `text`) still runs the paid route. Only the gateway cutover (stages 3 to 7) closes that.
+
+**Proving the first organic search** (free, read-only), after the next real Live Search:
+```sql
+select m.search_id, m.created_at, jsonb_typeof(m.source_metadata) kind, m.source_metadata->>'signal' signal,
+       (select count(*) from public.job_matches j where j.search_id = m.search_id and j.job_title <> 'No matching jobs found') job_rows
+from public.job_matches m
+where m.job_title = 'No matching jobs found' and m.match_reason = 'Search complete'
+  and m.search_id is not null and m.created_at > '2026-10-25'
+order by m.created_at desc limit 5;
+```
+Expected: `kind = object`, `signal = success` (or `failure` with a stage). Direct-route searches have no admission row, so `live_search_status` only reports `complete` (job rows exist) or `unknown`; the page reads the marker's signal itself. The admission settle (`empty`/`failed`) is exercised only on the gateway path, proven locally by `tests/live-search-signals-db.mjs` and in production first at stage 5.
 
 1. In scenario 4555354, open the filter between the router and Claude 2 (Live Search route). Record its current condition exactly; it is expected to be `1.mode = live`.
 2. Add AND conditions: `1.search_id` *exists*, `1.search_id` *not equal* empty, `1.text` *exists*, `1.text` *not equal* empty.

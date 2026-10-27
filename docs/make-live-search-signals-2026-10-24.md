@@ -95,6 +95,8 @@ The gateway sends `x-fj-gateway-secret` as a header only (function deployed). Ma
 
 **Not yet verified:** a real marker arriving in Supabase as an object. That needs one Live Search, which calls Apify. Until then the evidence is the production rehearsal of the same trigger.
 
+*Update 2026-10-27:* the Oct 25 11:27 UTC empty-body runs stored their markers as objects with `signal: "success"`, so the normalizer works on real Make output. Those markers had a null `search_id`, so a marker that carries a real id has still not been seen in production; see the cutover checklist, stage 0.
+
 ## Failure routes on every step, added 2026-10-25
 
 Saved in scenario 4555354, still Active. The editor was reloaded and each mapping re-read. Each Live Search step that can fail now has an error route: Supabase **Create a Row** into `job_matches`, then **Skip**. Skip discards the failed bundle, so nothing downstream runs for that search, including the normal success marker. Every failure row is identical apart from `stage`:
