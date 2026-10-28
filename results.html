@@ -304,37 +304,150 @@ body[data-page="results"] .results-tabs{display:flex;align-items:center;gap:24px
 body[data-page="results"] .results-tabs span,body[data-page="results"] .results-tabs a{font-size:14px;font-weight:700;color:#53647e;text-decoration:none;padding:5px 0}
 body[data-page="results"] .results-tabs [aria-current="page"]{color:#0e3158;border-bottom:3px solid #d4a843}
 body[data-page="results"] .results-tabs a:hover{color:#0e3158}
-body[data-page="results"] .results-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;max-width:1280px;margin:0 auto;align-items:start}
+/* ── Results page design pass (2026-10-28). Scoped to the results page only. ── */
+body[data-page="results"]{--r-ink:#0e3158;--r-text:#16243a;--r-muted:#56667e;--r-line:#dce4ee;--r-soft:#eef3f8;--r-page:#f5f7fa;--r-gold:#c8971f;--r-gold-soft:#fbf3e0;--r-have:#1f6f55;--r-have-bg:#e7f3ee;--r-review:#7a5410;--r-review-bg:#fbf1dc}
+body[data-page="results"] .results-section{background:var(--r-page)}
+body[data-page="results"] .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+body[data-page="results"] .results-layout{display:block;max-width:1280px;margin:0 auto}
 body[data-page="results"] .results-main{min-width:0}
-body[data-page="results"] .results-header{background:#fff;border:1px solid #dce5ef;border-radius:16px;padding:22px;margin-bottom:16px}
-body[data-page="results"] .results-title{font-size:27px}
-body[data-page="results"] .jobs-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:15px}
-body[data-page="results"] .job-card{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:22px;padding:20px;border-color:#dce5ef;box-shadow:0 3px 12px rgba(15,39,72,.04)}
-body[data-page="results"] .job-card.unscored{grid-template-columns:minmax(0,1fr)}
-body[data-page="results"] .job-card:hover{transform:none;border-color:#b6c9de;box-shadow:0 7px 25px rgba(15,39,72,.08)}
-body[data-page="results"] .job-card-main{min-width:0;display:flex;flex-direction:column}
-body[data-page="results"] .job-card-top{margin-bottom:12px}
-body[data-page="results"] .job-title{font-size:19px}
-body[data-page="results"] .job-footer{gap:14px;flex-wrap:wrap}
-body[data-page="results"] .job-score-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#0e3158;border-radius:15px;color:#fff;text-align:center;padding:18px 12px;min-height:170px}
-body[data-page="results"] .job-score-panel.no-score{background:#eef3f8;color:#31506d}
-body[data-page="results"] .score-ring{width:86px;height:86px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(closest-side,#0e3158 79%,transparent 81%),conic-gradient(#d4a843 calc(var(--score) * 1%),#42617e 0);font-size:25px;font-weight:800}
-body[data-page="results"] .score-ring small{font-size:12px;font-weight:600;margin-left:2px}
-body[data-page="results"] .score-ring.unavailable{background:#25486b;color:#d9e5f1}
-body[data-page="results"] .job-score-panel .match-badge{background:transparent;color:#fff;border:0;font-size:12px;line-height:1.4;padding:0}
-body[data-page="results"] .job-score-panel a{color:#f7d784;font-size:11px;line-height:1.4}
-body[data-page="results"] .job-score-panel.no-score .match-badge,body[data-page="results"] .job-score-panel.no-score a{color:#31506d}
-body[data-page="results"] .results-rail{position:sticky;top:84px;display:grid;gap:16px}
-body[data-page="results"] .rail-card{padding:22px;background:#fff;border:1px solid #dce5ef;border-radius:16px;box-shadow:0 3px 12px rgba(15,39,72,.04)}
-body[data-page="results"] .rail-card h2{font-size:17px;color:#0e3158;margin:0 0 10px}
-body[data-page="results"] .rail-card p{color:#52647d;font-size:13px;line-height:1.55;margin:0 0 12px}
-body[data-page="results"] .rail-card a{display:block;color:#0e3158;font-size:13px;font-weight:700;margin-top:10px}
-body[data-page="results"] #resumeSearchSummary{margin:0!important;padding:22px!important}
-body[data-page="results"] #resumeSearchSummary strong{font-size:15px}
-body[data-page="results"] #resumeSearchSummary button{padding:8px 12px;font-size:12px}
-@media(max-width:1000px){body[data-page="results"] nav:not(.mobile-tabs){padding:8px 20px;height:auto;min-height:64px;gap:8px}body[data-page="results"] nav:not(.mobile-tabs) .logo-text{white-space:nowrap;font-size:15px}body[data-page="results"] nav:not(.mobile-tabs) .nav-links{gap:2px}body[data-page="results"] nav:not(.mobile-tabs) .nav-links a{font-size:12px;padding:5px 7px}body[data-page="results"] nav:not(.mobile-tabs) .nav-login,body[data-page="results"] nav:not(.mobile-tabs) .nav-cta{font-size:12px;padding:7px 9px}body[data-page="results"] .results-layout{grid-template-columns:minmax(0,1fr) 250px;gap:16px}body[data-page="results"] .job-card{grid-template-columns:minmax(0,1fr) 120px;gap:12px}}
-@media(max-width:760px){body[data-page="results"] .results-layout{grid-template-columns:minmax(0,1fr)}body[data-page="results"] .results-rail{position:static;grid-row:1}body[data-page="results"] .results-rail .rail-card:last-child{display:none}}
-@media(max-width:600px){body[data-page="results"] .hero{padding:18px}body[data-page="results"] .mode-toggle{flex-direction:row;max-width:none}body[data-page="results"] .search-bar{flex-direction:column}body[data-page="results"] .filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}body[data-page="results"] .job-card{grid-template-columns:minmax(0,1fr)}body[data-page="results"] .job-score-panel{grid-row:1;min-height:0;flex-direction:row;justify-content:flex-start;padding:11px 14px}body[data-page="results"] .score-ring{width:54px;height:54px;font-size:17px;flex:none}body[data-page="results"] .score-ring small{font-size:10px}body[data-page="results"] .results-title{font-size:22px}}
+body[data-page="results"] .results-header{display:block;background:none;border:0;border-radius:0;padding:4px 0 0;margin:0 0 14px}
+body[data-page="results"] .results-title{margin:0;font-size:30px;line-height:1.15;font-weight:700;letter-spacing:-.025em;color:var(--r-text)}
+body[data-page="results"] .results-meta{margin-top:8px;gap:8px 10px}
+body[data-page="results"] .results-mode-badge{order:-1}
+body[data-page="results"] .results-count{font-size:14px;line-height:1.5;color:var(--r-muted)}
+body[data-page="results"] .results-mode-badge{font-size:12px;letter-spacing:0;padding:3px 10px}
+/* Fit strip: the résumé in use, or an invitation to add one */
+body[data-page="results"] .fit-strip{display:grid;gap:10px;margin:0 0 18px}
+body[data-page="results"] .fit-strip:not(:has(> :not([hidden]))){display:none}
+body[data-page="results"] #resumeSearchSummary{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;margin:0;padding:12px 16px;background:var(--r-gold-soft);border:1px solid #ecd9a8;border-radius:12px;color:var(--r-text);font-size:14px}
+body[data-page="results"] #resumeSearchSummary[hidden]{display:none}
+body[data-page="results"] #resumeSearchSummary strong{font-size:14px}
+body[data-page="results"] #resumeSearchSummary p{margin:0!important;flex:1 1 280px;color:#3b4b62}
+body[data-page="results"] #resumeSearchSummary a{color:var(--r-ink);font-weight:600;font-size:14px;margin-right:0!important}
+body[data-page="results"] #resumeSearchSummary button{background:none;border:1px solid #d6c28d;color:var(--r-review);padding:6px 10px;font-size:13px;font-weight:600;border-radius:8px}
+body[data-page="results"] .fit-invite{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding:12px 16px;background:#fff;border:1px solid var(--r-line);border-radius:12px;font-size:14px;line-height:1.5;color:#3b4b62}
+body[data-page="results"] .fit-invite[hidden]{display:none}
+body[data-page="results"] .fit-invite p{margin:0;flex:1 1 380px}
+body[data-page="results"] .fit-invite strong{color:var(--r-text)}
+body[data-page="results"] .fit-invite-links,body[data-page="results"] .detail-links{display:flex;flex-wrap:wrap;gap:6px 18px}
+body[data-page="results"] .fit-invite a,body[data-page="results"] .detail-links a{color:var(--r-ink);font-weight:600;text-underline-offset:3px}
+/* List and selected-job detail */
+body[data-page="results"] .results-split{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}
+body[data-page="results"] .results-split:has(.job-card){grid-template-columns:minmax(330px,430px) minmax(0,1fr)}
+body[data-page="results"] .jobs-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:0;background:#fff;border:1px solid var(--r-line);border-radius:14px;overflow:hidden}
+body[data-page="results"] .jobs-grid:not(:has(.job-card)){background:none;border:0}
+body[data-page="results"] .job-card{position:relative;display:block;padding:0;border:0;border-bottom:1px solid var(--r-line);border-radius:0;box-shadow:none;background:#fff;transition:background-color .12s}
+body[data-page="results"] .job-card:last-child{border-bottom:0}
+body[data-page="results"] .job-card:hover{transform:none;box-shadow:none;background:#fafbfd}
+body[data-page="results"] .job-card.selected{background:#f4f7fb}
+body[data-page="results"] .job-card.selected::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--r-gold)}
+body[data-page="results"] .job-summary{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:4px 14px;align-items:start;width:100%;padding:16px 18px 8px;background:none;border:0;text-align:left;font:inherit;color:inherit;cursor:pointer}
+body[data-page="results"] .job-summary:focus-visible,body[data-page="results"] .job-detail a:focus-visible,body[data-page="results"] .job-detail button:focus-visible,body[data-page="results"] .job-footer a:focus-visible,body[data-page="results"] .job-footer button:focus-visible{outline:3px solid #6b9bd1;outline-offset:2px;border-radius:8px}
+body[data-page="results"] .job-summary .company-logo,body[data-page="results"] .detail-head .company-logo{width:44px;height:44px;border-radius:10px;font-size:17px;background:var(--r-gold-soft);color:#9a7114;border-color:#ece3cc}
+body[data-page="results"] .summary-text{display:grid;gap:2px;min-width:0}
+body[data-page="results"] .job-summary .job-title{margin:0;font-size:16.5px;line-height:1.3;font-weight:650;letter-spacing:-.01em;color:var(--r-text)}
+body[data-page="results"] .job-summary .job-company{margin:0;font-size:14px;font-weight:500;color:#2f3f57}
+body[data-page="results"] .job-summary .job-location{margin:0;font-size:13.5px;color:var(--r-muted)}
+body[data-page="results"] .job-facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+body[data-page="results"] .job-facts>span:not(.fit-chip),body[data-page="results"] .fact-list li{font-size:12.5px;line-height:1;padding:6px 9px;border-radius:999px;background:var(--r-soft);color:#33445c;font-variant-numeric:tabular-nums;white-space:nowrap}
+body[data-page="results"] .fit-chip{align-self:start;display:inline-flex;align-items:baseline;gap:6px;padding:5px 9px;border-radius:8px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;border:1px solid transparent}
+body[data-page="results"] .fit-chip span{font-size:12px;font-weight:600}
+body[data-page="results"] .fit-chip.strong{background:var(--r-have-bg);color:var(--r-have)}
+body[data-page="results"] .fit-chip.good{background:#e9f0f8;color:var(--r-ink)}
+body[data-page="results"] .fit-chip.partial,body[data-page="results"] .fit-chip.low{background:var(--r-review-bg);color:var(--r-review)}
+body[data-page="results"] .fit-chip.none{font-size:12px;font-weight:600;color:var(--r-muted);background:var(--r-soft)}
+body[data-page="results"] .job-card .job-footer{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;gap:8px;margin:0;padding:4px 18px 14px 76px;border:0}
+body[data-page="results"] .fit-chip.inline{display:none}
+body[data-page="results"] .apply-btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border-radius:10px;background:var(--r-ink);color:#fff;font-size:14px;font-weight:600;text-decoration:none;letter-spacing:0}
+body[data-page="results"] .apply-btn:hover{background:#163f6e}
+body[data-page="results"] .apply-btn.quiet{min-height:34px;padding:0 12px;font-size:13px;background:#fff;color:var(--r-ink);border:1px solid #c9d6e5}
+body[data-page="results"] .apply-btn.quiet:hover{background:var(--r-soft)}
+body[data-page="results"] .save-btn{min-height:34px;padding:0 12px;border-radius:10px;font-size:13px;font-weight:600;color:var(--r-ink);border-color:#c9d6e5}
+body[data-page="results"] .save-btn.detail-save{min-height:40px;padding:0 16px;font-size:14px}
+body[data-page="results"] .job-card .job-source{margin:0 0 0 auto!important;padding:0!important;border:0!important;gap:6px!important}
+body[data-page="results"] .job-card .job-source a{min-width:0!important;font-size:18px!important;line-height:20px!important;min-height:20px!important}
+body[data-page="results"] .card-detail{border-top:1px solid var(--r-line);background:#fff}
+body[data-page="results"] .card-detail[hidden]{display:none}
+body[data-page="results"] .job-detail{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:#fff;border:1px solid var(--r-line);border-radius:14px;overscroll-behavior:contain}
+body[data-page="results"] .job-detail:empty,body[data-page="results"] .results-split:not(:has(.job-card)) .job-detail{display:none}
+body[data-page="results"] .detail-card{padding:26px 28px 30px;color:var(--r-text)}
+body[data-page="results"] .detail-head{display:grid;grid-template-columns:52px minmax(0,1fr);gap:16px;align-items:start}
+body[data-page="results"] .detail-head .company-logo{width:52px;height:52px}
+body[data-page="results"] .detail-company{margin:0;font-size:15px;font-weight:600;color:#2f3f57}
+body[data-page="results"] .detail-title{margin:2px 0 4px;font-size:25px;line-height:1.2;font-weight:700;letter-spacing:-.02em;color:var(--r-text);max-width:30ch}
+body[data-page="results"] .detail-title:focus{outline:none}
+body[data-page="results"] .detail-location{margin:0;font-size:14.5px;color:var(--r-muted)}
+body[data-page="results"] .fact-list{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:18px 0 0;padding:0}
+body[data-page="results"] .fact-list li{font-size:13px;padding:7px 11px}
+body[data-page="results"] .detail-actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 4px}
+body[data-page="results"] .detail-block{margin-top:24px;padding-top:22px;border-top:1px solid var(--r-line)}
+body[data-page="results"] .detail-block h3{margin:0 0 10px;font-size:16px;font-weight:650;letter-spacing:-.01em;color:var(--r-text)}
+body[data-page="results"] .detail-block p{margin:0 0 10px;font-size:15px;line-height:1.6;color:#33445c;max-width:68ch}
+body[data-page="results"] .detail-block .muted{color:var(--r-muted)}
+body[data-page="results"] .detail-block .small{font-size:13px;line-height:1.55}
+body[data-page="results"] .detail-block .small a{color:var(--r-ink);font-weight:600}
+body[data-page="results"] .about-text{white-space:normal}
+/* The fit estimate, drawn as the parts it is made of */
+body[data-page="results"] .fit-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px}
+body[data-page="results"] .fit-head h3{margin:0}
+body[data-page="results"] .fit-total{margin:0!important;font-size:14px!important;font-weight:600;color:var(--r-muted)!important;font-variant-numeric:tabular-nums}
+body[data-page="results"] .fit-total strong{font-size:30px;line-height:1;font-weight:750;letter-spacing:-.03em;color:var(--r-text)}
+body[data-page="results"] .fit-total span{margin-right:6px}
+body[data-page="results"] .fit-total.strong{color:var(--r-have)!important}
+body[data-page="results"] .fit-total.partial,body[data-page="results"] .fit-total.low{color:var(--r-review)!important}
+body[data-page="results"] .fit-meter{display:flex;height:10px;margin:14px 0 6px;border-radius:999px;background:repeating-linear-gradient(90deg,var(--r-soft) 0 calc(20% - 2px),#fff calc(20% - 2px) 20%);overflow:hidden}
+body[data-page="results"] .fit-meter .seg.skills{background:var(--r-ink)}
+body[data-page="results"] .fit-meter .seg.title{background:var(--r-gold)}
+body[data-page="results"] .fit-parts{display:grid;gap:10px;margin:14px 0 16px}
+body[data-page="results"] .fit-parts div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;font-size:14px;line-height:1.5}
+body[data-page="results"] .fit-parts dt{font-weight:600;color:var(--r-text);display:flex;justify-content:space-between;gap:8px}
+body[data-page="results"] .fit-parts dt span{font-weight:500;color:var(--r-muted);font-variant-numeric:tabular-nums}
+body[data-page="results"] .fit-parts div:first-child dt::before{content:"";width:10px;height:10px;margin-top:6px;border-radius:3px;background:var(--r-ink);flex:none;order:-1}
+body[data-page="results"] .fit-parts div:nth-child(2) dt::before{content:"";width:10px;height:10px;margin-top:6px;border-radius:3px;background:var(--r-gold);flex:none;order:-1}
+body[data-page="results"] .fit-parts div:nth-child(3) dt::before{content:"";width:10px;height:10px;margin-top:6px;border-radius:3px;border:1.5px solid var(--r-muted);box-sizing:border-box;flex:none;order:-1}
+body[data-page="results"] .fit-parts dt{justify-content:flex-start}
+body[data-page="results"] .fit-parts dt span{margin-left:auto}
+body[data-page="results"] .fit-parts dd{margin:0;color:#3b4b62}
+body[data-page="results"] .chip-label{margin:12px 0 6px!important;font-size:13px!important;font-weight:600;color:var(--r-text)!important}
+body[data-page="results"] .skill-chips{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0 0 8px;padding:0}
+body[data-page="results"] .skill-chips li{font-size:13px;padding:5px 10px;border-radius:999px}
+body[data-page="results"] .skill-chips .have{background:var(--r-have-bg);color:var(--r-have)}
+body[data-page="results"] .skill-chips .review{background:#fff;color:var(--r-review);border:1px dashed #d8b46a}
+body[data-page="results"] .empty-state{background:#fff;border:1px solid var(--r-line);border-radius:14px}
+@media(max-width:1000px){body[data-page="results"] nav:not(.mobile-tabs){padding:8px 20px;height:auto;min-height:64px;gap:8px}body[data-page="results"] nav:not(.mobile-tabs) .logo-text{white-space:nowrap;font-size:15px}body[data-page="results"] nav:not(.mobile-tabs) .nav-links{gap:2px}body[data-page="results"] nav:not(.mobile-tabs) .nav-links a{font-size:12px;padding:5px 7px}body[data-page="results"] nav:not(.mobile-tabs) .nav-login,body[data-page="results"] nav:not(.mobile-tabs) .nav-cta{font-size:12px;padding:7px 9px}}
+@media(min-width:1080px){
+body[data-page="results"] .job-card .job-footer .apply-btn,body[data-page="results"] .job-card .job-footer .save-btn{display:none}
+body[data-page="results"] .job-card .job-footer{padding:0 18px 12px 76px}
+body[data-page="results"] .job-card .job-footer:not(:has(.job-source)){display:none}
+body[data-page="results"] .job-card .job-source{margin:0!important}}
+@media(max-width:1079px){
+body[data-page="results"] .results-split:has(.job-card){grid-template-columns:minmax(0,1fr)}
+body[data-page="results"] .job-detail{display:none}
+body[data-page="results"] .card-detail .detail-card{padding:20px 18px 24px}
+body[data-page="results"] .card-detail .detail-head{display:none}
+body[data-page="results"] .card-detail .fact-list{display:none}
+body[data-page="results"] .card-detail .detail-actions{margin-top:0}
+body[data-page="results"] .job-card.selected .job-footer .apply-btn,body[data-page="results"] .job-card.selected .job-footer .save-btn{display:none}}
+@media(max-width:600px){
+body[data-page="results"] .hero{padding:18px}body[data-page="results"] .mode-toggle{flex-direction:row;max-width:none}body[data-page="results"] .search-bar{flex-direction:column}body[data-page="results"] .filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+body[data-page="results"] .results-section{padding:18px 12px 96px}
+body[data-page="results"] .results-back{margin-bottom:12px}
+body[data-page="results"] .results-tabs{gap:18px;margin-bottom:14px}
+body[data-page="results"] .results-title{font-size:24px}
+body[data-page="results"] .results-count{font-size:13.5px}
+body[data-page="results"] .fit-invite{padding:12px 14px;font-size:13.5px}
+body[data-page="results"] .jobs-grid{border-radius:12px}
+body[data-page="results"] .job-summary{grid-template-columns:40px minmax(0,1fr);padding:14px 14px 6px;gap:2px 12px}
+body[data-page="results"] .job-summary .company-logo{width:40px;height:40px;font-size:15px}
+body[data-page="results"] .fit-chip.top{display:none}
+body[data-page="results"] .fit-chip.inline{display:inline-flex;font-size:13px;padding:4px 8px}
+body[data-page="results"] .job-card .job-footer{padding:4px 14px 12px 66px}
+body[data-page="results"] #resumeSearchSummary{padding:10px 12px;font-size:13.5px;gap:4px 12px}
+body[data-page="results"] #resumeSearchSummary p{flex-basis:100%}
+body[data-page="results"] #resumeSearchSummary strong,body[data-page="results"] #resumeSearchSummary a{font-size:13.5px}
+body[data-page="results"] .fit-parts div{grid-template-columns:minmax(0,1fr);gap:2px}
+body[data-page="results"] .detail-title{font-size:22px}}
+@media(prefers-reduced-motion:reduce){body[data-page="results"] .job-card{transition:none}}
 body[data-page="find"] .hero{min-height:65vh}
 </style>
 <link rel="stylesheet" href="landing-experience.css?v=20261026">
@@ -526,21 +639,23 @@ body[data-page="find"] .hero{min-height:65vh}
   <div class="results-main">
   <div class="results-header">
     <div>
-      <div class="results-title" id="resultsTitle">Your Job Results</div>
+      <h1 class="results-title" id="resultsTitle">Your Job Results</h1>
       <div class="results-meta">
         <div class="results-count" id="resultsCount">Searching for matching jobs…</div>
         <div class="results-mode-badge quick" id="resultsModeBadge">⚡ Quick Match</div>
       </div>
     </div>
   </div>
-  <div class="jobs-grid" id="jobsGrid"></div>
+  <div class="fit-strip">
+    <div id="resumeSearchSummary" hidden></div>
+    <div class="fit-invite" id="fitOnboarding"><p><strong>See how well each job fits you.</strong> Add a résumé or a few skills you have, and each detailed listing shows an estimate with the reasons behind it.</p><div class="fit-invite-links"><a href="resume-search.html">Upload a résumé</a><a href="resume-search.html?manual=1">Enter skills instead</a></div></div>
+  </div>
+  <div class="results-split">
+    <div class="jobs-grid" id="jobsGrid"></div>
+    <aside class="job-detail" id="jobDetail" aria-label="Selected job"></aside>
+  </div>
   <div id="searchSubscription" style="display:flex;justify-content:center;margin-top:28px"></div>
   </div>
-  <aside class="results-rail" aria-label="Your job search tools">
-    <div id="resumeSearchSummary" hidden style="border:1px solid #D4A843;border-radius:16px;background:#FBF3E0;color:#0F172A"></div>
-    <div class="rail-card" id="fitOnboarding"><h2>See how well a job fits</h2><p>Add a résumé or a few confirmed skills to see an explainable fit estimate on detailed listings. You can keep searching without one.</p><a href="resume-search.html">Upload a résumé →</a><a href="resume-search.html?manual=1">Enter experience instead →</a></div>
-    <div class="rail-card"><h2>Your job search</h2><p>Keep interesting opportunities together and improve your résumé as you explore.</p><a href="profile.html#saved">Saved jobs →</a><a href="resume-builder.html">Résumé studio →</a></div>
-  </aside>
   </div>
 </section>
 
@@ -930,7 +1045,7 @@ function showLiveSearchOutcome(search, outcome) {
     : 'Live Search did not report a finished result. This is not a sign that no jobs exist.';
   const badge = document.getElementById('resultsModeBadge');
   badge.className = 'results-mode-badge live';
-  badge.textContent = '🔴 Live Search';
+  badge.textContent = 'Live Search';
   document.getElementById('resultsSection').classList.add('active');
   shownJobs = [];
   document.getElementById('jobsGrid').innerHTML = `
@@ -1007,7 +1122,7 @@ function showLiveSearchEmpty(search) {
   document.getElementById('resultsCount').textContent = 'Live Search finished; no verified jobs matched your title and selected filters.';
   const badge = document.getElementById('resultsModeBadge');
   badge.className = 'results-mode-badge live';
-  badge.textContent = '🔴 Live Search';
+  badge.textContent = 'Live Search';
   document.getElementById('resultsSection').classList.add('active');
   shownJobs = [];
   document.getElementById('jobsGrid').innerHTML = `
@@ -1104,63 +1219,194 @@ document.addEventListener('visibilitychange', () => {
 // ══════════════════════════════════════
 // SHOW JOB CARDS
 // ═══════════════════════════════════════
+// ── Results list and selected-job detail ───────────────────────────────
+// Everything shown here comes from the listing itself or from the person's own confirmed
+// profile. The Quick Match ranking number is never shown as a score.
+let selectedJobKey = null;
+const WIDE_RESULTS = window.matchMedia ? window.matchMedia('(min-width: 1080px)') : { matches: true };
+const jobKeyOf = job => `${job.apply_url || ''}|${job.job_title || ''}|${job.company || ''}`;
+
+function plainLabel(value) {
+  const v = String(value || '').trim().toLowerCase().replace(/[\s_-]+/g, '');
+  return ({ fulltime: 'Full-time', parttime: 'Part-time', contract: 'Contract', temporary: 'Temporary', internship: 'Internship',
+    permanent: 'Permanent', remote: 'Remote', hybrid: 'Hybrid', onsite: 'On-site' })[v] || '';
+}
+function postedLabel(job) {
+  const when = Date.parse(job.posted_at || '');
+  if (!Number.isFinite(when)) return '';
+  const hours = Math.max(0, (Date.now() - when) / 3600000);
+  if (hours < 1) return 'Posted in the last hour';
+  if (hours < 24) return `Posted ${Math.floor(hours)} hour${Math.floor(hours) === 1 ? '' : 's'} ago`;
+  const days = Math.floor(hours / 24);
+  return days === 1 ? 'Posted yesterday' : `Posted ${days} days ago`;
+}
+function salaryLabel(job) {
+  const s = String(job.salary || '').trim();
+  return s && !/^(not listed|n\/a|none)$/i.test(s) ? s : '';
+}
+function jobFacts(job) {
+  const workMode = plainLabel(job.work_mode) || (job.is_remote === true ? 'Remote' : '');
+  return [salaryLabel(job), plainLabel(job.employment_type), workMode, postedLabel(job)].filter(Boolean);
+}
+function applyLabel(job) {
+  if (job.source === 'employer_direct' || job.source === 'employer_feed') return 'Apply with employer';
+  try {
+    const host = new URL(FJDataSafety.httpUrl(job.apply_url)).hostname.replace(/^www\./, '');
+    if (/(^|\.)adzuna\./.test(host)) return 'Apply on Adzuna';
+    return `Apply on ${host}`;
+  } catch { return 'View listing'; }
+}
+function fitBand(score) {
+  return score >= 80 ? ['strong', 'Strong fit'] : score >= 60 ? ['good', 'Good fit'] : score >= 40 ? ['partial', 'Partial fit'] : ['low', 'Low fit'];
+}
+function assessJob(job) {
+  const profile = matchProfile();
+  return { profile, assessment: profile && window.FJResume ? FJResume.assess(job, profile, FJAccuracy.metadata) : null };
+}
+function saveButtonHtml(i, isSaved, extraClass = '') {
+  return `<button type="button" class="save-btn${extraClass}${isSaved ? ' saved' : ''}" data-i="${i}" aria-pressed="${isSaved}" onclick="toggleSaveJob(${i}, this)">${isSaved ? 'Saved' : 'Save'}</button>`;
+}
+
+// The fit estimate, shown as the parts it is made of (resume-matching.js assess):
+// skills up to 80 points, title 20 points, minus 10 when the listing asks for more years.
+function fitExplanationHtml(job) {
+  const { profile, assessment: a } = assessJob(job);
+  if (!profile) {
+    return `<section class="detail-block fit-block"><h3>How well it fits you</h3>
+      <p class="muted">Add a résumé or a few skills you have to see a fit estimate for detailed listings, with the reasons behind it.</p>
+      <p class="detail-links"><a href="resume-search.html">Upload a résumé</a><a href="resume-search.html?manual=1">Enter skills instead</a></p></section>`;
+  }
+  if (!a) {
+    return `<section class="detail-block fit-block"><h3>How well it fits you</h3>
+      <p class="muted">This listing does not name enough specific skills for a responsible estimate. Check the original listing for its requirements.</p></section>`;
+  }
+  const required = a.matched.length + a.missing.length;
+  const title = a.title === 'matched' ? 20 : 0;
+  const penalty = a.experience === 'review' ? 10 : 0;
+  const skills = Math.max(0, a.score - title + penalty);
+  const [band, label] = fitBand(a.score);
+  const chips = (list, cls) => list.map(x => `<li class="${cls}">${safe(x)}</li>`).join('');
+  return `<section class="detail-block fit-block">
+    <div class="fit-head"><h3>How well it fits you</h3><p class="fit-total ${band}"><strong>${a.score}</strong><span>/100</span> ${label}</p></div>
+    <div class="fit-meter" role="img" aria-label="Fit estimate ${a.score} out of 100: skills ${skills} of 80, title ${title} of 20${penalty ? ', minus 10 for experience' : ''}">
+      <span class="seg skills" style="width:${skills}%"></span><span class="seg title" style="width:${title}%"></span>
+    </div>
+    <dl class="fit-parts">
+      <div><dt>Skills <span>${skills} of 80</span></dt><dd>${a.matched.length} of the ${required} skill${required === 1 ? '' : 's'} this listing names ${a.matched.length === 1 ? 'is' : 'are'} on your profile.</dd></div>
+      <div><dt>Job title <span>${title} of 20</span></dt><dd>${a.title === 'matched' ? 'Matches the title you confirmed.' : 'Differs from the title you confirmed. Check how your experience relates.'}</dd></div>
+      <div><dt>Experience <span>${penalty ? '−10' : '0'}</span></dt><dd>${a.experience === 'matched' ? 'You meet the years this listing asks for.' : a.experience === 'review' ? 'The listing asks for more years than you entered.' : 'The listing does not state the years it needs.'}</dd></div>
+    </dl>
+    ${a.matched.length ? `<p class="chip-label">On your profile</p><ul class="skill-chips">${chips(a.matched, 'have')}</ul>` : ''}
+    ${a.missing.length ? `<p class="chip-label">Named in the listing, not on your profile</p><ul class="skill-chips">${chips(a.missing, 'review')}</ul>
+      <p class="muted small">Add a skill to your résumé only if you have it, with a concrete example.</p>` : ''}
+    <p class="muted small">Based on ${required} skill${required === 1 ? '' : 's'} named in this listing and the details you confirmed. It is an estimate, not an ATS score or a hiring prediction. <a href="${guestResumeProfile ? 'resume-search.html?edit=1' : 'profile.html#resume'}">Review your details</a></p>
+  </section>`;
+}
+
+function jobDetailHtml(job, i) {
+  const applyUrl = safe(FJDataSafety.httpUrl(job.apply_url) || '#');
+  const isSaved = window.FJ && acct.savedKeys.has(FJ.jobKey(job));
+  const facts = jobFacts(job);
+  const about = String(job.job_description || '').replace(/\s+/g, ' ').trim();
+  return `<article class="detail-card" aria-labelledby="detailTitle${i}">
+    <header class="detail-head">
+      ${FJCompanyLogos.html(job, safe)}
+      <div><p class="detail-company">${safe(job.company || 'Company not listed')}</p>
+      <h2 class="detail-title" id="detailTitle${i}" tabindex="-1">${safe(job.job_title)}</h2>
+      <p class="detail-location">${safe(job.location || 'Location not listed')}</p></div>
+    </header>
+    ${facts.length ? `<ul class="fact-list">${facts.map(f => `<li>${safe(f)}</li>`).join('')}</ul>` : ''}
+    <div class="detail-actions">
+      <a href="${applyUrl}" class="apply-btn" target="_blank" rel="noopener">${safe(applyLabel(job))}<span class="visually-hidden"> (opens in a new tab)</span></a>
+      ${saveButtonHtml(i, isSaved, ' detail-save')}
+    </div>
+    ${job.match_reason ? `<section class="detail-block"><h3>Why it's in your results</h3><p>${safe(job.match_reason)}</p></section>` : ''}
+    ${fitExplanationHtml(job)}
+    ${about ? `<section class="detail-block"><h3>About the role</h3><p class="about-text">${safe(about.length > 900 ? about.slice(0, 900).replace(/\s\S*$/, '') + '…' : about)}</p>
+      <p class="detail-links"><a href="${applyUrl}" target="_blank" rel="noopener">Read the full listing</a></p></section>` : ''}
+  </article>`;
+}
+
+function renderJobDetail() {
+  const jobs = shownJobs || [];
+  const i = jobs.findIndex(job => jobKeyOf(job) === selectedJobKey);
+  const panel = document.getElementById('jobDetail');
+  document.querySelectorAll('#jobsGrid .job-card').forEach(card => {
+    const on = Number(card.dataset.i) === i;
+    card.classList.toggle('selected', on);
+    card.querySelector('.job-summary')?.setAttribute('aria-expanded', String(on));
+    const slot = card.querySelector('.card-detail');
+    if (slot) { slot.innerHTML = on && !WIDE_RESULTS.matches ? jobDetailHtml(jobs[i], i) : ''; slot.hidden = !(on && !WIDE_RESULTS.matches); }
+  });
+  if (panel) panel.innerHTML = i >= 0 && WIDE_RESULTS.matches ? jobDetailHtml(jobs[i], i) : '';
+}
+
+function selectJob(i) {
+  const job = shownJobs[i];
+  if (!job) return;
+  const key = jobKeyOf(job);
+  // On a phone the details open under the job; tapping it again closes them.
+  selectedJobKey = !WIDE_RESULTS.matches && selectedJobKey === key ? null : key;
+  renderJobDetail();
+  if (WIDE_RESULTS.matches) {
+    const panel = document.getElementById('jobDetail');
+    if (panel && panel.getBoundingClientRect().top < 0) panel.scrollIntoView({ block: 'start' });
+  }
+}
+if (WIDE_RESULTS.addEventListener) WIDE_RESULTS.addEventListener('change', () => {
+  if (WIDE_RESULTS.matches && !selectedJobKey && shownJobs?.length) selectedJobKey = jobKeyOf(shownJobs[0]);
+  renderJobDetail();
+});
+
 function showJobCards(allJobs, search, mode, scrollToResults = true) {
   const section = document.getElementById('resultsSection');
   const jobs = allJobs.slice(0, FREE_RESULTS);
-  document.getElementById('resultsTitle').textContent = `Best Matches for "${search}"`;
+  document.getElementById('resultsTitle').textContent = `Jobs for "${search}"`;
   document.getElementById('resultsCount').textContent =
-    `${jobs.length} matched job${jobs.length > 1 ? 's' : ''} · ${mode === 'live' ? 'found with Live Search just now' : 'from our saved listings'}`
-    + (currentFilterSummary ? ` · ${currentFilterSummary}` : '');
+    `${jobs.length} ${jobs.length === 1 ? 'job' : 'jobs'} ${mode === 'live' ? 'found with Live Search just now' : 'from listings posted in the last 30 days'}`
+    + (currentFilterSummary ? `, filtered by ${currentFilterSummary}` : '');
   const badge = document.getElementById('resultsModeBadge');
   if (mode === 'live') {
     badge.className = 'results-mode-badge live';
-    badge.textContent = '🔴 Live Search';
+    badge.textContent = 'Live Search';
   } else {
     badge.className = 'results-mode-badge quick';
-    badge.textContent = '⚡ Quick Match';
+    badge.textContent = 'Quick Match';
   }
 
   section.classList.add('active');
   shownJobs = jobs;
+  if (!jobs.some(job => jobKeyOf(job) === selectedJobKey)) selectedJobKey = WIDE_RESULTS.matches && jobs.length ? jobKeyOf(jobs[0]) : null;
   document.getElementById('jobsGrid').innerHTML = jobs.map((job, i) => {
     const applyUrl = safe(FJDataSafety.httpUrl(job.apply_url) || '#');
     const isSaved = window.FJ && acct.savedKeys.has(FJ.jobKey(job));
-    const profile = matchProfile();
-    const assessment = window.FJResume && FJResume.assess(job, profile, FJAccuracy.metadata);
-    const fitBadge = assessment ? `<div class="match-badge fit-score" aria-label="Estimated job fit ${assessment.score} out of 100">Job fit ${assessment.score}/100</div>` : `<div class="match-badge">${profile ? 'Fit score unavailable' : 'Explore job'}</div>`;
-    const scorePanel = profile ? `<div class="job-score-panel${assessment ? '' : ' no-score'}">${assessment ? `<div class="score-ring" style="--score:${assessment.score}" aria-hidden="true">${assessment.score}<small>/100</small></div>` : '<div class="score-ring unavailable" aria-hidden="true">—</div>'}${fitBadge}</div>` : '';
-    const fitTip = assessment ? `<p class="fit-tip"><strong>Improve your match:</strong> ${assessment.missing.length ? `If you have ${safe(assessment.missing[0])} experience, add a concrete example to your résumé; otherwise consider learning it.` : 'Show specific results from the skills you already have.'}</p>` : profile ? '<p class="fit-tip">This listing needs more detail for a responsible fit score. Check its original requirements.</p>' : '';
-    const fitDetails = assessment ? `<details class="fit-details"><summary>Why this score? See skills and experience</summary>
-      <p>Estimate from skills named in this listing and the details you confirmed. This is not an ATS score or a hiring prediction.</p>
-      <p><strong>Your matching skills:</strong> ${assessment.matched.length ? assessment.matched.map(safe).join(', ') : 'None of the detected skills yet'}</p>
-      <p><strong>Skills to review:</strong> ${assessment.missing.length ? assessment.missing.map(safe).join(', ') : 'None of the detected skills'}. Add a skill only if you have it.</p>
-      <p><strong>Job title:</strong> ${assessment.title === 'matched' ? 'Matches your confirmed title.' : 'Check how your experience relates to this title.'} <strong>Experience:</strong> ${assessment.experience === 'matched' ? 'Meets the stated years.' : assessment.experience === 'review' ? 'Review the stated years.' : 'Not enough information to assess.'}</p>
-      <p>Check the original listing for complete requirements. <a href="${guestResumeProfile ? 'resume-search.html?edit=1' : 'profile.html#resume'}">Review your résumé details</a>.</p>
-    </details>` : '';
+    const { profile, assessment } = assessJob(job);
+    const [band, label] = assessment ? fitBand(assessment.score) : ['', ''];
+    const fitChip = assessment
+      ? `<span class="fit-chip ${band}" aria-label="Fit estimate ${assessment.score} out of 100, ${label}">${assessment.score} <span>${label}</span></span>`
+      : profile ? '<span class="fit-chip none">No fit estimate</span>' : '';
+    const facts = jobFacts(job).slice(0, 3);
     return `
-      <div class="job-card${profile ? '' : ' unscored'}">
-        <div class="job-card-main">
-        <div class="job-card-top">
+      <article class="job-card${profile ? '' : ' unscored'}" data-i="${i}">
+        <button type="button" class="job-summary" aria-expanded="false" aria-controls="${WIDE_RESULTS.matches ? 'jobDetail' : `cardDetail${i}`}" onclick="selectJob(${i})">
           ${FJCompanyLogos.html(job, safe)}
-        </div>
-        <div class="job-title">${safe(job.job_title)}</div>
-        <div class="job-company">${safe(job.company || 'Company')}</div>
-        <div class="job-location">📍 ${safe(job.location || 'Location not listed')}</div>
-        ${job.match_reason ? `<div class="job-reason">💡 ${safe(job.match_reason)}</div>` : ''}
-        ${fitTip}
-        ${fitDetails}
+          <span class="summary-text">
+            <span class="job-title">${safe(job.job_title)}</span>
+            <span class="job-company">${safe(job.company || 'Company not listed')}</span>
+            <span class="job-location">${safe(job.location || 'Location not listed')}</span>
+            ${facts.length || fitChip ? `<span class="job-facts">${fitChip.replace('class="fit-chip', 'class="fit-chip inline')}${facts.map(f => `<span>${safe(f)}</span>`).join('')}</span>` : ''}
+          </span>
+          ${fitChip.replace('class="fit-chip', 'class="fit-chip top')}
+        </button>
         <div class="job-footer">
-          <div class="job-salary">${safe(job.salary || 'Salary not listed')}</div>
-          <div class="job-actions">
-            <button type="button" class="save-btn${isSaved ? ' saved' : ''}" data-i="${i}" aria-pressed="${isSaved}" onclick="toggleSaveJob(${i}, this)">${isSaved ? '🔖 Saved' : '🔖 Save'}</button>
-            <a href="${applyUrl}" class="apply-btn" target="_blank" rel="noopener">Apply Now →</a>
-          </div>
+          <a href="${applyUrl}" class="apply-btn quiet" target="_blank" rel="noopener">${safe(applyLabel(job))}<span class="visually-hidden"> (opens in a new tab)</span></a>
+          ${saveButtonHtml(i, isSaved)}
+          ${FJDataSafety.adzunaAttribution?.(job) || ''}
         </div>
-        ${FJDataSafety.adzunaAttribution?.(job) || ''}
-        </div>
-        ${scorePanel}
-      </div>`;
+        <div class="card-detail" id="cardDetail${i}" hidden></div>
+      </article>`;
   }).join('');
+  renderJobDetail();
   if (scrollToResults) section.scrollIntoView({ behavior: 'instant', block: 'start' });
 }
 
@@ -1192,7 +1438,7 @@ function showQuickMatchEmpty(search, filters) {
     'No recent saved listings matched your job title and filters. Quick Match shows imported jobs posted within 30 days; try adjusting your search or use Live Search.';
   const badge = document.getElementById('resultsModeBadge');
   badge.className = 'results-mode-badge quick';
-  badge.textContent = '\u26a1 Quick Match';
+  badge.textContent = 'Quick Match';
   section.classList.add('active');
   shownJobs = [];
   document.getElementById('jobsGrid').innerHTML = `
@@ -1235,7 +1481,7 @@ async function handleSearch() {
     showSearchError('Live Search is temporarily unavailable. Quick Match is available.');
     const badge = document.getElementById('resultsModeBadge');
     badge.className = 'results-mode-badge live';
-    badge.textContent = '🔴 Live Search';
+    badge.textContent = 'Live Search';
     document.getElementById('jobsGrid').innerHTML = '<div class="empty-state"><h3>Live Search is temporarily unavailable</h3><p>Search our saved job listings with Quick Match, or try Live Search again later.</p><button class="retry-btn" onclick="setMode(\'quick\');handleSearch();">Try Quick Match</button></div>';
     document.getElementById('resultsSection').scrollIntoView({ behavior: 'instant', block: 'start' });
     return;
@@ -1800,7 +2046,7 @@ async function toggleSaveJob(i, btn) {
   }
   btn.disabled = false;
   const on = acct.savedKeys.has(key);
-  btn.classList.toggle('saved', on); btn.setAttribute('aria-pressed', on); btn.textContent = on ? '🔖 Saved' : '🔖 Save';
+  document.querySelectorAll(`.save-btn[data-i="${i}"]`).forEach(b => { b.classList.toggle('saved', on); b.setAttribute('aria-pressed', on); b.textContent = on ? 'Saved' : 'Save'; });
 }
 
 // Filters worth remembering (drops empty values)
@@ -1835,13 +2081,13 @@ function renderResumeSearchSummary() {
   if(onboarding)onboarding.hidden=!!matchProfile()?.skills?.length;
   if(!guestResumeProfile && new URLSearchParams(location.search).get('resume')!=='1')return;
   const box=document.getElementById('resumeSearchSummary');box.hidden=false;box.replaceChildren();
-  const title=document.createElement('strong');title.textContent='Experience-based matching · Fit scores on detailed listings';box.append(title);
+  const title=document.createElement('strong');title.textContent='Fit estimates use your details:';box.append(title);
   const text=document.createElement('p');text.style.margin='12px 0';
-  if(guestResumeProfile){const p=guestResumeProfile;text.textContent=[p.current_title,p.years_experience==null?'Experience not specified':(p.experienceEstimated?'About ':'')+p.years_experience+' years of experience',p.scope==='region'?'Across '+p.region:[p.city,p.region].filter(Boolean).join(', '),p.skills.length+' skills supplied'].filter(Boolean).join(' · ');}
+  if(guestResumeProfile){const p=guestResumeProfile;text.textContent=[p.current_title,p.years_experience==null?'experience not specified':(p.experienceEstimated?'about ':'')+p.years_experience+' years',p.scope==='region'?'across '+p.region:[p.city,p.region].filter(Boolean).join(', '),p.skills.length+' skills'].filter(Boolean).join(', ')+'.';}
   else text.textContent='Temporary résumé details have expired or are unavailable. This search uses the displayed title and area without résumé personalization.';
   box.append(text);
-  const edit=document.createElement('a');edit.href='resume-search.html?edit=1';edit.textContent=guestResumeProfile?'Edit experience and skills':'Add experience and skills';edit.style.marginRight='20px';box.append(edit);
-  if(guestResumeProfile){const clear=document.createElement('button');clear.textContent='Clear résumé details';clear.className='retry-btn';clear.onclick=()=>{try{FJGuestResume.clear(sessionStorage);}catch{}guestResumeProfile=null;location.href='find-jobs.html';};box.append(clear);}
+  const edit=document.createElement('a');edit.href='resume-search.html?edit=1';edit.textContent=guestResumeProfile?'Edit details':'Add experience and skills';edit.style.marginRight='20px';box.append(edit);
+  if(guestResumeProfile){const clear=document.createElement('button');clear.textContent='Clear';clear.setAttribute('aria-label','Clear résumé details');clear.className='retry-btn';clear.onclick=()=>{try{FJGuestResume.clear(sessionStorage);}catch{}guestResumeProfile=null;location.href='find-jobs.html';};box.append(clear);}
 }
 
 function applyFilters(f) {
