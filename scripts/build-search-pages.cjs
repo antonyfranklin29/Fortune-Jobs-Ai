@@ -1,3 +1,8 @@
+// Historical one-off generator. The pages now have distinct layouts and behavior;
+// running this would overwrite the live search results and job-finding pages.
+console.error('Search pages are maintained directly. This legacy generator is disabled to protect their layouts and behavior.');
+process.exit(1);
+
 // Keep the dedicated search pages in sync with the shared search implementation.
 const fs = require('node:fs');
 const path = require('node:path');
