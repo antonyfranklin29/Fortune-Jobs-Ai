@@ -9,11 +9,14 @@ test('accepts one exact company identity, including legal suffix', () => {
   assert.equal(chooseCandidate('Accenture', [{ name: 'Accenture', domain: 'accenture.com' }, { name: 'Accenture', domain: 'accenturealumni.com' }]), 'accenture.com');
   assert.equal(chooseCandidate('ABC', [{ name: 'ABC', domain: 'abc.com' }, { name: 'ABC', domain: 'abc.net' }]), null);
   assert.equal(chooseCandidate('Acme Labs', [{ name: 'Acme Labs', domain: 'unrelated.com' }, { name: 'Acme Labs', domain: 'acmelabs.com' }]), null);
+  assert.equal(chooseCandidate('1-800 Contacts', [{ name: '1-800 Contacts', domain: 'southvalleyoptical.com' }]), null);
+  assert.equal(chooseCandidate('Actalent', [{ name: 'Actalent', domain: 'e4holdings.com' }]), null);
 });
 
 test('publishes only matched domains and never includes the secret key', () => {
   const result = renderMap({ acme: { status: 'matched', domain: 'acme.com' }, unknown: { status: 'review' } }, 'pk_public123');
   assert.match(result, /img\.logo\.dev\/acme\.com/);
+  assert.match(result, /fallback=404/);
   assert.doesNotMatch(result, /unknown/);
   assert.doesNotMatch(result, /SECRET/);
 });

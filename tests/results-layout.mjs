@@ -92,6 +92,11 @@ try {
     await page.locator('#jobsGrid .job-card', { hasText: 'Example Health' }).locator('.job-summary').click();
     const detail = await page.locator('#jobDetail').innerText();
     check('desktop: the detail shows the listing\'s own facts and apply route', /\$80,000–\$95,000/.test(detail) && /Full-time/.test(detail) && /Hybrid/.test(detail) && /Apply on Adzuna/.test(detail) && /clinical operations/.test(detail), detail.slice(0, 200));
+    const source = await page.locator('#jobsGrid .job-card').first().locator('.job-source a').evaluate((el) => {
+      const rect = el.getBoundingClientRect();
+      return { width: rect.width, height: rect.height, font: parseFloat(getComputedStyle(el).fontSize) };
+    });
+    check('Adzuna credit stays readable and keeps its required footprint', source.width >= 116 && source.height >= 23 && source.font <= 16, JSON.stringify(source));
     check('desktop: no page errors', errors.length === 0, errors.join('; '));
     await ctx.close();
   }

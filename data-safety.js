@@ -10,7 +10,7 @@
   function adzunaAttribution(job){
     let isAdzuna=job?.source==='adzuna';
     try{isAdzuna=isAdzuna||/(^|\.)adzuna\.(com|co\.uk)$/.test(new URL(httpUrl(job?.apply_url)).hostname);}catch{}
-    return isAdzuna?'<div class="job-source" style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #e5e7eb;color:#596575"><span style="font-size:11px;line-height:1.4">Job source</span><a href="https://www.adzuna.com/" target="_blank" rel="noopener" style="display:inline-block;min-width:116px;min-height:23px;font:normal 23px/23px Arial,sans-serif;color:inherit;text-decoration:none" aria-label="Jobs supplied by Adzuna">Adzuna</a></div>':'';
+    return isAdzuna?'<div class="job-source" style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid #e5e7eb;color:#596575"><span style="font-size:11px;line-height:1.4">Job source</span><a href="https://www.adzuna.com/" target="_blank" rel="noopener" style="display:inline-block;min-width:116px;min-height:23px;font:normal 16px/23px Arial,sans-serif;color:inherit;text-decoration:none" aria-label="Jobs supplied by Adzuna">Adzuna</a></div>':'';
   }
   function ownedPath(path,userId){
     return typeof path==='string'&&typeof userId==='string'&&path.startsWith(userId+'/')&&!path.includes('..')&&!path.includes('\\')&&path.split('/').length===2;

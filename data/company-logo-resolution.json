@@ -144,8 +144,10 @@
   },
   "actalent": {
     "status": "matched",
-    "domain": "e4holdings.com",
-    "checked_at": "2026-10-26T23:09:21.054Z"
+    "domain": "actalentservices.com",
+    "checked_at": "2026-10-26T23:09:21.054Z",
+    "review_note": "Official employer website checked 2026-10-28",
+    "resolver_version": 3
   },
   "adbakx llc": {
     "status": "matched",
@@ -454,9 +456,10 @@
   },
   "anduril": {
     "status": "matched",
-    "domain": "anduril.fr",
+    "domain": "anduril.com",
     "checked_at": "2026-10-26T23:14:00.954Z",
-    "resolver_version": 2
+    "resolver_version": 3,
+    "review_note": "Official employer website checked 2026-10-28"
   },
   "andworx": {
     "status": "matched",
@@ -1093,32 +1096,11 @@
     ]
   },
   "bright vision technologies": {
-    "status": "review",
-    "domain": null,
-    "checked_at": "2026-10-26T23:14:07.901Z",
-    "resolver_version": 2,
-    "candidates": [
-      {
-        "name": "Bright Vision Technologies",
-        "domain": "bvteck.com"
-      },
-      {
-        "name": "Bright Vision Technologies",
-        "domain": "brightvisiontechnologies.com"
-      },
-      {
-        "name": "Bright Vision",
-        "domain": "brightvision1.ae"
-      },
-      {
-        "name": "Vision Technologies",
-        "domain": "visiontechnologies.com"
-      },
-      {
-        "name": "Bright Way Vision",
-        "domain": "brightwayvision.com"
-      }
-    ]
+    "status": "matched",
+    "domain": "bvteck.com",
+    "checked_at": "2026-10-28T21:46:54.866Z",
+    "resolver_version": 3,
+    "review_note": "Official employer careers or website checked 2026-10-28"
   },
   "brillio, llc": {
     "status": "matched",
@@ -1832,9 +1814,11 @@
     ]
   },
   "computer enterprises, inc.": {
-    "status": "matched",
-    "domain": "openpoll.com",
-    "checked_at": "2026-10-26T23:09:49.922Z"
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-26T23:09:49.922Z",
+    "review_note": "Previous provider domain did not match employer; human review required",
+    "resolver_version": 3
   },
   "computer merchant, ltd., the": {
     "status": "review",
@@ -1981,8 +1965,10 @@
   },
   "cosmoprof": {
     "status": "matched",
-    "domain": "cosmolashes.com",
-    "checked_at": "2026-10-26T23:09:52.115Z"
+    "domain": "cosmoprofbeauty.com",
+    "checked_at": "2026-10-26T23:09:52.115Z",
+    "review_note": "Official employer website checked 2026-10-28",
+    "resolver_version": 3
   },
   "crowdstrike": {
     "status": "matched",
@@ -2133,32 +2119,11 @@
     "checked_at": "2026-10-26T23:09:55.699Z"
   },
   "dexian disys": {
-    "status": "review",
-    "domain": null,
-    "checked_at": "2026-10-26T23:14:19.468Z",
-    "resolver_version": 2,
-    "candidates": [
-      {
-        "name": "Dexian",
-        "domain": "dexian.com"
-      },
-      {
-        "name": "DISYS",
-        "domain": "disys.cl"
-      },
-      {
-        "name": "Dexian Consulting",
-        "domain": "dexianconsulting.com"
-      },
-      {
-        "name": "Dexian India",
-        "domain": "dexianindiastg.wpenginepowered.com"
-      },
-      {
-        "name": "Disys Technologies",
-        "domain": "disystechnologies.com"
-      }
-    ]
+    "status": "matched",
+    "domain": "dexian.com",
+    "checked_at": "2026-10-28T21:46:54.866Z",
+    "resolver_version": 3,
+    "review_note": "Official employer careers or website checked 2026-10-28"
   },
   "digital links inc": {
     "status": "review",
@@ -3057,32 +3022,11 @@
     "checked_at": "2026-10-26T23:10:09.398Z"
   },
   "general motors": {
-    "status": "review",
-    "domain": null,
-    "checked_at": "2026-10-26T23:14:28.138Z",
-    "resolver_version": 2,
-    "candidates": [
-      {
-        "name": "General Motors",
-        "domain": "gm.com"
-      },
-      {
-        "name": "General Motors",
-        "domain": "gmanz.com"
-      },
-      {
-        "name": "General Motors Uzbekistan",
-        "domain": "uzdaewoo.com"
-      },
-      {
-        "name": "General Motors Centre",
-        "domain": "generalmotorscentre.com"
-      },
-      {
-        "name": "SAIC General Motors",
-        "domain": "zhiye.com"
-      }
-    ]
+    "status": "matched",
+    "domain": "gm.com",
+    "checked_at": "2026-10-28T21:46:54.866Z",
+    "resolver_version": 3,
+    "review_note": "Official employer careers or website checked 2026-10-28"
   },
   "genesis10": {
     "status": "matched",
@@ -4082,32 +4026,11 @@
     "resolver_version": 2
   },
   "judge group, inc.": {
-    "status": "review",
-    "domain": null,
-    "checked_at": "2026-10-26T23:14:39.234Z",
-    "resolver_version": 2,
-    "candidates": [
-      {
-        "name": "Judge",
-        "domain": "judge.me"
-      },
-      {
-        "name": "Judge",
-        "domain": "judge.com"
-      },
-      {
-        "name": "Judge",
-        "domain": "judge-priestley.co.uk"
-      },
-      {
-        "name": "JUDGE",
-        "domain": "judgeorg.com"
-      },
-      {
-        "name": "Judge",
-        "domain": "judgeaccounting.com"
-      }
-    ]
+    "status": "matched",
+    "domain": "judge.com",
+    "checked_at": "2026-10-28T21:46:54.866Z",
+    "resolver_version": 3,
+    "review_note": "Official employer careers or website checked 2026-10-28"
   },
   "judi health": {
     "status": "matched",
@@ -4313,32 +4236,11 @@
     "checked_at": "2026-10-26T23:10:31.577Z"
   },
   "l3harris technologies": {
-    "status": "review",
-    "domain": null,
-    "checked_at": "2026-10-26T23:14:41.527Z",
-    "resolver_version": 2,
-    "candidates": [
-      {
-        "name": "L3Harris Technologies",
-        "domain": "l3harris.com"
-      },
-      {
-        "name": "L3Harris Technologies",
-        "domain": "l3harrisusers.org"
-      },
-      {
-        "name": "株式会社テクノロジーズ",
-        "domain": "technologies-group.co.jp"
-      },
-      {
-        "name": "l3harris-technologies.com",
-        "domain": "l3harris-technologies.com"
-      },
-      {
-        "name": "Technologies US",
-        "domain": "technologies-us.com"
-      }
-    ]
+    "status": "matched",
+    "domain": "l3harris.com",
+    "checked_at": "2026-10-28T21:46:54.864Z",
+    "resolver_version": 3,
+    "review_note": "Official employer careers or website checked 2026-10-28"
   },
   "learfield amplify": {
     "status": "matched",
@@ -5690,20 +5592,11 @@
     ]
   },
   "pacificsource": {
-    "status": "review",
-    "domain": null,
-    "checked_at": "2026-10-26T23:14:54.889Z",
-    "resolver_version": 2,
-    "candidates": [
-      {
-        "name": "PacificSource Health Plans",
-        "domain": "pacificsource.com"
-      },
-      {
-        "name": "PacificSource Health Plans",
-        "domain": "pacificsourcemembersfirst.com"
-      }
-    ]
+    "status": "matched",
+    "domain": "pacificsource.com",
+    "checked_at": "2026-10-28T21:46:54.866Z",
+    "resolver_version": 3,
+    "review_note": "Official employer careers or website checked 2026-10-28"
   },
   "palni inc": {
     "status": "matched",
@@ -5851,32 +5744,11 @@
     "resolver_version": 2
   },
   "pnc": {
-    "status": "review",
-    "domain": null,
-    "checked_at": "2026-10-26T23:14:57.476Z",
-    "resolver_version": 2,
-    "candidates": [
-      {
-        "name": "PNC",
-        "domain": "pnc.com"
-      },
-      {
-        "name": "PNC",
-        "domain": "pncbank.com"
-      },
-      {
-        "name": "PNC",
-        "domain": "pnconline.com"
-      },
-      {
-        "name": "PNC",
-        "domain": "pnc.com.tr"
-      },
-      {
-        "name": "PNC",
-        "domain": "pncdigital.com"
-      }
-    ]
+    "status": "matched",
+    "domain": "pnc.com",
+    "checked_at": "2026-10-28T21:46:54.866Z",
+    "resolver_version": 3,
+    "review_note": "Official employer careers or website checked 2026-10-28"
   },
   "pnc bank": {
     "status": "review",
@@ -6407,32 +6279,11 @@
     "candidates": []
   },
   "saic": {
-    "status": "review",
-    "domain": null,
-    "checked_at": "2026-10-26T23:15:02.828Z",
-    "resolver_version": 2,
-    "candidates": [
-      {
-        "name": "SAIC",
-        "domain": "saic-gm.com"
-      },
-      {
-        "name": "SAIC",
-        "domain": "saic.com.sa"
-      },
-      {
-        "name": "SAIC",
-        "domain": "spacedev.com"
-      },
-      {
-        "name": "SAIC",
-        "domain": "saic.com.my"
-      },
-      {
-        "name": "SAIC",
-        "domain": "saic.ca"
-      }
-    ]
+    "status": "matched",
+    "domain": "saic.com",
+    "checked_at": "2026-10-28T21:46:54.866Z",
+    "resolver_version": 3,
+    "review_note": "Official employer careers or website checked 2026-10-28"
   },
   "saicon consultants inc.": {
     "status": "review",
@@ -7506,8 +7357,10 @@
   },
   "te connectivity": {
     "status": "matched",
-    "domain": "seaconbrantner.com",
-    "checked_at": "2026-10-26T23:11:23.771Z"
+    "domain": "te.com",
+    "checked_at": "2026-10-26T23:11:23.771Z",
+    "review_note": "Official employer website checked 2026-10-28",
+    "resolver_version": 3
   },
   "tech holding": {
     "status": "matched",
@@ -8436,32 +8289,11 @@
     ]
   },
   "usaa": {
-    "status": "review",
-    "domain": null,
-    "checked_at": "2026-10-26T23:15:23.478Z",
-    "resolver_version": 2,
-    "candidates": [
-      {
-        "name": "USAA",
-        "domain": "usaa.com"
-      },
-      {
-        "name": "USAA",
-        "domain": "usaajobs.com"
-      },
-      {
-        "name": "USAA",
-        "domain": "usaaef.org"
-      },
-      {
-        "name": "USAA",
-        "domain": "usaacorpdev.com"
-      },
-      {
-        "name": "USAA",
-        "domain": "usaamortgagebda.com"
-      }
-    ]
+    "status": "matched",
+    "domain": "usaa.com",
+    "checked_at": "2026-10-28T21:46:54.866Z",
+    "resolver_version": 3,
+    "review_note": "Official employer careers or website checked 2026-10-28"
   },
   "v.l.s. systems, inc": {
     "status": "review",
@@ -10000,25 +9832,17 @@
   },
   "johns hopkins medicine": {
     "status": "matched",
-    "domain": "hokkaidopc.com",
+    "domain": "hopkinsmedicine.org",
     "checked_at": "2026-10-27T14:42:25.297Z",
-    "resolver_version": 2
+    "resolver_version": 3,
+    "review_note": "Official employer website checked 2026-10-28"
   },
   "jpmorganchase": {
-    "status": "review",
-    "domain": null,
-    "checked_at": "2026-10-27T14:42:25.511Z",
-    "resolver_version": 2,
-    "candidates": [
-      {
-        "name": "JPMorganChase Center",
-        "domain": "560mission.com"
-      },
-      {
-        "name": "jpmorganchase&.com",
-        "domain": "jpmorganchase&.com"
-      }
-    ]
+    "status": "matched",
+    "domain": "jpmorganchase.com",
+    "checked_at": "2026-10-28T21:46:54.866Z",
+    "resolver_version": 3,
+    "review_note": "Official employer careers or website checked 2026-10-28"
   },
   "junkbondinvestor": {
     "status": "review",
@@ -10056,32 +9880,11 @@
     ]
   },
   "kbr": {
-    "status": "review",
-    "domain": null,
-    "checked_at": "2026-10-27T14:42:26.185Z",
-    "resolver_version": 2,
-    "candidates": [
-      {
-        "name": "KBR",
-        "domain": "kbr.com"
-      },
-      {
-        "name": "KBR",
-        "domain": "kbr.be"
-      },
-      {
-        "name": "KBR",
-        "domain": "kbrhfcu.org"
-      },
-      {
-        "name": "KBR",
-        "domain": "kbr.id"
-      },
-      {
-        "name": "KBR",
-        "domain": "kbr-china.com"
-      }
-    ]
+    "status": "matched",
+    "domain": "kbr.com",
+    "checked_at": "2026-10-28T21:46:54.866Z",
+    "resolver_version": 3,
+    "review_note": "Official employer careers or website checked 2026-10-28"
   },
   "ksn technologies. inc": {
     "status": "matched",
@@ -10217,9 +10020,10 @@
   },
   "nbc universal": {
     "status": "matched",
-    "domain": "telemundoareadelabahia.com",
+    "domain": "nbcuniversal.com",
     "checked_at": "2026-10-27T14:42:29.327Z",
-    "resolver_version": 2
+    "resolver_version": 3,
+    "review_note": "Official employer website checked 2026-10-28"
   },
   "neogenomics laboratories": {
     "status": "matched",
@@ -11346,9 +11150,10 @@
   },
   "1-800 contacts": {
     "status": "matched",
-    "domain": "southvalleyoptical.com",
+    "domain": "1800contacts.com",
     "checked_at": "2026-10-28T15:14:48.577Z",
-    "resolver_version": 2
+    "resolver_version": 3,
+    "review_note": "Official employer website checked 2026-10-28"
   },
   "3bees technologies inc": {
     "status": "matched",
@@ -13984,32 +13789,11 @@
     "resolver_version": 2
   },
   "smx": {
-    "status": "review",
-    "domain": null,
-    "checked_at": "2026-10-28T15:16:17.114Z",
-    "resolver_version": 2,
-    "candidates": [
-      {
-        "name": "SMX",
-        "domain": "smxtech.com"
-      },
-      {
-        "name": "smx",
-        "domain": "smx.com"
-      },
-      {
-        "name": "SMX",
-        "domain": "smxusa.com"
-      },
-      {
-        "name": "SMX",
-        "domain": "smxemail.com"
-      },
-      {
-        "name": "SMX",
-        "domain": "smx.tech"
-      }
-    ]
+    "status": "matched",
+    "domain": "smxtech.com",
+    "checked_at": "2026-10-28T21:46:54.866Z",
+    "resolver_version": 3,
+    "review_note": "Official employer careers or website checked 2026-10-28"
   },
   "sn cloud solutions": {
     "status": "matched",
