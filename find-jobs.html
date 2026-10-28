@@ -287,7 +287,7 @@ body[data-page="results"] .polling-bar{position:static}
 body[data-page="results"] .results-back{display:inline-block;color:var(--gold);margin-bottom:24px}
 body[data-page="find"] .hero{min-height:65vh}
 </style>
-<link rel="stylesheet" href="landing-experience.css?v=20261026-logo1">
+<link rel="stylesheet" href="landing-experience.css?v=20261028-explore">
 </head>
 <body data-page="find">
 
@@ -329,11 +329,13 @@ body[data-page="find"] .hero{min-height:65vh}
 <section class="hero">
   <div class="landing-shell">
   <div class="landing-intro">
+    <div class="intro-main">
     <div class="hero-badge">✦ SEARCH · RÉSUMÉ · HIRING</div>
     <h1>Find your role.<br><span>Shape your future.</span></h1>
     <p class="hero-sub-text">Search real jobs, understand why they fit, and build a stronger résumé in one place.</p>
+    </div>
     <div class="start-choices" aria-label="Choose how to start">
-      <span>Personalize your search (optional)</span>
+      <span>Make it yours, or just browse</span>
       <a href="resume-search.html">Upload résumé</a>
       <a href="resume-search.html?manual=1">Enter experience</a>
       <a href="find-jobs.html?resume=0#jobSearchInput">Search directly</a>
@@ -344,7 +346,6 @@ body[data-page="find"] .hero{min-height:65vh}
   <div class="search-panel">
     <div class="panel-kicker">FIND JOBS</div>
     <h2>Start with a role and location</h2>
-    <p class="panel-sub">Choose how you want to search, then narrow the results with filters.</p>
 
   <!-- MODE TOGGLE -->
   <div class="mode-toggle" id="modeToggle">
@@ -376,7 +377,15 @@ body[data-page="find"] .hero{min-height:65vh}
     <ul class="city-list" id="cityList" role="listbox" aria-label="City suggestions"></ul>
     <ul class="city-list" id="titleList" role="listbox" aria-label="Job title suggestions"></ul>
 
+    <div class="browse-roles" aria-label="Explore jobs by role">
+      <span>Explore roles</span>
+      <a href="results.html?mode=quick&amp;q=Data+Analyst">Data Analyst</a>
+      <a href="results.html?mode=quick&amp;q=Software+Engineer">Software Engineer</a>
+      <a href="results.html?mode=quick&amp;q=Data+Engineer">Data Engineer</a>
+    </div>
     <!-- FILTERS -->
+    <details class="advanced-filters" id="advancedFilters">
+      <summary>More filters <span>Country, date, experience, job type and company</span></summary>
     <div class="filters" id="filters">
       <div class="filter-pill wide">
         <select id="filterCountry" aria-label="Country">
@@ -458,6 +467,7 @@ body[data-page="find"] .hero{min-height:65vh}
       </div>
       <button class="filter-reset" id="filterReset" type="button" onclick="resetFilters()">Reset filters</button>
     </div>
+    </details>
   </div>
   </div>
   <section class="featured-jobs" aria-labelledby="featured-title">
