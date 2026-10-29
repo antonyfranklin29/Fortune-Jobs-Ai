@@ -20,6 +20,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const SB = 'https://hqgakkcxcyspqhnlnscv.supabase.co';
 const GATEWAY = `${SB}/functions/v1/live-search`;
 const MAKE = 'https://hook.us2.make.com/**';
+const DIRECT_ROUTE_RETIRED = /^const WEBHOOK_URL_LIVE\s*=\s*'';/m.test(readFileSync(join(root, 'results.html'), 'utf8'));
 
 const server = http.createServer((req, res) => {
   const path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
@@ -247,8 +248,10 @@ try {
     expect: {
       settled: (t, c, cards) => cards > 0 || OUTCOME.test(t),
       check: ({ seen }) => ({
-        ok: seen.statusUrls.length === 0 && seen.gatewayBodies.length === 0 && seen.makeCalls === 1,
-        why: 'with the switch off, the page must use only the existing Make route',
+        // Once the direct route is retired (stage 6) the page carries no Make address, so even with
+        // the gateway switch off nothing may reach Make.
+        ok: seen.statusUrls.length === 0 && seen.gatewayBodies.length === 0 && seen.makeCalls === (DIRECT_ROUTE_RETIRED ? 0 : 1),
+        why: DIRECT_ROUTE_RETIRED ? 'with the direct route retired, nothing may reach Make' : 'with the switch off, the page must use only the existing Make route',
       }),
     },
   });
