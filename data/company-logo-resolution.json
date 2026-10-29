@@ -1816,9 +1816,30 @@
   "computer enterprises, inc.": {
     "status": "review",
     "domain": null,
-    "checked_at": "2026-10-26T23:09:49.922Z",
-    "review_note": "Previous provider domain did not match employer; human review required",
-    "resolver_version": 3
+    "checked_at": "2026-10-29T15:19:39.074Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Computer Enterprises",
+        "domain": "openpoll.com"
+      },
+      {
+        "name": "Gc Computer Enterprises Inc",
+        "domain": "gccomputerenterprises.com"
+      },
+      {
+        "name": "Computer Enterprises Payroll Specialists | Home | Computer Enterprises",
+        "domain": "celpay.ie"
+      },
+      {
+        "name": "Advantage Computer Enterprises",
+        "domain": "aceks.com"
+      },
+      {
+        "name": "Computer Network Enterprises,",
+        "domain": "cnete.net"
+      }
+    ]
   },
   "computer merchant, ltd., the": {
     "status": "review",
@@ -14620,6 +14641,4733 @@
       {
         "name": "ZIM",
         "domain": "zimmarketing.org.zm"
+      }
+    ]
+  },
+  "2bridge partners": {
+    "status": "matched",
+    "domain": "2bridgepartners.com",
+    "checked_at": "2026-10-29T15:19:24.908Z",
+    "resolver_version": 2
+  },
+  "6sense": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:25.194Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "6sense",
+        "domain": "6sense.com"
+      },
+      {
+        "name": "6sense",
+        "domain": "6sense.digital"
+      },
+      {
+        "name": "6sense Technologies",
+        "domain": "6sensehq.com"
+      },
+      {
+        "name": "6Sense Technologies",
+        "domain": "6sensetechnologies.com"
+      },
+      {
+        "name": "6sense Innovations Ltd",
+        "domain": "6senseinnovations.ai"
+      }
+    ]
+  },
+  "a&a search staffing": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:25.498Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "A+ Staffing",
+        "domain": "apluspeople.com"
+      },
+      {
+        "name": "A Search",
+        "domain": "aandasearch.com"
+      },
+      {
+        "name": "A+ Staffing",
+        "domain": "mchenryjobs.com"
+      },
+      {
+        "name": "A-Search",
+        "domain": "atalentsearch.se"
+      },
+      {
+        "name": "A+ Search",
+        "domain": "aplussearch.com"
+      }
+    ]
+  },
+  "a.c.coy company": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:25.791Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Company",
+        "domain": "company.com"
+      },
+      {
+        "name": "Company A",
+        "domain": "company-a.com"
+      },
+      {
+        "name": "PLASTIC RECYCLING LIMITED",
+        "domain": "company-information.service.gov.uk"
+      },
+      {
+        "name": "company-c.com",
+        "domain": "company-c.com"
+      },
+      {
+        "name": "company bike solutions GmbH",
+        "domain": "company-bike.com"
+      }
+    ]
+  },
+  "acro service corp": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:26.087Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Acro Service Corp",
+        "domain": "acrogov.com"
+      },
+      {
+        "name": "Acro",
+        "domain": "acrocorp.com"
+      },
+      {
+        "name": "ACRO",
+        "domain": "acrohealth.org"
+      },
+      {
+        "name": "Acro Refrigeration Service",
+        "domain": "acrorefrigeration.com.au"
+      },
+      {
+        "name": "Acro",
+        "domain": "acrobuildingsystems.com"
+      }
+    ]
+  },
+  "addepar": {
+    "status": "matched",
+    "domain": "addepar.com",
+    "checked_at": "2026-10-29T15:19:26.359Z",
+    "resolver_version": 2
+  },
+  "agile defense": {
+    "status": "matched",
+    "domain": "agiledefense.com",
+    "checked_at": "2026-10-29T15:19:26.627Z",
+    "resolver_version": 2
+  },
+  "aib international careers": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:26.913Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "AIB International",
+        "domain": "aibinternational.com"
+      },
+      {
+        "name": "AIB",
+        "domain": "oneaib.com"
+      },
+      {
+        "name": "AIB International LATAM",
+        "domain": "aibonline.org"
+      },
+      {
+        "name": "AIB",
+        "domain": "scaleireland.com"
+      },
+      {
+        "name": "AIB",
+        "domain": "aibni.co.uk"
+      }
+    ]
+  },
+  "aklip technologies llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:27.200Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Aklip Technologies",
+        "domain": "akliptech.com"
+      },
+      {
+        "name": "LLC",
+        "domain": "llc-avocats.com"
+      },
+      {
+        "name": "株式会社テクノロジーズ",
+        "domain": "technologies-group.co.jp"
+      },
+      {
+        "name": "w00w00",
+        "domain": "w00w00.llc"
+      },
+      {
+        "name": "Headlands Technologies LLC",
+        "domain": "headlandstech.com"
+      }
+    ]
+  },
+  "alldus": {
+    "status": "matched",
+    "domain": "alldus.com",
+    "checked_at": "2026-10-29T15:19:27.456Z",
+    "resolver_version": 2
+  },
+  "alpha business solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:27.744Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Alpha Business Solutions",
+        "domain": "alphambe.com"
+      },
+      {
+        "name": "Alpha Business Solutions",
+        "domain": "alphabizsolutions.com"
+      },
+      {
+        "name": "Alpha Pro Business Solutions",
+        "domain": "alphaprobusiness.com"
+      },
+      {
+        "name": "Alpha Bet Business Solutions",
+        "domain": "thealphabet.biz"
+      },
+      {
+        "name": "Alpha Business",
+        "domain": "alpha-business.com"
+      }
+    ]
+  },
+  "amazon web services, inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:28.063Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Amazon Web Services",
+        "domain": "aws.com"
+      },
+      {
+        "name": "Amazon Web Services (AWS)",
+        "domain": "buildonasean2021.com"
+      },
+      {
+        "name": "Amazon Web",
+        "domain": "amazonweb.co.za"
+      },
+      {
+        "name": "Amazon",
+        "domain": "amazon.com"
+      },
+      {
+        "name": "Amazon Web Services (AWS)",
+        "domain": "d1fufgn49q9o1i.cloudfront.net"
+      }
+    ]
+  },
+  "ampcus": {
+    "status": "matched",
+    "domain": "ampcus.com",
+    "checked_at": "2026-10-29T15:19:28.322Z",
+    "resolver_version": 2
+  },
+  "amtrust financial services, inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:28.632Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "AmTrust Financial Services",
+        "domain": "amtrustfinancial.com"
+      },
+      {
+        "name": "amtrust",
+        "domain": "amtrust.com.au"
+      },
+      {
+        "name": "AmTrust International",
+        "domain": "amtrustinternational.com"
+      },
+      {
+        "name": "AmTrust Title",
+        "domain": "amtrusttitlegroup.com"
+      },
+      {
+        "name": "AmTrust Nordic",
+        "domain": "amtrustnordic.com"
+      }
+    ]
+  },
+  "anagh technologies inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:28.928Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Anagh Technologies Inc",
+        "domain": "anaghtech.com"
+      },
+      {
+        "name": "inc",
+        "domain": "inc-sys.com"
+      },
+      {
+        "name": "株式会社テクノロジーズ",
+        "domain": "technologies-group.co.jp"
+      },
+      {
+        "name": "Technologies US",
+        "domain": "technologies-us.com"
+      },
+      {
+        "name": "Technologies Boissons",
+        "domain": "technologies-boissons.fr"
+      }
+    ]
+  },
+  "anavation": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:29.190Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "AnaVation LLC",
+        "domain": "anavationllc.com"
+      }
+    ]
+  },
+  "applied network solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:29.469Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Applied Network Solutions,",
+        "domain": "go-ans.com"
+      },
+      {
+        "name": "Applied Network Solutions",
+        "domain": "appliedns.com"
+      },
+      {
+        "name": "Applied Network Solutions",
+        "domain": "247lib.com"
+      },
+      {
+        "name": "Applied Solutions",
+        "domain": "wncit.com"
+      },
+      {
+        "name": "Applied Research Solutions",
+        "domain": "appliedres.com"
+      }
+    ]
+  },
+  "aptask": {
+    "status": "matched",
+    "domain": "aptask.com",
+    "checked_at": "2026-10-29T15:19:29.727Z",
+    "resolver_version": 2
+  },
+  "aptino, inc.": {
+    "status": "matched",
+    "domain": "aptino.com",
+    "checked_at": "2026-10-29T15:19:30.015Z",
+    "resolver_version": 2
+  },
+  "aqua it": {
+    "status": "matched",
+    "domain": "aqua-it.us",
+    "checked_at": "2026-10-29T15:19:30.282Z",
+    "resolver_version": 2
+  },
+  "aquestive therapeutics inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:30.578Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Aquestive Therapeutics",
+        "domain": "aquestive.com"
+      },
+      {
+        "name": "Therapeutics Inc",
+        "domain": "therapeuticsinc.com"
+      },
+      {
+        "name": "Encoded Therapeutics Inc",
+        "domain": "encoded.com"
+      },
+      {
+        "name": "Fate Therapeutics Inc",
+        "domain": "fatetherapeutics.com"
+      },
+      {
+        "name": "Karyopharm Therapeutics Inc",
+        "domain": "karyopharm.com"
+      }
+    ]
+  },
+  "arbitration forums": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:30.851Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Arbitration Forums,",
+        "domain": "arbfile.org"
+      },
+      {
+        "name": "Forums Forums",
+        "domain": "forumsforums.com"
+      },
+      {
+        "name": "Forums,",
+        "domain": "forumweb.hosting"
+      },
+      {
+        "name": "Arbitration",
+        "domain": "arbitration-icca.org"
+      },
+      {
+        "name": "Arbitration",
+        "domain": "arbitration.org"
+      }
+    ]
+  },
+  "aretec, inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:31.152Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Aretec",
+        "domain": "aretec.ai"
+      },
+      {
+        "name": "Aretec",
+        "domain": "aretec.co.za"
+      },
+      {
+        "name": "ARETEC",
+        "domain": "aretecengineering.com"
+      },
+      {
+        "name": "Aretec Group,",
+        "domain": "rcscapital.com"
+      },
+      {
+        "name": "Aretec Wealth",
+        "domain": "aretecwealth.com"
+      }
+    ]
+  },
+  "aristocrat technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:31.428Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "ARISTOCRAT",
+        "domain": "houseofaristocrat.com"
+      },
+      {
+        "name": "Aristocrat Leisure",
+        "domain": "aristocrat.com"
+      },
+      {
+        "name": "Aristocrat",
+        "domain": "aristocrat.com.ph"
+      },
+      {
+        "name": "Aristocrat",
+        "domain": "aristocrat-aylesbury.co.uk"
+      },
+      {
+        "name": "Aristocrat Gaming",
+        "domain": "aristocratgaming.com"
+      }
+    ]
+  },
+  "aroha technologies": {
+    "status": "matched",
+    "domain": "arohatechnologies.com",
+    "checked_at": "2026-10-29T15:19:31.695Z",
+    "resolver_version": 2
+  },
+  "arrow international": {
+    "status": "matched",
+    "domain": "arrowinternational.com",
+    "checked_at": "2026-10-29T15:19:31.968Z",
+    "resolver_version": 2
+  },
+  "ascendion": {
+    "status": "matched",
+    "domain": "ascendion.com",
+    "checked_at": "2026-10-29T15:19:32.226Z",
+    "resolver_version": 2
+  },
+  "ascent ready talent capital": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:32.500Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Ascent Ready Talent",
+        "domain": "ascent-ready.com"
+      },
+      {
+        "name": "Ascent Talent",
+        "domain": "ascenttalent.com"
+      },
+      {
+        "name": "Ascent Talent",
+        "domain": "ascenttalent.io"
+      },
+      {
+        "name": "Talent Ascent",
+        "domain": "talentascent.io"
+      },
+      {
+        "name": "Ascent Capital",
+        "domain": "ascent-cap.com"
+      }
+    ]
+  },
+  "ascii group llc": {
+    "status": "matched",
+    "domain": "asciigroup.com",
+    "checked_at": "2026-10-29T15:19:32.794Z",
+    "resolver_version": 2
+  },
+  "assort health": {
+    "status": "matched",
+    "domain": "assorthealth.com",
+    "checked_at": "2026-10-29T15:19:33.068Z",
+    "resolver_version": 2
+  },
+  "assured allies": {
+    "status": "matched",
+    "domain": "assuredallies.com",
+    "checked_at": "2026-10-29T15:19:33.327Z",
+    "resolver_version": 2
+  },
+  "atash enterprises, llc": {
+    "status": "matched",
+    "domain": "atashenterprises.com",
+    "checked_at": "2026-10-29T15:19:33.603Z",
+    "resolver_version": 2
+  },
+  "atrium": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:33.868Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Atrium",
+        "domain": "atrium.ai"
+      },
+      {
+        "name": "Atrium",
+        "domain": "atriumhq.com"
+      },
+      {
+        "name": "Atrium",
+        "domain": "atriumstaff.com"
+      },
+      {
+        "name": "Atrium",
+        "domain": "atriumglobal.com"
+      },
+      {
+        "name": "Atrium",
+        "domain": "atriumvc.com"
+      }
+    ]
+  },
+  "august schell": {
+    "status": "matched",
+    "domain": "augustschell.com",
+    "checked_at": "2026-10-29T15:19:34.133Z",
+    "resolver_version": 2
+  },
+  "avenue code, llc": {
+    "status": "matched",
+    "domain": "avenuecode.com",
+    "checked_at": "2026-10-29T15:19:34.412Z",
+    "resolver_version": 2
+  },
+  "bae systems": {
+    "status": "matched",
+    "domain": "baesystems.com",
+    "checked_at": "2026-10-29T15:19:34.695Z",
+    "resolver_version": 2
+  },
+  "bamm staffing": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:34.965Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "BAMM Staffing",
+        "domain": "bammusa.com"
+      },
+      {
+        "name": "BAMM",
+        "domain": "bammglobal.com"
+      },
+      {
+        "name": "BAMM",
+        "domain": "bamm.tv"
+      },
+      {
+        "name": "BAMM",
+        "domain": "bamodernmusic.com"
+      },
+      {
+        "name": "Bamm",
+        "domain": "bammpromos.com"
+      }
+    ]
+  },
+  "bdr solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:35.261Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "BDR",
+        "domain": "bdrco.com"
+      },
+      {
+        "name": "BDR Solutions LLC",
+        "domain": "bdrsolutionsllc.com"
+      },
+      {
+        "name": "BDR",
+        "domain": "bdr.ai"
+      },
+      {
+        "name": "BDR",
+        "domain": "bdr.com"
+      },
+      {
+        "name": "BDR",
+        "domain": "bdrmt.com.br"
+      }
+    ]
+  },
+  "big brothers big sisters of america": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:35.539Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Big Brothers Big Sisters of Canada",
+        "domain": "bigbrothersbigsisters.ca"
+      },
+      {
+        "name": "Big Brothers Big Sisters of Kentuckiana",
+        "domain": "bbbsky.org"
+      },
+      {
+        "name": "Big Brothers Big Sisters of Alaska",
+        "domain": "bbbsak.org"
+      },
+      {
+        "name": "Big Brothers Big Sisters of Utah",
+        "domain": "bbbsu.org"
+      },
+      {
+        "name": "Kansas Big Brothers Big Sisters",
+        "domain": "kansasbigs.org"
+      }
+    ]
+  },
+  "boston beer": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:35.799Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Boston Beer Garden Naples",
+        "domain": "bostonbeergardennaples.com"
+      },
+      {
+        "name": "Boston",
+        "domain": "boston.gov"
+      },
+      {
+        "name": "Boston Spa Beer Festival",
+        "domain": "bostonspabeerfestival.com"
+      },
+      {
+        "name": "Boston",
+        "domain": "bostonbeer.com"
+      },
+      {
+        "name": "Beer",
+        "domain": "crbeer.com.hk"
+      }
+    ]
+  },
+  "box": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:36.068Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Box",
+        "domain": "box.com"
+      },
+      {
+        "name": "Box Box",
+        "domain": "boxbox.club"
+      },
+      {
+        "name": "Box",
+        "domain": "spbox.com"
+      },
+      {
+        "name": "Box",
+        "domain": "amboxkc.com"
+      },
+      {
+        "name": "Box",
+        "domain": "boxcharnock.com"
+      }
+    ]
+  },
+  "boys town": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:36.350Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Boys Town",
+        "domain": "boystown.org"
+      },
+      {
+        "name": "Boys' Town",
+        "domain": "boystown.org.sg"
+      },
+      {
+        "name": "Boys Town Jerusalem",
+        "domain": "boystownjerusalem.org"
+      },
+      {
+        "name": "BOYS TOWN TEXAS",
+        "domain": "boystowntexas.org"
+      },
+      {
+        "name": "Boys Town Press",
+        "domain": "boystownpress.org"
+      }
+    ]
+  },
+  "brilliant infotech inc.": {
+    "status": "matched",
+    "domain": "brilliantinfotech.com",
+    "checked_at": "2026-10-29T15:19:36.650Z",
+    "resolver_version": 2
+  },
+  "bristol myers squibb": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:36.912Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Bristol Myers Squibb",
+        "domain": "bms.com"
+      },
+      {
+        "name": "Bristol Myers Squibb",
+        "domain": "pomalyst.com"
+      },
+      {
+        "name": "Bristol Myers Squibb",
+        "domain": "revlimid.com"
+      },
+      {
+        "name": "Bristol Myers Squibb",
+        "domain": "hcp-portal.nl"
+      },
+      {
+        "name": "Bristol Myers Squibb",
+        "domain": "bmsclinicaltrials.com"
+      }
+    ]
+  },
+  "caci international": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:37.183Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "CACI International",
+        "domain": "caci.com"
+      },
+      {
+        "name": "CACi",
+        "domain": "cacionline.net"
+      },
+      {
+        "name": "CACI",
+        "domain": "cacibeauty.com"
+      },
+      {
+        "name": "CACI",
+        "domain": "caci-bc.org"
+      },
+      {
+        "name": "CACI",
+        "domain": "caci-nss.com"
+      }
+    ]
+  },
+  "cambridge mobile telematics": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:37.448Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Mobile Telematics",
+        "domain": "mobiletelematics.nl"
+      },
+      {
+        "name": "Telematics",
+        "domain": "telematics-wireless.com"
+      },
+      {
+        "name": "Telematics",
+        "domain": "telematics.ae"
+      },
+      {
+        "name": "CM Telematics",
+        "domain": "cmtelematics.com"
+      },
+      {
+        "name": "Telematics",
+        "domain": "telematics.com"
+      }
+    ]
+  },
+  "cbts": {
+    "status": "matched",
+    "domain": "cbts.com",
+    "checked_at": "2026-10-29T15:19:37.707Z",
+    "resolver_version": 2
+  },
+  "choice hotels international": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:37.978Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Choice Hotels International",
+        "domain": "choicehotels.com"
+      },
+      {
+        "name": "Choice Hotels International",
+        "domain": "1800liveperson.com"
+      },
+      {
+        "name": "Choice Hotels International",
+        "domain": "cambriaconway.com"
+      },
+      {
+        "name": "Choice Hotels",
+        "domain": "choicehotels.co.uk"
+      },
+      {
+        "name": "CHOICE HOTELS",
+        "domain": "choicehotelsuk.co.uk"
+      }
+    ]
+  },
+  "clark": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:38.241Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Clark",
+        "domain": "getclark.com"
+      },
+      {
+        "name": "CLARK",
+        "domain": "clark.io"
+      },
+      {
+        "name": "Clark",
+        "domain": "clarkreliance.com"
+      },
+      {
+        "name": "Clark",
+        "domain": "ccclark.com"
+      },
+      {
+        "name": "Clark Construction",
+        "domain": "clarkconstruction.com"
+      }
+    ]
+  },
+  "coderio": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:38.496Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Coderio Software Company",
+        "domain": "coderio.com"
+      }
+    ]
+  },
+  "compunnel inc.": {
+    "status": "matched",
+    "domain": "compunnel.com",
+    "checked_at": "2026-10-29T15:19:38.780Z",
+    "resolver_version": 2
+  },
+  "conduent": {
+    "status": "matched",
+    "domain": "conduent.com",
+    "checked_at": "2026-10-29T15:19:39.334Z",
+    "resolver_version": 2
+  },
+  "consultnet technology services and solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:39.643Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "ConsultNet Technology Services and Solutions",
+        "domain": "consultnet.com"
+      },
+      {
+        "name": "ConsultNet",
+        "domain": "consultnetinc.com"
+      },
+      {
+        "name": "Makay Consultnet",
+        "domain": "consultnet.ch"
+      },
+      {
+        "name": "INISPACE TECHNOLOGY SERVICES AND SOLUTIONS",
+        "domain": "inispace.com"
+      },
+      {
+        "name": "Technology Services & Solutions",
+        "domain": "teamtss.com"
+      }
+    ]
+  },
+  "covetus, llc": {
+    "status": "matched",
+    "domain": "covetus.com",
+    "checked_at": "2026-10-29T15:19:39.918Z",
+    "resolver_version": 2
+  },
+  "crescens inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:40.205Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Crescens Inc",
+        "domain": "crescensinc.com"
+      },
+      {
+        "name": "CRESCENS GROUP Lda",
+        "domain": "crescensgroup.com"
+      },
+      {
+        "name": "inc",
+        "domain": "inc-sys.com"
+      },
+      {
+        "name": "Inc Management BV",
+        "domain": "inc-management.com"
+      },
+      {
+        "name": "ISTITUTO NAZIONALE PER LA COMUNICAZIONE",
+        "domain": "inc-comunicazione.it"
+      }
+    ]
+  },
+  "crypto.com": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:40.468Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Crypto.com",
+        "domain": "crypto.com"
+      },
+      {
+        "name": "Crypto.com Onchain Help Center",
+        "domain": "livechat-onchaincrypto.com"
+      },
+      {
+        "name": "Pure Crypto",
+        "domain": "pure-crypto.com"
+      },
+      {
+        "name": "Klondike",
+        "domain": "klondike-crypto.com"
+      },
+      {
+        "name": "Hello",
+        "domain": "alchemy-crypto.com"
+      }
+    ]
+  },
+  "cs solutions, inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:40.767Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "CS Solutions Inc",
+        "domain": "cssolutionsinc.com"
+      },
+      {
+        "name": "CS Solutions",
+        "domain": "getcssolutions.com"
+      },
+      {
+        "name": "CS Solutions",
+        "domain": "cssolutions.be"
+      },
+      {
+        "name": "CS Contract Solutions",
+        "domain": "cscontractsolutions.com"
+      },
+      {
+        "name": "CS",
+        "domain": "cslcpa.com"
+      }
+    ]
+  },
+  "cyberforce global": {
+    "status": "matched",
+    "domain": "cyberforceglobal.com",
+    "checked_at": "2026-10-29T15:19:41.044Z",
+    "resolver_version": 2
+  },
+  "cyberthink, inc.": {
+    "status": "matched",
+    "domain": "cyberthink.com",
+    "checked_at": "2026-10-29T15:19:41.327Z",
+    "resolver_version": 2
+  },
+  "damco solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:41.608Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Damco Solutions",
+        "domain": "damcogroup.com"
+      },
+      {
+        "name": "DamCo",
+        "domain": "damco.hr"
+      },
+      {
+        "name": "Damco Solutions Limited",
+        "domain": "damcogroup.co.uk"
+      },
+      {
+        "name": "Damco Inc",
+        "domain": "damcoinc.net"
+      },
+      {
+        "name": "Groupe Damco",
+        "domain": "groupedamco.com"
+      }
+    ]
+  },
+  "databricks": {
+    "status": "matched",
+    "domain": "databricks.com",
+    "checked_at": "2026-10-29T15:19:41.871Z",
+    "resolver_version": 2
+  },
+  "datanet it": {
+    "status": "matched",
+    "domain": "datanetit.com",
+    "checked_at": "2026-10-29T15:19:42.138Z",
+    "resolver_version": 2
+  },
+  "dcs corp": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:42.405Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "DCS Corp",
+        "domain": "dcscorp.com"
+      },
+      {
+        "name": "DCS",
+        "domain": "dcs-engineering.com"
+      },
+      {
+        "name": "DCS",
+        "domain": "dcsit-group.com"
+      },
+      {
+        "name": "Dcs",
+        "domain": "dcsbiz.com"
+      },
+      {
+        "name": "DCS",
+        "domain": "wearedcs.com"
+      }
+    ]
+  },
+  "deloitte": {
+    "status": "matched",
+    "domain": "deloitte.com",
+    "checked_at": "2026-10-29T15:19:42.665Z",
+    "resolver_version": 2
+  },
+  "derex technologies inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:42.965Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Derex Technologies Inc",
+        "domain": "derextech.com"
+      },
+      {
+        "name": "DEREX INC",
+        "domain": "derex.com"
+      },
+      {
+        "name": "DEREX",
+        "domain": "derex.es"
+      },
+      {
+        "name": "DEREX",
+        "domain": "davidderex.com"
+      },
+      {
+        "name": "Dataco DeRex Inc",
+        "domain": "dataco.com"
+      }
+    ]
+  },
+  "dexian": {
+    "status": "matched",
+    "domain": "dexian.com",
+    "checked_at": "2026-10-29T15:19:43.224Z",
+    "resolver_version": 2
+  },
+  "dhaka technologies limited company": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:43.514Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Dhaka Technologies Ltd",
+        "domain": "dhakatechnology.com"
+      },
+      {
+        "name": "LIMITED",
+        "domain": "limited-company-restoration.co.uk"
+      },
+      {
+        "name": "Dhaka",
+        "domain": "gbgdhaka.org"
+      },
+      {
+        "name": "Dhaka Consulting Limited",
+        "domain": "dhakaconsultingltd.com"
+      },
+      {
+        "name": "Dhaka Power Distribution Company",
+        "domain": "dpdc.gov.bd"
+      }
+    ]
+  },
+  "dms vision inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:43.801Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "DMS VISION Inc",
+        "domain": "dmsvisions.com"
+      },
+      {
+        "name": "DMS",
+        "domain": "dmsna.com"
+      },
+      {
+        "name": "DMS",
+        "domain": "dmsukltd.com"
+      },
+      {
+        "name": "DMS",
+        "domain": "dmsinetwork.com"
+      },
+      {
+        "name": "DMS",
+        "domain": "dmsproperty.com"
+      }
+    ]
+  },
+  "dotsolved": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:44.059Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "dotSolved Systems Inc",
+        "domain": "dotsolved.com"
+      }
+    ]
+  },
+  "dsj global": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:44.328Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "DSJ Global",
+        "domain": "dsjglobal.com"
+      },
+      {
+        "name": "DSJ Global",
+        "domain": "dsjglobal.hk"
+      },
+      {
+        "name": "dsj",
+        "domain": "dsj.de"
+      },
+      {
+        "name": "DSJ",
+        "domain": "dsjandassociates.com"
+      },
+      {
+        "name": "DSJ",
+        "domain": "dsj.ch"
+      }
+    ]
+  },
+  "e-infosol": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:44.602Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "InfoSol",
+        "domain": "infosol.com.mx"
+      },
+      {
+        "name": "Infosol",
+        "domain": "inforums.net"
+      },
+      {
+        "name": "Infosol",
+        "domain": "infosol-rj.com.br"
+      },
+      {
+        "name": "INFOSOL LLC",
+        "domain": "e-infosol.com"
+      },
+      {
+        "name": "Infosol Inc",
+        "domain": "infosol.com"
+      }
+    ]
+  },
+  "ebay": {
+    "status": "matched",
+    "domain": "ebay.com",
+    "checked_at": "2026-10-29T15:19:44.869Z",
+    "resolver_version": 2
+  },
+  "edison smart®": {
+    "status": "matched",
+    "domain": "edisonsmart.com",
+    "checked_at": "2026-10-29T15:19:45.144Z",
+    "resolver_version": 2
+  },
+  "elevance health": {
+    "status": "matched",
+    "domain": "elevancehealth.com",
+    "checked_at": "2026-10-29T15:19:45.426Z",
+    "resolver_version": 2
+  },
+  "esri": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:45.691Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Esri",
+        "domain": "esri.com"
+      },
+      {
+        "name": "ESRI",
+        "domain": "esri.net.br"
+      },
+      {
+        "name": "Esri Canada",
+        "domain": "esri.ca"
+      },
+      {
+        "name": "Esri UK",
+        "domain": "esriuk.com"
+      },
+      {
+        "name": "Esri Deutschland",
+        "domain": "esri.de"
+      }
+    ]
+  },
+  "esvee technologies inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:45.987Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "ESVEE Technologies Inc",
+        "domain": "esveetech.com"
+      },
+      {
+        "name": "Esvee Atelier",
+        "domain": "esveeatelier.com"
+      },
+      {
+        "name": "Esvee Trading Company",
+        "domain": "esveetradingcompany.com"
+      },
+      {
+        "name": "inc",
+        "domain": "inc-sys.com"
+      },
+      {
+        "name": "株式会社テクノロジーズ",
+        "domain": "technologies-group.co.jp"
+      }
+    ]
+  },
+  "etas": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:46.252Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "ETAS",
+        "domain": "etas.com"
+      },
+      {
+        "name": "ETAS",
+        "domain": "e-tas.ch"
+      },
+      {
+        "name": "ETAS",
+        "domain": "etasaudit.com"
+      },
+      {
+        "name": "ETAS High",
+        "domain": "etas.at"
+      },
+      {
+        "name": "ETAS High",
+        "domain": "etas24.com"
+      }
+    ]
+  },
+  "eterno tech, inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:46.543Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Eterno Inc",
+        "domain": "eternoinc.com"
+      },
+      {
+        "name": "Eterno",
+        "domain": "eterno.com.au"
+      },
+      {
+        "name": "Eterno",
+        "domain": "paieterno.com.br"
+      },
+      {
+        "name": "Eterno",
+        "domain": "eterno.com"
+      },
+      {
+        "name": "Eterno",
+        "domain": "idm-eterno.ru"
+      }
+    ]
+  },
+  "exatech inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:46.828Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "ExaTech Inc",
+        "domain": "exatechinc.com"
+      },
+      {
+        "name": "Exatech",
+        "domain": "exatech-group.com"
+      },
+      {
+        "name": "EXATECH",
+        "domain": "exatech.be"
+      },
+      {
+        "name": "Exatech",
+        "domain": "exatechtechnologies.com"
+      },
+      {
+        "name": "Exatech",
+        "domain": "exatech.sk"
+      }
+    ]
+  },
+  "fastra llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:47.105Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "FASTRA",
+        "domain": "fastrainvestments.com"
+      },
+      {
+        "name": "FASTRA CORPORATION",
+        "domain": "fastrallc.com"
+      },
+      {
+        "name": "FASTRA sro",
+        "domain": "fastra.cz"
+      },
+      {
+        "name": "LLC",
+        "domain": "llc-avocats.com"
+      },
+      {
+        "name": "w00w00",
+        "domain": "w00w00.llc"
+      }
+    ]
+  },
+  "fidelity investments": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:47.368Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Fidelity Investments",
+        "domain": "fidelity.com"
+      },
+      {
+        "name": "fidelity-investments-login.at",
+        "domain": "fidelity-investments-login.at"
+      },
+      {
+        "name": "Fidelity",
+        "domain": "fidelitybanknc.com"
+      },
+      {
+        "name": "Fidelity",
+        "domain": "fidelity-hh.de"
+      },
+      {
+        "name": "Fidelity",
+        "domain": "fidfedsl.com"
+      }
+    ]
+  },
+  "financial insurance services": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:47.657Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Financial Insurance Services",
+        "domain": "fisins.com"
+      },
+      {
+        "name": "Insurance & Financial Services",
+        "domain": "ifsinsure.com"
+      },
+      {
+        "name": "McEvoy Insurance & Financial Services",
+        "domain": "nwagent.com"
+      },
+      {
+        "name": "Insurance and Financial Services | Insurance and Financial Services",
+        "domain": "tinfins.com"
+      },
+      {
+        "name": "FSG Financial Services Group",
+        "domain": "financial-services-group.de"
+      }
+    ]
+  },
+  "five stones research corporation": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:47.928Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Five Stones Research",
+        "domain": "5sr-hsv.com"
+      },
+      {
+        "name": "Five Stones",
+        "domain": "hlconsulting.it"
+      },
+      {
+        "name": "Five Stones Investment",
+        "domain": "fsig.com"
+      },
+      {
+        "name": "Five Stones CounselingFive Stones",
+        "domain": "fivestones.org"
+      },
+      {
+        "name": "Five Stones Landscaping",
+        "domain": "fivestoneslandscape.com"
+      }
+    ]
+  },
+  "five9": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:48.190Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Five9",
+        "domain": "five9.com"
+      },
+      {
+        "name": "five9",
+        "domain": "five9s.de"
+      },
+      {
+        "name": "five9",
+        "domain": "five9ssoftware.com"
+      },
+      {
+        "name": "Five9",
+        "domain": "five9.co"
+      },
+      {
+        "name": "Five9 Technologies",
+        "domain": "five9technologies.com"
+      }
+    ]
+  },
+  "fluxcap": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:48.448Z",
+    "resolver_version": 2,
+    "candidates": []
+  },
+  "forbes technical consulting": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:48.719Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Forbes Technical Consulting",
+        "domain": "forbestc.com"
+      },
+      {
+        "name": "Forbes",
+        "domain": "forbes.com"
+      },
+      {
+        "name": "Forbes Consulting",
+        "domain": "alforbesconsulting.com"
+      },
+      {
+        "name": "Technical Consulting",
+        "domain": "tcongrp.com"
+      },
+      {
+        "name": "Forbes Consulting Group",
+        "domain": "forbesconsulting.com"
+      }
+    ]
+  },
+  "freddie mac": {
+    "status": "matched",
+    "domain": "freddiemac.com",
+    "checked_at": "2026-10-29T15:19:48.987Z",
+    "resolver_version": 2
+  },
+  "g-tech": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:49.259Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "G-TECH",
+        "domain": "gogtech.com"
+      },
+      {
+        "name": "G Tech",
+        "domain": "gtech.global"
+      },
+      {
+        "name": "G-Tech",
+        "domain": "glalive.com"
+      },
+      {
+        "name": "G-Tech",
+        "domain": "gtechic.com"
+      },
+      {
+        "name": "G-TECH",
+        "domain": "g-techgmbh.de"
+      }
+    ]
+  },
+  "gargi technologies inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:49.548Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "GARGI",
+        "domain": "gargi-india.com"
+      },
+      {
+        "name": "Gargi",
+        "domain": "gargitech.com"
+      },
+      {
+        "name": "Gargi College",
+        "domain": "gargicollege.in"
+      },
+      {
+        "name": "Gargi Modi",
+        "domain": "gargimodi.ca"
+      },
+      {
+        "name": "inc",
+        "domain": "inc-sys.com"
+      }
+    ]
+  },
+  "gdh": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:49.810Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "GDH",
+        "domain": "gdhinc.com"
+      },
+      {
+        "name": "GDH",
+        "domain": "gdh-gmbh.de"
+      },
+      {
+        "name": "GDH",
+        "domain": "gdhchina.com"
+      },
+      {
+        "name": "GDH",
+        "domain": "gdh-24.com"
+      },
+      {
+        "name": "gdh",
+        "domain": "gdh.digital"
+      }
+    ]
+  },
+  "generate": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:50.073Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Generate",
+        "domain": "generatebiomedicines.com"
+      },
+      {
+        "name": "Generate",
+        "domain": "generatecapital.com"
+      },
+      {
+        "name": "Generate",
+        "domain": "generate.co.nz"
+      },
+      {
+        "name": "Generate",
+        "domain": "generatenu.com"
+      },
+      {
+        "name": "Generate",
+        "domain": "generate.community"
+      }
+    ]
+  },
+  "georgia state university": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:50.346Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Georgia State University",
+        "domain": "gsu.edu"
+      },
+      {
+        "name": "Georgia State University",
+        "domain": "gasu.education"
+      },
+      {
+        "name": "Georgia College & State University",
+        "domain": "gcsu.edu"
+      },
+      {
+        "name": "Georgia Southwestern State University",
+        "domain": "gsw.edu"
+      },
+      {
+        "name": "Middle Georgia State University",
+        "domain": "mga.edu"
+      }
+    ]
+  },
+  "global commerce and services": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:50.645Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Global Commerce and Services",
+        "domain": "globalcommserv.com"
+      },
+      {
+        "name": "Commerce Construction Services,",
+        "domain": "ccswichita.com"
+      },
+      {
+        "name": "Global Commerce",
+        "domain": "globalcommerce.com.br"
+      },
+      {
+        "name": "Global Value Commerce",
+        "domain": "globalvaluecommerce.com"
+      },
+      {
+        "name": "Global Performance Commerce",
+        "domain": "dfogpc.com"
+      }
+    ]
+  },
+  "greatamerica": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:50.904Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "GreatAmerica Financial Services",
+        "domain": "greatamerica.com"
+      }
+    ]
+  },
+  "greybridge search & selection": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:51.168Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Greybridge Search",
+        "domain": "greybridge.co.uk"
+      },
+      {
+        "name": "Selection Search",
+        "domain": "selectionsearch.in"
+      },
+      {
+        "name": "Greybridge Partners",
+        "domain": "greybridgepartners.com"
+      },
+      {
+        "name": "Quest Search and Selection",
+        "domain": "questsearch.co.uk"
+      },
+      {
+        "name": "Jobskey Search and Selection",
+        "domain": "jobskeysearch.com"
+      }
+    ]
+  },
+  "grt corporation": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:51.443Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "GRT Corporation",
+        "domain": "grtcorp.com"
+      },
+      {
+        "name": "GRT",
+        "domain": "grt-t.com"
+      },
+      {
+        "name": "GRT",
+        "domain": "grtenv.com"
+      },
+      {
+        "name": "GRT",
+        "domain": "grt-am.com"
+      },
+      {
+        "name": "GRT",
+        "domain": "grtship.com"
+      }
+    ]
+  },
+  "guntner u.s..": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:51.707Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Guntner",
+        "domain": "guntner.de"
+      },
+      {
+        "name": "U.S. Bank",
+        "domain": "usbank.com"
+      },
+      {
+        "name": "Guntner Transport LLC",
+        "domain": "guntnertransport.com"
+      },
+      {
+        "name": "U.S. Army",
+        "domain": "aurora.army"
+      },
+      {
+        "name": "U.S. Cellular",
+        "domain": "arrayinc.com"
+      }
+    ]
+  },
+  "hackerone": {
+    "status": "matched",
+    "domain": "hackerone.com",
+    "checked_at": "2026-10-29T15:19:51.999Z",
+    "resolver_version": 2
+  },
+  "hdy technologies llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:52.282Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "hdy",
+        "domain": "hdy.com"
+      },
+      {
+        "name": "HDY Filo Kiralama",
+        "domain": "hdyfilo.com"
+      },
+      {
+        "name": "LLC",
+        "domain": "llc-avocats.com"
+      },
+      {
+        "name": "株式会社テクノロジーズ",
+        "domain": "technologies-group.co.jp"
+      },
+      {
+        "name": "w00w00",
+        "domain": "w00w00.llc"
+      }
+    ]
+  },
+  "highbrow technology inc": {
+    "status": "matched",
+    "domain": "highbrowtechnology.com",
+    "checked_at": "2026-10-29T15:19:52.580Z",
+    "resolver_version": 2
+  },
+  "hinge health": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:52.851Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Hinge Health",
+        "domain": "hingehealth.com"
+      },
+      {
+        "name": "Hinge",
+        "domain": "hinge.co"
+      },
+      {
+        "name": "Hinge Health",
+        "domain": "hingehealth.dev"
+      },
+      {
+        "name": "Hinge Health",
+        "domain": "hingehealth.io"
+      },
+      {
+        "name": "Hinge",
+        "domain": "hingemarketing.com"
+      }
+    ]
+  },
+  "hp inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:53.142Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "HP",
+        "domain": "hp.com"
+      },
+      {
+        "name": "HP INC",
+        "domain": "hp-inc.co.za"
+      },
+      {
+        "name": "HP",
+        "domain": "hpwm.sg"
+      },
+      {
+        "name": "HP",
+        "domain": "hpdaas.com"
+      },
+      {
+        "name": "HP",
+        "domain": "hp.co.uk"
+      }
+    ]
+  },
+  "hptech inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:53.417Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "HPTech",
+        "domain": "hptech-inc.com"
+      },
+      {
+        "name": "inc",
+        "domain": "inc-sys.com"
+      },
+      {
+        "name": "Inc Management BV",
+        "domain": "inc-management.com"
+      },
+      {
+        "name": "ISTITUTO NAZIONALE PER LA COMUNICAZIONE",
+        "domain": "inc-comunicazione.it"
+      },
+      {
+        "name": "INC Solutions Group",
+        "domain": "inc-solutions.com"
+      }
+    ]
+  },
+  "htd talent": {
+    "status": "matched",
+    "domain": "htdtalent.com",
+    "checked_at": "2026-10-29T15:19:53.685Z",
+    "resolver_version": 2
+  },
+  "huntington national bank": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:53.969Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Huntington Bank",
+        "domain": "huntington.com"
+      },
+      {
+        "name": "Huntington Bank",
+        "domain": "huntington-careers.com"
+      },
+      {
+        "name": "National Bank",
+        "domain": "nblbd.com"
+      },
+      {
+        "name": "National Bank",
+        "domain": "nationalbank.com"
+      },
+      {
+        "name": "City National Bank",
+        "domain": "cnb.com"
+      }
+    ]
+  },
+  "ibotix us inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:54.256Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "IBOTIX LLP",
+        "domain": "ibotix.ai"
+      },
+      {
+        "name": "IBOTIX LLP",
+        "domain": "ibotix.in"
+      },
+      {
+        "name": "US INC",
+        "domain": "us-incorporated.com"
+      },
+      {
+        "name": "inc",
+        "domain": "inc-sys.com"
+      },
+      {
+        "name": "US",
+        "domain": "uscg.mil"
+      }
+    ]
+  },
+  "icon international group llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:54.567Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "ICON International",
+        "domain": "iconinternational.com"
+      },
+      {
+        "name": "Icon International Group",
+        "domain": "iconinternationalgroup.com"
+      },
+      {
+        "name": "Icon Group",
+        "domain": "icongroup.global"
+      },
+      {
+        "name": "Icon International",
+        "domain": "icon-international.tv"
+      },
+      {
+        "name": "icon group",
+        "domain": "icongroup.com"
+      }
+    ]
+  },
+  "incedo inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:54.852Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Incedo Inc",
+        "domain": "incedoinc.com"
+      },
+      {
+        "name": "INCEDO IT",
+        "domain": "incedo.com.ar"
+      },
+      {
+        "name": "Incedo Group",
+        "domain": "incedogroup.com"
+      },
+      {
+        "name": "INCEDO ADVOCATS",
+        "domain": "incedoadvocats.es"
+      },
+      {
+        "name": "Incedo Hospitality",
+        "domain": "incedohospitality.com"
+      }
+    ]
+  },
+  "industrial air flow dynamics": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:55.149Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Industrial Air Flow Dynamics",
+        "domain": "iafdinc.com"
+      },
+      {
+        "name": "Air Dynamics",
+        "domain": "airdynamicsoftulsa.com"
+      },
+      {
+        "name": "Industrial Dynamics",
+        "domain": "industrialdynamicsco.com"
+      },
+      {
+        "name": "Rock Flow Dynamics",
+        "domain": "rfdyn.com"
+      },
+      {
+        "name": "Air Dynamics Industrial Systems Corporation",
+        "domain": "airdynamics.net"
+      }
+    ]
+  },
+  "info dinamica inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:55.433Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Info Dinamica",
+        "domain": "infodinamicainc.com"
+      },
+      {
+        "name": "DINAMICA",
+        "domain": "dinamicatelefonia.com.br"
+      },
+      {
+        "name": "Elettro Dinamica",
+        "domain": "elettrodinamica.eu"
+      },
+      {
+        "name": "Info Origin Inc",
+        "domain": "infoorigin.com"
+      },
+      {
+        "name": "DINAMICA GT",
+        "domain": "dinamicagt.com.br"
+      }
+    ]
+  },
+  "info way solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:55.713Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Info Way Solutions",
+        "domain": "infowaygroup.com"
+      },
+      {
+        "name": "ISR Info Way",
+        "domain": "isrinfo.com"
+      },
+      {
+        "name": "Info Solutions",
+        "domain": "info-solutions.org"
+      },
+      {
+        "name": "Info Solutions",
+        "domain": "maitratech.com"
+      },
+      {
+        "name": "New Way Info",
+        "domain": "newwayinfo.com"
+      }
+    ]
+  },
+  "infosys technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:55.980Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Infosys",
+        "domain": "infosys.com"
+      },
+      {
+        "name": "Infosys Technologies",
+        "domain": "infosystechnologies.ae"
+      },
+      {
+        "name": "infosys",
+        "domain": "info-sys.eu"
+      },
+      {
+        "name": "INFOSYS",
+        "domain": "infosys-admin.hu"
+      },
+      {
+        "name": "Sun Infosys Technologies",
+        "domain": "suninfosys.ae"
+      }
+    ]
+  },
+  "insight xcite": {
+    "status": "matched",
+    "domain": "insightxcite.com",
+    "checked_at": "2026-10-29T15:19:56.246Z",
+    "resolver_version": 2
+  },
+  "integrity management services, inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:56.549Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Integrity Management Services",
+        "domain": "integritym.com"
+      },
+      {
+        "name": "Integrity Management Services",
+        "domain": "integritymanagementllc.com"
+      },
+      {
+        "name": "Integrity Property Management Services Inc",
+        "domain": "integritypm.ca"
+      },
+      {
+        "name": "Integrity Services Inc",
+        "domain": "integrityservicesinc.com"
+      },
+      {
+        "name": "Integrity Management",
+        "domain": "integritymgt.com"
+      }
+    ]
+  },
+  "intellibus": {
+    "status": "matched",
+    "domain": "intellibus.com",
+    "checked_at": "2026-10-29T15:19:56.810Z",
+    "resolver_version": 2
+  },
+  "intellisoft technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:57.079Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Intellisoft Technologies",
+        "domain": "intellisofttech.com"
+      },
+      {
+        "name": "Intellisoft Technologies",
+        "domain": "intellisoft-tech.com"
+      },
+      {
+        "name": "Intellisoft Technologies",
+        "domain": "intellisofttechnologies.com"
+      },
+      {
+        "name": "Intellisoft",
+        "domain": "intellisoft.com"
+      },
+      {
+        "name": "IntelliSoft",
+        "domain": "intellisoft.io"
+      }
+    ]
+  },
+  "interon it solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:57.359Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Interon IT Solutions",
+        "domain": "interonit.com"
+      },
+      {
+        "name": "INTERON",
+        "domain": "interon.com.br"
+      },
+      {
+        "name": "Interon Laboratories",
+        "domain": "interonlabs.com"
+      },
+      {
+        "name": "INTERON GROUP",
+        "domain": "interongroup.com"
+      },
+      {
+        "name": "IT Solutions",
+        "domain": "it-solutions.com.mx"
+      }
+    ]
+  },
+  "intraedge": {
+    "status": "matched",
+    "domain": "intraedge.com",
+    "checked_at": "2026-10-29T15:19:57.625Z",
+    "resolver_version": 2
+  },
+  "inventsoft": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:57.908Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "INVENTSOFT",
+        "domain": "inventsoftusa.com"
+      }
+    ]
+  },
+  "iris software inc.": {
+    "status": "matched",
+    "domain": "irissoftware.com",
+    "checked_at": "2026-10-29T15:19:58.202Z",
+    "resolver_version": 2
+  },
+  "it minds llc": {
+    "status": "matched",
+    "domain": "itminds.net",
+    "checked_at": "2026-10-29T15:19:58.481Z",
+    "resolver_version": 2
+  },
+  "it trailblazers, llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:58.764Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Trailblazers",
+        "domain": "ittblazers.com"
+      },
+      {
+        "name": "Trailblazers",
+        "domain": "wearetrailblazers.org"
+      },
+      {
+        "name": "Trailblazers",
+        "domain": "trailblazers.ie"
+      },
+      {
+        "name": "Trailblazers",
+        "domain": "trailblazerspresents.com"
+      },
+      {
+        "name": "Trailblazers",
+        "domain": "trailblazers.school"
+      }
+    ]
+  },
+  "itc digital solutions, llc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:19:59.057Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "ITC",
+        "domain": "itcportal.com"
+      },
+      {
+        "name": "ITC Solutions",
+        "domain": "itc-solutions.fr"
+      },
+      {
+        "name": "ITC Solutions",
+        "domain": "itcsolutions.ru"
+      },
+      {
+        "name": "ITC",
+        "domain": "itc.in"
+      },
+      {
+        "name": "ITC",
+        "domain": "itcmfg.com"
+      }
+    ]
+  },
+  "jpmorgan chase": {
+    "status": "matched",
+    "domain": "jpmorganchase.com",
+    "checked_at": "2026-10-29T15:19:59.331Z",
+    "resolver_version": 2
+  },
+  "juul labs": {
+    "status": "matched",
+    "domain": "juullabs.com",
+    "checked_at": "2026-10-29T15:19:59.601Z",
+    "resolver_version": 2
+  },
+  "kanshe infotech": {
+    "status": "matched",
+    "domain": "kansheinfotech.com",
+    "checked_at": "2026-10-29T15:19:59.863Z",
+    "resolver_version": 2
+  },
+  "kavaliro": {
+    "status": "matched",
+    "domain": "kavaliro.com",
+    "checked_at": "2026-10-29T15:20:00.141Z",
+    "resolver_version": 2
+  },
+  "keen technology solutions llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:00.476Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Keen Technology Solutions",
+        "domain": "keentechnos.com"
+      },
+      {
+        "name": "Keen Technology",
+        "domain": "keentechnology.com"
+      },
+      {
+        "name": "Keen LLC",
+        "domain": "keenagency.com"
+      },
+      {
+        "name": "Keen",
+        "domain": "keen.io"
+      },
+      {
+        "name": "KEEN",
+        "domain": "keenfootwear.com"
+      }
+    ]
+  },
+  "kellton": {
+    "status": "matched",
+    "domain": "kellton.com",
+    "checked_at": "2026-10-29T15:20:00.735Z",
+    "resolver_version": 2
+  },
+  "keypixel software solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:01.015Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Keypixel Software Solutions",
+        "domain": "keypixelusa.com"
+      },
+      {
+        "name": "Precise Software Solutions",
+        "domain": "precise-soft.com"
+      },
+      {
+        "name": "Safran Software Solutions",
+        "domain": "safran.com"
+      },
+      {
+        "name": "NEC Software Solutions",
+        "domain": "necsws.com"
+      },
+      {
+        "name": "ECI Software Solutions",
+        "domain": "ecisolutions.com"
+      }
+    ]
+  },
+  "l3harris": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:01.279Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "L3Harris Technologies",
+        "domain": "l3harris.com"
+      },
+      {
+        "name": "L3Harris Technologies",
+        "domain": "l3harrisusers.org"
+      },
+      {
+        "name": "l3harris-technologies.com",
+        "domain": "l3harris-technologies.com"
+      },
+      {
+        "name": "L3Harris Call Management & Dispatch Service",
+        "domain": "l3-cmds.com"
+      }
+    ]
+  },
+  "laansu": {
+    "status": "matched",
+    "domain": "laansu.com",
+    "checked_at": "2026-10-29T15:20:01.560Z",
+    "resolver_version": 2
+  },
+  "ltimindtree": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:01.819Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "LTIMindtree",
+        "domain": "mindtree.com"
+      },
+      {
+        "name": "LTIMindtree",
+        "domain": "ltimindtree.info"
+      },
+      {
+        "name": "LTIMindtree",
+        "domain": "ltimindtree.net"
+      }
+    ]
+  },
+  "lyric": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:02.092Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Lyric",
+        "domain": "lyric.ai"
+      },
+      {
+        "name": "Lyric",
+        "domain": "lyric.tech"
+      },
+      {
+        "name": "Lyric",
+        "domain": "lyric.com"
+      },
+      {
+        "name": "Lyric",
+        "domain": "getlyric.com"
+      },
+      {
+        "name": "LYRIC",
+        "domain": "lyric.org"
+      }
+    ]
+  },
+  "maania consultancy services": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:02.410Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Maania Consultancy Services",
+        "domain": "maania.com"
+      },
+      {
+        "name": "Tata Consultancy Services",
+        "domain": "tcs.com"
+      },
+      {
+        "name": "Consultancy Services",
+        "domain": "jmdtechnologiesinc.com"
+      },
+      {
+        "name": "Consultancy Services",
+        "domain": "consultancyservices.co.in"
+      },
+      {
+        "name": "Optimum Consultancy Services",
+        "domain": "optimumcs.com"
+      }
+    ]
+  },
+  "marlabs llc": {
+    "status": "matched",
+    "domain": "marlabs.com",
+    "checked_at": "2026-10-29T15:20:02.686Z",
+    "resolver_version": 2
+  },
+  "masis staffing solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:02.964Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Masis Staffing Solutions",
+        "domain": "masisstaffing.com"
+      },
+      {
+        "name": "Masis Staffing Solutions",
+        "domain": "laurenjillian.com"
+      },
+      {
+        "name": "Masis Bakery",
+        "domain": "masisbakery.com"
+      },
+      {
+        "name": "Masis Logistics",
+        "domain": "masis.pl"
+      },
+      {
+        "name": "Staffing Solutions",
+        "domain": "staffingsolutions.us"
+      }
+    ]
+  },
+  "matlen silver": {
+    "status": "matched",
+    "domain": "matlensilver.com",
+    "checked_at": "2026-10-29T15:20:03.234Z",
+    "resolver_version": 2
+  },
+  "maximus": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:03.504Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Maximus",
+        "domain": "maximus.com"
+      },
+      {
+        "name": "Maximus",
+        "domain": "maximustribe.com"
+      },
+      {
+        "name": "MAXIMUS",
+        "domain": "maximus-solution.com"
+      },
+      {
+        "name": "Maximus",
+        "domain": "maximusfertilizantes.com.br"
+      },
+      {
+        "name": "Maximus",
+        "domain": "maximusgtm.com"
+      }
+    ]
+  },
+  "mayo clinic": {
+    "status": "matched",
+    "domain": "mayoclinic.org",
+    "checked_at": "2026-10-29T15:20:03.783Z",
+    "resolver_version": 2
+  },
+  "mcafee, inc.": {
+    "status": "matched",
+    "domain": "mcafee.com",
+    "checked_at": "2026-10-29T15:20:04.092Z",
+    "resolver_version": 2
+  },
+  "metropolitan transportation authority": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:04.364Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Home - Richmond Metropolitan Transportation Authority",
+        "domain": "gormta.org"
+      },
+      {
+        "name": "METROPOLITAN ELECTRICITY AUTHORITY",
+        "domain": "mea.or.th"
+      },
+      {
+        "name": "Metropolitan Transportation Network",
+        "domain": "metrotn.com"
+      },
+      {
+        "name": "Jacksonville Transportation Authority",
+        "domain": "jtafla.com"
+      },
+      {
+        "name": "Metropolitan Waterworks Authority",
+        "domain": "mwa.co.th"
+      }
+    ]
+  },
+  "mortenson": {
+    "status": "matched",
+    "domain": "mortenson.com",
+    "checked_at": "2026-10-29T15:20:04.632Z",
+    "resolver_version": 2
+  },
+  "motion recruitment": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:04.898Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Motion Recruitment",
+        "domain": "motionrecruitment.com"
+      },
+      {
+        "name": "Motion Recruitment",
+        "domain": "motionrecruitment.com.au"
+      },
+      {
+        "name": "Motion Recruitment",
+        "domain": "motionrecruitment.co.nz"
+      },
+      {
+        "name": "Motion Recruitment",
+        "domain": "ssr-dev.com"
+      },
+      {
+        "name": "Motion Recruitment Partners LLC",
+        "domain": "motionrp.com"
+      }
+    ]
+  },
+  "mprogen": {
+    "status": "matched",
+    "domain": "mprogen.com",
+    "checked_at": "2026-10-29T15:20:05.160Z",
+    "resolver_version": 2
+  },
+  "n2p systems": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:05.434Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Systems Plus Solutions",
+        "domain": "systems-plus.com"
+      },
+      {
+        "name": "Systems X",
+        "domain": "systems-x.com"
+      },
+      {
+        "name": "EPAM Systems",
+        "domain": "epam.com"
+      },
+      {
+        "name": "BAE Systems",
+        "domain": "baesystems.com"
+      },
+      {
+        "name": "Calibr8 Systems",
+        "domain": "calibr8.systems"
+      }
+    ]
+  },
+  "naic": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:05.693Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "NAIC",
+        "domain": "naic.org"
+      },
+      {
+        "name": "NAIC",
+        "domain": "naicpe.com"
+      },
+      {
+        "name": "NAIC",
+        "domain": "naic.az"
+      },
+      {
+        "name": "NAIC",
+        "domain": "naic.gov.ng"
+      },
+      {
+        "name": "NAIC",
+        "domain": "naic.co.jp"
+      }
+    ]
+  },
+  "netic": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:05.956Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Netic",
+        "domain": "netic.ai"
+      },
+      {
+        "name": "Netic",
+        "domain": "netic.dk"
+      },
+      {
+        "name": "Netic AB",
+        "domain": "netic.se"
+      },
+      {
+        "name": "Netic Space",
+        "domain": "neticspace.com"
+      },
+      {
+        "name": "Netic OÜ",
+        "domain": "netic.ee"
+      }
+    ]
+  },
+  "nevada national security sites": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:06.227Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Nevada National Security Sites",
+        "domain": "nnss.gov"
+      },
+      {
+        "name": "National Security Forum of Nevada",
+        "domain": "nationalsecurityforum.org"
+      },
+      {
+        "name": "National Security",
+        "domain": "nationalsecurityus.org"
+      },
+      {
+        "name": "Nevada Security Company",
+        "domain": "nevadasecurityco.com"
+      },
+      {
+        "name": "National Security",
+        "domain": "natsec.us"
+      }
+    ]
+  },
+  "next gen software solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:06.509Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Next Gen Software Solutions LLC",
+        "domain": "nxtgensoftwaresolutions.com"
+      },
+      {
+        "name": "Next Gen Solutions",
+        "domain": "nextgensolutions.it"
+      },
+      {
+        "name": "Next Gen",
+        "domain": "nextgensalesinc.com"
+      },
+      {
+        "name": "Next Gen",
+        "domain": "next-g.com"
+      },
+      {
+        "name": "Next Gen Web Solutions",
+        "domain": "nextgenwebsolutions.com"
+      }
+    ]
+  },
+  "noblesoft technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:06.783Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Noblesoft Technologies",
+        "domain": "noblesoft.com"
+      },
+      {
+        "name": "Noblesoft Solutions",
+        "domain": "noblesoft-solutions.com"
+      },
+      {
+        "name": "株式会社テクノロジーズ",
+        "domain": "technologies-group.co.jp"
+      },
+      {
+        "name": "Technologies US",
+        "domain": "technologies-us.com"
+      },
+      {
+        "name": "Technologies Boissons",
+        "domain": "technologies-boissons.fr"
+      }
+    ]
+  },
+  "nordson corporation": {
+    "status": "matched",
+    "domain": "nordson.com",
+    "checked_at": "2026-10-29T15:20:07.051Z",
+    "resolver_version": 2
+  },
+  "northern trust": {
+    "status": "matched",
+    "domain": "northerntrust.com",
+    "checked_at": "2026-10-29T15:20:07.326Z",
+    "resolver_version": 2
+  },
+  "npaworldwide": {
+    "status": "matched",
+    "domain": "npaworldwide.com",
+    "checked_at": "2026-10-29T15:20:07.585Z",
+    "resolver_version": 2
+  },
+  "ntt data americas, inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:07.870Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "NTT DATA",
+        "domain": "nttdata.com"
+      },
+      {
+        "name": "NTT DATA AIVista",
+        "domain": "nttdata-aivista.com"
+      },
+      {
+        "name": "NTT DATA Europe",
+        "domain": "ntt-data-group.eu"
+      },
+      {
+        "name": "NTT",
+        "domain": "global.ntt"
+      },
+      {
+        "name": "NTT DATA UKI",
+        "domain": "nttdata.jobs"
+      }
+    ]
+  },
+  "omp": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:08.135Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "OMP",
+        "domain": "omp.com"
+      },
+      {
+        "name": "OMP",
+        "domain": "ompracing.com"
+      },
+      {
+        "name": "OMP",
+        "domain": "ompartners.rs"
+      },
+      {
+        "name": "OMP",
+        "domain": "omp-apotheke.de"
+      },
+      {
+        "name": "OMP",
+        "domain": "omp-group.com"
+      }
+    ]
+  },
+  "onsemi": {
+    "status": "matched",
+    "domain": "onsemi.com",
+    "checked_at": "2026-10-29T15:20:08.394Z",
+    "resolver_version": 2
+  },
+  "opendatajobs": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:08.649Z",
+    "resolver_version": 2,
+    "candidates": []
+  },
+  "orbis group": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:08.932Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Orbis",
+        "domain": "orbis-group.co.uk"
+      },
+      {
+        "name": "Orbis Group",
+        "domain": "orbisgroup.net"
+      },
+      {
+        "name": "Orbis",
+        "domain": "weareorbis.com"
+      },
+      {
+        "name": "ORBIS",
+        "domain": "orbis-group.com"
+      },
+      {
+        "name": "Orbis",
+        "domain": "orbisinc.com"
+      }
+    ]
+  },
+  "orion innovation": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:09.203Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Orion Innovation",
+        "domain": "orioninnovation.com"
+      },
+      {
+        "name": "Orion Innovation",
+        "domain": "orioninnovation.nl"
+      },
+      {
+        "name": "Orion Innovation",
+        "domain": "sryas.com"
+      },
+      {
+        "name": "Orion Innovation México",
+        "domain": "gonet.us"
+      },
+      {
+        "name": "Orion Innovation Homes",
+        "domain": "orioninnovationhomes.com.au"
+      }
+    ]
+  },
+  "oxford solutions, inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:09.501Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Oxford Solutions",
+        "domain": "oxfordsolutionsinc.com"
+      },
+      {
+        "name": "Oxford Network Solutions Inc",
+        "domain": "oxfordnetworking.com"
+      },
+      {
+        "name": "Oxford",
+        "domain": "oxford.com"
+      },
+      {
+        "name": "Oxford House Inc",
+        "domain": "oxfordhouse.org"
+      },
+      {
+        "name": "Oxford",
+        "domain": "oxford.edu"
+      }
+    ]
+  },
+  "pacer group": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:09.785Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Pacer",
+        "domain": "mypacer.com"
+      },
+      {
+        "name": "Pacer",
+        "domain": "pacergroup.net"
+      },
+      {
+        "name": "Pacer",
+        "domain": "pacer.studio"
+      },
+      {
+        "name": "Pacer",
+        "domain": "getpacer.com"
+      },
+      {
+        "name": "Pacer",
+        "domain": "pacer.co"
+      }
+    ]
+  },
+  "pacific northwest national laboratory": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:10.063Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Pacific Northwest National Laboratory",
+        "domain": "pnnl.gov"
+      },
+      {
+        "name": "Northwest Laboratory",
+        "domain": "nwpathology.com"
+      },
+      {
+        "name": "Argonne National Laboratory",
+        "domain": "anl.gov"
+      },
+      {
+        "name": "PACIFIC-NORTHWEST",
+        "domain": "cobpacificnorthwest.org"
+      },
+      {
+        "name": "Brookhaven National Laboratory",
+        "domain": "bnl.gov"
+      }
+    ]
+  },
+  "panacea financial": {
+    "status": "matched",
+    "domain": "panaceafinancial.com",
+    "checked_at": "2026-10-29T15:20:10.338Z",
+    "resolver_version": 2
+  },
+  "penn medicine": {
+    "status": "matched",
+    "domain": "pennmedicine.org",
+    "checked_at": "2026-10-29T15:20:10.605Z",
+    "resolver_version": 2
+  },
+  "penske": {
+    "status": "matched",
+    "domain": "penske.com",
+    "checked_at": "2026-10-29T15:20:10.870Z",
+    "resolver_version": 2
+  },
+  "people in ai": {
+    "status": "matched",
+    "domain": "peopleinai.com",
+    "checked_at": "2026-10-29T15:20:11.151Z",
+    "resolver_version": 2
+  },
+  "peopletec": {
+    "status": "matched",
+    "domain": "peopletec.com",
+    "checked_at": "2026-10-29T15:20:11.417Z",
+    "resolver_version": 2
+  },
+  "perplexity": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:11.683Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Perplexity",
+        "domain": "perplexity1.com"
+      },
+      {
+        "name": "Perplexity AI",
+        "domain": "perplexity.ai"
+      },
+      {
+        "name": "Perplexity",
+        "domain": "perplexity.nl"
+      },
+      {
+        "name": "perplexity",
+        "domain": "perplexity.io"
+      },
+      {
+        "name": "Perplexity",
+        "domain": "pplx-labs.framer.website"
+      }
+    ]
+  },
+  "pioneer consulting services": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:11.968Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Pioneer Consulting Services LLC",
+        "domain": "pioneeritconsulting.com"
+      },
+      {
+        "name": "Pioneer Consulting",
+        "domain": "pioneerconsulting.com"
+      },
+      {
+        "name": "Pioneer Consulting",
+        "domain": "pioneercs.net"
+      },
+      {
+        "name": "Pioneer Management Consulting",
+        "domain": "pioneermanagementconsulting.com"
+      },
+      {
+        "name": "Pioneer services",
+        "domain": "pioneerserv.com"
+      }
+    ]
+  },
+  "pjm": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:12.233Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "PJM",
+        "domain": "pjmueller.de"
+      },
+      {
+        "name": "PJM",
+        "domain": "pjmsouth.co.uk"
+      },
+      {
+        "name": "PJM",
+        "domain": "pjmmechanical.com"
+      },
+      {
+        "name": "PJM",
+        "domain": "pjm.ai"
+      },
+      {
+        "name": "PJM",
+        "domain": "pjm.construction"
+      }
+    ]
+  },
+  "planet labs": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:12.511Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Planet Labs",
+        "domain": "planet.com"
+      },
+      {
+        "name": "Planet Material Labs",
+        "domain": "planetmatlabs.com"
+      },
+      {
+        "name": "Red Planet Labs",
+        "domain": "redplanetlabs.com"
+      },
+      {
+        "name": "PLANET ELECTRO LABS",
+        "domain": "planetelectrolabs.co.in"
+      },
+      {
+        "name": "Orange Planet Labs",
+        "domain": "orangeplanet.net"
+      }
+    ]
+  },
+  "polywood": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:12.773Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Polywood",
+        "domain": "polywood.org"
+      },
+      {
+        "name": "Polywood",
+        "domain": "polywood.co.in"
+      },
+      {
+        "name": "Polywood",
+        "domain": "polywoodvt.com"
+      },
+      {
+        "name": "POLYWOOD®",
+        "domain": "polywood.com"
+      },
+      {
+        "name": "PolyWood Studios",
+        "domain": "polywoodstudios.co.uk"
+      }
+    ]
+  },
+  "prairie view a&m university": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:13.053Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Prairie View A&M University",
+        "domain": "pvamu.edu"
+      },
+      {
+        "name": "Prairie View A&M University",
+        "domain": "pvam.edu"
+      },
+      {
+        "name": "Prairie View A&M Foundation",
+        "domain": "pvamf.org"
+      },
+      {
+        "name": "Prairie View",
+        "domain": "prairieview.org"
+      },
+      {
+        "name": "Prairie View A&M University National Alumni Association – Prairie View A&M University National Alumni Association",
+        "domain": "pvualumni.org"
+      }
+    ]
+  },
+  "preveil inc": {
+    "status": "matched",
+    "domain": "preveil.com",
+    "checked_at": "2026-10-29T15:20:13.340Z",
+    "resolver_version": 2
+  },
+  "pro integrate": {
+    "status": "matched",
+    "domain": "prointegrate.net",
+    "checked_at": "2026-10-29T15:20:13.612Z",
+    "resolver_version": 2
+  },
+  "ptsol ® - progressive technology solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:13.901Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "PTSOL ®",
+        "domain": "ptsol.com"
+      },
+      {
+        "name": "PROGRESSIVE TECHNOLOGY",
+        "domain": "progressive-technology.com"
+      },
+      {
+        "name": "Progressive Technology",
+        "domain": "prgtech.com"
+      },
+      {
+        "name": "Progressive Technology",
+        "domain": "pro-technology.com"
+      },
+      {
+        "name": "Progressive Legal®",
+        "domain": "progressivelegal.com.au"
+      }
+    ]
+  },
+  "pwc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:14.162Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "PwC",
+        "domain": "pwc.com"
+      },
+      {
+        "name": "PwC",
+        "domain": "pwccn.com"
+      },
+      {
+        "name": "PwC",
+        "domain": "pwc.com.pk"
+      },
+      {
+        "name": "PwC",
+        "domain": "pwcconsulting.co.kr"
+      },
+      {
+        "name": "pwc",
+        "domain": "pwc.co"
+      }
+    ]
+  },
+  "pyramid consulting, inc": {
+    "status": "matched",
+    "domain": "pyramidconsulting.co",
+    "checked_at": "2026-10-29T15:20:14.448Z",
+    "resolver_version": 2
+  },
+  "pyramid consulting, inc.": {
+    "status": "matched",
+    "domain": "pyramidconsulting.co",
+    "checked_at": "2026-10-29T15:20:14.740Z",
+    "resolver_version": 2
+  },
+  "qode": {
+    "status": "matched",
+    "domain": "qode.world",
+    "checked_at": "2026-10-29T15:20:14.999Z",
+    "resolver_version": 2
+  },
+  "qorali": {
+    "status": "matched",
+    "domain": "qorali.com",
+    "checked_at": "2026-10-29T15:20:15.261Z",
+    "resolver_version": 2
+  },
+  "quantum space": {
+    "status": "matched",
+    "domain": "quantumspace.us",
+    "checked_at": "2026-10-29T15:20:15.530Z",
+    "resolver_version": 2
+  },
+  "reply": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:15.799Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Reply",
+        "domain": "reply.com"
+      },
+      {
+        "name": "Reply",
+        "domain": "reply.ai"
+      },
+      {
+        "name": "Reply",
+        "domain": "replyargus.com"
+      },
+      {
+        "name": "reply",
+        "domain": "hi-reply.com"
+      },
+      {
+        "name": "Reply",
+        "domain": "reply.community"
+      }
+    ]
+  },
+  "reveille technologies": {
+    "status": "matched",
+    "domain": "reveilletechnologies.com",
+    "checked_at": "2026-10-29T15:20:16.073Z",
+    "resolver_version": 2
+  },
+  "rise technical recruitment": {
+    "status": "matched",
+    "domain": "risetechnicalrecruitment.co.uk",
+    "checked_at": "2026-10-29T15:20:16.349Z",
+    "resolver_version": 2
+  },
+  "roblox": {
+    "status": "matched",
+    "domain": "roblox.com",
+    "checked_at": "2026-10-29T15:20:16.613Z",
+    "resolver_version": 2
+  },
+  "ryder": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:16.885Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Ryder",
+        "domain": "rydercup.com"
+      },
+      {
+        "name": "Ryder",
+        "domain": "ryder-and-davis.com"
+      },
+      {
+        "name": "Ryder",
+        "domain": "ryder.id"
+      },
+      {
+        "name": "Ryder",
+        "domain": "rydertoys.com"
+      },
+      {
+        "name": "Ryder System",
+        "domain": "ryder.com"
+      }
+    ]
+  },
+  "saige partners": {
+    "status": "matched",
+    "domain": "saigepartners.com",
+    "checked_at": "2026-10-29T15:20:17.153Z",
+    "resolver_version": 2
+  },
+  "saliense consulting llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:17.432Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Saliense",
+        "domain": "saliense.com"
+      },
+      {
+        "name": "LLC",
+        "domain": "llc-avocats.com"
+      },
+      {
+        "name": "w00w00",
+        "domain": "w00w00.llc"
+      },
+      {
+        "name": "VTekis Consulting LLC",
+        "domain": "vtekis.com"
+      },
+      {
+        "name": "Taipei101 Network",
+        "domain": "taipei101.llc"
+      }
+    ]
+  },
+  "sapsol technologies inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:17.718Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "SAPSOL Technologies Inc",
+        "domain": "sapsol.com"
+      },
+      {
+        "name": "SAPSOL SERVICES",
+        "domain": "sapsol.dev"
+      },
+      {
+        "name": "SAPSOL® Ltd",
+        "domain": "sapsol.net"
+      },
+      {
+        "name": "inc",
+        "domain": "inc-sys.com"
+      },
+      {
+        "name": "株式会社テクノロジーズ",
+        "domain": "technologies-group.co.jp"
+      }
+    ]
+  },
+  "sdh systems": {
+    "status": "matched",
+    "domain": "sdhsystems.com",
+    "checked_at": "2026-10-29T15:20:17.984Z",
+    "resolver_version": 2
+  },
+  "sense": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:18.246Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Sense",
+        "domain": "sensehq.com"
+      },
+      {
+        "name": "Sense",
+        "domain": "sense.com"
+      },
+      {
+        "name": "Sense",
+        "domain": "sense.org.uk"
+      },
+      {
+        "name": "SenSe",
+        "domain": "sensmarketing.nl"
+      },
+      {
+        "name": "Sense",
+        "domain": "senseandrespond.co"
+      }
+    ]
+  },
+  "shakti solutions": {
+    "status": "matched",
+    "domain": "shaktisolutions.com",
+    "checked_at": "2026-10-29T15:20:18.530Z",
+    "resolver_version": 2
+  },
+  "simplisafe": {
+    "status": "matched",
+    "domain": "simplisafe.com",
+    "checked_at": "2026-10-29T15:20:18.790Z",
+    "resolver_version": 2
+  },
+  "situsamc": {
+    "status": "matched",
+    "domain": "situsamc.com",
+    "checked_at": "2026-10-29T15:20:19.048Z",
+    "resolver_version": 2
+  },
+  "smart it frame llc": {
+    "status": "matched",
+    "domain": "smartitframe.com",
+    "checked_at": "2026-10-29T15:20:19.332Z",
+    "resolver_version": 2
+  },
+  "softpathtechnologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:19.597Z",
+    "resolver_version": 2,
+    "candidates": []
+  },
+  "southwest airlines": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:19.862Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Southwest Airlines",
+        "domain": "southwest.com"
+      },
+      {
+        "name": "Southwest Airlines",
+        "domain": "swabiz.com"
+      },
+      {
+        "name": "Southwest Virtual Airlines",
+        "domain": "swavirtual.com"
+      },
+      {
+        "name": "Southwest Airlines Pilots Association",
+        "domain": "swapa.org"
+      },
+      {
+        "name": "Southwest Airlines Culture Connection",
+        "domain": "southwestcultureconnection.com"
+      }
+    ]
+  },
+  "sp tech resources inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:20.160Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "SP Tech Resources",
+        "domain": "sptecinc.com"
+      },
+      {
+        "name": "SP Tech",
+        "domain": "sptechusa.com"
+      },
+      {
+        "name": "SP Tech Solutions",
+        "domain": "sptech.pl"
+      },
+      {
+        "name": "Tech Resources, Inc. Home",
+        "domain": "trimilford.com"
+      },
+      {
+        "name": "Aqua Tech Sp",
+        "domain": "aqua-tech.com.pl"
+      }
+    ]
+  },
+  "sparc technology services inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:20.472Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Sparc Technology Services INC",
+        "domain": "sparcts.com"
+      },
+      {
+        "name": "SPARC SERVICES",
+        "domain": "sparcservices.org"
+      },
+      {
+        "name": "SPARC",
+        "domain": "sparc.co"
+      },
+      {
+        "name": "SPARC",
+        "domain": "sparc.camp"
+      },
+      {
+        "name": "SPARC",
+        "domain": "sparcnational.com"
+      }
+    ]
+  },
+  "st. george's university": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:20.740Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "St. George's University",
+        "domain": "sgu.edu"
+      },
+      {
+        "name": "St. George's School",
+        "domain": "stgeorges.edu"
+      },
+      {
+        "name": "St. George's School",
+        "domain": "stgeorges.bc.ca"
+      },
+      {
+        "name": "St George's Lupset",
+        "domain": "stgeorgeslupset.org.uk"
+      },
+      {
+        "name": "St. George's College",
+        "domain": "stgeorges.edu.pe"
+      }
+    ]
+  },
+  "staar surgical": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:21.007Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "STAAR Surgical",
+        "domain": "staar.com"
+      },
+      {
+        "name": "STAAR Surgical Spain",
+        "domain": "discovericl.com"
+      },
+      {
+        "name": "STAAR Surgical CHINA",
+        "domain": "evoicl.cn"
+      },
+      {
+        "name": "STAAR",
+        "domain": "staardistributing.com"
+      },
+      {
+        "name": "STAAR",
+        "domain": "staarconference.com"
+      }
+    ]
+  },
+  "state of iowa": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:21.291Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Iowa State University",
+        "domain": "iastate.edu"
+      },
+      {
+        "name": "State Library of Iowa",
+        "domain": "statelibraryofiowa.gov"
+      },
+      {
+        "name": "Iowa State Bank",
+        "domain": "iowastatebanks.com"
+      },
+      {
+        "name": "Iowa State Bank",
+        "domain": "iowastatebank.com"
+      },
+      {
+        "name": "Iowa State Fair",
+        "domain": "iowastatefair.org"
+      }
+    ]
+  },
+  "state of south carolina": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:21.582Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "State of South Carolina",
+        "domain": "sc.gov"
+      },
+      {
+        "name": "South Carolina State University",
+        "domain": "scsu.edu"
+      },
+      {
+        "name": "State of North Carolina",
+        "domain": "nc.gov"
+      },
+      {
+        "name": "University of South Carolina",
+        "domain": "sc.edu"
+      },
+      {
+        "name": "Medical University of South Carolina",
+        "domain": "musc.edu"
+      }
+    ]
+  },
+  "stellar science": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:21.853Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "STELLAR SCIENCE FOUNDATION",
+        "domain": "ss-f.org"
+      },
+      {
+        "name": "Stellar Science Ltd Co",
+        "domain": "stellarscience.com"
+      },
+      {
+        "name": "Stellar",
+        "domain": "stellar.net"
+      },
+      {
+        "name": "Stellar",
+        "domain": "stellarindustries.com"
+      },
+      {
+        "name": "Stellar",
+        "domain": "getstellar.ai"
+      }
+    ]
+  },
+  "stem it": {
+    "status": "matched",
+    "domain": "stemit.io",
+    "checked_at": "2026-10-29T15:20:22.123Z",
+    "resolver_version": 2
+  },
+  "strategic employment partners": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:22.391Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Strategic Employment Partners",
+        "domain": "strategicemployment.com"
+      },
+      {
+        "name": "Partners Employment",
+        "domain": "partnersemployment.co.uk"
+      },
+      {
+        "name": "Strategic Partners",
+        "domain": "strategicpartnersmedia.com"
+      },
+      {
+        "name": "Strategic Employment Solutions",
+        "domain": "sesadvocacy.com"
+      },
+      {
+        "name": "Strategic Storage Partners,",
+        "domain": "ssp-llc.us"
+      }
+    ]
+  },
+  "swoon": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:22.657Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Swoon",
+        "domain": "tasteswoon.com"
+      },
+      {
+        "name": "Swoon",
+        "domain": "swooneditions.com"
+      },
+      {
+        "name": "Swoon",
+        "domain": "swoonstaffing.com"
+      },
+      {
+        "name": "Swoon",
+        "domain": "swoononaspoon.co.uk"
+      },
+      {
+        "name": "SWOON",
+        "domain": "swoonthestudio.com"
+      }
+    ]
+  },
+  "synthires": {
+    "status": "matched",
+    "domain": "synthires.com",
+    "checked_at": "2026-10-29T15:20:22.913Z",
+    "resolver_version": 2
+  },
+  "syntrux & co": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:23.193Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Co",
+        "domain": "coop.co.uk"
+      },
+      {
+        "name": "CoCoLa",
+        "domain": "co-co-la.de"
+      },
+      {
+        "name": "500 Global",
+        "domain": "500.co"
+      },
+      {
+        "name": "H1",
+        "domain": "h1.co"
+      },
+      {
+        "name": "Co-operative Bank of Kenya",
+        "domain": "co-opbank.co.ke"
+      }
+    ]
+  },
+  "t-mobile usa, inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:23.486Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "T-Mobile",
+        "domain": "t-mobile.com"
+      },
+      {
+        "name": "T USA",
+        "domain": "bt-usa.com"
+      },
+      {
+        "name": "T. HASEGAWA USA INC",
+        "domain": "thasegawa.com"
+      },
+      {
+        "name": "T-Mobile Polska",
+        "domain": "t-mobile.pl"
+      },
+      {
+        "name": "T-Mobile Polska",
+        "domain": "magentateam.pl"
+      }
+    ]
+  },
+  "talentos ai llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:23.778Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "TalentOS",
+        "domain": "talentos.com"
+      },
+      {
+        "name": "Talentos",
+        "domain": "thetalentos.com"
+      },
+      {
+        "name": "Talentos",
+        "domain": "simtalentos.com.br"
+      },
+      {
+        "name": "Talentos",
+        "domain": "talentos.site"
+      },
+      {
+        "name": "Talentos",
+        "domain": "jptalentos.com.br"
+      }
+    ]
+  },
+  "target": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:24.062Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Target",
+        "domain": "target.com"
+      },
+      {
+        "name": "Target",
+        "domain": "targethr.us"
+      },
+      {
+        "name": "TARGET",
+        "domain": "targetlaw.it"
+      },
+      {
+        "name": "Target",
+        "domain": "target.nl"
+      },
+      {
+        "name": "Target",
+        "domain": "ontargetagency.com"
+      }
+    ]
+  },
+  "teamware solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:24.337Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Teamware",
+        "domain": "teamwareinc.com"
+      },
+      {
+        "name": "teamware",
+        "domain": "teamware.info"
+      },
+      {
+        "name": "Teamware",
+        "domain": "teamware.ltd"
+      },
+      {
+        "name": "TEAMWARE",
+        "domain": "teamwearscotland.com"
+      },
+      {
+        "name": "Teamware Solutions Spain",
+        "domain": "teamware.de"
+      }
+    ]
+  },
+  "tech genius inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:24.627Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Tech Genius inc",
+        "domain": "tech-gene.com"
+      },
+      {
+        "name": "Genius Tech Inc",
+        "domain": "genius-tech.ca"
+      },
+      {
+        "name": "Tech Genius",
+        "domain": "techgenius.co.za"
+      },
+      {
+        "name": "Genius",
+        "domain": "genius.ai"
+      },
+      {
+        "name": "Genius",
+        "domain": "genius.com"
+      }
+    ]
+  },
+  "tech3pillars technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:24.899Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Tech3pillars Technologies",
+        "domain": "t3pillars.com"
+      },
+      {
+        "name": "株式会社テクノロジーズ",
+        "domain": "technologies-group.co.jp"
+      },
+      {
+        "name": "Technologies US",
+        "domain": "technologies-us.com"
+      },
+      {
+        "name": "Technologies Boissons",
+        "domain": "technologies-boissons.fr"
+      },
+      {
+        "name": "Technologies de France",
+        "domain": "technologies-france.com"
+      }
+    ]
+  },
+  "techgene solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:25.188Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Techgene Solutions",
+        "domain": "techgene.com"
+      },
+      {
+        "name": "Techgene",
+        "domain": "techgene.io"
+      },
+      {
+        "name": "TechGene HQ",
+        "domain": "techgenehq.com"
+      },
+      {
+        "name": "Solutions",
+        "domain": "solutions-ii.com"
+      },
+      {
+        "name": "RW Solutions",
+        "domain": "solutions-rw.com"
+      }
+    ]
+  },
+  "technipros, llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:25.460Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "TechniPros LLC",
+        "domain": "technipros.com"
+      },
+      {
+        "name": "TECHNIPROS",
+        "domain": "technipros.fr"
+      },
+      {
+        "name": "LLC",
+        "domain": "llc-avocats.com"
+      },
+      {
+        "name": "w00w00",
+        "domain": "w00w00.llc"
+      },
+      {
+        "name": "Taipei101 Network",
+        "domain": "taipei101.llc"
+      }
+    ]
+  },
+  "techtriad": {
+    "status": "matched",
+    "domain": "techtriad.com",
+    "checked_at": "2026-10-29T15:20:25.734Z",
+    "resolver_version": 2
+  },
+  "tek labs inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:26.024Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "TEK",
+        "domain": "atekinc.com"
+      },
+      {
+        "name": "Tek Inc",
+        "domain": "stek-inc.com"
+      },
+      {
+        "name": "Tek Leaders Inc",
+        "domain": "tekleaders.com"
+      },
+      {
+        "name": "Tek",
+        "domain": "fi-tek.com"
+      },
+      {
+        "name": "Spark Tek Inc",
+        "domain": "sparktekusa.com"
+      }
+    ]
+  },
+  "tekvivid": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:26.283Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "TekVivid",
+        "domain": "tekvividinc.com"
+      }
+    ]
+  },
+  "tenarai": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:26.581Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Tenarai",
+        "domain": "tenarai.com"
+      },
+      {
+        "name": "ハイスキルエンジニアならTENARAI",
+        "domain": "tenarai.co.jp"
+      }
+    ]
+  },
+  "texas a&m": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:26.855Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Texas A&M University",
+        "domain": "tamu.edu"
+      },
+      {
+        "name": "Texas A&M University–Central Texas",
+        "domain": "tamuct.edu"
+      },
+      {
+        "name": "Texas A&M University System",
+        "domain": "tamus.edu"
+      },
+      {
+        "name": "Texas A&M University-Kingsville",
+        "domain": "tamuk.edu"
+      },
+      {
+        "name": "Texas A&M International University",
+        "domain": "tamiu.edu"
+      }
+    ]
+  },
+  "the charles schwab corporation": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:27.145Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Charles Schwab",
+        "domain": "schwab.com"
+      },
+      {
+        "name": "Charles Schwab",
+        "domain": "aboutschwab.com"
+      },
+      {
+        "name": "Charles Schwab Challenge",
+        "domain": "charlesschwabchallenge.com"
+      },
+      {
+        "name": "Schwab",
+        "domain": "schwabjobs.com"
+      },
+      {
+        "name": "Schwab",
+        "domain": "schwabbank.com"
+      }
+    ]
+  },
+  "the vanguard group": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:27.446Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "The Vanguard Group",
+        "domain": "vanguardfmgroup.com"
+      },
+      {
+        "name": "Vanguard",
+        "domain": "vanguard.com"
+      },
+      {
+        "name": "Vanguard Group",
+        "domain": "vanguardautogroup.com"
+      },
+      {
+        "name": "The Vanguard",
+        "domain": "thevanguard.com.au"
+      },
+      {
+        "name": "The Vanguard",
+        "domain": "thevanguard.live"
+      }
+    ]
+  },
+  "the walt disney company": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:27.732Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "The Walt Disney Company",
+        "domain": "thewaltdisneycompany.com"
+      },
+      {
+        "name": "The Walt Disney Company",
+        "domain": "thewaltdisneycompany.cloud"
+      },
+      {
+        "name": "Walt Disney Imagineering",
+        "domain": "sunshinemedia.me"
+      },
+      {
+        "name": "Walt Disney World",
+        "domain": "waltdisneyworld.name"
+      },
+      {
+        "name": "Walt Disney Birthplace",
+        "domain": "thewaltdisneybirthplace.org"
+      }
+    ]
+  },
+  "tiger analytics inc.": {
+    "status": "matched",
+    "domain": "tigeranalytics.com",
+    "checked_at": "2026-10-29T15:20:28.019Z",
+    "resolver_version": 2
+  },
+  "tiltedge solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:28.303Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Tiltedge",
+        "domain": "thetiltedge.com"
+      },
+      {
+        "name": "Solutions",
+        "domain": "solutions-ii.com"
+      },
+      {
+        "name": "RW Solutions",
+        "domain": "solutions-rw.com"
+      },
+      {
+        "name": "1728 Solutions",
+        "domain": "1728.solutions"
+      },
+      {
+        "name": "YG1",
+        "domain": "yg1.solutions"
+      }
+    ]
+  },
+  "tiltedge solutions llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:28.585Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Tiltedge",
+        "domain": "thetiltedge.com"
+      },
+      {
+        "name": "LLC",
+        "domain": "llc-avocats.com"
+      },
+      {
+        "name": "w00w00",
+        "domain": "w00w00.llc"
+      },
+      {
+        "name": "Solutions³ LLC",
+        "domain": "solutions3llc.com"
+      },
+      {
+        "name": "Taipei101 Network",
+        "domain": "taipei101.llc"
+      }
+    ]
+  },
+  "trane technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:28.856Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Trane Technologies",
+        "domain": "tranetechnologies.com"
+      },
+      {
+        "name": "Trane Technologies",
+        "domain": "tranetechnologies.cn"
+      },
+      {
+        "name": "Trane",
+        "domain": "trane.com"
+      },
+      {
+        "name": "Trane Technologies",
+        "domain": "tranetechnologiesvoluntarybenefits.com"
+      },
+      {
+        "name": "Trane Technologies",
+        "domain": "mynexia.com"
+      }
+    ]
+  },
+  "trispoke managed services": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:29.145Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Trispoke Managed Services Pvt",
+        "domain": "trispokeservices.com"
+      },
+      {
+        "name": "Managed Services",
+        "domain": "managed-services.co.uk"
+      },
+      {
+        "name": "Frontline Managed Services",
+        "domain": "frontlinems.com"
+      },
+      {
+        "name": "Echo Managed Services",
+        "domain": "echo-ms.com"
+      },
+      {
+        "name": "Managed Services Company",
+        "domain": "managed.sa"
+      }
+    ]
+  },
+  "tror ai for everyone": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:29.468Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Tror",
+        "domain": "tror.ai"
+      },
+      {
+        "name": "Everyone",
+        "domain": "fwdeveryone.com"
+      },
+      {
+        "name": "Food For Everyone",
+        "domain": "foodforeveryone.com.au"
+      },
+      {
+        "name": "JoySauce for Everyone",
+        "domain": "joysauce.com"
+      },
+      {
+        "name": "For Everyone Group",
+        "domain": "foreveryonegroup.co.uk"
+      }
+    ]
+  },
+  "trustar bank": {
+    "status": "matched",
+    "domain": "trustarbank.com",
+    "checked_at": "2026-10-29T15:20:29.733Z",
+    "resolver_version": 2
+  },
+  "united global technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:30.016Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "United Technologies",
+        "domain": "united.com.hk"
+      },
+      {
+        "name": "Global Technologies",
+        "domain": "globaltec.com"
+      },
+      {
+        "name": "United Technologies",
+        "domain": "unitedtechnologies.com.pk"
+      },
+      {
+        "name": "United Technologies",
+        "domain": "unitdtechnologies.com"
+      },
+      {
+        "name": "Penn United Technologies",
+        "domain": "pennunited.com"
+      }
+    ]
+  },
+  "university of central florida": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:30.296Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "University of Central Florida",
+        "domain": "ucf.edu"
+      },
+      {
+        "name": "University of Florida",
+        "domain": "ufl.edu"
+      },
+      {
+        "name": "University of Florida",
+        "domain": "uf.edu"
+      },
+      {
+        "name": "University of South Florida",
+        "domain": "usf.edu"
+      },
+      {
+        "name": "College of Central Florida",
+        "domain": "cf.edu"
+      }
+    ]
+  },
+  "verigent": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:30.556Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Verigent",
+        "domain": "verigent.com"
+      },
+      {
+        "name": "Verigent",
+        "domain": "verigent.ai"
+      }
+    ]
+  },
+  "viper search": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:30.820Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "VIPER",
+        "domain": "viper.cl"
+      },
+      {
+        "name": "Viper",
+        "domain": "viperrocks.com"
+      },
+      {
+        "name": "Pit Viper",
+        "domain": "pitviper.com"
+      },
+      {
+        "name": "Viper",
+        "domain": "viper.srl"
+      },
+      {
+        "name": "Viper Partners",
+        "domain": "viperequitypartners.com"
+      }
+    ]
+  },
+  "vuepoint diagnostics, llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:31.161Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "VuePoint Diagnostics",
+        "domain": "vuepointdx.com"
+      },
+      {
+        "name": "Vuepoint Agency",
+        "domain": "vuepointagency.com"
+      },
+      {
+        "name": "VuePoint Solutions",
+        "domain": "vpsl.co.uk"
+      },
+      {
+        "name": "Vuepoint Advertising",
+        "domain": "vuepointad.com"
+      },
+      {
+        "name": "Diagnostics LLC",
+        "domain": "diagnosticsllp.com"
+      }
+    ]
+  },
+  "yoh, a day & zimmermann company": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:31.443Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Yoh",
+        "domain": "yoh.com"
+      },
+      {
+        "name": "Yoh",
+        "domain": "yoh.co.uk"
+      },
+      {
+        "name": "yoh",
+        "domain": "yoh.de"
+      },
+      {
+        "name": "Zimmermann",
+        "domain": "zimmermann.com"
+      },
+      {
+        "name": "Zimmermann",
+        "domain": "zimmermann-gruppe.com"
+      }
+    ]
+  },
+  "yulista solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-10-29T15:20:31.721Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Yulista Holding",
+        "domain": "defensesystemssolutions.com"
+      },
+      {
+        "name": "Yulista Holding LLC",
+        "domain": "yulista.com"
+      },
+      {
+        "name": "Solutions",
+        "domain": "solutions-ii.com"
+      },
+      {
+        "name": "RW Solutions",
+        "domain": "solutions-rw.com"
+      },
+      {
+        "name": "1728 Solutions",
+        "domain": "1728.solutions"
       }
     ]
   }
