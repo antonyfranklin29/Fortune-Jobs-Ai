@@ -137,7 +137,11 @@ Built by Claude, saved, reloaded and re-read. Nothing was run and no secret was 
 
 `tests/live-search-release-guard.cjs` enforces the site side: `results.html` can only ship with `LIVE_SEARCH_PAUSED = false` if `LIVE_SEARCH_VIA_GATEWAY = true` and no `.html`/`.js` page contains a Make webhook address. It also checks that the pause is tested before any Live Search request.
 
-## Stage 6: retire the old direct route (Make, free) **[approve]** — can run now, while paused
+## Stage 6: retire the old direct route (Make, free). DONE 2026-10-29, approved by Franklin
+
+Done at about 10:55 AM ET on Oct 29, then re-read. Before the change, 4555354 had no executions after Oct 26, 11:26 PM ET (the stray 1-credit call) and both webhook queues were 0/667. Scenario 4555354 "Integration Webhooks" is **Inactive**, and its webhook "Fortune Jobs AI" (hook 2074117, the address in page source) is **deleted**. Make's delete confirmation listed only 4555354 as affected. Make's webhook list now holds only "Live Search gateway-only hook" (scenario 6798265: Inactive, no executions, no incomplete executions, queue 0). One old incomplete execution of 4555354 from Oct 13 remains in its queue. Do not retry it; it has no webhook now anyway. The old address still appears in the three pages until stage 7 removes it, but it no longer reaches anything.
+
+Original plan:
 
 1. Franklin signs in to Make. Confirm the history of scenario 4555354: Live Search runs since the pause should be none (or only stray 1-credit calls stopped by the stage 0 guard).
 2. **Deactivate scenario 4555354.** No page uses it: Quick Match reads the database directly and no page calls `WEBHOOK_URL_QUICK`; Live Search is paused.
