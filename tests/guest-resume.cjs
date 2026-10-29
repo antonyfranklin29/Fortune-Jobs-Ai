@@ -45,7 +45,9 @@ test('DOCX upload asks for review before saving temporary job fit details',async
  vm.createContext(c);vm.runInContext(fs.readFileSync('guest-resume-page.js','utf8'),c);
  const bytes=fs.readFileSync(require('node:path').join(__dirname,'fixtures/guest-edison.docx'));node('guestResumeFile').files=[{name:'guest-edison.docx',size:bytes.length,arrayBuffer:async()=>new Uint8Array(bytes).buffer}];
  node('guestResumeFile').listeners.change();
- await new Promise(resolve=>setTimeout(resolve,100));
+ for(let attempt=0;attempt<100 && (node('guestReview').hidden || node('guestRole').value!=='Data Analyst');attempt++){
+   await new Promise(resolve=>setTimeout(resolve,20));
+ }
  assert.equal(node('guestReview').hidden,false);assert.equal(G.load(s),null);assert.equal(node('guestRole').value,'Data Analyst');
  node('guestYears').value=String(node('guestYears').value);
  node('guestReview').listeners.submit({preventDefault(){}});
