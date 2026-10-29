@@ -131,25 +131,33 @@ Built by Claude, saved, reloaded and re-read. Nothing was run and no secret was 
    ```
 4. **Rollback:** deactivate the new scenario. The site is unaffected, because it still uses the direct route.
 
-## Stage 6: move the pages (Codex) **[approve]**
+## Live Search paused on the site, 2026-10-28 (e39904c)
 
-1. Merge the prepared one-line flip (`LIVE_SEARCH_VIA_GATEWAY = true` in `results.html`, branch `claude/live-search-cutover-flip`). `index.html` and `find-jobs.html` need no change: they hand Live Search to `results.html` (see State).
-   - Already on `claude/live-search-site-cutover`, mergeable now with the switch still off: the gateway path refuses a query over 120 characters (`live_search_limits.max_query_chars`) or a filter over 120 in the page with a clear message, and turns a 400 into "could not use this search" instead of a bare failure. Without it, a 121–200 character title that works on the direct route today would fail after cutover.
+`LIVE_SEARCH_PAUSED = true` in `results.html`: the page refuses Live Search before it calls the gateway or Make, and Quick Match stays live. **This does not close the cost exposure.** The old webhook address is still in the source of `index.html`, `find-jobs.html` and `results.html`, and scenario 4555354 is still Active, so anyone holding the address can start paid runs. While paused, no current page uses that route, so it can be retired now, before the gateway is live (stage 6). Live Search is unpaused only in stage 7.
+
+`tests/live-search-release-guard.cjs` enforces the site side: `results.html` can only ship with `LIVE_SEARCH_PAUSED = false` if `LIVE_SEARCH_VIA_GATEWAY = true` and no `.html`/`.js` page contains a Make webhook address. It also checks that the pause is tested before any Live Search request.
+
+## Stage 6: retire the old direct route (Make, free) **[approve]** — can run now, while paused
+
+1. Franklin signs in to Make. Confirm the history of scenario 4555354: Live Search runs since the pause should be none (or only stray 1-credit calls stopped by the stage 0 guard).
+2. **Deactivate scenario 4555354.** No page uses it: Quick Match reads the database directly and no page calls `WEBHOOK_URL_QUICK`; Live Search is paused.
+3. **Then delete its webhook** ("Fortune Jobs AI" hook) so the public address stops accepting requests. Deactivating alone is not enough: Make keeps accepting and queuing requests for an inactive scenario's webhook, and they would run if it were ever reactivated. Before deleting, open the scenario's queue (Incomplete executions / webhook queue) and clear anything that arrived after the pause.
+4. **Verify (read-only):** the scenario shows Inactive, the webhook is gone from Make's webhook list, and Make history shows no new 4555354 executions. Do not "test" the old address with a request.
+5. **Rollback:** reactivate 4555354 with a new webhook. Only needed if the gateway route is abandoned; the site stays paused either way.
+
+## Stage 7: switch Live Search on through the gateway (one site release, Codex) **[approve]**
+
+Preconditions: stages 1–5 verified (gateway redeployed from main and preflight all ok, dry run ok, secrets set, one real gateway search verified end to end) and stage 6 done.
+
+1. Merge the switch-on branch `claude/live-search-cutover-flip-v3`: `LIVE_SEARCH_VIA_GATEWAY = true`, `LIVE_SEARCH_PAUSED = false`, and the old webhook address removed from all three pages (`WEBHOOK_URL_LIVE` / `WEBHOOK_URL_QUICK` set to `''`; their only callers are the unreachable direct copies). `tests/live-search-release-guard.cjs` must pass on it. (`claude/live-search-cutover-flip` and `-flip-v2` are superseded.)
 2. **Verify for one to two hours:**
-   - New gateway admissions arrive at the expected rate, and none stay `dispatched` past `slot_expires_at`.
-   - New executions appear in the new scenario; executions in the old scenario's Live Search route fall towards zero (cached pages only).
+   - Gateway admissions arrive at the expected rate, and none stay `dispatched` past `slot_expires_at`.
+   - Executions appear only in scenario 6798265.
    ```sql
-   select status, count(*), min(admitted_at), max(admitted_at)
-   from public.live_search_admissions where admitted_at > now() - interval '2 hours' group by status;
+   select status, outcome, count(*), min(admitted_at), max(admitted_at)
+   from public.live_search_admissions where admitted_at > now() - interval '2 hours' group by 1, 2;
    ```
-3. **Rollback, in this order:** flip the switch(es) back to `false` and deploy. The direct route still works, because the old scenario is untouched. Then, if needed, deactivate the new scenario or unset the gateway secrets.
-
-## Stage 7: retire the direct route **[approve]**
-
-1. Wait for the cache window: at least 24 hours after stage 6 with no old-route Live Search executions except stray empty bodies, which stage 0 already filters.
-2. In scenario 4555354, disable the Live Search route, for example with a filter that never passes. Keep Quick Match running.
-3. Retire the old webhook. No page calls `WEBHOOK_URL_QUICK` (Quick Match reads the database directly), so the old scenario's webhook can simply be deleted or the scenario deactivated, then the `WEBHOOK_URL_*` constants and the unreachable direct-webhook copies removed from all three pages (Codex). The old URL is public in page source, so this is what actually closes the open direct path.
-4. **Rollback:** re-enable the old route and set the page switches back to `false`. This is only possible before the old webhook is rotated, so do the rotation last.
+3. **Rollback:** set `LIVE_SEARCH_PAUSED = true` and release (Quick Match keeps working); then, if needed, deactivate 6798265 or unset the gateway secrets. There is no fallback to the direct route; it was retired in stage 6.
 
 ## Approvals needed
 
@@ -161,7 +169,7 @@ Built by Claude, saved, reloaded and re-read. Nothing was run and no secret was 
 | 3 | Create the inactive gateway-only scenario and its webhook — done 2026-10-27 (scenario 6798265, inactive) | free |
 | 4 | Deploy the `x-make-apikey` gateway change; Franklin puts one random secret in the Make API key and `MAKE_GATEWAY_SECRET`, and copies the new webhook URL into `MAKE_LIVE_WEBHOOK_URL` | free |
 | 5 | Activate the new scenario and run one real search | ~10 Make credits, ≤ $0.10 Apify |
-| 6 | Merge the one-line flip in `results.html` (prepared) | free |
-| 7 | Retire the old route and rotate the webhook | free |
+| 6 | Deactivate scenario 4555354 and delete its webhook (safe now: Live Search is paused, Quick Match does not use it) | free |
+| 7 | Merge `claude/live-search-cutover-flip-v3`: gateway on, unpause, old webhook address removed from pages | free |
 
 Stages 0 to 4 need Make to stay signed in, plus Supabase dashboard or CLI access for secrets. The Supabase connector used here cannot set function secrets without the value passing through chat, so Franklin sets the secrets himself.
