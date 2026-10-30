@@ -6,7 +6,7 @@
 import { assert, assertEquals } from "./deno/assert.ts";
 
 const SB = "https://fake.supabase.test";
-const MAKE = "https://make.fixture.test/hook";
+const MAKE = "https://hook.us2.make.com/fixture-hook";
 const SECRET = "fixture-gateway-secret-do-not-use";
 Deno.env.set("SUPABASE_URL", SB);
 Deno.env.set("SUPABASE_SERVICE_ROLE_KEY", "fixture-service");
@@ -21,9 +21,18 @@ let handler: Handler | null = null;
   handler = h;
   return {};
 };
-await import("../supabase/functions/live-search/index.ts");
+const gateway = await import("../supabase/functions/live-search/index.ts");
 assert(handler, "live-search registers its request handler");
 const serve: Handler = handler;
+
+Deno.test("only a clean Make webhook URL is allowed to receive the API key", () => {
+  assert(gateway.validMakeWebhookUrl(MAKE));
+  for (const bad of [
+    ` ${MAKE}`, `${MAKE}\n`, `"${MAKE}"`, `http://hook.us2.make.com/fixture-hook`,
+    `https://other.example/fixture-hook`, `https://hook.us2.make.com/`,
+    `https://hook.us2.make.com/fixture-hook?copy=1`,
+  ]) assert(!gateway.validMakeWebhookUrl(bad), `refuse ${JSON.stringify(bad)}`);
+});
 
 const LIMITS = {
   max_concurrent: 5, per_client_per_minute: 5, per_client_per_hour: 20, per_client_per_day: 50,

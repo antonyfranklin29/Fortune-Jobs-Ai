@@ -11,13 +11,14 @@ Owners: Claude (Make) and Codex (gateway and page edits), with Franklin approvin
 
 **Stage 5 paid test: NOT completed, and nothing was charged.**
 - Franklin approved one capped search. 6798265 was activated at 5:36 PM ET. One gateway POST (`data analyst`, US) at 5:37:08 PM returned 202 `accepted` with `unconfirmed: true`; search id `s_mvvht6x6_a83f54e148a3`.
-- The search **never reached Make**: the webhook's log shows "No items found", its queue is 0, and the scenario history shows no execution. The function's own POST completed in about 1.9 s, so this was not the 10 s dispatch timeout. The `fetch` to Make threw at once. That pattern means `MAKE_LIVE_WEBHOOK_URL` is not a valid address (quotes, spaces or a newline around it, missing `https://`, or the wrong value). A wrong API key would instead appear in the webhook log as a refused call and return 502 `upstream_rejected`.
+- The search **never reached Make**: the webhook's log shows "No items found", its queue is 0, and the scenario history shows no execution. The function's own POST completed in about 1.9 s, so this was not the 10 s dispatch timeout. The `fetch` to Make threw at once. A malformed `MAKE_LIVE_WEBHOOK_URL` (quotes, spaces, a newline, or missing `https://`) is a likely cause, but the gateway's catch path did not record the error type, so a network or TLS failure cannot yet be ruled out. A wrong API key would normally appear in the webhook log as a refused call and return 502 `upstream_rejected`.
 - 6798265 was turned back **off** at about 5:39 PM. The test admission stays `dispatched / dispatch_unconfirmed` until its slot expired at 21:42 UTC (status then `failed`), with no job rows.
 
 **Next (Franklin, free), then retry stage 5:**
 1. In Make, open the gateway webhook and click the copy button next to its URL (it starts `https://hook.us2.make.com/`).
 2. In Supabase → Edge Functions → Secrets, edit `MAKE_LIVE_WEBHOOK_URL` and paste only that URL: no quotes, no spaces, no line break. Save and wait about a minute.
-3. Retry the one approved test: check the queue is 0, activate 6798265, send one gateway search, verify jobs, marker and status, then deactivate. The approval from 2026-10-30 covered one capped search, and none has run yet.
+3. Run a keyed dry run again. The October 30 gateway update reports `make_url_valid: true` only when the configured URL is a clean HTTPS Make webhook URL; it never contacts Make on a dry run. If false, correct the secret before proceeding.
+4. Retry the one approved test: check the queue is 0, activate 6798265, send one gateway search, verify jobs, marker and status, then deactivate. The approval from 2026-10-30 covered one capped search, and none has run yet. If it again returns `unconfirmed` with no Make log entry, stop and inspect sanitized gateway diagnostics before any further paid attempt.
 
 **Open item:** a stale Make editor tab (from verification) still holds unsaved changes for 6798265. Do not save it. Close it and choose Leave.
 

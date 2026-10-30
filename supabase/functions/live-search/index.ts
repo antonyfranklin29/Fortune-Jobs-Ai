@@ -36,6 +36,21 @@ const MAX_BODY_BYTES      = 8_000;
 const DISPATCH_TIMEOUT_MS = 10_000;
 const DB_TIMEOUT_MS       = 5_000;
 
+// Reject copy/paste damage before reserving a slot or sending the Make API key.
+// A syntactically valid URL on another host must not receive that key either.
+export function validMakeWebhookUrl(raw: string): boolean {
+  if (!raw || raw !== raw.trim() || /\s/.test(raw)) return false;
+  try {
+    const url = new URL(raw);
+    return url.protocol === "https:"
+      && /^hook\.[a-z0-9]+\.make\.com$/.test(url.hostname)
+      && /^\/[A-Za-z0-9_-]+$/.test(url.pathname)
+      && !url.username && !url.password && !url.search && !url.hash;
+  } catch {
+    return false;
+  }
+}
+
 function corsHeaders(origin: string | null) {
   const allow = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
@@ -290,6 +305,9 @@ Deno.serve(async (req: Request) => {
   if (!dryRun && (!MAKE_URL || !MAKE_SECRET)) {
     return json({ status: "error", reason: "gateway_not_configured" }, 503, origin, { "retry-after": "60" });
   }
+  if (!dryRun && !validMakeWebhookUrl(MAKE_URL)) {
+    return json({ status: "error", reason: "gateway_invalid_webhook_url" }, 503, origin, { "retry-after": "60" });
+  }
 
   const queueStart = Date.now();
   const deadline = queueStart + cfg.queue_wait_ms;
@@ -326,7 +344,8 @@ Deno.serve(async (req: Request) => {
   if (dryRun) {
     // Holds its slot exactly like a real search so saturation and recovery can be
     // exercised honestly, but never calls Make, so no scraping is paid for.
-    return json({ status: "accepted", search_id: searchId, dry_run: true, queued_ms: waitedMs }, 202, origin);
+    return json({ status: "accepted", search_id: searchId, dry_run: true,
+      make_url_valid: validMakeWebhookUrl(MAKE_URL), queued_ms: waitedMs }, 202, origin);
   }
 
   try {
