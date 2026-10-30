@@ -2,6 +2,25 @@
 
 Owners: Claude (Make) and Codex (gateway and page edits), with Franklin approving every action marked **[approve]**. Stage 0 is complete; later stages have not run. Do not skip a stage's "verify" before starting the next stage.
 
+## Handoff to Codex, 2026-10-30 (Claude)
+
+**Done today (Franklin entered every secret himself; no value appeared in chat, files or tool output):**
+- **Stage 2, dry run: PASSED.** `GATEWAY_TEST_KEY` set in Supabase. One request with `x-fj-dry-run: 1` and the key was sent from fortunejobsai.com (Franklin pasted the key into a password field; it went out as headers only) at about 4:20 PM ET: HTTP 202, `accepted`, `dry_run: true`, status `pending`. Database: admission `in_flight`, `dispatched_at` null, no job rows; it later expired as designed (status `failed`). A second, identical admission at the same instant (a double click) was also never dispatched.
+- **Stage 4 configuration:** Supabase has `MAKE_LIVE_WEBHOOK_URL` and `MAKE_GATEWAY_SECRET` (Franklin). In Make, the webhook "Live Search gateway-only hook" (id 2989632, scenario 6798265) has API key authentication with keychain "Franklin's Webhook API Key Auth key" (verified by name only).
+- **Scenario 6798265 clean-up:** an empty placeholder module had been saved at the end of the Parse JSON failure branch (after its Skip) at 5:33 PM, from an accidental click in the editor during verification. Claude deleted it and saved at about 5:40 PM; the scenario again matches the clone and is **Inactive**.
+
+**Stage 5 paid test: NOT completed, and nothing was charged.**
+- Franklin approved one capped search. 6798265 was activated at 5:36 PM ET. One gateway POST (`data analyst`, US) at 5:37:08 PM returned 202 `accepted` with `unconfirmed: true`; search id `s_mvvht6x6_a83f54e148a3`.
+- The search **never reached Make**: the webhook's log shows "No items found", its queue is 0, and the scenario history shows no execution. The function's own POST completed in about 1.9 s, so this was not the 10 s dispatch timeout. The `fetch` to Make threw at once. That pattern means `MAKE_LIVE_WEBHOOK_URL` is not a valid address (quotes, spaces or a newline around it, missing `https://`, or the wrong value). A wrong API key would instead appear in the webhook log as a refused call and return 502 `upstream_rejected`.
+- 6798265 was turned back **off** at about 5:39 PM. The test admission stays `dispatched / dispatch_unconfirmed` until its slot expired at 21:42 UTC (status then `failed`), with no job rows.
+
+**Next (Franklin, free), then retry stage 5:**
+1. In Make, open the gateway webhook and click the copy button next to its URL (it starts `https://hook.us2.make.com/`).
+2. In Supabase → Edge Functions → Secrets, edit `MAKE_LIVE_WEBHOOK_URL` and paste only that URL: no quotes, no spaces, no line break. Save and wait about a minute.
+3. Retry the one approved test: check the queue is 0, activate 6798265, send one gateway search, verify jobs, marker and status, then deactivate. The approval from 2026-10-30 covered one capped search, and none has run yet.
+
+**Open item:** a stale Make editor tab (from verification) still holds unsaved changes for 6798265. Do not save it. Close it and choose Leave.
+
 ## State on 2026-10-25 (read-only checks)
 
 - **Make scenario 4555354** (Active) has a router with Live Search and Quick Match routes.
