@@ -1,4 +1,4 @@
-# Fortune Jobs AI launch readiness — 29 October 2026
+# Fortune Jobs AI launch readiness — updated 31 October 2026
 
 This is the current release handoff, not a claim that every launch gate is closed. The target is December 1. Keep Stripe and commercial newsletter sending off until the business and legal setup is complete.
 
@@ -17,6 +17,12 @@ This is the current release handoff, not a claim that every launch gate is close
 - Franklin configured the Make API key and the two gateway secrets. The first real gateway request returned `unconfirmed`, but Make recorded no request or execution, so Apify was not run. A malformed webhook URL is likely but not proven; network/TLS failure remains possible. See `docs/live-search-cutover-checklist-2026-10-25.md`.
 - The gateway now validates the configured Make URL before admission and reports `make_url_valid` on an authorized dry run. Production was redeployed and the public no-cost preflight passed. The configured URL still needs a keyed dry-run validation after Franklin recopies it.
 
+## Public checks, October 31
+
+- The public landing, Find Jobs, results, résumé search, profile, privacy and contact pages, plus checked assets, returned HTTP 200. This is availability only; it does not prove sign-in, search relevance or payments.
+- The catalogue reported 4,190 open jobs, 3,802 posted within 30 days, and recent listings in all 50 states. The newest source sighting was under one hour old. This does not guarantee a match for every role and state or a working application link on every listing.
+- The public Live Search preflight passed its validation, CORS and dry-run guard checks. The authenticated dry-run check was skipped by this script because the key was not provided to the local process; Claude separately recorded a successful authenticated dry run on October 30.
+
 ## Gates still open
 
 | Priority | Owner | Gate | Evidence needed |
@@ -28,8 +34,18 @@ This is the current release handoff, not a claim that every launch gate is close
 | 1 | Franklin + Codex | Complete a real backup and isolated restore drill for database and private résumé files. | First successful off-site backup, independent recovery key, object counts, and a test-project restore. Existing backup tooling has only synthetic tests. |
 | 2 | Codex | Continue job-quality and logo audits. | Check role/state coverage, application links and employer identity. Unverified or ambiguous employers retain initials; no provider can honestly supply every official logo. |
 | 2 | Franklin + Codex | Review security settings and recovery access. | Supabase Free lacks leaked-password protection and managed backups; review plan options and access before changing. Static employer authorization tests pass, but production reviewer behavior needs the real pilot above. |
+| 2 | Franklin + Codex | Decide the first app release scope and platform. There is no app shell or mobile project in this repository yet. | Choose installable web app, iOS, Android, or a staged combination; set an app-specific release date and owner. The December 1 website launch does not imply an app is ready. |
 | Deferred | Franklin | Set up Stripe and paid subscriptions after Inc/legal paperwork. | Keep the $7.99 seeker and $14.99 Employer Plus offers marked coming soon; the employer free allowance is 15 **active** posts, not 15 per month. |
 | Deferred | Product + privacy owner | Generative AI résumé and employer-post drafting. | Current résumé builder and fit estimate are local, evidence-based tools. Model generation, provider choice, costs, data notices, and real-user review are still open in `docs/next-ai-features-checklist.md`. |
+
+## App creation checklist (new track)
+
+- [ ] Choose the first format and release date: installable web app (PWA), native iOS/Android, or a staged release. Confirm whether the app is part of December 1 or follows the website launch.
+- [ ] Define a small first release: Quick Match, job details and external apply links, saved jobs, account/profile, and résumé tools. Keep employer sign-in and workspace distinct. Include Live Search only after the guarded website path passes its end-to-end test.
+- [ ] Design mobile navigation and accessibility, including readable job cards, filters, empty/error states, and clear labels for estimated résumé fit scores.
+- [ ] Reuse the existing backend with mobile-specific sign-in redirects and secure session storage. Keep service keys and Make/Apify credentials off the device; verify account deletion and employer permissions on mobile.
+- [ ] Set privacy and store requirements: data-use disclosures, résumé handling, consent for optional notifications, and an account deletion path. Set up Apple/Google developer accounts only if native store distribution is chosen.
+- [ ] Build an internal beta, test on real devices and slow connections, verify job links and sign-in, add crash monitoring, then submit or publish only after review.
 
 ## Release rule
 
