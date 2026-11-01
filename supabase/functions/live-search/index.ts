@@ -55,7 +55,7 @@ function corsHeaders(origin: string | null) {
   const allow = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "access-control-allow-origin": allow,
-    "access-control-allow-headers": "content-type, x-fj-test-key, x-fj-dry-run",
+    "access-control-allow-headers": "content-type, authorization, x-fj-test-key, x-fj-dry-run",
     "access-control-allow-methods": "GET, POST, OPTIONS",
     "access-control-expose-headers": "retry-after",
     "vary": "origin",
@@ -163,7 +163,6 @@ const CONTROL_CHARS = /[\u0000-\u001F\u007F]/;
 type Validated = {
   text: string;
   filters: Record<string, string | number>;
-  accountId: string | null;
 };
 
 function validate(body: unknown, maxQueryChars: number): { ok: true; value: Validated } | { ok: false; detail: string } {
@@ -209,10 +208,29 @@ function validate(body: unknown, maxQueryChars: number): { ok: true; value: Vali
     filters[key] = n;
   }
 
-  // Recorded only. Never used for authorisation.
-  const accountId = typeof b.user_id === "string" && /^[0-9a-f-]{36}$/i.test(b.user_id) ? b.user_id : null;
+  // A user_id supplied in JSON is never an identity. The bearer token is
+  // validated separately before any account-specific allowance is applied.
+  return { ok: true, value: { text, filters } };
+}
 
-  return { ok: true, value: { text, filters, accountId } };
+async function verifiedAccountId(req: Request): Promise<{ accountId: string | null; error?: "invalid" | "unavailable" }> {
+  const header = req.headers.get("authorization");
+  if (!header) return { accountId: null };
+  if (!/^Bearer [^\s]+$/i.test(header)) return { accountId: null, error: "invalid" };
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: { apikey: SERVICE_KEY, authorization: header },
+      signal: AbortSignal.timeout(DB_TIMEOUT_MS),
+    });
+    if (res.status === 401 || res.status === 403) return { accountId: null, error: "invalid" };
+    if (!res.ok) return { accountId: null, error: "unavailable" };
+    const user = await res.json();
+    const id = user && typeof user.id === "string" ? user.id : "";
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+      ? { accountId: id } : { accountId: null, error: "invalid" };
+  } catch {
+    return { accountId: null, error: "unavailable" };
+  }
 }
 
 // Measured against the deployed function: Cloudflare fronts Supabase Edge
@@ -294,7 +312,11 @@ Deno.serve(async (req: Request) => {
 
   const check = validate(parsed, cfg.max_query_chars);
   if (!check.ok) return json({ status: "rejected", reason: "invalid_request", detail: check.detail }, 400, origin);
-  const { text, filters, accountId } = check.value;
+  const { text, filters } = check.value;
+  const identity = await verifiedAccountId(req);
+  if (identity.error === "invalid") return json({ status: "rejected", reason: "invalid_session" }, 401, origin);
+  if (identity.error === "unavailable") return json({ status: "error", reason: "auth_unavailable" }, 503, origin, { "retry-after": "30" });
+  const accountId = identity.accountId;
 
   const clientHash = await sha256(`${await effectiveSalt()}:${clientAddress(req)}`);
   const searchId = `s_${Date.now().toString(36)}_${crypto.randomUUID().replace(/-/g, "").slice(0, 12)}`;
@@ -331,13 +353,18 @@ Deno.serve(async (req: Request) => {
     const retryAfter = String(decision?.retry_after ?? 30);
     const status = reason.startsWith("rate_limited") ? 429 : 503;
     const message = reason.startsWith("rate_limited")
-      ? "You have run several live searches recently. Quick Match is still available while this resets."
+      ? reason === "rate_limited_pro_month"
+      ? "You have used your 50 Live Searches for this billing period. Quick Match is still available."
+      : reason === "rate_limited_free_month"
+      ? "You have used your free Live Searches for now. Quick Match is still available."
+      : "You have run several live searches recently. Quick Match is still available while this resets."
       : reason.startsWith("budget")
-      ? "Live Search has reached today's limit. Quick Match is still available."
+      ? "Live Search has reached its current capacity limit. Quick Match is still available."
       : reason === "paused"
       ? "Live Search is paused for maintenance. Quick Match is still available."
       : "Live Search is busy right now. Please try again shortly, or use Quick Match.";
-    return json({ status: "rejected", reason, message, retry_after: Number(retryAfter), queued_ms: waitedMs },
+    return json({ status: "rejected", reason, message, retry_after: Number(retryAfter),
+      remaining: decision?.remaining ?? null, queued_ms: waitedMs },
       status, origin, { "retry-after": retryAfter });
   }
 
@@ -383,5 +410,6 @@ Deno.serve(async (req: Request) => {
   }
 
   // The slot is released by the completion trigger when results land, not here.
-  return json({ status: "accepted", search_id: searchId, queued_ms: waitedMs, poll_after_ms: 8000 }, 202, origin);
+  return json({ status: "accepted", search_id: searchId, queued_ms: waitedMs,
+    quota_remaining: decision?.remaining ?? null, poll_after_ms: 8000 }, 202, origin);
 });

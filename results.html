@@ -646,6 +646,7 @@ body[data-page="find"] .hero{min-height:65vh}
       </div>
     </div>
   </div>
+  <div id="liveQuotaStatus" role="status" hidden style="font-size:13px;color:#53657e;margin:8px 0 0"></div>
   <div class="fit-strip">
     <div id="resumeSearchSummary" hidden></div>
     <div class="fit-invite" id="fitOnboarding"><p><strong>See how well each job fits you.</strong> Add a résumé or a few skills you have, and each detailed listing shows an estimate with the reasons behind it.</p><div class="fit-invite-links"><a href="resume-search.html">Upload a résumé</a><a href="resume-search.html?manual=1">Enter skills instead</a></div></div>
@@ -1076,14 +1077,20 @@ async function submitLiveSearchViaGateway(text, filters) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), SEARCH_REQUEST_TIMEOUT_MS);
   try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (window.FJ?.sb?.auth) {
+      const { data, error } = await FJ.sb.auth.getSession();
+      if (error) return { ok: false, message: 'Your sign-in could not be checked. Please sign in again, or use Quick Match.' };
+      if (data?.session?.access_token) headers.Authorization = `Bearer ${data.session.access_token}`;
+    }
     const res = await fetch(LIVE_SEARCH_GATEWAY_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, mode: 'live', results_limit: FREE_RESULTS, ...filters, ...accountPayload() }),
+      headers,
+      body: JSON.stringify({ text, mode: 'live', results_limit: FREE_RESULTS, ...filters }),
       mode: 'cors', signal: controller.signal
     });
     const body = await res.json().catch(() => ({}));
-    if (res.status === 202 && body.search_id) return { ok: true, searchId: String(body.search_id) };
+    if (res.status === 202 && body.search_id) return { ok: true, searchId: String(body.search_id), remaining: body.quota_remaining };
     if (res.status === 429 || res.status === 503 || res.status === 502) {
       return { ok: false, message: body.message || 'Live Search is busy right now. Quick Match is still available.' };
     }
@@ -1420,7 +1427,7 @@ function lockedSectionHtml() {
     <aside class="upsell-card" aria-label="Fortune Jobs AI Pro subscription">
       <div class="upsell-badge">✦ Fortune Jobs AI Pro</div>
       <h3>Subscribe for more results</h3>
-      <p>Free searches show up to ${FREE_RESULTS} matching jobs. The planned Pro subscription will offer more results in Quick Match and Live Search when available. A subscription does not guarantee additional matches for your search and filters.</p>
+      <p>Free searches show up to ${FREE_RESULTS} matching jobs. Planned Pro access includes up to 50 Live Searches per billing month and more results when available. A subscription does not guarantee additional matches for your search and filters.</p>
       <div class="upsell-price">$7.99 <span>/ month + tax</span></div>
       <div style="margin-top:16px">${btn}</div>
     </aside>`;
@@ -1477,6 +1484,7 @@ async function handleSearch() {
 
   document.getElementById('jobsGrid').innerHTML = '';
   document.getElementById('resultsSection').classList.remove('active');
+  document.getElementById('liveQuotaStatus').hidden = true;
 
   if (mode === 'live' && LIVE_SEARCH_PAUSED) {
     showSearchError('Live Search is temporarily unavailable. Quick Match is available.');
@@ -1526,6 +1534,11 @@ async function handleSearch() {
     const gateway = await submitLiveSearchViaGateway(input, filters);
     if (myGeneration !== searchGeneration) return;
     if (!gateway.ok) { showSearchError(gateway.message); return; }
+    const quota = document.getElementById('liveQuotaStatus');
+    if (Number.isInteger(gateway.remaining) && gateway.remaining >= 0) {
+      quota.textContent = `${gateway.remaining} Live Search${gateway.remaining === 1 ? '' : 'es'} remaining this period`;
+      quota.hidden = false;
+    }
     currentSearchId = gateway.searchId;
     startPolling(input, myGeneration, sinceISO, mode, gateway.searchId, filters, true);
     return;

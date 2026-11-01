@@ -41,8 +41,10 @@ const LIMITS = {
 };
 
 let dbCalls: string[] = [];
+let admittedAccounts: Array<string | null> = [];
 let makeRequests: { headers: Headers; body: string }[] = [];
 let makeStatus = 202;
+let admitResponse: Record<string, unknown> = { admitted: true };
 (globalThis as unknown as { fetch: typeof fetch }).fetch = (async (input: Request | URL | string, init?: RequestInit) => {
   const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
   if (url.href === MAKE) {
@@ -51,8 +53,16 @@ let makeStatus = 202;
   }
   assertEquals(url.origin, SB, `unexpected outbound request to ${url.origin}`);
   dbCalls.push(url.pathname);
+  if (url.pathname === "/auth/v1/user") {
+    return new Headers(init?.headers).get("authorization") === "Bearer valid-user-token"
+      ? Response.json({ id: "12345678-1234-1234-1234-123456789abc" })
+      : Response.json({ error: "invalid" }, { status: 401 });
+  }
   if (url.pathname === "/rest/v1/live_search_limits") return Response.json([LIMITS]);
-  if (url.pathname === "/rest/v1/rpc/live_search_try_admit") return Response.json({ admitted: true });
+  if (url.pathname === "/rest/v1/rpc/live_search_try_admit") {
+    admittedAccounts.push(JSON.parse(String(init?.body)).p_account ?? null);
+    return Response.json(admitResponse);
+  }
   if (url.pathname === "/rest/v1/rpc/live_search_settle") return Response.json({});
   if (url.pathname === "/rest/v1/rpc/live_search_mark_unconfirmed") return Response.json({});
   throw new Error(`unexpected database call ${url.pathname}`);
@@ -75,6 +85,7 @@ Deno.test("browser preflight allows an explicit dry run but never the Make secre
   const allowed = res.headers.get("access-control-allow-headers") ?? "";
   assert(allowed.includes("x-fj-test-key"));
   assert(allowed.includes("x-fj-dry-run"));
+  assert(allowed.includes("authorization"));
   assert(!allowed.includes("x-fj-gateway-secret"));
 });
 
@@ -102,6 +113,45 @@ Deno.test("a refused dispatch releases its slot and reports upstream_rejected", 
   assertEquals((await res.json()).reason, "upstream_rejected");
   assertEquals(dbCalls.filter((p) => p.endsWith("/live_search_settle")).length, 1, "a conclusive refusal settles the slot");
   makeStatus = 202;
+});
+
+Deno.test("a body user_id cannot claim a paid account; only a verified bearer can", async () => {
+  admittedAccounts = []; makeRequests = [];
+  const body = JSON.stringify({ text: "data analyst", user_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" });
+  const guest = await serve(new Request("https://fake.live-search.test/", {
+    method: "POST", headers: { "content-type": "application/json" }, body,
+  }));
+  assertEquals(guest.status, 202);
+  assertEquals(admittedAccounts, [null]);
+  assert(!makeRequests[0].body.includes("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+    "a forged browser ID is not forwarded to Make");
+
+  const signedIn = await serve(new Request("https://fake.live-search.test/", {
+    method: "POST", headers: { "content-type": "application/json", authorization: "Bearer valid-user-token" }, body,
+  }));
+  assertEquals(signedIn.status, 202);
+  assertEquals(admittedAccounts, [null, "12345678-1234-1234-1234-123456789abc"]);
+
+  const before = makeRequests.length;
+  const invalid = await serve(new Request("https://fake.live-search.test/", {
+    method: "POST", headers: { "content-type": "application/json", authorization: "Bearer forged-token" }, body,
+  }));
+  assertEquals(invalid.status, 401);
+  assertEquals(makeRequests.length, before, "an invalid session does not trigger a paid run");
+});
+
+Deno.test("a server-computed monthly balance reaches the member without enabling checkout", async () => {
+  admitResponse = { admitted: true, remaining: 49 };
+  const res = await serve(search());
+  assertEquals(res.status, 202);
+  assertEquals((await res.json()).quota_remaining, 49);
+  admitResponse = { admitted: false, reason: "rate_limited_pro_month", remaining: 0, retry_after: 3600 };
+  const exhausted = await serve(search());
+  assertEquals(exhausted.status, 429);
+  const body = await exhausted.json();
+  assertEquals(body.remaining, 0);
+  assert(String(body.message).includes("50 Live Searches"));
+  admitResponse = { admitted: true };
 });
 
 Deno.test("a requested dry run without a valid test key is refused and never dispatched", async () => {

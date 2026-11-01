@@ -1,0 +1,7 @@
+{
+  "plan_code": "seeker_pro",
+  "monthly_price_usd_cents": 799,
+  "live_searches_per_billing_period": 50,
+  "billing_enabled": false,
+  "note": "Paid access remains disabled until a verified billing webhook and server-enforced quota are deployed."
+}
