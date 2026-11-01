@@ -65,6 +65,9 @@ try {
   }
   assert.equal((await admit('guest-4', 'guest-ip')).reason, 'rate_limited_free_month');
   assert.equal((await balance('guest-ip')).remaining, 0);
+  assert.equal((await admit('guest-then-account', 'guest-ip', noProvider)).reason,
+    'rate_limited_free_month', 'signing up cannot reset free use on the same client');
+  assert.equal((await balance('guest-ip', noProvider)).remaining, 0);
 
   const first = await admit('failed-1', 'another-guest-ip');
   assert.equal(first.admitted, true);

@@ -115,8 +115,9 @@ begin
       from public.live_search_admissions
      where admitted_at >= v_period_start and admitted_at < v_period_end
        and status not in ('failed', 'expired')
-       and (case when p_account is null then client_hash = p_client_hash
-                 else account_id = p_account end);
+       and (case when v_paid then account_id = p_account
+                 else client_hash = p_client_hash
+                      or (p_account is not null and account_id = p_account) end);
     if n_plan_month >= v_plan_limit then
       return jsonb_build_object('admitted', false,
         'reason', case when v_paid then 'rate_limited_pro_month' else 'rate_limited_free_month' end,
@@ -176,8 +177,9 @@ begin
   select count(*) into v_used from public.live_search_admissions
    where admitted_at >= v_start and admitted_at < v_end
      and status not in ('failed', 'expired')
-     and (case when p_account is null then client_hash = p_client_hash
-               else account_id = p_account end);
+     and (case when v_paid then account_id = p_account
+               else client_hash = p_client_hash
+                    or (p_account is not null and account_id = p_account) end);
   return jsonb_build_object('enabled', true,
     'plan', case when v_paid then 'seeker_pro' else 'free' end,
     'limit', v_limit, 'used', v_used, 'remaining', greatest(0, v_limit-v_used),
