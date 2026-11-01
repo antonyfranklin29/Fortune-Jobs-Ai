@@ -12,6 +12,13 @@ Status November 1, 2026: Franklin chose his private OneDrive as the off-site des
 
 The first four steps need live database access, a key held by Franklin, and confirmation that OneDrive uploaded the files. Until the separate-project restore succeeds, mark recovery as **unproven**.
 
+### November 1 export preflight
+
+- Supabase CLI 2.122.0 can see the active project and list its Storage buckets. `resumes` and `avatars` each contained one object in a read-only recursive count at the time checked. File names and contents were not printed or downloaded.
+- The CLI's Storage copy command supports recursive download from `ss:///resumes` and `ss:///avatars` when run with `--project-ref hqgakkcxcyspqhnlnscv --experimental`. Download only to restricted staging outside OneDrive, then compare the downloaded counts with a fresh listing before encryption.
+- This machine has neither Docker Desktop nor `pg_dump` on the command path. The [Supabase CLI backup guide](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore) calls for a database roles, schema and data dump, and Docker for the CLI dump path. Install a supported dump runtime before attempting the live export. Keep the database password in an interactive prompt or approved secret manager, never in a pasted command, repository or chat.
+- Supabase's [Storage download guide](https://supabase.com/docs/guides/storage/management/download-objects) confirms that database backups contain Storage metadata while file bytes need a separate download. A complete restore must cover both.
+
 Recommended setup: Supabase Pro daily database backups plus a separate encrypted copy of private resumes and avatars outside the live project. Database backups exclude Storage file objects. Pro starts at $25/month, with seven days of daily backups; usage can add charges. Sources: https://supabase.com/docs/guides/platform/backups and https://supabase.com/pricing.
 
 ## Activation
