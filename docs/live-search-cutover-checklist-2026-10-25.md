@@ -2,6 +2,20 @@
 
 Owners: Claude (Make) and Codex (gateway and page edits), with Franklin approving every action marked **[approve]**. Stage 0 is complete; later stages have not run. Do not skip a stage's "verify" before starting the next stage.
 
+## Recheck, 2026-10-31 (Claude, read-only)
+
+- Deployed `live-search` v25 matches main `b29091d`: it refuses a non-dry request whose webhook URL fails `validMakeWebhookUrl` (503 `gateway_invalid_webhook_url`) and returns `make_url_valid` on a keyed dry run.
+- Make 6798265 (gateway-only) is Inactive. It has no runs and no incomplete executions. The last history entry is "Scenario edited" on Oct 30 at 5:39 PM ET, and it used 0 credits in the last 7 days.
+- The Webhooks list holds only one hook, "Live Search gateway-only hook", and its queue is 0. Old hook 2074117 is gone.
+- Make 4555354 (old direct route) is Inactive. Its last run was Oct 26 at 11:26 PM ET, and it was deactivated Oct 29. Nothing has run since.
+- **Webhook mismatch confirmed without reading any secret.**
+  - The Supabase SHA-256 digest of `MAKE_LIVE_WEBHOOK_URL` (set Oct 30 20:23 UTC) starts `13da9ec1`.
+  - The SHA-256 of the gateway-only hook URL shown in Make starts `770372c7`.
+  - Common paste damage does not explain the difference. I tested a trailing newline, CRLF, spaces, quotes, a trailing slash, http, a missing scheme, and a `NAME=` prefix, and none of them hash to `13da9ec1`. The stored value is a different string.
+  - Fix: Franklin re-copies the URL from the Make Webhooks page and saves it as `MAKE_LIVE_WEBHOOK_URL`. Afterwards the dashboard digest should start `770372c7`, and a keyed dry run should report `make_url_valid: true`.
+- The DB has had no admissions since the Oct 30 paid attempt `s_mvvht6x6_a83f54e148a3`: status `dispatched`, outcome `dispatch_unconfirmed`, `dispatched_at` null, never reached Make.
+- Nothing was activated, run, or changed in this recheck.
+
 ## Handoff to Codex, 2026-10-30 (Claude)
 
 **Done today (Franklin entered every secret himself; no value appeared in chat, files or tool output):**
