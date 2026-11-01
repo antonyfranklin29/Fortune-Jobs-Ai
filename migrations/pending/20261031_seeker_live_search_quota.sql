@@ -20,7 +20,8 @@ create table if not exists public.seeker_live_entitlements (
   provider_subscription_id text unique,
   verified_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  check (period_end > period_start)
+  check (period_end > period_start),
+  check (status <> 'active' or provider_subscription_id is not null)
 );
 alter table public.seeker_live_entitlements enable row level security;
 revoke all on public.seeker_live_entitlements from public, anon, authenticated;

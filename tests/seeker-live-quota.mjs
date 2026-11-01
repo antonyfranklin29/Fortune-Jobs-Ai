@@ -22,6 +22,11 @@ try {
   await db.query(`insert into public.seeker_live_entitlements
     (user_id,status,period_start,period_end,provider_subscription_id)
     values ($1,'active',now()-interval '1 day',now()+interval '29 days','test-only')`, [user]);
+  const noProvider = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+  await db.query('insert into auth.users(id) values ($1)', [noProvider]);
+  await assert.rejects(db.query(`insert into public.seeker_live_entitlements
+    (user_id,status,period_start,period_end) values ($1,'active',now(),now()+interval '1 month')`, [noProvider]),
+  'an active Pro entitlement requires a provider subscription');
 
   async function admit(id, hash, account = null) {
     const { rows } = await db.query('select public.live_search_try_admit($1,$2,$3,$4) as result',
