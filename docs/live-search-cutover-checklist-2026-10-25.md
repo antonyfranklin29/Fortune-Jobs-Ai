@@ -15,6 +15,7 @@ Owners: Claude (Make) and Codex (gateway and page edits), with Franklin approvin
   - Fix: Franklin re-copies the URL from the Make Webhooks page and saves it as `MAKE_LIVE_WEBHOOK_URL`. Afterwards the dashboard digest should start `770372c7`, and a keyed dry run should report `make_url_valid: true`.
 - The DB has had no admissions since the Oct 30 paid attempt `s_mvvht6x6_a83f54e148a3`: status `dispatched`, outcome `dispatch_unconfirmed`, `dispatched_at` null, never reached Make.
 - Nothing was activated, run, or changed in this recheck.
+- **Open blocker (Oct 31, 10:08 PM ET):** Franklin declined replacing `MAKE_LIVE_WEBHOOK_URL`, and the prepared Supabase form closed without saving. The secret, the Make scenario, the filter, and the site switch are all unchanged. No dry run or paid test is to proceed until Franklin approves the replacement.
 
 ## Handoff to Codex, 2026-10-30 (Claude)
 
