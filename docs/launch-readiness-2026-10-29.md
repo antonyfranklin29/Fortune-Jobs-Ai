@@ -1,4 +1,13 @@
-# Fortune Jobs AI launch readiness — updated 31 October 2026
+# Fortune Jobs AI launch readiness — updated 1 November 2026
+
+## November 1 handoff
+
+- Claude's optimized Live Search v2 completed one separately approved test: six listings posted within 30 days and a success marker, at 14.05 Make credits. The v2 and older Make scenarios are inactive. A further paid run has not been authorized. Keep the 30-day freshness rule; the 20 listings across the two tests included only one in the 31–45 day range. The Make error route still lacks a live failure-path test, and Claude is hardening module 43 without another paid run.
+- Codex set `public.live_search_limits.paused = true` in production. The website was already paused. This closes the risk of gateway requests accumulating in the inactive Make webhook and all running when that scenario is activated. Recheck the Make queue before any later activation.
+- Codex applied `migrations/20261031_job_matches_write_lockdown.sql` in production. Read-back confirmed `anon` and `authenticated` can SELECT but cannot INSERT or UPDATE; `service_role` can INSERT and UPDATE. Only the SELECT policy remains. The local permission test passes.
+- At 05:31 UTC, public asset health and the no-cost Live Search preflight passed. The catalogue had 4,294 open jobs, 3,906 posted within 30 days, recent listings in all 50 states, and a newest source sighting 0.4 hours old. These checks do not prove relevance for every role or every apply link.
+- Ten simultaneous read-only Quick Match catalogue requests all returned HTTP 200 with 300 candidate rows. The full local suite passed 251/251. The quality audit still found 677 legacy listings without descriptions and two legacy HTTP application links; those remain cleanup items.
+- The seeker Pro $7.99/50-search code and billing-dependent quota migration remain staged. Stripe and paid access are off. The quota migration explicitly requires coordinated deployment with token validation and billing review, so it has not been applied.
 
 This is the current release handoff, not a claim that every launch gate is closed. The target is December 1. Keep Stripe and commercial newsletter sending off until the business and legal setup is complete.
 

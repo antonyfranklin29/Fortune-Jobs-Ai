@@ -11,7 +11,7 @@ try {
     alter table public.job_matches enable row level security;
     create policy "pipeline can insert job matches" on public.job_matches
       for insert to anon, authenticated with check (true);`);
-  await db.exec(readFileSync('migrations/pending/20261031_job_matches_write_lockdown.sql', 'utf8'));
+  await db.exec(readFileSync('migrations/20261031_job_matches_write_lockdown.sql', 'utf8'));
   const { rows } = await db.query(`select role, privilege,
     has_table_privilege(role, 'public.job_matches', privilege) as allowed
     from (values ('anon','SELECT'),('anon','INSERT'),('authenticated','UPDATE'),
