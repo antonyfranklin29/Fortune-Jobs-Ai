@@ -18,7 +18,9 @@ Owners: Claude (Make) and Codex (gateway and page edits), with Franklin approvin
 - Oct 31, 10:08 PM ET: Franklin first declined replacing `MAKE_LIVE_WEBHOOK_URL`, then approved it at 10:11 PM.
 - **Fixed, Nov 1 03:02 UTC:** Franklin saved the gateway-only URL himself. The `MAKE_LIVE_WEBHOOK_URL` digest now starts `770372c7`, which matches the Make hook.
 - **Keyed dry run passed, Nov 1 03:13 UTC:** search `s_mvx9a33n_8c8cdf3a8912` returned HTTP 202 with `dry_run: true` and `make_url_valid: true`, and status `pending`. In the DB the row is `in_flight` with `dispatched_at` null, so nothing was sent to Make. Two earlier attempts got 403 `dry_run_unauthorized` because of a key mismatch; that is the safe refusal path.
-- **Check before any paid test:** the `MAKE_GATEWAY_SECRET` digest now starts `e04d2732`. On Oct 30 it started `61d2ede9`, so it changed tonight. It must equal the API key in Make keychain "Franklin's Webhook API Key Auth key", or Make will refuse real calls with 401. The dry run does not test this.
+- **Gateway secret rotated, Nov 1 03:24 UTC:** at 03:10 and 03:20 UTC the new test key was saved into `MAKE_GATEWAY_SECRET` by mistake. Franklin then made a fresh secret and saved it in two places: in Make keychain "Franklin's Webhook API Key Auth key" (key 243973) and in Supabase `MAKE_GATEWAY_SECRET`, whose digest now starts `b722d3f5`.
+  - Digests now: `GATEWAY_TEST_KEY` `e04d2732`, `MAKE_LIVE_WEBHOOK_URL` `770372c7`, `MAKE_GATEWAY_SECRET` `b722d3f5`. All three are distinct.
+  - Make cannot show the keychain value, so only the first real dispatch can prove the secret matches. In the capped paid test, an upstream 401 means a mismatch.
 - The Make scenario is still Inactive, the filter is unchanged, and the site is still paused. No paid run has been made. The capped end-to-end test needs Franklin's separate approval.
 
 ## Handoff to Codex, 2026-10-30 (Claude)
