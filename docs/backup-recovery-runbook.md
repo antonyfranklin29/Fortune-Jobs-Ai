@@ -1,6 +1,16 @@
 # Backup activation and recovery
 
-Status October 11, 2026: tooling prepared and tested with synthetic files only. No real backup, external destination, schedule or restore drill is active. Payments integration remains deferred.
+Status November 1, 2026: Franklin chose his private OneDrive as the off-site destination. The OneDrive folder exists and its sync client is running on this computer, but no live data has been exported, encrypted, uploaded, re-downloaded or restored. The recovery key and isolated restore project are not set up. The copy tool passes synthetic tests only. Supabase Pro and payments remain deferred.
+
+## OneDrive path selected for the first recovery drill
+
+1. Export the live database and private résumé/avatar objects to a restricted staging folder **outside OneDrive**. The existing encryption tool does not perform this export. Record database and object counts. Keep database credentials out of the repository and chat.
+2. Franklin stores an independent random recovery key in his password manager. Provide it only to the backup process as `FJ_BACKUP_KEY`; never put the key in OneDrive or in this repository. If the database dump exceeds the current encryption tool's 64 MB per-file limit, use a reviewed streaming backup method before continuing.
+3. Encrypt and verify the staged files with `scripts/private-backup.cjs`. Then run `node scripts/onedrive-backup.cjs ENCRYPTED_ARCHIVE`. It checks the entire encrypted source, copies only opaque `.fjb` files into `OneDrive/Fortune Jobs AI Backups`, verifies the copied archive, and refuses an existing destination. No plaintext staging file is copied by this tool.
+4. Check OneDrive's upload status and the archive in OneDrive on the web. A locally verified copy in the sync folder is **not** proof that an off-site upload finished. Download that cloud copy into a new restricted folder and run `node scripts/private-backup.cjs verify DOWNLOADED_ARCHIVE` with the same key.
+5. Restore the database and private objects into a separate Supabase test project with outbound emails, payment hooks and Make/Apify dispatch disabled. Verify counts, representative files, account permissions and Quick Match. Never rehearse by overwriting production.
+
+The first four steps need live database access, a key held by Franklin, and confirmation that OneDrive uploaded the files. Until the separate-project restore succeeds, mark recovery as **unproven**.
 
 Recommended setup: Supabase Pro daily database backups plus a separate encrypted copy of private resumes and avatars outside the live project. Database backups exclude Storage file objects. Pro starts at $25/month, with seven days of daily backups; usage can add charges. Sources: https://supabase.com/docs/guides/platform/backups and https://supabase.com/pricing.
 
