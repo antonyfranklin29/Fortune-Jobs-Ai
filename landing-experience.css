@@ -78,6 +78,9 @@ body[data-page="find"] .hero,.hero{min-height:0;background:linear-gradient(150de
 .featured-head>a{flex:none;color:#0e3158;font-size:12px;font-weight:750;text-decoration:none}
 .featured-head>a:hover{text-decoration:underline}
 .featured-browser{display:grid;grid-template-columns:minmax(0,.96fr) minmax(0,1.04fr);gap:18px;align-items:start}
+.company-logo-credit{margin:12px 0 0;text-align:right;font-size:11px;line-height:1.5;color:#52637a}
+.company-logo-credit a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.company-logo-credit a:focus-visible{outline:2px solid #1c5a99;outline-offset:3px}
 .featured-list{display:grid;align-content:start;gap:10px;max-height:665px;overflow-y:auto;padding:2px 7px 2px 2px;scrollbar-color:#cbd5e1 transparent}
 .featured-status{margin:0;padding:18px;color:#60718b;font-size:13px}
 .featured-card{min-width:0;border:1px solid #dce5ef;border-radius:12px;background:#fff;overflow:hidden;transition:border-color .18s,box-shadow .18s,transform .18s}
