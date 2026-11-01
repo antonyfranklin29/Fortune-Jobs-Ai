@@ -2,6 +2,8 @@
 
 Status November 1, 2026: Franklin chose the business OneDrive for `info@fortunejobsai.com` as the off-site destination. The OneDrive account connected on this computer is currently the personal `franklinantony2422@outlook.com` account; no business OneDrive folder is visible yet. No live data has been exported, encrypted, uploaded, re-downloaded or restored. Franklin reports saving a new random recovery key in a Bitwarden Secure Note; the note was not independently inspected, and the clipboard was cleared. An isolated restore project is not set up. The copy tool passes synthetic tests only. Supabase Pro and payments remain deferred.
 
+Business OneDrive connection attempt returned `0x8004e4d1` with "You don't have access to this service." The cause is not established. Check whether `info@fortunejobsai.com` opens OneDrive on the web; if it does not, check the account's Microsoft 365 license and OneDrive/SharePoint service access before retrying desktop sync. Do not copy backups to the personal OneDrive as a workaround.
+
 ## OneDrive path selected for the first recovery drill
 
 1. Export the live database and private résumé/avatar objects to a restricted staging folder **outside OneDrive**. The existing encryption tool does not perform this export. Record database and object counts. Keep database credentials out of the repository and chat.
