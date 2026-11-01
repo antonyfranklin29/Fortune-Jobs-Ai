@@ -2,6 +2,21 @@
 
 Owners: Claude (Make) and Codex (gateway and page edits), with Franklin approving every action marked **[approve]**. Stage 0 is complete; later stages have not run. Do not skip a stage's "verify" before starting the next stage.
 
+## Capped paid end-to-end test, 2026-10-31 (approved by Franklin)
+
+- Claude activated Make 6798265 at 11:29:23 PM ET. Codex sent one gateway POST, which returned HTTP 202 for `s_mvx9upm7_88bc163fb334` with `queued_ms` 506.
+- **Make:** one Instant run started at 11:29:56 PM ET with status Success. It took 9 seconds, 18 operations and 295.1 KB of data transfer. **It cost 45.5 credits**, well above the ~10 estimate.
+- **Database:**
+  - The admission is `completed` with outcome `success:service_role`, settled at 03:30:05 UTC.
+  - `job_matches` holds 10 rows: 9 jobs plus 1 completion marker with `signal=success`.
+  - The gateway status is `complete` with 9 results.
+- Claude deactivated the scenario at 11:30:41 PM ET and the UI shows Inactive. No second search was sent, and the site is still paused.
+- The new Make gateway secret matches between Make and Supabase: Make accepted the request and did not return a 401.
+- Follow-ups:
+  1. The 45.5 credits per search needs explaining before launch, because the budget assumed ~10. Check which modules consumed them.
+  2. Check Apify's own charge for this run against the $0.10 cap.
+  3. `dispatched_at` is still null on a successful dispatch. The gateway never sets it, so the column cannot be used as a dispatch signal.
+
 ## Recheck, 2026-10-31 (Claude, read-only)
 
 - Deployed `live-search` v25 matches main `b29091d`: it refuses a non-dry request whose webhook URL fails `validMakeWebhookUrl` (503 `gateway_invalid_webhook_url`) and returns `make_url_valid` on a keyed dry run.
