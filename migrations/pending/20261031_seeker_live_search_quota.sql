@@ -140,3 +140,48 @@ end;
 $$;
 revoke all on function public.live_search_try_admit(text, text, uuid, text) from public, anon, authenticated;
 grant execute on function public.live_search_try_admit(text, text, uuid, text) to service_role;
+
+-- Read-only balance for a verified member or a guest. The gateway supplies
+-- p_account after validating a Supabase session token; browsers cannot call
+-- this function directly or choose another user's ID.
+create or replace function public.live_search_quota_status(p_account uuid, p_client_hash text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  cfg public.live_search_limits%rowtype;
+  ent public.seeker_live_entitlements%rowtype;
+  v_paid boolean := false;
+  v_limit integer;
+  v_used integer;
+  v_start timestamptz;
+  v_end timestamptz;
+begin
+  select * into cfg from public.live_search_limits where id;
+  if not found or not cfg.pro_billing_enabled then
+    return jsonb_build_object('enabled', false);
+  end if;
+  if p_account is not null then
+    select * into ent from public.seeker_live_entitlements
+     where user_id = p_account and plan_code = 'seeker_pro'
+       and status = 'active' and period_start <= now() and period_end > now();
+    v_paid := found;
+  end if;
+  v_limit := case when v_paid then cfg.pro_monthly_searches else cfg.free_monthly_searches end;
+  v_start := case when v_paid then ent.period_start else now() - interval '30 days' end;
+  v_end := case when v_paid then ent.period_end else now() + interval '30 days' end;
+  select count(*) into v_used from public.live_search_admissions
+   where admitted_at >= v_start and admitted_at < v_end
+     and status not in ('failed', 'expired')
+     and (case when p_account is null then client_hash = p_client_hash
+               else account_id = p_account end);
+  return jsonb_build_object('enabled', true,
+    'plan', case when v_paid then 'seeker_pro' else 'free' end,
+    'limit', v_limit, 'used', v_used, 'remaining', greatest(0, v_limit-v_used),
+    'period_end', case when v_paid then ent.period_end else null end);
+end;
+$$;
+revoke all on function public.live_search_quota_status(uuid, text) from public, anon, authenticated;
+grant execute on function public.live_search_quota_status(uuid, text) to service_role;

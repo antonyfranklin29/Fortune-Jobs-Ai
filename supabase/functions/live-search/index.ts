@@ -272,7 +272,22 @@ Deno.serve(async (req: Request) => {
   //   indeterminate ended on the old unsignalled marker: NOT proof of success
   //   unknown       nothing recorded for this id
   if (req.method === "GET") {
-    const id = (new URL(req.url).searchParams.get("search_id") ?? "").slice(0, 80);
+    const params = new URL(req.url).searchParams;
+    if (params.get("quota") === "1") {
+      const identity = await verifiedAccountId(req);
+      if (identity.error === "invalid") return json({ status: "rejected", reason: "invalid_session" }, 401, origin);
+      if (identity.error === "unavailable") return json({ status: "error", reason: "auth_unavailable" }, 503, origin);
+      try {
+        const clientHash = await sha256(`${await effectiveSalt()}:${clientAddress(req)}`);
+        const quota = await rpc("live_search_quota_status", {
+          p_account: identity.accountId, p_client_hash: clientHash,
+        });
+        return json(quota, 200, origin);
+      } catch {
+        return json({ status: "error", reason: "quota_unavailable" }, 503, origin);
+      }
+    }
+    const id = (params.get("search_id") ?? "").slice(0, 80);
     let s: Record<string, unknown>;
     try {
       s = await rpc("live_search_status", { p_search_id: id });

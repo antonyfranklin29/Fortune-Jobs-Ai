@@ -45,6 +45,7 @@ let admittedAccounts: Array<string | null> = [];
 let makeRequests: { headers: Headers; body: string }[] = [];
 let makeStatus = 202;
 let admitResponse: Record<string, unknown> = { admitted: true };
+let quotaResponse: Record<string, unknown> = { enabled: false };
 (globalThis as unknown as { fetch: typeof fetch }).fetch = (async (input: Request | URL | string, init?: RequestInit) => {
   const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
   if (url.href === MAKE) {
@@ -65,6 +66,7 @@ let admitResponse: Record<string, unknown> = { admitted: true };
   }
   if (url.pathname === "/rest/v1/rpc/live_search_settle") return Response.json({});
   if (url.pathname === "/rest/v1/rpc/live_search_mark_unconfirmed") return Response.json({});
+  if (url.pathname === "/rest/v1/rpc/live_search_quota_status") return Response.json(quotaResponse);
   throw new Error(`unexpected database call ${url.pathname}`);
 }) as typeof fetch;
 
@@ -152,6 +154,22 @@ Deno.test("a server-computed monthly balance reaches the member without enabling
   assertEquals(body.remaining, 0);
   assert(String(body.message).includes("50 Live Searches"));
   admitResponse = { admitted: true };
+});
+
+Deno.test("the read-only quota route uses token identity and never contacts Make", async () => {
+  quotaResponse = { enabled: true, plan: "seeker_pro", limit: 50, used: 1, remaining: 49 };
+  makeRequests = [];
+  const res = await serve(new Request("https://fake.live-search.test/?quota=1", {
+    headers: { authorization: "Bearer valid-user-token", origin: "https://fortunejobsai.com" },
+  }));
+  assertEquals(res.status, 200);
+  assertEquals((await res.json()).remaining, 49);
+  assertEquals(makeRequests.length, 0);
+  const invalid = await serve(new Request("https://fake.live-search.test/?quota=1", {
+    headers: { authorization: "Bearer forged-token" },
+  }));
+  assertEquals(invalid.status, 401);
+  quotaResponse = { enabled: false };
 });
 
 Deno.test("a requested dry run without a valid test key is refused and never dispatched", async () => {

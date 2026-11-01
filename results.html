@@ -1067,6 +1067,25 @@ function showLiveSearchOutcome(search, outcome) {
 const LIVE_SEARCH_MAX_QUERY_CHARS = 120;
 const LIVE_SEARCH_MAX_FILTER_CHARS = 120;
 
+async function refreshLiveQuota() {
+  if (!LIVE_SEARCH_VIA_GATEWAY || LIVE_SEARCH_PAUSED) return;
+  try {
+    const headers = {};
+    if (window.FJ?.sb?.auth) {
+      const { data, error } = await FJ.sb.auth.getSession();
+      if (error) return;
+      if (data?.session?.access_token) headers.Authorization = `Bearer ${data.session.access_token}`;
+    }
+    const res = await fetch(`${LIVE_SEARCH_GATEWAY_URL}?quota=1`, { headers, mode: 'cors' });
+    if (!res.ok) return;
+    const quota = await res.json();
+    if (quota.enabled !== true || !Number.isInteger(quota.remaining)) return;
+    const status = document.getElementById('liveQuotaStatus');
+    status.textContent = `${quota.remaining} of ${quota.limit} Live Searches remaining this period`;
+    status.hidden = false;
+  } catch (_) { /* Search stays usable if the optional balance check fails. */ }
+}
+
 async function submitLiveSearchViaGateway(text, filters) {
   if (text.length > LIVE_SEARCH_MAX_QUERY_CHARS) {
     return { ok: false, message: `Live Search accepts up to ${LIVE_SEARCH_MAX_QUERY_CHARS} characters. Shorten your search, or use Quick Match.` };
@@ -2151,6 +2170,7 @@ function runSearchFromUrl() {
   } finally {
     renderResumeSearchSummary();
     if (fromUrl) handleSearch();
+    else refreshLiveQuota();
   }
 })();
 

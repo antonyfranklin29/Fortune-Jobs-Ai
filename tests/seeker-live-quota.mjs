@@ -31,6 +31,12 @@ try {
   async function settle(id, status) {
     await db.query('select public.live_search_settle($1,$2,$3)', [id, status, 'test']);
   }
+  async function balance(hash, account = null) {
+    const { rows } = await db.query('select public.live_search_quota_status($1,$2) as result', [account, hash]);
+    return rows[0].result;
+  }
+
+  assert.equal((await balance('subscriber-ip', user)).remaining, 50);
 
   for (let i = 1; i <= 50; i++) {
     const id = `paid-${i}`;
@@ -42,6 +48,10 @@ try {
   const exhausted = await admit('paid-51', 'subscriber-ip', user);
   assert.equal(exhausted.reason, 'rate_limited_pro_month');
   assert.equal(exhausted.remaining, 0);
+  assert.deepEqual(
+    (({ plan, limit, used, remaining }) => ({ plan, limit, used, remaining }))(await balance('subscriber-ip', user)),
+    { plan: 'seeker_pro', limit: 50, used: 50, remaining: 0 },
+  );
 
   for (let i = 1; i <= 3; i++) {
     const id = `guest-${i}`;
@@ -49,6 +59,7 @@ try {
     await settle(id, 'completed');
   }
   assert.equal((await admit('guest-4', 'guest-ip')).reason, 'rate_limited_free_month');
+  assert.equal((await balance('guest-ip')).remaining, 0);
 
   const first = await admit('failed-1', 'another-guest-ip');
   assert.equal(first.admitted, true);
