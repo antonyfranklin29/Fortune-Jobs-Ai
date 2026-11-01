@@ -1,6 +1,6 @@
 # Backup activation and recovery
 
-Status November 1, 2026: Franklin chose his private OneDrive as the off-site destination. The OneDrive folder exists and its sync client is running on this computer, but no live data has been exported, encrypted, uploaded, re-downloaded or restored. The recovery key and isolated restore project are not set up. The copy tool passes synthetic tests only. Supabase Pro and payments remain deferred.
+Status November 1, 2026: Franklin chose his private OneDrive as the off-site destination. The OneDrive folder exists and its sync client is running on this computer, but no live data has been exported, encrypted, uploaded, re-downloaded or restored. Franklin reports saving a new random recovery key in a Bitwarden Secure Note; the note was not independently inspected, and the clipboard was cleared. An isolated restore project is not set up. The copy tool passes synthetic tests only. Supabase Pro and payments remain deferred.
 
 ## OneDrive path selected for the first recovery drill
 
