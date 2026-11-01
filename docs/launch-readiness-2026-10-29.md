@@ -27,6 +27,8 @@ This is the current release handoff, not a claim that every launch gate is close
 
 The October 31 read-only quality and security smoke audit is recorded in `docs/launch-audit-2026-10-31.md`. It identified two legacy HTTP apply links, 677 legacy listings without descriptions and an untested real backup/restore path. These remain open rather than being counted as launch-ready.
 
+Later October 31, Claude confirmed that the saved Make webhook secret has a different fingerprint from the gateway-only webhook. Franklin declined replacing it. No secret changed, and Live Search stays paused until that decision is revisited and the guarded test succeeds.
+
 | Priority | Owner | Gate | Evidence needed |
 | --- | --- | --- | --- |
 | 1 | Franklin + Codex | Correct or verify `MAKE_LIVE_WEBHOOK_URL`. The first real gateway request never appeared in Make. | Copy the gateway-only webhook URL directly from Make into Supabase without quotes or whitespace, then run an authorized dry run and confirm `make_url_valid: true`. No Apify run is needed for this check. |

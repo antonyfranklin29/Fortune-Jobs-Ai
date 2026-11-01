@@ -28,3 +28,7 @@ Read-only checks run against the public site and public Supabase catalogue at ap
 5. App: recommend a staged installable web app first, reusing the functioning mobile website. A native-store launch needs separate developer accounts, authentication redirects, privacy/store review and a different release date. No app shell exists yet.
 
 Stripe and paid subscriptions stay deferred until incorporation and legal review. The December 1 target is for the website; this audit does not claim the gates above are closed.
+
+## Live Search decision later tonight
+
+Claude verified that the Supabase `MAKE_LIVE_WEBHOOK_URL` fingerprint differs from the gateway-only Make webhook. Codex prepared the exact Make URL in Supabase, but Franklin declined the irreversible replacement confirmation. The prepared tab closed without saving. The secret remains unchanged; no dry run, Apify run, Make activation or site switch followed. Claude was told to hold. Live Search therefore remains a launch blocker until Franklin decides to authorize a correction and the guarded end-to-end test passes.
