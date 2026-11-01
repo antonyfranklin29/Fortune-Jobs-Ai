@@ -9,7 +9,7 @@
     "test:employer-entrypoint": "deno test --allow-env --allow-read --import-map=tests/deno/import_map.json tests/employer-feed-entrypoint.ts tests/employer-submissions-edge.ts tests/employer-refresh-entrypoint.ts",
     "newsletter:dry-run": "node scripts/newsletter-worker.mjs",
     "test:ingest-worker": "deno test --allow-env --allow-read --no-check --import-map=tests/deno/import_map.json tests/job-ingest-worker.ts",
-    "test:live-search-gate": "deno test --allow-env --allow-read --import-map=tests/deno/import_map.json tests/live-search-config-gate.ts",
+    "test:live-search-gate": "npx -y deno test --allow-env --allow-read --import-map=tests/deno/import_map.json tests/live-search-config-gate.ts",
     "test:live-search-dispatch": "npx -y deno test --allow-env --allow-read --import-map=tests/deno/import_map.json tests/live-search-dispatch.ts",
     "test:account-deletion": "npx -y deno test --allow-env --allow-read --import-map=tests/deno/import_map.json tests/delete-account.ts",
     "build:ingest": "node scripts/build-ingest-sql.cjs",
