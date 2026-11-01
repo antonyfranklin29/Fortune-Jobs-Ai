@@ -47,8 +47,8 @@ async function publishEncryptedArchive(archive, oneDriveFolder, key) {
 module.exports = { isWithin, publishEncryptedArchive };
 if (require.main === module) (async () => {
   const [archive] = process.argv.slice(2);
-  if (!archive || !process.env.OneDrive) throw new Error('Usage: node scripts/onedrive-backup.cjs ENCRYPTED_ARCHIVE (with OneDrive and FJ_BACKUP_KEY set)');
-  const result = await publishEncryptedArchive(archive, process.env.OneDrive, keyFrom(process.env.FJ_BACKUP_KEY));
+  if (!archive || !process.env.OneDriveCommercial) throw new Error('Usage: node scripts/onedrive-backup.cjs ENCRYPTED_ARCHIVE (with a connected business OneDrive and FJ_BACKUP_KEY set)');
+  const result = await publishEncryptedArchive(archive, process.env.OneDriveCommercial, keyFrom(process.env.FJ_BACKUP_KEY));
   console.log(JSON.stringify({ status: 'local_copy_verified', ...result,
     note: 'Confirm upload in OneDrive and re-download before calling this an off-site backup.' }));
 })().catch(() => { console.error('OneDrive backup copy failed. No off-site backup should be assumed.'); process.exitCode = 1; });
