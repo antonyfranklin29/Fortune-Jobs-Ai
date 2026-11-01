@@ -2,6 +2,46 @@
 
 Owners: Claude (Make) and Codex (gateway and page edits), with Franklin approving every action marked **[approve]**. Stage 0 is complete; later stages have not run. Do not skip a stage's "verify" before starting the next stage.
 
+## Cost analysis of the paid test (read-only, Claude, 2026-10-31)
+
+### Make run `1b43d4c74ac34462b2666857ebb933fc`: 45.5 credits, 18 operations
+
+| Module | Ops | Credits |
+|---|---|---|
+| 1 Webhook | 1 | 1 |
+| 2 Claude prompt (query parse) | 1 | 1 |
+| 4 Apify Run an Actor | 1 | 1 |
+| 11 Apify Get Dataset Items | 1 | 1 |
+| 15 Array aggregator | 1 | 1 |
+| **5 Claude prompt (rank listings), `claude-haiku-4-5`, max_tokens 4000** | 1 | **28.34** |
+| 12 Parse JSON | 1 | 1 |
+| 14 Iterator | 1 | 1 |
+| 28 Supabase Create a Row (9 jobs + 1 marker) | 10 | 10 |
+| **Total** | 18 | 45.34 (Make shows 45.5) |
+
+- The ~10 estimate counted Apify plus a handful of operations. It missed two costs:
+  - **Module 5 is billed by tokens, not as a flat operation.** The aggregator passes all 10 raw Apify items (full Indeed records; the run moved 295 KB) into one prompt. Module 2, with a small prompt, cost just 1 credit, so the size of the input is what drives the charge.
+  - **One credit per inserted row:** 10 credits.
+
+### Apify run `WOh5at5IQRlYshUyE` (kaix/indeed-scraper 0.2.61, Pay per event)
+
+- It returned 10 results and **charged $0.001**. The run's "Maximum cost per run" is **$0.10**, so the cap is set and was respected.
+- Timeout 120 s, 512 MB, runtime 1 s.
+- For job-quality review (Codex's area): some of the 10 rows are old. One was posted 2025-10-14, and six are "30+ days ago".
+
+### Lower-cost path (proposals; nothing changed)
+
+1. **Trim what module 5 sees. This is the biggest saving.**
+   - Before the aggregator, map each item to index, title, company, location, salary, and posted date, plus at most ~300 characters of description.
+   - Lower `max_tokens` from 4000 to ~800, since the output is 10 short JSON objects.
+   - Expected: module 5 drops from ~28 credits to a few.
+2. **Or move ranking out of Make.** The site already scores fit in `resume-matching.js`. Dropping module 5 and its Parse JSON saves ~29 credits per search, though rows would lose the AI `match_reason`.
+3. **Insert all rows in one call.** Replace the 10 Create Row operations with one HTTP POST to the PostgREST bulk endpoint, or one RPC that takes an array. This saves ~9 credits.
+4. **Optionally drop module 2.** Let the gateway send structured fields, so the query-parsing prompt is no longer needed. This saves 1 credit.
+   - Doing 1 + 3: about **10–14 credits per search**.
+   - Doing 2 + 3: about **7 credits per search**.
+5. **Until the scenario is changed, budget on 45.5 credits per search.** At that rate the current caps (150 per day globally, 25 per client per day) allow up to ~6,800 credits a day. Consider lowering `global_per_day` before launch.
+
 ## Capped paid end-to-end test, 2026-10-31 (approved by Franklin)
 
 - Claude activated Make 6798265 at 11:29:23 PM ET. Codex sent one gateway POST, which returned HTTP 202 for `s_mvx9upm7_88bc163fb334` with `queued_ms` 506.
