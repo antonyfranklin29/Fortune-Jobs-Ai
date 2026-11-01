@@ -57,6 +57,10 @@ try {
     (({ plan, limit, used, remaining }) => ({ plan, limit, used, remaining }))(await balance('subscriber-ip', user)),
     { plan: 'seeker_pro', limit: 50, used: 50, remaining: 0 },
   );
+  assert.equal((await balance('subscriber-ip')).remaining, 3,
+    'paid searches on a shared network cannot consume a guest allowance');
+  assert.equal((await admit('shared-ip-guest', 'subscriber-ip')).admitted, true);
+  assert.equal((await balance('subscriber-ip')).remaining, 2);
 
   for (let i = 1; i <= 3; i++) {
     const id = `guest-${i}`;

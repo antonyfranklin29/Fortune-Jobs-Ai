@@ -11,6 +11,13 @@ alter table public.live_search_limits
   add column if not exists global_per_30_days integer not null default 200
     check (global_per_30_days between 1 and 100000);
 
+-- Preserve the plan used when each search was admitted. Existing searches
+-- predate paid access, so they are free. A Pro search on the same network must
+-- not consume a guest's or free member's allowance.
+alter table public.live_search_admissions
+  add column if not exists plan_at_admission text not null default 'free'
+    check (plan_at_admission in ('free', 'seeker_pro'));
+
 create table if not exists public.seeker_live_entitlements (
   user_id uuid primary key references auth.users(id) on delete cascade,
   plan_code text not null default 'seeker_pro' check (plan_code = 'seeker_pro'),
@@ -115,9 +122,10 @@ begin
       from public.live_search_admissions
      where admitted_at >= v_period_start and admitted_at < v_period_end
        and status not in ('failed', 'expired')
-       and (case when v_paid then account_id = p_account
-                 else client_hash = p_client_hash
-                      or (p_account is not null and account_id = p_account) end);
+       and (case when v_paid then account_id = p_account and plan_at_admission = 'seeker_pro'
+                 else plan_at_admission = 'free' and
+                      (client_hash = p_client_hash or
+                       (p_account is not null and account_id = p_account)) end);
     if n_plan_month >= v_plan_limit then
       return jsonb_build_object('admitted', false,
         'reason', case when v_paid then 'rate_limited_pro_month' else 'rate_limited_free_month' end,
@@ -132,8 +140,9 @@ begin
 
   v_expires := now() + make_interval(secs => cfg.slot_seconds);
   insert into public.live_search_admissions
-    (search_id, client_hash, account_id, query_text, status, slot_expires_at)
-  values (p_search_id, p_client_hash, p_account, left(p_query, 200), 'in_flight', v_expires);
+    (search_id, client_hash, account_id, query_text, status, slot_expires_at, plan_at_admission)
+  values (p_search_id, p_client_hash, p_account, left(p_query, 200), 'in_flight', v_expires,
+          case when v_paid then 'seeker_pro' else 'free' end);
 
   return jsonb_build_object('admitted', true, 'search_id', p_search_id,
     'slot_expires_at', v_expires, 'in_flight', n_inflight + 1,
@@ -177,9 +186,10 @@ begin
   select count(*) into v_used from public.live_search_admissions
    where admitted_at >= v_start and admitted_at < v_end
      and status not in ('failed', 'expired')
-     and (case when v_paid then account_id = p_account
-               else client_hash = p_client_hash
-                    or (p_account is not null and account_id = p_account) end);
+     and (case when v_paid then account_id = p_account and plan_at_admission = 'seeker_pro'
+               else plan_at_admission = 'free' and
+                    (client_hash = p_client_hash or
+                     (p_account is not null and account_id = p_account)) end);
   return jsonb_build_object('enabled', true,
     'plan', case when v_paid then 'seeker_pro' else 'free' end,
     'limit', v_limit, 'used', v_used, 'remaining', greatest(0, v_limit-v_used),
