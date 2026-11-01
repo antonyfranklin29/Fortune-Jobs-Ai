@@ -66,7 +66,7 @@ Webhook 1 + module 2 1 + Apify 1 + dataset 1 + module 15 1 + **module 5 ≈ 2–
 3. **The Make module 43 refusal path is unknown.** If it does not raise an error on an HTTP 4xx/5xx and only returns `statusCode`, the failure marker will not fire. The search would then end as `failed` through the TTL, not immediately.
 4. **Job-row `source_metadata` type changes.** Before, it was a JSON *string* (Create a Row maps it as text). Through Transform to JSON it becomes a JSON *object*.
    - `search-accuracy.js`, `company-logos.js` and `resume-matching.js` accept both forms; their tests cover string and object.
-   - `results.html` line 808 should be checked by whoever owns it.
+   - `results.html` `searchSignal()` (line 808) reads `signal` only from an object, so job-row objects without `signal` read as no signal, the same as before.
 5. **`source_metadata` gains the `brief` key** (~400 chars). It is harmless and is not named `signal`.
 6. **`dates.posted` reliability.** On Indeed it is the posting date that kaix returns. Whether a repost resets it is unverified. On Oct 31, 6 of 10 listings were older than 30 days, so the filter can cut results to a handful. Consider 45 days if that is too aggressive.
 7. **Module 41 filter operators.** `number:equal`, `notexist` and `date:greaterorequal` are written by hand in the blueprint. Make accepted the blueprint, and the scenario renders without module errors other than the unset webhook. They have not been executed.
