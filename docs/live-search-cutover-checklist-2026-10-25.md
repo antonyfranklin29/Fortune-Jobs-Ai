@@ -264,8 +264,8 @@ Preconditions: stages 1–5 verified (gateway redeployed from main and preflight
 | 2 | Set `GATEWAY_TEST_KEY` and run one dry run | free (one slot) |
 | 3 | Create the inactive gateway-only scenario and its webhook — done 2026-10-27 (scenario 6798265, inactive) | free |
 | 4 | Deploy the `x-make-apikey` gateway change; Franklin puts one random secret in the Make API key and `MAKE_GATEWAY_SECRET`, and copies the new webhook URL into `MAKE_LIVE_WEBHOOK_URL` | free |
-| 5 | Activate the new scenario and run one real search | ~10 Make credits, ≤ $0.10 Apify |
+| 5 | Activate the new scenario and run one real search — done Oct 31, then deactivated | 45.5 Make credits, $0.001 Apify |
 | 6 | Deactivate scenario 4555354 and delete its webhook (safe now: Live Search is paused, Quick Match does not use it) | free |
-| 7 | Merge `claude/live-search-cutover-flip-v3`: gateway on, unpause, old webhook address removed from pages | free |
+| 7 | After cost and freshness fixes are verified and a budget is approved, merge the prepared gateway-only site switch: gateway on, unpause, old webhook address removed from pages | free to deploy; subsequent searches are paid |
 
 Stages 0 to 4 need Make to stay signed in, plus Supabase dashboard or CLI access for secrets. The Supabase connector used here cannot set function secrets without the value passing through chat, so Franklin sets the secrets himself.
