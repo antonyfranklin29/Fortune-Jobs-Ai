@@ -1,0 +1,84 @@
+/* Glass layer (November 2026). Loaded last on index, find-jobs and results.
+   Frosted surfaces are limited to the header, the start and search panels, the
+   desktop job-detail panel and the mobile tab bar. Job cards, forms, filters and
+   long text stay solid. Remove this file's <link> to return to the previous look. */
+:root{
+  --glass-bg:rgba(255,255,255,.72);
+  --glass-bg-strong:rgba(255,255,255,.86);
+  --glass-blur:blur(18px) saturate(160%);
+  --glass-border:rgba(255,255,255,.78);
+  --glass-shadow:0 12px 36px rgba(15,39,72,.10);
+  --glass-shadow-lg:0 18px 50px rgba(15,39,72,.12);
+  --glass-muted:#44556f;
+  --glass-glows:
+    radial-gradient(520px 520px at 6% 340px,rgba(240,201,106,.62),rgba(240,201,106,0) 70%),
+    radial-gradient(640px 600px at 96% 40px,rgba(37,82,160,.30),rgba(37,82,160,0) 70%),
+    radial-gradient(560px 440px at 58% 720px,rgba(14,49,88,.18),rgba(14,49,88,0) 70%);
+  --glass-ground:linear-gradient(150deg,#eef2f9 0%,#e9eef8 55%,#f8f0dc 100%);
+}
+
+/* Colour behind the glass: soft brand glows at the top of the page only. */
+body:not([data-page="results"]){background:var(--glass-glows),var(--glass-ground) top/100% 1100px no-repeat,#f6f8fc}
+body:not([data-page="results"]) .hero{background:transparent}
+
+/* Floating frosted header. */
+nav:not(.mobile-tabs){
+  top:12px;margin:12px clamp(12px,2vw,24px) 0;border-radius:18px;
+  background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border);box-shadow:var(--glass-shadow)
+}
+nav:not(.mobile-tabs) .nav-links a:hover,nav:not(.mobile-tabs) .nav-links .find-jobs-link{background:rgba(247,240,220,.9)}
+
+/* Home and Find Jobs: start choices and search panel. */
+.start-choices,.search-panel{
+  background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border)
+}
+.start-choices{border-radius:18px;box-shadow:var(--glass-shadow)}
+.search-panel{border-radius:22px;box-shadow:var(--glass-shadow-lg)}
+.start-choices a{background:rgba(255,255,255,.72)}
+.start-choices a:last-child{background:rgba(255,248,232,.9)}
+.mode-toggle{background:rgba(243,246,250,.78)}
+.browse-roles a{background:rgba(255,255,255,.78)}
+.search-bar{background:#fff}
+/* Text on or near glass stays dark enough to read (4.5:1 or better). */
+.hero-sub-text,.panel-sub,.mode-desc,.browse-roles span,.advanced-filters summary span{color:var(--glass-muted)}
+.hero h1 span{color:#9a6610}
+.panel-kicker{color:#8c5e11}
+.hero-badge{color:#7a5110;background:rgba(255,248,232,.85)}
+
+/* Results: only the selected-job panel is glass; the list cards stay solid. */
+@media(min-width:1001px){
+  body[data-page="results"] .results-section{background:var(--glass-glows),var(--glass-ground);background-attachment:fixed}
+  body[data-page="results"] .job-detail{
+    background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+    border:1px solid var(--glass-border);border-radius:22px;box-shadow:var(--glass-shadow-lg)
+  }
+  body[data-page="results"] .job-detail .detail-block{margin:22px -12px 0;padding:18px 12px 6px;border-top:0;border-radius:14px;background:var(--glass-bg-strong)}
+  body[data-page="results"] .job-card{box-shadow:0 6px 18px rgba(15,39,72,.05)}
+}
+
+/* Phones: floating glass tab bar. */
+@media(max-width:768px){
+  nav:not(.mobile-tabs){top:8px;margin:8px 10px 0;border-radius:16px}
+  nav.mobile-tabs{
+    left:10px;right:10px;bottom:10px;height:66px;min-height:66px;border-radius:22px;padding:6px;
+    background:var(--glass-bg);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+    border:1px solid var(--glass-border);box-shadow:0 10px 30px rgba(15,39,72,.16)
+  }
+  nav.mobile-tabs a{min-height:52px;border-radius:14px;color:#34476a}
+  nav.mobile-tabs a:first-child{background:rgba(247,240,220,.9);color:#7a5110}
+  body{padding-bottom:86px}
+  body:not([data-page="results"]){background:var(--glass-glows),var(--glass-ground) top/100% 900px no-repeat,#f6f8fc}
+}
+
+/* Solid fallback: no blur support, reduced transparency or higher contrast. */
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  nav:not(.mobile-tabs),.start-choices,.search-panel,body[data-page="results"] .job-detail,nav.mobile-tabs{background:#fff}
+}
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){
+  :root{--glass-bg:#fff;--glass-bg-strong:#fff;--glass-blur:none;--glass-border:#dfe5ef}
+  body:not([data-page="results"]){background:#f6f8fc}
+  body[data-page="results"] .results-section{background:#f7f9fc}
+  .start-choices a,.mode-toggle,.browse-roles a{background:#fff}
+}
