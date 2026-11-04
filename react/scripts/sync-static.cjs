@@ -9,7 +9,8 @@ for (const file of [
   'config.js', 'auth.js', 'account.css', 'newsletter-preferences.js',
   'about.html', 'contact.html', 'privacy.html', 'terms.html', 'email-preferences.html',
   'guest-resume-page.js', 'guest-resume.js',
-  'resume-builder.js', 'resume-builder-page.js', 'data-safety.js', 'search-accuracy.js'
+  'resume-builder.js', 'resume-builder-page.js', 'data-safety.js', 'search-accuracy.js',
+  'company-brand-map.js', 'company-logos.js'
 ]) {
   fs.copyFileSync(path.join(site, file), path.join(pub, file));
 }

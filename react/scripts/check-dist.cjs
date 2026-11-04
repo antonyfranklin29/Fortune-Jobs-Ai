@@ -17,6 +17,14 @@ for (const page of required) {
   if (!/<meta\s+name=["']robots["']\s+content=["']noindex\s*,\s*nofollow["']/i.test(html)) {
     missing.push(`${page} → pre-launch noindex tag`);
   }
+  if (['index.html', 'find-jobs.html', 'results.html'].includes(page)) {
+    let previous = -1;
+    for (const helper of ['company-brand-map.js', 'company-logos.js', 'data-safety.js', 'search-accuracy.js']) {
+      const index = html.indexOf(`src="./${helper}"`);
+      if (index < 0 || index <= previous) missing.push(`${page} → ${helper} missing or out of order`);
+      previous = index;
+    }
+  }
   for (const match of html.matchAll(/\b(?:href|src)=["']([^"']+)["']/gi)) {
     const ref = match[1].split(/[?#]/, 1)[0];
     if (!ref || ref.startsWith('#') || /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(ref)) continue;
