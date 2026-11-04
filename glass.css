@@ -82,3 +82,9 @@ nav:not(.mobile-tabs) .nav-links a:hover,nav:not(.mobile-tabs) .nav-links .find-
   body[data-page="results"] .results-section{background:#f7f9fc}
   .start-choices a,.mode-toggle,.browse-roles a{background:#fff}
 }
+
+/* Results page: the Quick Match / Live Search switch sits directly in the hero there,
+   not inside .search-panel, so the home-page absolute placement from
+   landing-experience.css put it under the search bar (since b3a1e4d). Keep it in flow. */
+body[data-page="results"] .mode-toggle,body[data-page="results"] .mode-desc{position:static;margin-left:max(0px,calc((100% - 1280px) / 2))}
+body[data-page="results"] .mode-desc{max-width:1280px;text-align:left}
