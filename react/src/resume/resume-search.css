@@ -1,0 +1,22 @@
+/* Scoped from resume-search.html. */
+.fja-resume-search nav.nav{display:flex;align-items:center;gap:24px;max-width:1100px;margin:auto;padding:22px 24px;border-bottom:1px solid var(--gray-200)}
+.fja-resume-search nav.nav .brand{margin-right:auto;font-weight:800;font-size:18px;text-decoration:none;color:var(--navy)}
+.fja-resume-search nav.nav a{font-weight:600;text-decoration:none}
+.fja-resume-search main{max-width:800px;margin:50px auto;padding:0 24px}
+.fja-resume-search h1{font-size:36px;line-height:1.2;margin-bottom:16px}
+.fja-resume-search .intro{color:var(--gray-500);line-height:1.7;margin-bottom:28px}
+.fja-resume-search .panel{padding:28px;background:white;border:1px solid var(--gray-200);border-radius:16px;margin-bottom:24px}
+.fja-resume-search .drop{display:block;padding:38px 20px;border:2px dashed var(--gold);border-radius:12px;text-align:center;cursor:pointer;background:var(--gold-pale)}
+.fja-resume-search .drop span{display:block;margin:10px 0;color:var(--gray-500)}
+.fja-resume-search label.field{display:block;font-size:14px;font-weight:600;margin:18px 0 7px}
+.fja-resume-search .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fja-resume-search .sub{color:var(--gray-500);line-height:1.7;font-size:14px}
+.fja-resume-search textarea{resize:vertical;width:100%}
+.fja-resume-search .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.fja-resume-search #notice{margin:14px 0;line-height:1.6}
+.fja-resume-search .error{color:var(--red)}
+.fja-resume-search [hidden]{display:none!important}
+@media(max-width:600px){.fja-resume-search h1{font-size:28px}
+.fja-resume-search .row{grid-template-columns:1fr}
+.fja-resume-search .panel{padding:20px}
+.fja-resume-search main{margin:30px auto}}
