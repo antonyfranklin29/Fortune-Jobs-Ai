@@ -1,0 +1,36 @@
+/* Scoped from login.html / employer-login.html. */
+.fja-login .auth-wrap{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 64px);}
+.fja-login .auth-side{background:var(--navy);color:var(--white);padding:64px 56px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;}
+.fja-login .auth-side::before{content:'';position:absolute;top:-80px;left:-80px;width:520px;height:420px;background:radial-gradient(ellipse,rgba(212,168,67,0.14) 0%,transparent 70%);pointer-events:none;}
+.fja-login .auth-side h1{font-size:clamp(28px,3.2vw,40px);font-weight:800;letter-spacing:-1px;line-height:1.15;margin-bottom:14px;position:relative;}
+.fja-login .auth-side h1 span{color:var(--gold);}
+.fja-login .auth-side p{color:var(--gray-400);font-size:15px;max-width:420px;margin-bottom:28px;position:relative;}
+.fja-login .perks{list-style:none;display:grid;gap:14px;position:relative;}
+.fja-login .perks li{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:#E2E8F0;}
+.fja-login .perks .ic{width:30px;height:30px;border-radius:var(--radius-md);background:rgba(212,168,67,0.12);border:1px solid rgba(212,168,67,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+.fja-login .perks b{display:block;color:var(--white);font-weight:700;}
+.fja-login .auth-main{display:flex;align-items:center;justify-content:center;padding:48px 24px;}
+.fja-login .auth-card{width:100%;max-width:420px;}
+.fja-login .tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--gray-100);border-radius:var(--radius-md);padding:4px;margin-bottom:24px;}
+.fja-login .tab{border:none;background:none;padding:10px;border-radius:8px;font-size:14px;font-weight:700;color:var(--gray-500);cursor:pointer;}
+.fja-login .tab.active{background:var(--white);color:var(--navy);box-shadow:var(--shadow-sm);}
+.fja-login .auth-title{font-size:22px;font-weight:800;letter-spacing:-0.4px;margin-bottom:4px;}
+.fja-login .auth-sub{font-size:14px;color:var(--gray-500);margin-bottom:22px;}
+.fja-login .google-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--white);border:1px solid var(--gray-300);border-radius:var(--radius-md);padding:11px;font-size:14px;font-weight:600;color:var(--navy);cursor:pointer;transition:border-color 0.15s;}
+.fja-login .google-btn:hover:not(:disabled){border-color:var(--gray-500);}
+.fja-login .google-btn:disabled{opacity:0.55;cursor:default;}
+.fja-login .google-note{font-size:12px;color:var(--gray-500);text-align:center;margin-top:6px;display:none;}
+.fja-login .divider{display:flex;align-items:center;gap:12px;color:var(--gray-400);font-size:12px;font-weight:600;margin:20px 0;text-transform:uppercase;letter-spacing:0.05em;}
+.fja-login .divider::before,.fja-login .divider::after{content:'';flex:1;height:1px;background:var(--gray-200);}
+.fja-login .pw-wrap{position:relative;}
+.fja-login .pw-wrap .input{padding-right:64px;}
+.fja-login .pw-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;font-size:12px;font-weight:700;color:var(--gray-500);cursor:pointer;padding:6px 8px;}
+.fja-login .row-between{display:flex;justify-content:space-between;align-items:center;margin:-4px 0 18px;}
+.fja-login .link-btn{border:none;background:none;color:var(--navy-3);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;}
+.fja-login .link-btn:hover{color:var(--navy);}
+.fja-login .account-area{font-size:11px;font-weight:800;letter-spacing:.13em;color:#8A6414;margin-bottom:12px;}
+.fja-login .account-switch{padding-top:18px;border-top:1px solid var(--gray-200);}
+.fja-login .fine{font-size:12px;color:var(--gray-500);text-align:center;margin-top:18px;}
+@media(max-width:860px){.fja-login .auth-wrap{grid-template-columns:1fr;}
+.fja-login .auth-side{display:none;}
+.fja-login .auth-main{padding:32px 16px;align-items:flex-start;}}
