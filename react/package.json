@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node scripts/sync-legacy-css.cjs && node scripts/sync-static.cjs && vite",
-    "build": "node scripts/sync-legacy-css.cjs && node scripts/sync-static.cjs && vite build && node scripts/check-dist.cjs",
+    "dev": "node scripts/sync-static.cjs && vite",
+    "build": "node scripts/sync-static.cjs && vite build && node scripts/check-dist.cjs",
     "test": "vitest run",
     "preview": "vite preview"
   },

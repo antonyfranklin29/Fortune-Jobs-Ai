@@ -22,6 +22,8 @@ The account, employer, résumé and guest fit suites pass 61/61. The production 
 
 The browser connection stopped responding before I could finish the built-page score and résumé export checks. These are still release gates; test and build success alone do not close them.
 
+The first release-candidate CI build exposed a dependency on inline styles from the original root HTML. Those styles are now checked into `react/src/styles/`, so the React source builds independently after the root pages are replaced. Both local tests and the rebuilt source artifact pass; release-candidate CI must be rechecked after the updated source is merged into that branch.
+
 ## Release gates
 
 1. Verify the built résumé upload, manual profile, score display, builder export and privacy controls in a browser. Automated tests cover these routes, but the complete visitor journey still needs a built-page check.
