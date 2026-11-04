@@ -115,5 +115,5 @@ export function guestMatchProfile() {
   try { return Guest.load(sessionStorage, Date.now(), params.get('resume') === '1' ? params.get('resume_id') || '' : null); } catch { return null; }
 }
 export function fitFor(job, profile) {
-  return profile ? Matching.assess(job, profile, window.FJAccuracy.metadata) : null;
+  return profile ? Matching.assess(job, profile, window.FJAccuracy?.metadata) : null;
 }
