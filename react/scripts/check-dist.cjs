@@ -14,6 +14,9 @@ for (const page of required) {
   const file = path.join(dist, page);
   if (!fs.existsSync(file)) { missing.push(page); continue; }
   const html = fs.readFileSync(file, 'utf8');
+  if (!/<meta\s+name=["']robots["']\s+content=["']noindex\s*,\s*nofollow["']/i.test(html)) {
+    missing.push(`${page} → pre-launch noindex tag`);
+  }
   for (const match of html.matchAll(/\b(?:href|src)=["']([^"']+)["']/gi)) {
     const ref = match[1].split(/[?#]/, 1)[0];
     if (!ref || ref.startsWith('#') || /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(ref)) continue;

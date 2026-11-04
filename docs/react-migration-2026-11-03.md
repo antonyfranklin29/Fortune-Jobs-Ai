@@ -18,7 +18,7 @@
 ## Build and checks
 
 From `react/`: `npm ci`, `npm test`, `npm run build`, `npm run dev -- --host 127.0.0.1 --port 8877`.
-The account, employer and résumé suites pass 59/59. The production build succeeds and emits all nine React HTML entries and the supporting routes. The build also verifies that all 14 pages and their local assets are present. Local browser checks confirmed sign-in choices, the signed-out employer flow, ten distinct Quick Match results for Data Analyst, a visible mode switch, the full home sections and manual résumé details arriving on Find Jobs. The guest profile reader was switched to the React module after that browser check exposed an expired-profile message despite a valid session profile.
+The account, employer and résumé suites pass 59/59. The production build succeeds and emits all nine React HTML entries and the supporting routes. The build also verifies that all 14 pages and their local assets are present and retain the existing pre-launch noindex tag. Local browser checks confirmed sign-in choices, the signed-out employer flow, ten distinct Quick Match results for Data Analyst, a visible mode switch, the full home sections and manual résumé details arriving on Find Jobs. The guest profile reader was switched to the React module after that browser check exposed an expired-profile message despite a valid session profile.
 
 The browser connection stopped responding before I could finish the built-page score and résumé export checks. These are still release gates; test and build success alone do not close them.
 
