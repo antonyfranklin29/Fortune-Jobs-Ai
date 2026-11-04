@@ -1,17 +1,12 @@
-import '../../../config.js';
-import '../../../data-safety.js';
-import '../../../search-accuracy.js';
-import '../../../company-brand-map.js';
-import '../../../company-logos.js';
 import * as Guest from '../resume/lib/guestResume.js';
 import * as Matching from '../resume/lib/resumeMatching.js';
 
-const config = window.FJ_CONFIG;
 const fields = 'job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,closed_at';
-const headers = { apikey: config.key, Authorization: `Bearer ${config.key}` };
 const DAY = 86400000;
 
 async function read(params, signal) {
+  const config = window.FJ_CONFIG;
+  const headers = { apikey: config.key, Authorization: `Bearer ${config.key}` };
   const response = await fetch(`${config.url}/rest/v1/pre_scraped_jobs?${params}`, { headers, signal });
   if (!response.ok) throw new Error('The job catalogue is temporarily unavailable. Please try again.');
   return response.json();
