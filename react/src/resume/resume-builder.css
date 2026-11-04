@@ -1,0 +1,52 @@
+/* Scoped from resume-builder.html (print rules adapted below). */
+.fja-resume-builder .builder-nav{display:flex;align-items:center;gap:20px;padding:18px max(20px,calc((100vw - 1440px)/2));background:white;border-bottom:1px solid var(--gray-200)}
+.fja-resume-builder [hidden]{display:none!important}
+.fja-resume-builder .builder-nav a{text-decoration:none;font-weight:700}
+.fja-resume-builder .builder-nav a:first-child{margin-right:auto;font-size:18px}
+.fja-resume-builder main{max-width:1440px;margin:auto;padding:34px 24px 80px}
+.fja-resume-builder h1{font-size:clamp(28px,4vw,42px);line-height:1.15;margin-bottom:12px}
+.fja-resume-builder .lead{color:var(--gray-600);max-width:800px;margin-bottom:24px}
+.fja-resume-builder .layout{display:grid;grid-template-columns:minmax(320px,0.9fr) minmax(360px,1.1fr);gap:24px;align-items:start}
+.fja-resume-builder .editor section{margin-bottom:22px}
+.fja-resume-builder .editor h2{font-size:18px;margin-bottom:10px}
+.fja-resume-builder .editor .field{margin-bottom:12px}
+.fja-resume-builder .editor textarea{resize:vertical;min-height:88px}
+.fja-resume-builder .small{font-size:12px;color:var(--gray-500)}
+.fja-resume-builder .preview-wrap{position:sticky;top:20px}
+.fja-resume-builder .preview-toolbar{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap}
+.fja-resume-builder .paper{background:#fff;color:#172033;min-height:950px;padding:56px 58px;box-shadow:var(--shadow-md);border:1px solid var(--gray-200);font-family:Arial,sans-serif;overflow-wrap:anywhere}
+.fja-resume-builder .paper h2{font-size:26px;line-height:1.2;margin-bottom:4px}
+.fja-resume-builder .paper .role{color:#384962;font-size:16px;margin-bottom:6px}
+.fja-resume-builder .paper .contact{font-size:11px;color:#475569;margin-bottom:20px}
+.fja-resume-builder .paper h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #94a3b8;padding-bottom:4px;margin:18px 0 8px}
+.fja-resume-builder .paper p,.fja-resume-builder .paper li{font-size:11px;line-height:1.55}
+.fja-resume-builder .paper ul{padding-left:18px}
+.fja-resume-builder .paper li{margin-bottom:4px}
+.fja-resume-builder .paper .blank{color:#64748b;font-style:italic}
+.fja-resume-builder .notice{padding:12px 14px;background:var(--gold-pale);border-radius:10px;color:#614a1c;margin:14px 0}
+.fja-resume-builder .notice li{margin-left:18px;font-size:13px}
+.fja-resume-builder .actions{display:flex;gap:10px;flex-wrap:wrap}
+.fja-resume-builder .verify{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin:16px 0}
+.fja-resume-builder .verify input{margin-top:4px}
+.fja-resume-builder .import-card{max-width:800px;margin-bottom:24px}
+.fja-resume-builder .import-card h2{font-size:18px}
+.fja-resume-builder .import-card p{font-size:13px;color:var(--gray-600);margin:8px 0 12px}
+.fja-resume-builder .source-text{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font-size:12px;padding:12px;border:1px solid var(--gray-200);margin-top:10px}
+.fja-resume-builder .import-card details{margin-top:10px}
+.fja-resume-builder .import-card summary{cursor:pointer;font-weight:700}
+@media(max-width:900px){.fja-resume-builder .layout{grid-template-columns:1fr}
+.fja-resume-builder .preview-wrap{position:static}
+.fja-resume-builder .paper{padding:34px 30px;min-height:720px}}
+@media(max-width:560px){.fja-resume-builder main{padding:24px 14px}
+.fja-resume-builder .paper{padding:26px 20px}
+.fja-resume-builder .builder-nav{padding:14px}}
+/* Print only the résumé, whatever app shell surrounds the page. Gated with :has()
+   so printing any other route is unaffected once this CSS is loaded. @page cannot
+   be scoped; it only sets letter size and margins. */
+@media print{
+  body:has(.fja-resume-builder){background:white}
+  body:has(.fja-resume-builder) *{visibility:hidden}
+  .fja-resume-builder .paper,.fja-resume-builder .paper *{visibility:visible}
+  .fja-resume-builder .paper{position:absolute;left:0;top:0;width:100%;box-shadow:none;border:0;min-height:0;padding:0;color:black}
+  @page{size:letter;margin:0.65in}
+}
