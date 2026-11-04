@@ -3,16 +3,27 @@ import { Footer, Header, MobileTabs } from '../shared/Shell.jsx';
 import { SearchForm } from './SearchForm.jsx';
 import { JobDetail, JobList } from './JobViews.jsx';
 import { guestMatchProfile, recentJobs } from './catalogue.js';
+import { supabase } from '../shared/supabase.js';
 
 export function LandingPage() {
   const [jobs, setJobs] = useState([]);
   const [selected, setSelected] = useState(0);
   const [error, setError] = useState('');
-  const [profile] = useState(guestMatchProfile);
+  const [profile, setProfile] = useState(guestMatchProfile);
   useEffect(() => {
     const controller = new AbortController();
     recentJobs(controller.signal).then(setJobs).catch(() => { if (!controller.signal.aborted) setError('Recent job previews are unavailable. You can still search the catalogue.'); });
     return () => controller.abort();
+  }, []);
+  useEffect(() => {
+    if (profile) return;
+    let active = true;
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!active || !data.user) return;
+      const personal = await supabase.from('profiles').select('current_title,years_experience,skills,preferred_locations').eq('id', data.user.id).maybeSingle();
+      if (active && !personal.error && personal.data) setProfile(personal.data);
+    });
+    return () => { active = false; };
   }, []);
   return <><Header />
     <section className="hero"><div className="landing-shell">

@@ -110,7 +110,9 @@ export async function quickMatches(query, filters = {}, signal) {
 }
 
 export function guestMatchProfile() {
-  try { return window.FJGuestResume.load(sessionStorage, Date.now()); } catch { return null; }
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('resume') === '0') return null;
+  try { return window.FJGuestResume.load(sessionStorage, Date.now(), params.get('resume') === '1' ? params.get('resume_id') || '' : null); } catch { return null; }
 }
 export function fitFor(job, profile) {
   return profile ? window.FJResume.assess(job, profile, window.FJAccuracy.metadata) : null;

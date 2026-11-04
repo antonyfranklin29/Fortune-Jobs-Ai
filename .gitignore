@@ -5,4 +5,5 @@ private-backups/
 *.fjb
 supabase/.temp/
 react/dist/
+react/public/
 react/src/generated/
