@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 
 const countries = [['','🌍 Any country'],['us','🇺🇸 United States'],['ca','🇨🇦 Canada'],['gb','🇬🇧 United Kingdom'],['in','🇮🇳 India']];
 export function SearchForm({ initial = {}, compact = false }) {
+  const resume = initial.resume || '';
+  const resumeId = initial.resume_id || '';
   const [mode, setMode] = useState(initial.mode === 'live' ? 'live' : 'quick');
   const [query, setQuery] = useState(initial.q || '');
   const [location, setLocation] = useState(initial.location || '');
@@ -18,6 +20,8 @@ export function SearchForm({ initial = {}, compact = false }) {
     const clean = query.trim();
     if (!clean) { setError('Enter a job title or skill to start your search.'); return; }
     const params = new URLSearchParams({ mode: 'quick', q: clean });
+    if (resume === '0' || resume === '1') params.set('resume', resume);
+    if (resume === '1' && resumeId) params.set('resume_id', resumeId);
     for (const [key, value] of Object.entries({ location: location.trim(), country, date_posted: date, experience, job_type: type, work_mode: workMode, company: company.trim() })) if (value) params.set(key, value);
     window.location.href = `./results.html?${params}`;
   }
@@ -33,7 +37,7 @@ export function SearchForm({ initial = {}, compact = false }) {
       <button type="submit">Search jobs →</button>
     </div></div>
     {error && <p className="react-search-error" role="alert">{error}</p>}
-    {!compact && <div className="browse-roles" aria-label="Explore jobs by role"><span>Explore roles</span>{['Data Analyst','Software Engineer','Data Engineer'].map(role=><a key={role} href={`./results.html?mode=quick&q=${encodeURIComponent(role)}`}>{role}</a>)}</div>}
+    {!compact && <div className="browse-roles" aria-label="Explore jobs by role"><span>Explore roles</span>{['Data Analyst','Software Engineer','Data Engineer'].map(role=>{const p=new URLSearchParams({mode:'quick',q:role});if(resume==='0'||resume==='1')p.set('resume',resume);if(resume==='1'&&resumeId)p.set('resume_id',resumeId);return <a key={role} href={`./results.html?${p}`}>{role}</a>;})}</div>}
     <details className="advanced-filters"><summary>More filters <span>Country, date, experience, job type and company</span></summary><div className="filters">
       <label className="filter-pill wide"><select aria-label="Country" value={country} onChange={event => setCountry(event.target.value)}>{countries.map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
       <label className="filter-pill"><select aria-label="Date posted" value={date} onChange={event => setDate(event.target.value)}><option value="">Date posted</option><option value="1">Past 24 hours</option><option value="3">Past 3 days</option><option value="7">Past week</option><option value="30">Past month</option></select></label>

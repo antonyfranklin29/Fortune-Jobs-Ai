@@ -18,7 +18,9 @@ export default defineConfig({
         login: resolve(import.meta.dirname, 'login.html'),
         employerLogin: resolve(import.meta.dirname, 'employer-login.html'),
         profile: resolve(import.meta.dirname, 'profile.html'),
-        employers: resolve(import.meta.dirname, 'employers.html')
+        employers: resolve(import.meta.dirname, 'employers.html'),
+        resumeSearch: resolve(import.meta.dirname, 'resume-search.html'),
+        resumeBuilder: resolve(import.meta.dirname, 'resume-builder.html')
       }
     }
   }

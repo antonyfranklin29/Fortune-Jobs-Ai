@@ -1,10 +1,10 @@
 import '../../../config.js';
 import '../../../data-safety.js';
 import '../../../search-accuracy.js';
-import '../../../resume-matching.js';
-import '../../../guest-resume.js';
 import '../../../company-brand-map.js';
 import '../../../company-logos.js';
+import * as Guest from '../resume/lib/guestResume.js';
+import * as Matching from '../resume/lib/resumeMatching.js';
 
 const config = window.FJ_CONFIG;
 const fields = 'job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,closed_at';
@@ -112,8 +112,8 @@ export async function quickMatches(query, filters = {}, signal) {
 export function guestMatchProfile() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('resume') === '0') return null;
-  try { return window.FJGuestResume.load(sessionStorage, Date.now(), params.get('resume') === '1' ? params.get('resume_id') || '' : null); } catch { return null; }
+  try { return Guest.load(sessionStorage, Date.now(), params.get('resume') === '1' ? params.get('resume_id') || '' : null); } catch { return null; }
 }
 export function fitFor(job, profile) {
-  return profile ? window.FJResume.assess(job, profile, window.FJAccuracy.metadata) : null;
+  return profile ? Matching.assess(job, profile, window.FJAccuracy.metadata) : null;
 }
