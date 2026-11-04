@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import './generated/landing-base.css';
+import './styles/landing-base.css';
 import '../../landing-experience.css';
 import '../../glass.css';
 import '../../glass-light.css';
