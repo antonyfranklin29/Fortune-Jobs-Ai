@@ -1,6 +1,9 @@
 name: React migration checks
 
 on:
+  push:
+    branches:
+      - 'codex/react-*'
   pull_request:
     paths:
       - 'react/**'
