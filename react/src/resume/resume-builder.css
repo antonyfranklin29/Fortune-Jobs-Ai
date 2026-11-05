@@ -40,13 +40,18 @@
 @media(max-width:560px){.fja-resume-builder main{padding:24px 14px}
 .fja-resume-builder .paper{padding:26px 20px}
 .fja-resume-builder .builder-nav{padding:14px}}
-/* Print only the résumé, whatever app shell surrounds the page. Gated with :has()
-   so printing any other route is unaffected once this CSS is loaded. @page cannot
-   be scoped; it only sets letter size and margins. */
+/* Print only the résumé. Everything else is removed from the layout (display:none),
+   not just made invisible, so the PDF has no blank pages. Gated with :has() so
+   printing any other route is unaffected once this CSS is loaded. @page cannot be
+   scoped; it only sets letter size and margins. */
 @media print{
-  body:has(.fja-resume-builder){background:white}
-  body:has(.fja-resume-builder) *{visibility:hidden}
-  .fja-resume-builder .paper,.fja-resume-builder .paper *{visibility:visible}
-  .fja-resume-builder .paper{position:absolute;left:0;top:0;width:100%;box-shadow:none;border:0;min-height:0;padding:0;color:black}
+  body:has(.fja-resume-builder){background:white;margin:0;padding:0}
+  body:has(.fja-resume-builder) > :not(:has(.fja-resume-builder)){display:none!important}
+  .fja-resume-builder .builder-nav,.fja-resume-builder h1,.fja-resume-builder .lead,.fja-resume-builder .import-card,
+  .fja-resume-builder .editor,.fja-resume-builder .preview-toolbar{display:none!important}
+  .fja-resume-builder,.fja-resume-builder main,.fja-resume-builder .layout,.fja-resume-builder .preview-wrap{display:block;position:static;margin:0;padding:0;max-width:none;min-height:0;background:none}
+  .fja-resume-builder .paper{position:static;width:auto;box-shadow:none;border:0;min-height:0;padding:0;color:black}
+  .fja-resume-builder .paper h3{break-after:avoid;page-break-after:avoid}
+  .fja-resume-builder .paper li,.fja-resume-builder .paper p{break-inside:avoid;page-break-inside:avoid}
   @page{size:letter;margin:0.65in}
 }
