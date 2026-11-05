@@ -15,7 +15,7 @@ async function read(params, signal) {
 export function safeApplyUrl(value) { return window.FJDataSafety.httpUrl(value); }
 export function logoFor(job) {
   const value = window.FJCompanyLogos.urlFor(job);
-  return value?.startsWith('assets/') ? `../${value}` : value;
+  return value?.startsWith('assets/') ? `./${value}` : value;
 }
 export function jobAge(job) {
   const days = Math.max(0, Math.floor((Date.now() - Date.parse(job.posted_at || job.created_at)) / DAY));

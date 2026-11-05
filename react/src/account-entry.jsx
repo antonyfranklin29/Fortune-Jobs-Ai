@@ -7,7 +7,7 @@ import { EmployerWorkspacePage } from './employer/index.js';
 const services = createAccountServices({
   sb: supabase,
   config: window.FJ_CONFIG,
-  resumeTools: createBrowserResumeTools({ extractionUrl: new URL('../resume-extraction.mjs', window.location.href).href })
+  resumeTools: createBrowserResumeTools({ extractionUrl: new URL('./resume-extraction.mjs', window.location.href).href })
 });
 
 const pages = {

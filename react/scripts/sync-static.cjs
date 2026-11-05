@@ -7,7 +7,6 @@ fs.mkdirSync(pub, { recursive: true });
 for (const file of [
   'resume-extraction.mjs', 'resume-matching.js', 'job-titles.js', 'favicon.svg',
   'config.js', 'auth.js', 'account.css', 'newsletter-preferences.js',
-  'about.html', 'contact.html', 'privacy.html', 'terms.html', 'email-preferences.html',
   'guest-resume-page.js', 'guest-resume.js',
   'resume-builder.js', 'resume-builder-page.js', 'data-safety.js', 'search-accuracy.js',
   'company-brand-map.js', 'company-logos.js'

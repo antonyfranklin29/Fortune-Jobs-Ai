@@ -20,7 +20,12 @@ export default defineConfig({
         profile: resolve(import.meta.dirname, 'profile.html'),
         employers: resolve(import.meta.dirname, 'employers.html'),
         resumeSearch: resolve(import.meta.dirname, 'resume-search.html'),
-        resumeBuilder: resolve(import.meta.dirname, 'resume-builder.html')
+        resumeBuilder: resolve(import.meta.dirname, 'resume-builder.html'),
+        about: resolve(import.meta.dirname, 'about.html'),
+        privacy: resolve(import.meta.dirname, 'privacy.html'),
+        terms: resolve(import.meta.dirname, 'terms.html'),
+        contact: resolve(import.meta.dirname, 'contact.html'),
+        emailPreferences: resolve(import.meta.dirname, 'email-preferences.html')
       }
     }
   }
