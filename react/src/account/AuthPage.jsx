@@ -128,7 +128,7 @@ function AuthPage({ area }) {
     if (busy || oauthBusy) return;
     const mail = email.trim();
     if (mode !== 'reset' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { showMsg('Please enter a valid email address.'); emailRef.current?.focus(); return; }
-    if ((mode === 'signup' || mode === 'reset') && password.length < 8) { showMsg('Password must be at least 8 characters.'); passwordRef.current?.focus(); return; }
+    if ((mode === 'signup' || mode === 'reset') && (password.length < 8 || !/[a-z]/i.test(password) || !/\d/.test(password))) { showMsg('Use at least 8 characters, with letters and numbers.'); passwordRef.current?.focus(); return; }
     if (mode === 'signin' && !password) { showMsg('Please enter your password.'); passwordRef.current?.focus(); return; }
     setBusy(true);
     try {
@@ -222,7 +222,7 @@ function AuthPage({ area }) {
                   <label htmlFor="password">{c.pwLabel}</label>
                   <div className="pw-wrap">
                     <input ref={passwordRef} className="input" id="password" type={showPassword ? 'text' : 'password'} autoComplete={c.pwAuto}
-                      minLength={mode === 'signin' ? 1 : 8} placeholder="At least 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} />
+                      minLength={mode === 'signin' ? 1 : 8} placeholder={mode === 'signin' ? 'Your password' : '8+ characters, letters and numbers'} value={password} onChange={(e) => setPassword(e.target.value)} />
                     <button type="button" className="pw-toggle" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword((v) => !v)}>{showPassword ? 'Hide' : 'Show'}</button>
                   </div>
                 </div>

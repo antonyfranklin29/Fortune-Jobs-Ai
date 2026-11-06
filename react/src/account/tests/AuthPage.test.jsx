@@ -53,6 +53,11 @@ describe('LoginPage', () => {
     const { sb } = mount(LoginPage, { href: 'https://fortunejobsai.com/login.html?mode=signup&next=results.html%3Fq%3Ddata' });
     type('Full name', 'Jane'); type('Email', 'jane@example.com'); type('Password', 'longenough');
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Create account' })); });
+    // Letters only is rejected before anything is sent (matches the Supabase rule).
+    expect(screen.getByRole('alert').textContent).toBe('Use at least 8 characters, with letters and numbers.');
+    expect(sb.calls.some((c) => c[0] === 'signUp')).toBe(false);
+    type('Password', 'longenough7');
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Create account' })); });
     const call = sb.calls.find((c) => c[0] === 'signUp')[1];
     expect(call.options.emailRedirectTo).toBe('https://fortunejobsai.com/login.html?next=' + encodeURIComponent('results.html?q=data'));
     expect(call.options.data).toEqual({ full_name: 'Jane' });
