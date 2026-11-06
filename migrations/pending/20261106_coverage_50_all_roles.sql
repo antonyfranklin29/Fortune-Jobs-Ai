@@ -25,6 +25,7 @@ select cron.schedule('fortune-us-coverage-50-all-roles', '*/20 * * * *', $job$
     left join public.ingest_cells r
       on r.state_code = c.state and r.canonical_role = c.role_id and r.source = 'adzuna'
     where c.fresh_distinct < 50
+      and c.state <> 'DC'  -- Adzuna rejects location1='District of Columbia' (HTTP 400); see docs/us-coverage-50-2026-11-06.md
       and coalesce(r.next_due_at, '-infinity'::timestamptz) <= now()
     order by r.last_attempt_at nulls first, c.fresh_distinct desc, c.role_id, c.state
     limit 1
