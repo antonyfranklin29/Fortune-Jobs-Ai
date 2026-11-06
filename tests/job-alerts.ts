@@ -83,7 +83,7 @@ Deno.test("live: daily email with matching jobs, unsubscribe headers and company
   assertEquals(r, { dryRun: false, due: 2, withJobs: 1, sent: 1, skipped: 1, failed: 0 });
   const mail = world.sent[0] as { to: string[]; subject: string; html: string; text: string; headers: Record<string, string> };
   assertEquals(mail.to, ["ana@example.test"]);
-  assertEquals((mail as unknown as { from: string }).from, "Fortune Jobs AI <jobs@account.fortunejobsai.com>"); // the Resend-verified subdomain
+  assertEquals((mail as unknown as { from: string }).from, "Fortune Jobs AI <jobs@fortunejobsai.com>"); // the Resend-verified domain
   assertEquals(mail.subject, "2 new jobs for you today · Fortune Jobs AI");
   assert(mail.html.includes("Acme") && mail.html.includes("Beta") && !mail.html.includes("Gamma") && !mail.html.includes("Old Co"), "area + remote + fresh only");
   assert(mail.html.includes("https://www.adzuna.com/details/123"), "dead Adzuna links are rewritten");

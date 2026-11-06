@@ -5,7 +5,7 @@
 // only counts who would get an email (a dry run) and sends nothing.
 // Secrets: INGEST_SECRET, RESEND_API_KEY, NEWSLETTER_ENABLED, NEWSLETTER_POSTAL_ADDRESS,
 //          NEWSLETTER_UNSUBSCRIBE_SECRET (shared with email-preferences), optional NEWSLETTER_FROM.
-// Sends from account.fortunejobsai.com, the subdomain already verified in Resend; replies go to info@.
+// Sends from fortunejobsai.com, the domain verified in Resend; replies go to info@.
 import { renderDigest } from "../_shared/digest.mjs";
 import { alertQuery, campaignFor, pickJobs, unsubscribeToken, type Job, type Profile } from "./select.ts";
 
@@ -70,7 +70,7 @@ Deno.serve(async (req: Request) => {
       const r = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${resend}`, "Content-Type": "application/json", "Idempotency-Key": String(claim) },
-        body: JSON.stringify({ from: env("NEWSLETTER_FROM") || "Fortune Jobs AI <jobs@account.fortunejobsai.com>", reply_to: "info@fortunejobsai.com", to: [user.email], ...content, headers: { "List-Unsubscribe": `<${unsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } }),
+        body: JSON.stringify({ from: env("NEWSLETTER_FROM") || "Fortune Jobs AI <jobs@fortunejobsai.com>", reply_to: "info@fortunejobsai.com", to: [user.email], ...content, headers: { "List-Unsubscribe": `<${unsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } }),
         signal: AbortSignal.timeout(15000),
       });
       const sent = r.ok ? await r.json() : null;
