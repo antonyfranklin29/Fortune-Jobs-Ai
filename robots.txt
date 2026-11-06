@@ -1,5 +1,10 @@
-# Fortune Jobs AI — pre-launch.
-# The site is not ready for public traffic yet, so no crawler should index it.
-# Remove this file (or replace the Disallow with "Allow: /") on launch day.
+# Fortune Jobs AI is public. Account pages are kept out of search results.
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /login.html
+Disallow: /profile.html
+Disallow: /email-preferences.html
+Disallow: /employer-login.html
+Disallow: /employers.html
+
+Sitemap: https://fortunejobsai.com/sitemap.xml
