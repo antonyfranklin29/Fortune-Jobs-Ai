@@ -7,6 +7,7 @@ import { useAccountServices } from './services.jsx';
 import { AccountNav, AdzunaCredit, Avatar, StatusMessage, Spinner, useDocumentTitle, useToast } from './components.jsx';
 import { avatarPath, exportAccount, httpUrl, isAdzunaJob, removeResume } from './lib/dataSafety.js';
 import * as Deletion from './lib/accountDeletion.js';
+import { fixApplyUrl } from '../shared/applyUrl.js';
 import './account-base.css';
 import './profile-page.css';
 
@@ -481,7 +482,7 @@ function SavedJobs({ toast, onCount }) {
             : (
               <div className="jobs">
                 {state.rows.map((j) => {
-                  const url = httpUrl(j.apply_url);
+                  const url = httpUrl(fixApplyUrl(j.apply_url));
                   return (
                     <div className="sjob" key={j.id}>
                       <div className="top"><span className="logo-l">{(j.company || '?')[0].toUpperCase()}</span>

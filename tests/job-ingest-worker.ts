@@ -226,7 +226,8 @@ Deno.test("first live run: NC filled to target statewide, SC's genuine shortage 
   assert(db.jobs.every((j) => (j.source_listing_id.startsWith("nc-") ? j.state_code === "NC" : j.state_code === "SC")), "no cross-state rows");
   assertEquals(db.jobs.filter((j) => /Engineer/.test(j.job_title)).length, 0, "no off-role padding");
   assertEquals(r.rejected.other_state, 2, "SC rows leaked into the NC response were rejected");
-  assert(db.jobs.every((j) => !/utm_/.test(j.apply_url)), "tracking stripped");
+  // Adzuna redirect links keep their signature (se/v/utm) parameters: without them they 404.
+  assert(db.jobs.every((j) => !/adzuna\.com\/land\/ad\//.test(j.apply_url) || /[?&]se=/.test(j.apply_url)), "adzuna redirect signature kept");
   assertEquals(db.runs.at(-1).requests_used, 5, "budget recorded for the next run");
 });
 

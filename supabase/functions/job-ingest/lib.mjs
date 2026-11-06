@@ -134,8 +134,10 @@ function adzunaBase(r, idx) {
   if (!id) return { reject: 'no_source_id' };
   const title = String(r.title || '').replace(/<[^>]*>/g, '').trim();
   if (!title) return { reject: 'no_title' };
-  const applyUrl = canonicalUrl(r.redirect_url);
-  if (!applyUrl) return { reject: 'invalid_apply_url' };
+  // Keep Adzuna's redirect link exactly as given: its se/v parameters are a signature, and
+  // without them the link opens Adzuna's "Cannot find page". (canonicalUrl only validates here.)
+  if (!canonicalUrl(r.redirect_url)) return { reject: 'invalid_apply_url' };
+  const applyUrl = String(r.redirect_url).trim().replace(/^http:/i, 'https:');
   const state = stateFromEvidence({ area: r.location?.area, displayName: r.location?.display_name }, idx);
   return { id, title, applyUrl, state };
 }
