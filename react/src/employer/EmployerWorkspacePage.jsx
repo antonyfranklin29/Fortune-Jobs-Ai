@@ -5,6 +5,7 @@
 // reads plan or payment state from the URL. The reviewer panel appears only when
 // the server answers operator_queue for this account.
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AiPostWriter, AiShortlist } from './EmployerAi.jsx';
 import { useAccountServices } from '../account/services.jsx';
 import { useDocumentTitle } from '../account/components.jsx';
 import {
@@ -250,6 +251,7 @@ function OrgCard({ org: o, plan, taxonomy, run, rpc, say, render }) {
         {sourceOpen && <SourceForm org={o} rpc={rpc} say={say} render={render} onCancel={() => setSourceOpen(false)} />}
         {chooser && <CandidatePicker source={chooser.source} items={chooser.items} run={run} rpc={rpc} />}
       </div>
+      {o.status === 'verified' && <AiShortlist />}
     </section>
   );
 }
@@ -322,6 +324,7 @@ function PostForm({ org: o, post: p, taxonomy, rpc, say, render, onCancel }) {
         <Field label="State" id={ids.state}><Select id={ids.state} value={f.state_code} onChange={set('state_code')} options={regionOpts} /></Field>
         <Field label="Work mode" id={ids.mode}><Select id={ids.mode} value={f.work_mode} onChange={set('work_mode')} options={modeOpts} /></Field>
       </div>
+      {o.status === 'verified' && <AiPostWriter title={f.job_title} company={o.name} onUse={(text) => set('description')(text)} />}
       <Field label="Description" id={ids.desc} hint="Plain text, at least 50 characters. Do not ask candidates to pay or to send sensitive personal data."><textarea className="input" id={ids.desc} maxLength={8000} required value={f.description} onChange={set('description')} /></Field>
       <Field label="Application link" id={ids.url} hint="An https page where candidates apply. We review every link before it goes live."><input className="input" id={ids.url} type="url" maxLength={2000} required placeholder="https://" value={f.apply_url} onChange={set('apply_url')} /></Field>
       <div className="grid2">

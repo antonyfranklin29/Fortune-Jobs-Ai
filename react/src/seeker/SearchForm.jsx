@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SuggestInput } from './SuggestInput.jsx';
+import { SmartSearch } from './AiTools.jsx';
 import { MIN_CHARS, SEARCH_COUNTRIES, exactCountry, fetchCities, localPlaces, matchTitles, mergePlaces, placeLabel } from './suggest.js';
 
 const KIND_LABEL = { title: 'Job title', skill: 'Skill', company: 'Company' };
@@ -55,6 +56,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
       <button type="submit">⌕ Search Jobs</button>
     </div></div>
     {error && <p className="react-search-error" role="alert">{error}</p>}
+    <SmartSearch />
     <div className="dashboard-resume-links"><a className="dashboard-upload" href="./resume-search.html">⇧ Upload Résumé <small>PDF, DOCX · up to 10MB</small></a><a href={`./results.html?${new URLSearchParams({ mode: 'quick', resume: '0', q: query.trim(), location: location.trim() })}`}>Search without résumé</a></div>
     </div></div>
     <div className="dashboard-filterbar">

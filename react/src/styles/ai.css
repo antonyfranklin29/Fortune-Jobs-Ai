@@ -1,0 +1,28 @@
+/* AI assistant pieces (AiTools.jsx, EmployerAi.jsx). */
+.ai-tools{margin:18px 0;padding:16px;border:1px solid rgba(212,168,67,.45);border-radius:14px;background:linear-gradient(180deg,rgba(212,168,67,.08),rgba(212,168,67,.02))}
+.ai-tools h4,.ai-tools h3,.ai-tools h2{margin:0 0 10px}
+.ai-buttons{display:flex;flex-wrap:wrap;gap:8px}
+.ai-buttons button,.ai-smart-search button,.ai-skill-gap form button,.ai-actions button{font:inherit;font-size:14px;font-weight:600;padding:9px 14px;border-radius:999px;border:1px solid #10243B;background:#fff;color:#10243B;cursor:pointer}
+.ai-buttons button[aria-pressed="true"],.ai-smart-search button,.ai-skill-gap form button{background:#10243B;color:#fff}
+.ai-buttons button:disabled,.ai-smart-search button:disabled,.ai-skill-gap form button:disabled{opacity:.55;cursor:default}
+.ai-busy{margin:12px 0 0;color:#5b6676;font-size:14px}
+.ai-error{margin:12px 0 0;color:#a3261d;font-size:14px}
+.ai-result{margin-top:14px;font-size:15px;line-height:1.55}
+.ai-result h5{margin:14px 0 6px;font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:#5b6676}
+.ai-result ul,.ai-plan,.ai-note ul{padding-left:20px;margin:0 0 8px}
+.ai-result li,.ai-plan li{margin-bottom:6px}
+.ai-plan p{margin:4px 0}
+.ai-fit{margin:0 0 8px}.ai-fit-strong strong,.ai-fit-good strong{color:#1d6b3a}.ai-fit-partial strong{color:#8a5a00}.ai-fit-weak strong{color:#a3261d}
+.ai-note{margin:12px 0;padding:10px 12px;border-radius:10px;background:#fff7e6;font-size:14px}
+.ai-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:12px}
+.ai-disclaimer{margin:10px 0 0;font-size:13px;color:#5b6676}
+.ai-question{border-top:1px solid rgba(16,36,59,.1);padding:8px 0}.ai-question summary{cursor:pointer;font-weight:600}
+.ai-tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:rgba(16,36,59,.08);margin-right:4px}
+.ai-smart-search{margin-top:14px}
+.ai-smart-search label{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+.ai-smart-search>div{display:flex;gap:8px}
+.ai-smart-search input,.ai-skill-gap input{flex:1;min-width:0;font:inherit;font-size:15px;padding:10px 12px;border:1px solid rgba(16,36,59,.25);border-radius:10px}
+.ai-skill-gap form{display:flex;gap:8px;margin-top:8px}
+.ai-candidate{display:grid;gap:6px;margin:10px 0}
+.ai-tools textarea.input{min-height:90px}
+@media(max-width:520px){.ai-smart-search>div,.ai-skill-gap form{flex-direction:column}.ai-buttons button{flex:1 1 100%}}

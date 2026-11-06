@@ -7,6 +7,7 @@ import { useAccountServices } from './services.jsx';
 import { AccountNav, AdzunaCredit, Avatar, StatusMessage, Spinner, useDocumentTitle, useToast } from './components.jsx';
 import { avatarPath, exportAccount, httpUrl, isAdzunaJob, removeResume } from './lib/dataSafety.js';
 import * as Deletion from './lib/accountDeletion.js';
+import { SkillGap } from '../seeker/AiTools.jsx';
 import './account-base.css';
 import './profile-page.css';
 
@@ -211,6 +212,7 @@ function ProfileApp({ user, profile, setProfile, toast, leaving, onDeleted }) {
         <nav className="sec-nav" aria-label="Profile sections">
           <a href="#profile">Profile</a>
           <a href="#resume">Resume</a>
+          <a href="#skill-plan">Skill plan</a>
           <a href="#saved">Saved jobs <span className="n">{savedCount}</span></a>
           <a href="#history">Search history <span className="n">{historyCount}</span></a>
           <a href="#alerts">Filters & alerts</a>
@@ -219,6 +221,7 @@ function ProfileApp({ user, profile, setProfile, toast, leaving, onDeleted }) {
           {/* A saved résumé review changes title, experience and skills: remount to refill the form (legacy fillForm()). */}
           <ProfileDetails key={formVersion} user={user} profile={profile} setProfile={setProfile} toast={toast} catalog={catalog} />
           <ResumeSection user={user} profile={profile} setProfile={setProfile} toast={toast} onReviewSaved={() => setFormVersion((n) => n + 1)} />
+          <div className="card" id="skill-plan"><SkillGap /></div>
           <SavedJobs toast={toast} onCount={setSavedCount} />
           <SearchHistory user={user} toast={toast} onCount={setHistoryCount} />
           <FiltersAndAlerts user={user} profile={profile} setProfile={setProfile} toast={toast} />

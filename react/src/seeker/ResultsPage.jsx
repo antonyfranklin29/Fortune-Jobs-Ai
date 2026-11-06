@@ -139,8 +139,8 @@ export function ResultsPage({ afterDashboard }) {
             <section className="dashboard-upgrade" aria-labelledby="dashboard-upgrade-title">
               <div className="dashboard-upgrade-top"><span>Fortune Jobs AI Pro</span><span>Coming soon</span></div>
               <h3 id="dashboard-upgrade-title">Subscribe for more jobs</h3>
-              <p>Free searches show up to 10 jobs. Pro will let you see more results.</p>
-              <p className="dashboard-upgrade-price"><strong>$7.99</strong><span>/ month</span></p>
+              <p>Free searches show up to 10 jobs. Pro will add more results and more AI actions each day.</p>
+              <p className="dashboard-upgrade-price"><strong>$9.99</strong><span>/ month</span></p>
             </section>
           </section>
           <button type="button" className="dashboard-back" id="jobDetailTop" onClick={backToList}>← Back to results</button>
