@@ -16,10 +16,7 @@ export function AiPostWriter({ title, company, current = '', onUse, call = callA
   const [error, setError] = useState(null);
   const [missing, setMissing] = useState([]);
   const [draft, setDraft] = useState('');
-  const latest = React.useRef({ open, current });
-  latest.current = { open, current };
   async function write() {
-    const before = current;
     if (!title.trim()) { setError({ error: 'Add the job title first.' }); return; }
     setBusy(true); setError(null);
     const res = await call('job_post_writer', { title: title.trim().slice(0, 160), company: (company || '').slice(0, 200), notes: notes.trim().slice(0, 4000) });
@@ -27,8 +24,8 @@ export function AiPostWriter({ title, company, current = '', onUse, call = callA
     if (!res.ok) { setError(res); return; }
     const text = postText(res.result);
     setMissing(Array.isArray(res.result.missing_info) ? res.result.missing_info : []);
-    // Only fill the box if the writer is still open and nobody typed in the description meanwhile.
-    if (latest.current.open && latest.current.current === before) { onUse(text); setDraft(''); } else setDraft(text);
+    // Never insert automatically: the employer reviews the draft and chooses to use it.
+    if (text.trim().length >= 50) setDraft(text); else setError({ error: "The AI couldn't write a usable draft. Please add more detail and try again." });
   }
   if (!open) return <button className="btn btn-sm btn-outline" type="button" onClick={() => setOpen(true)}>✨ Write the description with AI</button>;
   return <div className="ai-tools">
@@ -37,8 +34,8 @@ export function AiPostWriter({ title, company, current = '', onUse, call = callA
     <div className="actions"><button className="btn btn-sm btn-primary" type="button" disabled={busy || notes.trim().length < 10} onClick={write}>{busy ? 'Writing…' : 'Write description'}</button> <button className="btn btn-sm btn-ghost" type="button" onClick={() => setOpen(false)}>Close</button></div>
     <AiError error={error} />
     {missing.length > 0 && <div className="ai-note"><strong>Consider adding:</strong><ul>{missing.map((m, i) => <li key={i}>{m}</li>)}</ul></div>}
-    {draft && <div className="ai-note">You edited the description while the AI was writing, so we didn't replace it. <button className="btn btn-sm btn-outline" type="button" onClick={() => { onUse(draft); setDraft(''); }}>Replace description with the AI draft</button></div>}
-    <p className="ai-disclaimer">AI drafts go into the description box. Review and edit before saving.</p>
+    {draft && <div className="ai-note"><strong>AI draft</strong><p style={{ whiteSpace: 'pre-wrap' }}>{draft}</p><button className="btn btn-sm btn-primary" type="button" onClick={() => { onUse(draft); setDraft(''); }}>{current.trim() ? 'Replace description with this draft' : 'Use this draft'}</button></div>}
+    <p className="ai-disclaimer">Review and edit the description before saving.</p>
   </div>;
 }
 

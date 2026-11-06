@@ -75,15 +75,23 @@ function score(job, tokens, phrase, filters) {
   return points;
 }
 
-/** Highest yearly USD amount in a free-text salary ("$80,000 - $95,000", "$55/hr", "120k"), or 0. */
+/** Highest yearly USD base pay in a free-text salary ("$80,000 - $95,000", "$55/hr", "120k"),
+ *  or 0 when it can't be read reliably: other currencies, or no clear amount. Text after
+ *  equity, bonus, stock or commission is ignored, so "$85k base + $150k equity" reads as 85,000. */
 export function salaryTop(text) {
-  const t = String(text || '').toLowerCase().replace(/,/g, '');
-  const nums = [...t.matchAll(/\$?\s*(\d+(?:\.\d+)?)\s*(k\b)?/g)].map((m) => Number(m[1]) * (m[2] ? 1000 : 1)).filter((n) => n > 0);
-  if (!nums.length) return 0;
-  const top = Math.max(...nums);
+  let t = String(text || '').toLowerCase().replace(/,/g, '');
+  if (/(cad|c\$|gbp|£|€|eur|inr|₹|aud|a\$)/.test(t)) return 0;
+  if (!/\$|usd/.test(t)) return 0; // no US-dollar marker: the currency isn't certain
+  t = t.split(/equity|bonus|stock|rsu|commission|\bote\b|signing/)[0];
+  // Only the first amount or range counts ("$80k - $95k", "$85,000 base plus …" → 85,000).
+  const n = (v, k) => Number(v) * (k ? 1000 : 1);
+  const range = t.match(/(\d+(?:\.\d+)?)\s*(k\b)?\s*(?:-|–|to)\s*\$?\s*(\d+(?:\.\d+)?)\s*(k\b)?/);
+  const single = t.match(/(\d+(?:\.\d+)?)\s*(k\b)?/);
+  if (!single) return 0;
+  const top = range && range.index === single.index ? Math.max(n(range[1], range[2]), n(range[3], range[4])) : n(single[1], single[2]);
   if (/hour|hr\b|\/h\b/.test(t)) return Math.round(top * 2080);
   if (/month|\/mo\b/.test(t)) return top * 12;
-  return top;
+  return top >= 10000 ? top : 0; // a bare small number is not a yearly salary
 }
 const meetsSalary = (job, min) => !(Number(min) > 0) || salaryTop(job.salary) >= Number(min);
 

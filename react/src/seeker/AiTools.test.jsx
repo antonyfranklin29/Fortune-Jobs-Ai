@@ -54,33 +54,36 @@ describe('AI tools', () => {
 
   it('post writer fills the description', async () => {
     const onUse = vi.fn();
-    const call = vi.fn().mockResolvedValue({ ok: true, result: { summary: 'Join us.', responsibilities: ['Build pipelines'], requirements: ['SQL'], nice_to_have: [], missing_info: ['Salary range'] } });
+    const call = vi.fn().mockResolvedValue({ ok: true, result: { summary: 'Join us. We build data platforms for hospitals.', responsibilities: ['Build pipelines'], requirements: ['SQL'], nice_to_have: [], missing_info: ['Salary range'] } });
     render(<AiPostWriter title="Data Engineer" company="Co" onUse={onUse} call={call} />);
     fireEvent.click(screen.getByRole('button', { name: /Write the description with AI/ }));
     fireEvent.change(screen.getByLabelText(/key points/), { target: { value: 'Azure, Spark, hybrid NJ' } });
     fireEvent.click(screen.getByRole('button', { name: 'Write description' }));
-    await vi.waitFor(() => expect(onUse).toHaveBeenCalledWith('Join us.\n\nWhat you will do\n• Build pipelines\n\nWhat you need\n• SQL'));
     expect(await screen.findByText('Salary range')).toBeTruthy();
+    expect(onUse).not.toHaveBeenCalled(); // never inserted automatically
+    fireEvent.click(screen.getByRole('button', { name: 'Use this draft' }));
+    expect(onUse).toHaveBeenCalledWith('Join us. We build data platforms for hospitals.\n\nWhat you will do\n• Build pipelines\n\nWhat you need\n• SQL');
   });
 
-  it('post writer never overwrites a description edited while it waited', async () => {
-    const onUse = vi.fn(); let resolve;
-    const call = vi.fn(() => new Promise((r) => { resolve = r; }));
-    const { rerender } = render(<AiPostWriter title="Data Engineer" current="" onUse={onUse} call={call} />);
+  it('post writer reports an unusable draft instead of inserting it', async () => {
+    const onUse = vi.fn();
+    const call = vi.fn().mockResolvedValue({ ok: true, result: { summary: '' } });
+    render(<AiPostWriter title="Data Engineer" current="My own words" onUse={onUse} call={call} />);
     fireEvent.click(screen.getByRole('button', { name: /Write the description with AI/ }));
     fireEvent.change(screen.getByLabelText(/key points/), { target: { value: 'Azure, Spark, hybrid NJ' } });
     fireEvent.click(screen.getByRole('button', { name: 'Write description' }));
-    rerender(<AiPostWriter title="Data Engineer" current="My own words" onUse={onUse} call={call} />);
-    resolve({ ok: true, result: { summary: 'AI text', missing_info: [] } });
-    fireEvent.click(await screen.findByRole('button', { name: 'Replace description with the AI draft' }));
-    expect(onUse).toHaveBeenCalledTimes(1); expect(onUse).toHaveBeenCalledWith('AI text');
+    expect(await screen.findByRole('alert')).toBeTruthy();
+    expect(onUse).not.toHaveBeenCalled();
   });
 
   it('salary floor parsing', () => {
     expect(salaryTop('$80,000 - $95,000')).toBe(95000);
     expect(salaryTop('$55/hr')).toBe(114400);
-    expect(salaryTop('120k')).toBe(120000);
+    expect(salaryTop('$120k')).toBe(120000);
     expect(salaryTop('')).toBe(0);
+    expect(salaryTop('$85,000 base plus $150,000 equity')).toBe(85000);
+    expect(salaryTop('CAD 125,000')).toBe(0);
+    expect(salaryTop('Competitive, 401k')).toBe(0);
   });
 
   it('text helpers', () => {
