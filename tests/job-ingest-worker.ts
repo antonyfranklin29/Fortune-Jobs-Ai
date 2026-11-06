@@ -104,7 +104,7 @@ function adzuna(url: URL) {
   adzunaCalls++;
   if (url.searchParams.has("category")) return feedAdzuna(url);
   const page = Number(url.pathname.split("/").pop());
-  const state = REGIONS.regions.find((r: any) => r.name === url.searchParams.get("location1")).code;
+  const state = url.searchParams.get("where") === "Washington, DC" ? "DC" : REGIONS.regions.find((r: any) => r.name === url.searchParams.get("location1")).code;
   const key = `${state}:${page}`;
   const queued = failures.get(key);
   if (queued?.length) { const s = queued.shift()!; return new Response("fail", { status: s }); }
@@ -502,3 +502,9 @@ Deno.test("two runs started at the same moment: only one proceeds", async () => 
 });
 
 globalThis.addEventListener("unload", () => { globalThis.fetch = realFetch; });
+
+Deno.test("DC is searched by place name, never as an Adzuna location1 (which returns 400)", async () => {
+  const { adzunaLocation } = await import("../supabase/functions/job-ingest/index.ts?dc-check");
+  assertEquals(adzunaLocation("District of Columbia"), { where: "Washington, DC" });
+  assertEquals(adzunaLocation("North Carolina"), { location1: "North Carolina" });
+});

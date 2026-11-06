@@ -144,8 +144,13 @@ async function fetchAdzuna(page: number, params: Record<string, string>) {
   if (!body || !Array.isArray(body.results)) return { retry: true, status: 0 };
   return { ok: true, count: Number(body.count) || 0, results: body.results };
 }
+// Adzuna's US location tree has no "District of Columbia" at location1 (it returns
+// HTTP 400), so DC is searched by place name. Listings are still assigned to DC only
+// from their own location, as for every other region.
+export const adzunaLocation = (regionName: string): Record<string, string> =>
+  regionName === "District of Columbia" ? { where: "Washington, DC" } : { location1: regionName };
 const fetchPage = (roleQuery: string, regionName: string, page: number, maxDaysOld: number) =>
-  fetchAdzuna(page, { title_only: roleQuery, location1: regionName, max_days_old: String(maxDaysOld) });
+  fetchAdzuna(page, { title_only: roleQuery, ...adzunaLocation(regionName), max_days_old: String(maxDaysOld) });
 
 type Page = { ok?: boolean; retry?: boolean; status?: number; count?: number; results?: unknown[] };
 class SpendRecordError extends Error {}
