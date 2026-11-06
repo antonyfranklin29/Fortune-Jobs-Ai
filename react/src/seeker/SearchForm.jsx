@@ -20,7 +20,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
   const [workMode, setWorkMode] = useState(initial.work_mode || '');
   const [company, setCompany] = useState(initial.company || '');
   const [salary, setSalary] = useState(initial.salary || '');
-  const [industry, setIndustry] = useState(initial.industry || '');
+  const [category, setCategory] = useState(initial.category || '');
   const [error, setError] = useState('');
   function submit(event) {
     event.preventDefault();
@@ -31,7 +31,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
     const params = new URLSearchParams({ mode: 'quick', q: clean });
     if (resume === '0' || resume === '1') params.set('resume', resume);
     if (resume === '1' && resumeId) params.set('resume_id', resumeId);
-    for (const [key, value] of Object.entries({ location: typedCountry ? '' : location.trim(), country: typedCountry || country, date_posted: date, experience, job_type: type, work_mode: workMode, company: company.trim(), salary, industry })) if (value) params.set(key, value);
+    for (const [key, value] of Object.entries({ location: typedCountry ? '' : location.trim(), country: typedCountry || country, date_posted: date, experience, job_type: type, work_mode: workMode, company: company.trim(), salary, category })) if (value) params.set(key, value);
     window.location.href = `./results.html?${params}`;
   }
   return <form className="dashboard-search" onSubmit={submit}>
@@ -67,7 +67,10 @@ export function SearchForm({ initial = {}, sort, onSort }) {
       <label className="filter-pill"><select aria-label="Job type" value={type} onChange={event => setType(event.target.value)}><option value="">Job Type</option><option value="Full-time">Full-time</option><option value="Part-time">Part-time</option><option value="Contract">Contract</option></select></label>
       <label className="filter-pill"><select aria-label="On-site or remote" value={workMode} onChange={event => setWorkMode(event.target.value)}><option value="">Work Mode</option><option value="On-site">On-site</option><option value="Remote">Remote</option><option value="Hybrid">Hybrid</option></select></label>
     <label className="filter-pill"><select aria-label="Salary" value={salary} onChange={e => setSalary(e.target.value)}><option value="">Salary</option><option value="listed">Salary listed</option></select></label>
-    <label className="filter-pill"><select aria-label="Industry" value={industry} onChange={e => setIndustry(e.target.value)}><option value="">Industry</option><option value="it">Technology</option><option value="health">Healthcare</option><option value="accounting">Accounting &amp; Finance</option><option value="engineering">Engineering</option></select></label>
+    <label className="filter-pill"><select aria-label="Job category" value={category} onChange={event => setCategory(event.target.value)}>
+      <option value="">Job Category</option>
+      {['Data Analyst', 'Software Engineer', 'Data Engineer', 'Business Analyst'].map(role => <option key={role}>{role}</option>)}
+    </select></label>
     <label className="filter-pill dashboard-sort"><select aria-label="Sort jobs" value={sort} onChange={e => onSort(e.target.value)}><option value="relevance">Sort: Relevance</option><option value="newest">Sort: Newest</option></select></label>
     </div>
   </form>;
