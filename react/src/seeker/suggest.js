@@ -1,8 +1,9 @@
 // Search suggestions for the job and location boxes.
-// Job titles, skills and companies come from /job-titles.js (window.JOB_SUGGESTIONS).
+// Job titles, skills and companies come from job-titles.js, bundled through lib/sharedLibs.js.
 // Locations come from US states, a short list of large US cities (works offline),
 // then worldwide cities from Open-Meteo's free geocoding API, as the old homepage did.
 import { states } from '../resume/lib/guestResume.js';
+import { JOB_SUGGESTIONS } from '../lib/sharedLibs.js';
 
 export const MIN_CHARS = 3;
 const TITLE_MAX = 10;
@@ -23,7 +24,7 @@ function buildTitleIndex(src) {
 }
 
 /** Port of the old homepage's matchTitles(): prefix matches first, then word-start matches, in list order. */
-export function matchTitles(query, src = typeof window === 'object' ? window.JOB_SUGGESTIONS : null) {
+export function matchTitles(query, src = (typeof window === 'object' && window.JOB_SUGGESTIONS) || JOB_SUGGESTIONS) {
   const q = fold(query).replace(/\s+/g, ' ').trim();
   if (q.length < MIN_CHARS || !src) return [];
   if (titleSource !== src) { titleIndex = buildTitleIndex(src); titleSource = src; }
