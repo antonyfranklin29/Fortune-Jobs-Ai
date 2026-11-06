@@ -65,8 +65,10 @@ const regionEntries = Object.entries(states).map(([code, name]) => ({ code, name
 export function localPlaces(query, country = '') {
   const q = fold(query).split(',')[0].trim();
   if (q.length < MIN_CHARS || (country && country !== 'us')) return [];
-  const regions = regionEntries.filter((r) => fold(r.name).startsWith(q) || r.code.toLowerCase() === q);
-  const cities = US_CITIES.filter((c) => fold(c.name).startsWith(q));
+  const tight = q.replace(/[\s.-]+/g, ''); // "newyork" and "st louis" still match
+  const starts = (name) => fold(name).startsWith(q) || fold(name).replace(/[\s.-]+/g, '').startsWith(tight);
+  const regions = regionEntries.filter((r) => starts(r.name) || r.code.toLowerCase() === q);
+  const cities = US_CITIES.filter((c) => starts(c.name));
   return [...cities, ...regions].slice(0, CITY_MAX);
 }
 

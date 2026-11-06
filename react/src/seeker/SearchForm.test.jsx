@@ -42,6 +42,8 @@ describe('suggestion data', () => {
     expect(localPlaces('chi')[0]).toMatchObject({ name: 'Chicago', admin1: 'Illinois' });
     expect(localPlaces('new j')[0]).toMatchObject({ name: 'New Jersey', scope: 'region' });
     expect(localPlaces('chi', 'gb')).toEqual([]);
+    expect(localPlaces('newyork')[0]).toMatchObject({ name: 'New York', admin1: 'New York' });
+    expect(localPlaces('stlouis')[0]).toMatchObject({ name: 'St. Louis' });
   });
   it('API cities are filtered, de-duplicated and ranked by size', async () => {
     const list = await fetchCities('chi', '', { fetchImpl: globalThis.fetch });
