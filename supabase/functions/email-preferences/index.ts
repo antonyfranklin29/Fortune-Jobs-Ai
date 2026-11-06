@@ -28,9 +28,9 @@ Deno.serve(async(req:Request)=>{
   const token=url.searchParams.get('token');
   if(token){
    const id=await tokenUser(token);if(!id)return html('<h1>Link unavailable</h1><p>Use email preferences in your profile, or contact info@fortunejobsai.com.</p>',400);
-   if(req.method==='GET')return html('<h1>Stop weekly emails?</h1><p>No sign-in required. This does not delete your account.</p><form method="post"><button style="background:#D4A843;color:#10243B;padding:14px;border:0;border-radius:6px;font-size:16px">Unsubscribe</button></form>');
+   if(req.method==='GET')return html('<h1>Stop job alert emails?</h1><p>No sign-in required. This does not delete your account.</p><form method="post"><button style="background:#D4A843;color:#10243B;padding:14px;border:0;border-radius:6px;font-size:16px">Unsubscribe</button></form>');
    await db('newsletter_preferences?user_id=eq.'+id,'PATCH',{subscribed:false,unsubscribed_at:new Date().toISOString(),updated_at:new Date().toISOString()});
-   return html('<h1>You’re unsubscribed.</h1><p>Weekly newsletters are now off. You can still use Fortune Jobs AI.</p>');
+   return html('<h1>You’re unsubscribed.</h1><p>Job alert emails are now off. You can still use Fortune Jobs AI, and turn alerts back on from your profile.</p>');
   }
   if(origin&&!ORIGINS.includes(origin))return json({error:'Origin not allowed'},403);
   const bearer=req.headers.get('Authorization');if(!bearer?.startsWith('Bearer '))return json({error:'Sign in required'},401);
