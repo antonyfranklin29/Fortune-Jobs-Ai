@@ -25,6 +25,7 @@ beforeEach(() => {
     { name: 'Chiba', admin1: 'Chiba', country: 'Japan', country_code: 'JP', population: 900000, feature_code: 'PPLA' },
     { name: 'Chihuahua', admin1: 'Chihuahua', country: 'Mexico', country_code: 'MX', population: 800000, feature_code: 'PPLA' },
     { name: 'Chicago Heights', admin1: 'Illinois', country: 'United States', country_code: 'US', population: 30000, feature_code: 'PPL' },
+    { name: 'China', country: 'China', country_code: 'CN', population: 1300000000, feature_code: 'PCLI' },
   ] }) }));
 });
 afterEach(() => { cleanup(); vi.useRealTimers(); });

@@ -88,7 +88,7 @@ export async function fetchCities(query, country = '', { fetchImpl = (...a) => f
   const fq = fold(q);
   const seen = new Set();
   const all = (data.results || [])
-    .filter((r) => !/^ADM/.test(r.feature_code || '') && fold(r.name).startsWith(fq))
+    .filter((r) => !/^(ADM|PCL|CONT|RGN)/.test(r.feature_code || '') && fold(r.name).startsWith(fq)) // cities and towns, not countries
     .map((r) => ({ name: r.name, admin1: r.admin1 || '', country: r.country || '', country_code: (r.country_code || '').toLowerCase(), scope: 'city', kind: 'City', population: r.population || 0, feature_code: r.feature_code || '' }))
     .filter((r) => { const k = placeKey(r); if (seen.has(k)) return false; seen.add(k); return true; })
     .sort((a, b) => b.population - a.population);
