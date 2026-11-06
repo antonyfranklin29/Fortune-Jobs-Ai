@@ -22,8 +22,17 @@ export function Header() {
   </nav>;
 }
 
+// Simple line icons for the phone tab bar (24px, drawn with the text colour).
+const TAB_ICONS = {
+  search: <><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.5 4.5" /></>,
+  saved: <path d="M7 3.8h10a1.2 1.2 0 0 1 1.2 1.2v15.2L12 16.4l-6.2 3.8V5A1.2 1.2 0 0 1 7 3.8z" />,
+  resume: <><path d="M7 3.5h7l4.5 4.5v12.5H7z" /><path d="M14 3.5V8h4.5M9.5 12.5h6M9.5 16h6" /></>,
+  profile: <><circle cx="12" cy="8.5" r="3.8" /><path d="M4.8 20.3c1.2-3.6 4-5.3 7.2-5.3s6 1.7 7.2 5.3" /></>,
+};
+const TabIcon = ({ name }) => <svg className="tab-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{TAB_ICONS[name]}</svg>;
+
 export function MobileTabs() {
-  return <nav className="mobile-tabs" aria-label="Mobile navigation"><a href="./find-jobs.html"><span aria-hidden="true">⌕</span>Search</a><a href="./profile.html#saved"><span aria-hidden="true">♧</span>Saved</a><a href="./resume-builder.html"><span aria-hidden="true">▤</span>Résumé</a><a href="./profile.html"><span aria-hidden="true">◯</span>Profile</a></nav>;
+  return <nav className="mobile-tabs" aria-label="Mobile navigation"><a href="./find-jobs.html"><TabIcon name="search" />Search</a><a href="./profile.html#saved"><TabIcon name="saved" />Saved</a><a href="./resume-builder.html"><TabIcon name="resume" />Résumé</a><a href="./profile.html"><TabIcon name="profile" />Profile</a></nav>;
 }
 
 export function Footer() {

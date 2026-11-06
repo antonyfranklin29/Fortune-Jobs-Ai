@@ -158,3 +158,26 @@
   .dashboard .featured-card .featured-source { grid-column:2; font-size:13px; color:#5b6880; margin-top:4px; }
   .dashboard-back { display:inline-flex; align-items:center; gap:6px; justify-self:start; margin:4px 0 -4px; padding:8px 4px; border:0; background:none; color:#1d2b47; font-weight:600; font-size:15px; scroll-margin-top:84px; }
 }
+
+/* Phones: frosted-glass floating tab bar (see-through, blurred, soft edge light). */
+@media(max-width:768px) {
+  .dashboard nav.mobile-tabs {
+    left:14px; right:14px; bottom:max(12px, env(safe-area-inset-bottom)); height:68px; min-height:68px; padding:6px;
+    border-radius:34px;
+    background:linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.42));
+    -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%);
+    border:1px solid rgba(255,255,255,.7);
+    box-shadow:0 12px 32px rgba(15,39,72,.18), inset 0 1px 0 rgba(255,255,255,.85), inset 0 -1px 0 rgba(15,39,72,.06);
+  }
+  .dashboard nav.mobile-tabs a { min-height:56px; border-radius:28px; color:#1d2b47; font-weight:600; background:transparent; transition:background .2s; }
+  .dashboard nav.mobile-tabs a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:12px; }
+  .dashboard nav.mobile-tabs .tab-icon { width:24px; height:24px; }
+  .dashboard nav.mobile-tabs a:first-child { background:rgba(15,39,72,.08); color:#0f1b33; box-shadow:inset 0 1px 0 rgba(255,255,255,.6); }
+}
+/* No blur support, reduced transparency or higher contrast: keep it solid and readable. */
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))) {
+  @media(max-width:768px) { .dashboard nav.mobile-tabs { background:rgba(255,255,255,.96); } }
+}
+@media(max-width:768px) and (prefers-reduced-transparency:reduce), (max-width:768px) and (prefers-contrast:more) {
+  .dashboard nav.mobile-tabs { background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; border-color:#dfe5ef; }
+}
