@@ -136,3 +136,25 @@
   .suggest-list { max-height:min(320px, 45vh); }
   .suggest-list li { padding:12px; }
 }
+
+/* Phones: a full-width job feed. Each row: logo, title (up to two lines), company,
+   location, posted age, separated by thin dividers; the page scrolls, not a box. */
+.dashboard-back { display:none; }
+@media(max-width:720px) {
+  .dashboard .dashboard-list { padding:12px 0 0; }
+  .dashboard .dashboard-list h2 { margin:0 16px 4px; }
+  .dashboard .featured-list { max-height:none; overflow:visible; gap:0; }
+  .dashboard .featured-card { border:0; border-bottom:1px solid #e1e8f1; border-radius:0; background:transparent; }
+  .dashboard .featured-card:last-child { border-bottom:0; }
+  .dashboard .featured-card:has([aria-pressed=true]) { background:#f9eed6b0; border-color:#e1e8f1; }
+  .dashboard .featured-card-select { display:grid; grid-template-columns:56px minmax(0,1fr); column-gap:14px; row-gap:2px; align-items:start; padding:14px 16px; min-height:0; }
+  .dashboard .featured-card-select .featured-logo { grid-row:1 / span 2; width:56px; height:56px; flex-basis:auto; border-radius:8px; font-size:22px; }
+  .dashboard .featured-card-content { white-space:normal; overflow:visible; }
+  .dashboard .featured-card h3 { white-space:normal; font-size:17px; line-height:1.25; margin:0 0 3px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .dashboard .featured-company,.dashboard .featured-location { display:block; white-space:normal; font-size:15px; line-height:1.35; }
+  .dashboard .featured-company { color:#1d2b47; }
+  .dashboard .featured-location { color:#5b6880; }
+  .dashboard .featured-location::before { content:none; }
+  .dashboard .featured-card .featured-source { grid-column:2; font-size:13px; color:#5b6880; margin-top:4px; }
+  .dashboard-back { display:inline-flex; align-items:center; gap:6px; justify-self:start; margin:4px 0 -4px; padding:8px 4px; border:0; background:none; color:#1d2b47; font-weight:600; font-size:15px; scroll-margin-top:84px; }
+}

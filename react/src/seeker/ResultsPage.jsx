@@ -56,6 +56,17 @@ export function ResultsPage({ afterDashboard }) {
   const [jobs, setJobs] = useState([]);
   const [sort, setSort] = useState('relevance');
   const [selected, setSelected] = useState(0);
+  // Phones show the list and the details one after the other: tapping a job opens its
+  // details, and "Back to results" returns to the same row.
+  const phone = () => typeof window !== 'undefined' && window.matchMedia?.('(max-width:720px)').matches;
+  function selectJob(index) {
+    setSelected(index);
+    if (phone()) requestAnimationFrame(() => document.getElementById('jobDetailTop')?.scrollIntoView({ block: 'start' }));
+  }
+  function backToList() {
+    const rows = document.querySelectorAll('.featured-list .featured-card');
+    (rows[selected] || document.querySelector('.dashboard-list'))?.scrollIntoView({ block: 'center' });
+  }
   const [loading, setLoading] = useState(initial.mode !== 'live');
   const [error, setError] = useState(initial.mode === 'live' ? 'Live Search is temporarily unavailable. Quick Match is available.' : '');
   const [profile, setProfile] = useState(guestMatchProfile);
@@ -124,7 +135,7 @@ export function ResultsPage({ afterDashboard }) {
         {!!job && <div className="dashboard-grid">
           <section className="dashboard-card dashboard-list" aria-label="Job results">
             <h2>{visible.length} jobs found</h2>
-            <JobList jobs={visible} selected={selected} onSelect={setSelected} profile={profile} />
+            <JobList jobs={visible} selected={selected} onSelect={selectJob} profile={profile} />
             <section className="dashboard-upgrade" aria-labelledby="dashboard-upgrade-title">
               <div className="dashboard-upgrade-top"><span>Fortune Jobs AI Pro</span><span>Coming soon</span></div>
               <h3 id="dashboard-upgrade-title">Subscribe for more jobs</h3>
@@ -132,6 +143,7 @@ export function ResultsPage({ afterDashboard }) {
               <p className="dashboard-upgrade-price"><strong>$7.99</strong><span>/ month</span></p>
             </section>
           </section>
+          <button type="button" className="dashboard-back" id="jobDetailTop" onClick={backToList}>← Back to results</button>
           <JobDetail job={job} profile={profile} saved={savedKeys.has(jobKey(job))} onSave={toggleSave} dashboard />
           <MatchPanel job={job} profile={profile} />
         </div>}
