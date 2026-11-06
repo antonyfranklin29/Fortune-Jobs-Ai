@@ -1,2 +1,2 @@
-// The renderer lives with the Edge Functions so the job-alerts function can bundle it.
-export { esc, safeUrl, renderDigest } from '../supabase/functions/_shared/digest.mjs';
+// The renderer lives with the job-alerts Edge Function so it is deployed with it.
+export { esc, safeUrl, renderDigest } from '../supabase/functions/job-alerts/digest.mjs';

@@ -6,7 +6,7 @@
 // Secrets: INGEST_SECRET, RESEND_API_KEY, NEWSLETTER_ENABLED, NEWSLETTER_POSTAL_ADDRESS,
 //          NEWSLETTER_UNSUBSCRIBE_SECRET (shared with email-preferences), optional NEWSLETTER_FROM.
 // Sends from fortunejobsai.com, the domain verified in Resend; replies go to info@.
-import { renderDigest } from "../_shared/digest.mjs";
+import { renderDigest } from "./digest.mjs";
 import { alertQuery, campaignFor, pickJobs, unsubscribeToken, type Job, type Profile } from "./select.ts";
 
 const BASE = Deno.env.get("SUPABASE_URL") || "https://hqgakkcxcyspqhnlnscv.supabase.co";
