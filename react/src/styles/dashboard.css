@@ -99,6 +99,20 @@
 .dashboard-filterbar .filter-pill select { color:var(--ink); background-color:transparent; border:0; padding:5px 21px 5px 1px; background-position:right 3px center; }
 .dashboard .featured-location { white-space:nowrap; }
 .dashboard .featured-card-content { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* Tablet and desktop: clear, readable rows. Title up to two lines, then company, location
+   and posted age on their own lines (the phone feed below uses the same order). */
+@media(min-width:721px) {
+  .dashboard .featured-list { gap:8px; }
+  .dashboard .featured-card-select { display:grid; grid-template-columns:48px minmax(0,1fr); column-gap:12px; row-gap:2px; align-items:start; padding:12px 14px; min-height:0; }
+  .dashboard .featured-card-select .featured-logo { grid-row:1 / span 2; width:48px; height:48px; flex-basis:auto; font-size:19px; }
+  .dashboard .featured-card-content { white-space:normal; overflow:visible; }
+  .dashboard .featured-card h3 { white-space:normal; font-size:16px; line-height:1.3; margin:0 0 4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .dashboard .featured-company,.dashboard .featured-location { display:block; white-space:normal; font-size:14px; line-height:1.35; overflow:hidden; text-overflow:ellipsis; }
+  .dashboard .featured-company { color:#1d2b47; font-weight:600; }
+  .dashboard .featured-location { color:#5b6880; }
+  .dashboard .featured-location::before { content:none; }
+  .dashboard .featured-card .featured-source { grid-column:2; font-size:12.5px; color:#5b6880; margin-top:4px; }
+}
 @media(max-width:1050px) {
   .dashboard-grid { grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); }
   .dashboard-match { grid-column:2; }.dashboard-list { grid-row:span 2; }

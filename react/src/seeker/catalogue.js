@@ -1,3 +1,4 @@
+import { fixApplyUrl } from '../shared/applyUrl.js';
 import * as Guest from '../resume/lib/guestResume.js';
 import * as Matching from '../resume/lib/resumeMatching.js';
 
@@ -12,7 +13,7 @@ async function read(params, signal) {
   return response.json();
 }
 
-export function safeApplyUrl(value) { return window.FJDataSafety.httpUrl(value); }
+export function safeApplyUrl(value) { return window.FJDataSafety.httpUrl(fixApplyUrl(value)); }
 export function logoFor(job) {
   const value = window.FJCompanyLogos.urlFor(job);
   return value?.startsWith('assets/') ? `./${value}` : value;
