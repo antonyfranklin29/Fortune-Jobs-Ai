@@ -1,6 +1,7 @@
 // Small shared pieces for the account and employer pages.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAccountServices } from './services.jsx';
+import { avatarPath } from './lib/dataSafety.js';
 
 export function LogoMark() {
   return (
@@ -49,9 +50,22 @@ export function useToast() {
 /** Profile photo, or initials when there is no photo from our own storage. */
 export function Avatar({ profile, user, className }) {
   const fj = useAccountServices();
-  const url = fj.safeAvatarUrl(profile, user);
-  return url
-    ? <img className={className} src={url} alt="" referrerPolicy="no-referrer" />
+  const stored = fj.safeAvatarUrl(profile, user);
+  // The avatars bucket is private: show the photo through a short-lived signed link.
+  const path = stored ? avatarPath(stored, fj.config?.url, user && user.id) : '';
+  const [src, setSrc] = useState('');
+  useEffect(() => {
+    let live = true;
+    setSrc('');
+    if (path && fj.sb?.storage) {
+      fj.sb.storage.from('avatars').createSignedUrl(path, 3600)
+        .then(({ data }) => { if (live && data?.signedUrl) setSrc(data.signedUrl); })
+        .catch(() => {});
+    }
+    return () => { live = false; };
+  }, [path, fj]);
+  return src
+    ? <img className={className} src={src} alt="" referrerPolicy="no-referrer" />
     : <span className={className} aria-hidden="true">{fj.initials(profile && profile.full_name, user && user.email)}</span>;
 }
 
