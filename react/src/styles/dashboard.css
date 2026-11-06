@@ -50,7 +50,7 @@
 .dashboard-upgrade .dashboard-upgrade-price { display:flex; align-items:baseline; gap:5px; margin-top:7px; }
 .dashboard-upgrade-price strong { color:var(--ink); font-size:22px; }
 .dashboard .featured-list { display:flex; flex-direction:column; gap:2px; max-height:none; overflow:visible; padding:0; }
-.dashboard .featured-card { background:#ffffff45; border:1px solid #e5ebf5; border-radius:10px; padding:0; overflow:hidden; }
+.dashboard .featured-card { background:#ffffff45; border:1px solid #e5ebf5; border-radius:10px; padding:0; overflow:hidden; flex:0 0 auto; /* never squash rows inside the scrolling phone list (Safari shrinks overflow:hidden flex items) */ }
 .dashboard .featured-card:has([aria-pressed=true]) { border-color:#d3a346; background:#f9eed6b0; }
 .dashboard .featured-card-select { display:flex; align-items:center; gap:11px; width:100%; padding:4px 8px; min-height:53px; color:var(--ink); background:none; border:0; box-shadow:none; text-align:left; }
 .dashboard .featured-logo { width:45px; height:45px; flex:0 0 45px; border-radius:10px; background:#fff; border:1px solid #e5ebf5; box-shadow:0 3px 8px #23396020; color:#283c70; }
