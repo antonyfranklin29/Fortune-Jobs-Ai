@@ -196,3 +196,21 @@ export function clean(schema: any, v: unknown): unknown {
     default: return null;
   }
 }
+
+/** Whether a cleaned answer has the parts the page needs. An unusable answer is never shown or inserted. */
+// deno-lint-ignore no-explicit-any
+export function usable(task: TaskName, r: any): boolean {
+  const has = (x: unknown) => Array.isArray(x) && x.length > 0;
+  switch (task) {
+    case "tailor_resume": return !!r?.summary && (has(r.experience) || has(r.skills));
+    case "fit_explain": return !!r?.fit && !!r?.headline;
+    case "smart_search": return !!(r?.q || r?.location || r?.work_mode || r?.job_type || r?.experience || r?.date_posted);
+    case "interview_prep": return has(r?.questions);
+    case "skill_gap": return !!r?.ready_now && (has(r.gaps) || has(r.have));
+    case "job_post_writer": return !!r?.summary && (has(r.responsibilities) || has(r.requirements));
+    case "candidate_shortlist": return has(r?.ranking);
+  }
+}
+
+// Anthropic statuses that mean the request was refused before any processing (nothing billed).
+export const REFUNDABLE = new Set([400, 401, 403, 404, 413, 429]);
