@@ -80,6 +80,12 @@ export function ResultsPage() {
           <section className="dashboard-card dashboard-list" aria-label="Job results">
             <h2>{visible.length} jobs found</h2>
             <JobList jobs={visible} selected={selected} onSelect={setSelected} profile={profile} />
+            <section className="dashboard-upgrade" aria-labelledby="dashboard-upgrade-title">
+              <div className="dashboard-upgrade-top"><span>Fortune Jobs AI Pro</span><span>Coming soon</span></div>
+              <h3 id="dashboard-upgrade-title">Subscribe for more jobs</h3>
+              <p>Free searches show up to 10 jobs. Pro will let you see more results.</p>
+              <p className="dashboard-upgrade-price"><strong>$7.99</strong><span>/ month</span></p>
+            </section>
           </section>
           <JobDetail job={job} profile={profile} saved={savedKeys.has(jobKey(job))} onSave={toggleSave} dashboard />
           <MatchPanel job={job} profile={profile} />

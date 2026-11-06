@@ -42,6 +42,13 @@
 .dashboard-grid { display:grid; grid-template-columns:minmax(0,1.18fr) minmax(0,1.52fr) minmax(0,1fr); gap:12px; align-items:stretch; }
 .dashboard-list { padding:12px; }
 .dashboard-list h2 { margin:0 8px 9px; font-size:16px; color:var(--ink); }
+.dashboard-upgrade { margin-top:12px; padding:14px; border:1px solid #e8c680; border-radius:12px; background:linear-gradient(135deg,#fff9ed,#f5e5bf); color:var(--ink); }
+.dashboard-upgrade-top { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px; font-size:12px; font-weight:700; }
+.dashboard-upgrade-top span:last-child { background:#fff9ec; border:1px solid #e8c680; border-radius:20px; padding:3px 8px; }
+.dashboard-upgrade h3 { font-size:17px; margin:7px 0 4px; color:inherit; }
+.dashboard-upgrade p { font-size:13px; margin:0; color:#39435f; }
+.dashboard-upgrade .dashboard-upgrade-price { display:flex; align-items:baseline; gap:5px; margin-top:7px; }
+.dashboard-upgrade-price strong { color:var(--ink); font-size:22px; }
 .dashboard .featured-list { display:flex; flex-direction:column; gap:2px; max-height:none; overflow:visible; padding:0; }
 .dashboard .featured-card { background:#ffffff45; border:1px solid #e5ebf5; border-radius:10px; padding:0; overflow:hidden; }
 .dashboard .featured-card:has([aria-pressed=true]) { border-color:#d3a346; background:#f9eed6b0; }
