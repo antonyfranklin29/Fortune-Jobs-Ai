@@ -26,13 +26,15 @@ export function timeAgo(iso, now = Date.now()) {
 export function filterText(f) {
   if (!f) return '';
   const place = [f.location, f.country_name].filter(Boolean).join(', ');
-  return [place && `📍 ${place}`, f.company && `🏢 ${f.company}`, WORK_LABEL[f.work_mode], JOB_TYPE_LABEL[f.job_type],
-    EXP_LABEL[f.experience], DATE_LABEL[f.date_posted]].filter(Boolean).join(' · ');
+  // Older searches stored codes (mid_senior); newer ones store the label itself (Mid-Senior level).
+  const label = (map, v) => (v ? map[v] || String(v) : '');
+  return [place && `📍 ${place}`, f.company && `🏢 ${f.company}`, label(WORK_LABEL, f.work_mode), label(JOB_TYPE_LABEL, f.job_type),
+    label(EXP_LABEL, f.experience), DATE_LABEL[f.date_posted]].filter(Boolean).join(' · ');
 }
 export function searchUrl(query, mode, f) {
   const p = new URLSearchParams({ q: query });
   if (mode) p.set('mode', mode);
-  ['location', 'country', 'date_posted', 'experience', 'job_type', 'work_mode', 'company'].forEach((k) => { if (f && f[k]) p.set(k, f[k]); });
+  ['location', 'country', 'date_posted', 'experience', 'job_type', 'work_mode', 'company', 'salary', 'industry'].forEach((k) => { if (f && f[k]) p.set(k, f[k]); });
   return 'index.html?' + p.toString();
 }
 export function completeness(profile) {
@@ -148,6 +150,13 @@ function ProfileApp({ user, profile, setProfile, toast, leaving, onDeleted }) {
   const [historyCount, setHistoryCount] = useState(0);
   const [formVersion, setFormVersion] = useState(0);
   const catalog = fj.resumeTools?.catalog?.() || null;
+
+  // "Saved Jobs" and other links arrive as profile.html#saved; the sections only exist once the profile loads.
+  useEffect(() => {
+    const id = decodeURIComponent((fj.hash() || '').replace(/^#/, ''));
+    if (!/^(profile|resume|saved|history|alerts)$/.test(id)) return;
+    requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView?.({ block: 'start' }));
+  }, [fj]);
 
   async function onAvatar(e) {
     const f = e.target.files[0]; e.target.value = '';

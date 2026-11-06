@@ -11,6 +11,43 @@ import '../styles/dashboard.css';
 const params = new URLSearchParams(window.location.search);
 const initial = Object.fromEntries(params);
 
+// Fields kept within the saved_jobs table limits.
+const SAVED_LIMITS = { job_title: 300, company: 200, location: 200, salary: 120, apply_url: 2000, match_reason: 2000 };
+export function savedJobRow(job, key) {
+  const row = { job_key: key };
+  const source = { job_title: job.job_title, company: job.company, location: job.location, salary: job.salary, apply_url: job.apply_url, match_reason: job.search_reason };
+  for (const [field, limit] of Object.entries(SAVED_LIMITS)) if (source[field] != null && source[field] !== '') row[field] = String(source[field]).slice(0, limit);
+  return row;
+}
+
+/** Sign-up link that comes back to the same search after the account is ready. */
+export function signInToSaveUrl(loc) {
+  const back = ('results.html' + (loc.search || '')).slice(0, 1500);
+  return './login.html?mode=signup&next=' + encodeURIComponent(back);
+}
+
+const HISTORY_FILTERS = ['location', 'country', 'date_posted', 'experience', 'job_type', 'work_mode', 'company', 'salary', 'industry'];
+/** The search history row for this page's search, or null when there is nothing to remember. */
+export function historyRow(query) {
+  const q = String(query.q || '').trim().slice(0, 200);
+  if (!q || query.mode === 'live') return null;
+  const filters = {};
+  for (const key of HISTORY_FILTERS) if (query[key]) filters[key] = String(query[key]).slice(0, 200);
+  return { query: q, mode: 'quick', filters: Object.keys(filters).length ? filters : null };
+}
+
+let remembered = false;
+// Signed-in searches appear in Profile → Search history and update the saved filters, as on the old site.
+async function rememberSearch(userId) {
+  const row = historyRow(initial);
+  if (!row || remembered) return;
+  remembered = true;
+  const history = await supabase.from('search_history').insert(row);
+  if (history.error) console.warn('search history', history.error.message);
+  const filters = await supabase.from('profiles').update({ saved_filters: row.filters }).eq('id', userId);
+  if (filters.error) console.warn('saved filters', filters.error.message);
+}
+
 export function ResultsPage({ afterDashboard }) {
   const [jobs, setJobs] = useState([]);
   const [sort, setSort] = useState('relevance');
@@ -30,19 +67,21 @@ export function ResultsPage({ afterDashboard }) {
         const personal = await supabase.from('profiles').select('current_title,years_experience,skills,preferred_locations').eq('id', data.user.id).maybeSingle();
         if (active && !personal.error && personal.data) setProfile(personal.data);
       }
+      rememberSearch(data.user.id);
       const saved = await supabase.from('saved_jobs').select('job_key');
       if (active && !saved.error) setSavedKeys(new Set((saved.data || []).map(row => row.job_key)));
     });
     return () => { active = false; };
   }, []);
   async function toggleSave(job) {
-    if (!account) { window.location.href = './login.html?mode=signup&next=results.html'; return; }
+    if (!account) { window.location.href = signInToSaveUrl(window.location); return; }
     const key = jobKey(job), exists = savedKeys.has(key);
     const operation = exists ? supabase.from('saved_jobs').delete().eq('job_key', key) :
-      supabase.from('saved_jobs').insert({ job_key: key, job_title: job.job_title, company: job.company,
-        location: job.location, salary: job.salary, apply_url: job.apply_url, match_reason: job.search_reason });
+      supabase.from('saved_jobs').insert(savedJobRow(job, key));
     const { error: saveError } = await operation;
-    if (saveError) { setSaveMessage('Could not update saved jobs. Please try again.'); return; }
+    // Already saved (for example in another tab): treat it as saved.
+    const duplicate = !exists && saveError && (saveError.code === '23505' || /duplicate/i.test(saveError.message || ''));
+    if (saveError && !duplicate) { setSaveMessage('Could not update saved jobs. Please try again.'); return; }
     setSavedKeys(previous => { const next = new Set(previous); exists ? next.delete(key) : next.add(key); return next; });
     setSaveMessage(exists ? 'Removed from saved jobs.' : 'Job saved to your profile.');
   }

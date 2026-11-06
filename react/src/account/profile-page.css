@@ -77,3 +77,7 @@
 .fja-profile #resumeReview label{display:block;margin:16px 0 6px;font-weight:600;font-size:14px;}
 .fja-profile #resumeReview textarea{resize:vertical;width:100%;}
 .fja-profile #delete-account [hidden],.fja-profile #delDone[hidden]{display:none!important}
+/* Section links (#saved etc.) land below the sticky bars, not under them. */
+.fja-profile .stack > .card{scroll-margin-top:136px;}
+/* Phones: the account bar wraps to two rows, so let it scroll away and keep only the section bar sticky. */
+@media(max-width:768px){.fja-profile .top-nav{position:static;}.fja-profile .sec-nav{top:0;}.fja-profile .stack > .card{scroll-margin-top:76px;}}
