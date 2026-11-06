@@ -2,14 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { Footer, Header, MobileTabs } from '../shared/Shell.jsx';
 import { SearchForm } from './SearchForm.jsx';
 import { JobDetail, JobList } from './JobViews.jsx';
-import { guestMatchProfile, quickMatches } from './catalogue.js';
+import { guestMatchProfile, quickMatches, recentJobs } from './catalogue.js';
 import { jobKey, supabase } from '../shared/supabase.js';
+
+import { MatchPanel } from './MatchPanel.jsx';
+import '../styles/dashboard.css';
 
 const params = new URLSearchParams(window.location.search);
 const initial = Object.fromEntries(params);
 
 export function ResultsPage() {
   const [jobs, setJobs] = useState([]);
+  const [sort, setSort] = useState('relevance');
   const [selected, setSelected] = useState(0);
   const [loading, setLoading] = useState(initial.mode !== 'live');
   const [error, setError] = useState(initial.mode === 'live' ? 'Live Search is temporarily unavailable. Quick Match is available.' : '');
@@ -47,24 +51,41 @@ export function ResultsPage() {
     const controller = new AbortController();
     const filters = {
       country: initial.country || '', location: initial.location || '', date_posted: initial.date_posted || '',
-      experience: initial.experience || '', job_type: initial.job_type || '', work_mode: initial.work_mode || '', company: initial.company || ''
+      experience: initial.experience || '', job_type: initial.job_type || '', work_mode: initial.work_mode || '', company: initial.company || '', salary: initial.salary || '', industry: initial.industry || ''
     };
-    quickMatches(initial.q || '', filters, controller.signal)
+    const request = initial.q || initial.mode === 'quick' || Object.values(filters).some(Boolean) ? quickMatches(initial.q || '', filters, controller.signal) : recentJobs(controller.signal);
+    request
       .then(rows => { if (!controller.signal.aborted) { setJobs(rows); setLoading(false); } })
       .catch(() => { if (!controller.signal.aborted) { setError('We could not load jobs right now. Please try your search again.'); setLoading(false); } });
     return () => controller.abort();
   }, []);
-  return <><Header />
-    <section className="hero react-results-search"><div className="landing-shell"><div className="search-panel"><h2>Find your next role</h2><SearchForm initial={initial} compact /></div></div></section>
-    <main className="results-section active react-results"><a className="results-back" href="./find-jobs.html">← Search again</a><div className="results-tabs"><strong>Recommended jobs</strong><a href="../profile.html#saved">Saved jobs</a><a href="../resume-builder.html">Résumé studio</a></div>
-      <div className="results-heading"><h1>{initial.q ? `Jobs for “${initial.q}”` : 'Recent jobs'}</h1><p><span className="quick-badge">Quick Match</span> {loading ? 'Searching saved jobs…' : `${jobs.length} jobs from recent listings`}</p></div>
-      {!profile?.skills?.length && <div className="fit-invite"><p><strong>See how well each job fits you.</strong> Add a résumé or a few skills you have, and each detailed listing shows an estimate with the reasons behind it.</p><div className="fit-invite-links"><a href="../resume-search.html">Upload a résumé</a><a href="../resume-search.html?manual=1">Enter skills instead</a></div></div>}
-      {error && <div className="react-results-status" role="alert">{error}</div>}
-      {loading && <div className="react-results-status" role="status">Getting jobs for you…</div>}
-      {!loading && !error && !jobs.length && <div className="react-results-status">No recent saved listings match your search and filters. Try a broader role or location.</div>}
-      {saveMessage && <p className="react-save-message" role="status">{saveMessage}</p>}
-      {!!jobs.length && <div className="react-results-grid"><JobList jobs={jobs} selected={selected} onSelect={setSelected} profile={profile} /><JobDetail job={jobs[selected]} profile={profile} saved={savedKeys.has(jobKey(jobs[selected]))} onSave={toggleSave} /></div>}
-      <div className="react-results-note">Free searches show up to 10 matching jobs. Pro subscriptions are coming later.</div>
-    </main><MobileTabs /><Footer />
-  </>;
+  const visible = sort === 'newest'
+    ? [...jobs].sort((a, b) => (Date.parse(b.posted_at) || 0) - (Date.parse(a.posted_at) || 0))
+    : jobs;
+  const job = visible[selected];
+  return <div className="dashboard"><Header />
+    <main>
+      <SearchForm initial={{
+        ...initial,
+        q: initial.q || (initial.resume === '1' ? profile?.current_title : ''),
+        location: initial.location || (initial.resume === '1' ? [profile?.city, profile?.region].filter(Boolean).join(', ') : ''),
+        country: initial.country || (initial.resume === '1' ? profile?.country : ''),
+      }} sort={sort} onSort={value => { setSort(value); setSelected(0); }} />
+      <div className="dashboard-body">
+        {error && <p className="dashboard-status" role="alert">{error}</p>}
+        {loading && <p className="dashboard-status" role="status">Loading jobs…</p>}
+        {!loading && !error && !jobs.length && <p className="dashboard-status">No recent listings match these filters. Try a broader role or location.</p>}
+        {saveMessage && <p className="dashboard-status" role="status">{saveMessage}</p>}
+        {!!job && <div className="dashboard-grid">
+          <section className="dashboard-card dashboard-list" aria-label="Job results">
+            <h2>{visible.length} jobs found</h2>
+            <JobList jobs={visible} selected={selected} onSelect={setSelected} profile={profile} />
+          </section>
+          <JobDetail job={job} profile={profile} saved={savedKeys.has(jobKey(job))} onSave={toggleSave} dashboard />
+          <MatchPanel job={job} profile={profile} />
+        </div>}
+      </div>
+    </main>
+    <MobileTabs /><Footer />
+  </div>;
 }

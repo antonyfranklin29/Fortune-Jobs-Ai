@@ -58,6 +58,8 @@ function candidateParams(tokens, filters, excludeSource) {
   if (tokens.length) params.set('or', `(${tokens.map(token => `search_text.ilike.*${token.replace(/\*/g, '')}*`).join(',')})`);
   if (filters.country) params.set('country', `eq.${filters.country.toLowerCase()}`);
   if (filters.date_posted) params.set('posted_at', `gte.${new Date(Date.now() - Number(filters.date_posted) * DAY).toISOString()}`);
+  if (filters.salary === 'listed') params.set('salary', 'not.is.null');
+  if (filters.industry) params.set('category', `ilike.*${filters.industry}*`);
   if (filters.company) params.set('company', `ilike.*${filters.company}*`);
   return params;
 }
@@ -74,7 +76,7 @@ function score(job, tokens, phrase, filters) {
 }
 
 export async function quickMatches(query, filters = {}, signal) {
-  if (!query.trim()) return recentJobs(signal);
+  if (!query.trim() && !Object.values(filters).some(Boolean)) return recentJobs(signal);
   const tokens = tokensFor(query);
   const first = await read(candidateParams(tokens, filters), signal);
   let rows = first;

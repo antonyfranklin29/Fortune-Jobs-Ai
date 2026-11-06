@@ -12,8 +12,13 @@ export function Header() {
   }, []);
   return <nav aria-label="Main navigation">
     <a href="./index.html" className="logo"><img className="brand-mark" src={logo} width="38" height="38" alt="" /><span className="logo-text">Fortune Jobs AI</span></a>
-    <ul className="nav-links"><li><a href="./find-jobs.html" className="find-jobs-link">Find Jobs</a></li><li><a href="../resume-builder.html">Résumé studio</a></li><li><a href="../profile.html#saved">Saved jobs</a></li><li><a href="../employers.html">For employers</a></li></ul>
-    <div className="nav-account">{account ? <a href="../profile.html" className="nav-user" title="My profile"><span className="nav-avatar" aria-hidden="true">{account.email?.charAt(0)?.toUpperCase() || 'U'}</span><span>{account.email?.split('@')[0] || 'Profile'}</span></a> : <><a href="../login.html" className="nav-login">Job seeker sign in</a><a href="../login.html?mode=signup" className="nav-cta">Sign up free</a></>}</div>
+    <ul className="nav-links">
+      <li><a href="./find-jobs.html" className="find-jobs-link"><span aria-hidden="true">⌕</span> Find Jobs</a></li>
+      <li><a href="./resume-builder.html"><span aria-hidden="true">✧</span> Résumé Studio</a></li>
+      <li><a href="./profile.html#saved"><span aria-hidden="true">♧</span> Saved Jobs</a></li>
+      <li><a href="./employers.html"><span aria-hidden="true">▣</span> Employers</a></li>
+    </ul>
+    <div className="nav-account"><a className="dashboard-user" href={account ? './profile.html' : './login.html'} aria-label={account ? 'My profile' : 'Job seeker sign in'}><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-2a8 8 0 0 1 16 0v2"/></svg></a></div>
   </nav>;
 }
 
