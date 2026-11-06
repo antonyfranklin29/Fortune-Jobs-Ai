@@ -1,0 +1,14 @@
+import React from 'react';
+
+const categories = [['📊','Data Analyst'],['💻','Software Engineer'],['🎯','Product Manager'],['📣','Marketing Manager'],['🎨','UX Designer'],['💰','Financial Analyst']];
+
+export function HomeSections() {
+  return <>
+    <section className="employer-banner" aria-label="Employer tools"><div><span className="panel-kicker">FOR EMPLOYERS</span><h2>Build your next great team.</h2><p>Create an employer workspace, prepare job posts, and connect an approved career feed.</p></div><a href="./employers.html">Explore employer tools →</a></section>
+    <section className="how-it-works"><div className="section-eyebrow">How It Works</div><h2 className="section-title">Find a job in three steps</h2><p className="section-sub">Start with a role, then add your experience if you want a fit estimate.</p><div className="steps-grid"><div className="step-card"><div className="step-num">1</div><h3>Search your way</h3><p>Browse recent jobs with Quick Match. A résumé is optional.</p></div><div className="step-card"><div className="step-num">2</div><h3>Understand the fit</h3><p>Add a résumé or your skills to see a transparent estimate out of 100.</p></div><div className="step-card"><div className="step-num">3</div><h3>Apply at the source</h3><p>Read the details and follow the link to the original listing.</p></div></div></section>
+    <section className="categories"><div className="section-eyebrow">Explore by role</div><h2 className="section-title">Find jobs in your field</h2><p className="section-sub">Open current listings for a role that interests you.</p><div className="categories-grid">{categories.map(([icon,role])=><a className="category-card" key={role} href={`./results.html?mode=quick&q=${encodeURIComponent(role)}`}><span className="category-icon">{icon}</span><span><span className="category-name">{role}</span><span className="category-count">Explore current listings</span></span></a>)}</div></section>
+    <section className="why-us"><div className="section-eyebrow">Why Fortune Jobs AI</div><h2 className="section-title">A clearer way to search</h2><p className="section-sub">See real listings, useful details and the reason a job fits your search.</p><div className="why-grid"><div className="why-card"><div className="why-icon">⚡</div><h3>Quick Match</h3><p>Find recent saved listings without waiting for a new search.</p></div><div className="why-card"><div className="why-icon">✦</div><h3>Résumé tools</h3><p>Build a résumé and compare your stated skills to job requirements.</p></div><div className="why-card"><div className="why-icon">🔖</div><h3>Save what matters</h3><p>Keep a shortlist in your free profile and return when you are ready.</p></div></div></section>
+    <section className="cta-section"><h2>Ready to find your <span>next role?</span></h2><p>Explore jobs for free. You can search before creating an account.</p><a className="react-home-cta" href="./find-jobs.html">Find jobs →</a></section>
+  </>;
+}
+

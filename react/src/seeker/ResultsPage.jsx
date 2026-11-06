@@ -11,7 +11,7 @@ import '../styles/dashboard.css';
 const params = new URLSearchParams(window.location.search);
 const initial = Object.fromEntries(params);
 
-export function ResultsPage() {
+export function ResultsPage({ afterDashboard }) {
   const [jobs, setJobs] = useState([]);
   const [sort, setSort] = useState('relevance');
   const [selected, setSelected] = useState(0);
@@ -36,7 +36,7 @@ export function ResultsPage() {
     return () => { active = false; };
   }, []);
   async function toggleSave(job) {
-    if (!account) { window.location.href = '../login.html?mode=signup&next=results.html'; return; }
+    if (!account) { window.location.href = './login.html?mode=signup&next=results.html'; return; }
     const key = jobKey(job), exists = savedKeys.has(key);
     const operation = exists ? supabase.from('saved_jobs').delete().eq('job_key', key) :
       supabase.from('saved_jobs').insert({ job_key: key, job_title: job.job_title, company: job.company,
@@ -91,6 +91,7 @@ export function ResultsPage() {
           <MatchPanel job={job} profile={profile} />
         </div>}
       </div>
+      {afterDashboard}
     </main>
     <MobileTabs /><Footer />
   </div>;
