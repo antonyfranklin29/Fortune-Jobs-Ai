@@ -4,7 +4,7 @@ Scope:
 - Google/email sign-in, saved jobs, profile, résumé upload/export, employer workspace and email preferences;
 - desktop (1280px) and mobile (iPhone 13).
 
-Branch `claude/signed-in-qa-1105` from main `bc27a7c`. Not deployed.
+Branch `claude/signed-in-qa-1105` from main `bc27a7c`. Deployed in `14f5f94` on Franklin's instruction, with no Codex review.
 
 ## How it was tested
 
@@ -77,10 +77,10 @@ Suggested accounts:
 ## App launch risks (Nov 11 start, Dec 1 target)
 
 1. **Leaked-password protection is off** (Supabase advisor). Turn it on in Auth settings before the app goes live.
-2. **Test Edge Functions are still deployed and active:** `gateway-ip-probe` and `gateway-forgery-probe`. Remove them, or confirm they are harmless, before launch.
+2. **Old test Edge Functions are still listed:** `gateway-ip-probe` and `gateway-forgery-probe`. I checked their code: both are retired stubs that require a sign-in token and only return 410 "gone". This is low risk; delete them from the dashboard when convenient.
 3. **`job_matches` is readable by anyone** (anon SELECT, `true`). It has 662 rows of live-search results, with search IDs and match reasons. Decide whether that is intended before the app reads it.
 4. **The app's sign-in redirects.** A native app needs its own redirect URLs (deep link or custom scheme) added to the Supabase allow-list. `email-preferences` only allows the `fortunejobsai.com` origins in CORS, so the app needs a server-side path or an added origin.
-5. **Email confirmation is required.** The app must handle the "confirm your email first" state, which the `email-preferences` function returns as 403.
-6. **Search history now writes one row per signed-in search page load.** Volume is small, but there is no retention limit; the profile shows the last 25.
-7. **Non-US searches return nothing** (Quick Match only has US listings). App store reviewers outside the US will see empty results.
+5. **Email confirmation is required.** The website now explains this state (403 "confirm your email first") and expired sessions (401) on the email preferences page. The app must handle both too.
+6. **Search history:** one row is written per signed-in search, and a reload or repeat of the same search is not stored again. There is still no retention limit; the profile shows the last 25.
+7. **Non-US searches return nothing** (Quick Match only has US listings). The website now says so and suggests United States or Any country. App store reviewers outside the US will still see no jobs.
 8. **Live Search is paused, and Pro billing is "Coming soon".** The app should not show a paid feature that cannot be bought yet.
