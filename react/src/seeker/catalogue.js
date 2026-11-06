@@ -58,7 +58,7 @@ function candidateParams(tokens, filters, excludeSource) {
   if (tokens.length) params.set('or', `(${tokens.map(token => `search_text.ilike.*${token.replace(/\*/g, '')}*`).join(',')})`);
   if (filters.country) params.set('country', `eq.${filters.country.toLowerCase()}`);
   if (['1', '3', '7', '30'].includes(filters.date_posted)) params.set('posted_at', `gte.${new Date(Date.now() - Number(filters.date_posted) * DAY).toISOString()}`);
-  if (filters.salary === 'listed') params.set('salary', 'not.is.null');
+  if (filters.salary === 'listed' || Number(filters.salary_min) > 0) params.set('salary', 'not.is.null');
   if (filters.category) params.set('category', `eq.${filters.category}`);
   if (filters.company) params.set('company', `ilike.*${filters.company}*`);
   return params;
@@ -75,6 +75,18 @@ function score(job, tokens, phrase, filters) {
   return points;
 }
 
+/** Highest yearly USD amount in a free-text salary ("$80,000 - $95,000", "$55/hr", "120k"), or 0. */
+export function salaryTop(text) {
+  const t = String(text || '').toLowerCase().replace(/,/g, '');
+  const nums = [...t.matchAll(/\$?\s*(\d+(?:\.\d+)?)\s*(k\b)?/g)].map((m) => Number(m[1]) * (m[2] ? 1000 : 1)).filter((n) => n > 0);
+  if (!nums.length) return 0;
+  const top = Math.max(...nums);
+  if (/hour|hr\b|\/h\b/.test(t)) return Math.round(top * 2080);
+  if (/month|\/mo\b/.test(t)) return top * 12;
+  return top;
+}
+const meetsSalary = (job, min) => !(Number(min) > 0) || salaryTop(job.salary) >= Number(min);
+
 export async function quickMatches(query, filters = {}, signal) {
   if (!query.trim() && !Object.values(filters).some(Boolean)) return recentJobs(signal);
   const tokens = tokensFor(query);
@@ -86,7 +98,7 @@ export async function quickMatches(query, filters = {}, signal) {
   }
   const recent = rows.filter(job => ['employer_direct','employer_feed'].includes(job.source) || Date.parse(job.posted_at) >= Date.now() - 30 * DAY);
   const accuracy = window.FJAccuracy;
-  const filtered = accuracy.filterJobs(recent, query, filters);
+  const filtered = accuracy.filterJobs(recent, query, filters).filter((job) => meetsSalary(job, filters.salary_min));
   const ranked = filtered.map(job => ({ ...job, search_reason: accuracy.matchReason(job, query, filters), search_score: score(job, tokens, query.toLowerCase().trim(), filters) }));
   ranked.sort((a, b) => b.search_score - a.search_score);
   const top = [], seen = new Set(), companies = new Map();

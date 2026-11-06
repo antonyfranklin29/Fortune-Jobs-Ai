@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { AiJobTools, SkillGap, SmartSearch, smartSearchParams, tailoredText } from './AiTools.jsx';
 import { AiPostWriter, postText } from '../employer/EmployerAi.jsx';
+import { salaryTop } from './catalogue.js';
 
 const job = { job_title: 'Power BI Developer', company: 'Fixture Co', apply_url: 'https://x.test/1', job_description: '<p>Build dashboards</p>' };
 
@@ -10,7 +11,7 @@ describe('AI tools', () => {
   afterEach(cleanup);
   it('smart search keeps only allowed filter values', () => {
     const p = smartSearchParams({ q: 'Power BI', location: 'New Jersey', work_mode: 'Remote', job_type: 'Gig', date_posted: '7', country: 'zz', salary_min: 120000 });
-    expect(Object.fromEntries(p)).toEqual({ mode: 'quick', q: 'Power BI', location: 'New Jersey', work_mode: 'Remote', date_posted: '7', salary: 'listed' });
+    expect(Object.fromEntries(p)).toEqual({ mode: 'quick', q: 'Power BI', location: 'New Jersey', work_mode: 'Remote', date_posted: '7', salary_min: '120000' });
   });
 
   it('smart search sends the sentence and opens results', async () => {
@@ -60,6 +61,26 @@ describe('AI tools', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Write description' }));
     await vi.waitFor(() => expect(onUse).toHaveBeenCalledWith('Join us.\n\nWhat you will do\n• Build pipelines\n\nWhat you need\n• SQL'));
     expect(await screen.findByText('Salary range')).toBeTruthy();
+  });
+
+  it('post writer never overwrites a description edited while it waited', async () => {
+    const onUse = vi.fn(); let resolve;
+    const call = vi.fn(() => new Promise((r) => { resolve = r; }));
+    const { rerender } = render(<AiPostWriter title="Data Engineer" current="" onUse={onUse} call={call} />);
+    fireEvent.click(screen.getByRole('button', { name: /Write the description with AI/ }));
+    fireEvent.change(screen.getByLabelText(/key points/), { target: { value: 'Azure, Spark, hybrid NJ' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Write description' }));
+    rerender(<AiPostWriter title="Data Engineer" current="My own words" onUse={onUse} call={call} />);
+    resolve({ ok: true, result: { summary: 'AI text', missing_info: [] } });
+    fireEvent.click(await screen.findByRole('button', { name: 'Replace description with the AI draft' }));
+    expect(onUse).toHaveBeenCalledTimes(1); expect(onUse).toHaveBeenCalledWith('AI text');
+  });
+
+  it('salary floor parsing', () => {
+    expect(salaryTop('$80,000 - $95,000')).toBe(95000);
+    expect(salaryTop('$55/hr')).toBe(114400);
+    expect(salaryTop('120k')).toBe(120000);
+    expect(salaryTop('')).toBe(0);
   });
 
   it('text helpers', () => {

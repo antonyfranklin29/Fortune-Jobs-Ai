@@ -39,16 +39,14 @@ const srv = http.createServer((q, r) => { let p = decodeURIComponent(q.url.split
     await install(ctx2, db2); await seedSession(ctx2, db2);
     await ctx2.route('**/functions/v1/ai-assist', (rt) => { const body = JSON.parse(rt.request().postData() || '{}'); rt.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ task: body.task, result: AI[body.task], remaining: 20 }) }); });
     const p2 = await ctx2.newPage(); p2.on('pageerror', (e) => errs.push(vp + ' employer: ' + e.message));
-    await p2.goto('http://localhost:8801/employers.html'); await p2.waitForSelector('text=AI candidate shortlist');
+    await p2.goto('http://localhost:8801/employers.html'); await p2.waitForSelector('text=New job post');
     await p2.click('text=New job post'); await p2.click('text=Write the description with AI');
     await p2.getByLabel('Job title', { exact: true }).fill('Data Engineer');
     await p2.fill('#aiPostNotes', 'Azure, Spark, hybrid in Newark NJ'); await p2.click('text=Write description');
     await p2.waitForSelector('text=Salary range'); const desc = await p2.getByLabel('Description', { exact: true }).inputValue();
     console.log(vp, 'post writer filled description:', JSON.stringify(desc.slice(0, 60)));
     await p2.locator('#aiPostNotes').scrollIntoViewIfNeeded(); await p2.screenshot({ path: `${shots}/${vp}-postwriter.png` });
-    await p2.getByLabel('Shortlist job title').fill('Data Engineer'); await p2.getByLabel('Shortlist job description').fill('Build Spark and Azure pipelines for analytics. SQL and Python required daily.');
-    await p2.getByLabel('Candidate 1 résumé').fill('SQL analyst'); await p2.getByLabel('Candidate 2 résumé').fill('Spark engineer'); await p2.click('text=Rank candidates');
-    await p2.waitForSelector('text=B.K.'); await p2.locator('text=B.K.').scrollIntoViewIfNeeded(); await p2.screenshot({ path: `${shots}/${vp}-shortlist.png` });
+    console.log(vp, 'shortlist hidden:', (await p2.locator('text=AI candidate shortlist').count()) === 0);
     const wide = await p2.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1); console.log(vp, 'employer sideways scroll:', wide);
     await ctx2.close();
   }

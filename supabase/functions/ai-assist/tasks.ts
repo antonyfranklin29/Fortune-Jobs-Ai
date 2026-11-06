@@ -9,6 +9,8 @@ export type TaskName =
   | "job_post_writer" | "candidate_shortlist";
 
 export const EMPLOYER_TASKS: TaskName[] = ["job_post_writer", "candidate_shortlist"];
+// Candidate ranking stays off at launch (needs candidate notice and a human-review process first).
+export const DISABLED_TASKS: TaskName[] = ["candidate_shortlist"];
 export const RESUME_TASKS: TaskName[] = ["tailor_resume", "fit_explain", "interview_prep", "skill_gap"];
 
 // Launch limits while Pro billing is switched off. Each AI action costs about 1–2 cents.
@@ -18,10 +20,14 @@ const MAX = { title: 160, company: 200, location: 200, description: 12000, resum
 
 export class InputError extends Error {}
 
+// User text is wrapped in these tags in the prompt; remove look-alike tags so it can't close them.
+const TAGS = /<\s*\/?\s*(resume|job|notes|candidate|request|target_role)\b[^>]*>/gi;
+export const stripTags = (text: string) => text.replace(TAGS, " ");
+
 const str = (v: unknown, name: string, max: number, required = true): string => {
   if (v === undefined || v === null || v === "") { if (required) throw new InputError(`Missing ${name}`); return ""; }
   if (typeof v !== "string") throw new InputError(`Invalid ${name}`);
-  const s = v.replace(/\u0000/g, "").trim();
+  const s = stripTags(v.replace(/\u0000/g, "")).trim();
   if (required && !s) throw new InputError(`Missing ${name}`);
   if (s.length > max) throw new InputError(`${name} is too long`);
   return s;
@@ -153,7 +159,7 @@ export function buildPrompt(task: TaskName, input: any, today = new Date().toISO
     };
     case "candidate_shortlist": return {
       system: `You help an employer review candidates for one job. Judge only job-related evidence in each résumé: skills, experience and accomplishments. Ignore names, age, gender, ethnicity, nationality, photos, gaps due to life events and anything else not related to the job. Your ranking is a suggestion for a human reviewer, not a hiring decision. ${DATA}`,
-      user: `${jobXml(input.job)}\n\n${(input.candidates as Candidate[]).map((c, i) => `<candidate id="${i + 1}" label="${c.label.replace(/"/g, "'")}">\n${c.resume_text}\n</candidate>`).join("\n\n")}\n\nRank these candidates for the job.`,
+      user: `${jobXml(input.job)}\n\n${(input.candidates as Candidate[]).map((c, i) => `<candidate id="${i + 1}">\n${c.resume_text}\n</candidate>`).join("\n\n")}\n\nRank these candidates for the job.`,
       tool: { name: "shortlist", description: "Candidates ranked by job fit.", input_schema: obj({
         ranking: arr("Every candidate, best fit first.", obj({ id: { type: "integer" }, fit: { type: "string", enum: ["strong", "good", "partial", "weak"] }, strengths: arr("Job-related strengths.", { type: "string" }, 4), concerns: arr("Job-related gaps to ask about.", { type: "string" }, 4) }), 10),
         note: { type: "string", description: "One line reminding the reviewer to check each résumé themselves." },
@@ -162,9 +168,31 @@ export function buildPrompt(task: TaskName, input: any, today = new Date().toISO
   }
 }
 
-/** Puts the human-readable candidate labels back on a shortlist answer. */
+/** Puts the candidate labels (never sent to the AI) back on a shortlist, once each; unranked ones go last. */
 // deno-lint-ignore no-explicit-any
 export function labelShortlist(result: any, candidates: Candidate[]) {
   const ranking = Array.isArray(result?.ranking) ? result.ranking : [];
-  return { ...result, ranking: ranking.filter((r: { id: number }) => Number.isInteger(r?.id) && r.id >= 1 && r.id <= candidates.length).map((r: { id: number }) => ({ ...r, label: candidates[r.id - 1].label })) };
+  const seen = new Set<number>();
+  const ranked = ranking.filter((r: { id: number }) => Number.isInteger(r?.id) && r.id >= 1 && r.id <= candidates.length && !seen.has(r.id) && seen.add(r.id))
+    .map((r: { id: number }) => ({ ...r, label: candidates[r.id - 1].label }));
+  const missed = candidates.map((c, i) => ({ id: i + 1, label: c.label, fit: "", strengths: [], concerns: ["Not ranked by the AI. Review this résumé yourself."] })).filter((r) => !seen.has(r.id));
+  return { ...result, ranking: [...ranked, ...missed] };
+}
+
+/** Keeps only what the answer schema allows: right types, known keys, allowed enum values, list limits. */
+// deno-lint-ignore no-explicit-any
+export function clean(schema: any, v: unknown): unknown {
+  switch (schema?.type) {
+    case "string": {
+      const s = typeof v === "string" ? v.replace(/\u0000/g, "").trim().slice(0, 4000) : "";
+      return schema.enum && !schema.enum.includes(s) ? "" : s;
+    }
+    case "integer": return typeof v === "number" && Number.isFinite(v) ? Math.max(0, Math.min(10_000_000, Math.round(v))) : 0;
+    case "array": return Array.isArray(v) ? v.slice(0, schema.maxItems || 20).map((x) => clean(schema.items, x)).filter((x) => x !== "" && x !== null) : [];
+    case "object": {
+      const o = v && typeof v === "object" && !Array.isArray(v) ? v as Record<string, unknown> : {};
+      return Object.fromEntries(Object.entries(schema.properties || {}).map(([k, sub]) => [k, clean(sub, o[k])]));
+    }
+    default: return null;
+  }
 }

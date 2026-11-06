@@ -5,7 +5,7 @@ import { callAi, jobForAi } from '../shared/ai.js';
 import { cleanDescription } from './catalogue.js';
 import '../styles/ai.css';
 
-const List = ({ items, className }) => (items?.length ? <ul className={className}>{items.map((x, i) => <li key={i}>{x}</li>)}</ul> : null);
+const List = ({ items, className }) => (Array.isArray(items) && items.length ? <ul className={className}>{items.map((x, i) => <li key={i}>{x}</li>)}</ul> : null);
 const FIT_LABEL = { strong: 'Strong fit', good: 'Good fit', partial: 'Partial fit', weak: 'Weak fit' };
 
 export function AiError({ error }) {
@@ -119,7 +119,8 @@ export function smartSearchParams(r = {}) {
   const location = String(r.location || '').slice(0, 120).trim();
   if (location) params.set('location', location);
   for (const [k, allowed] of Object.entries(ALLOWED)) if (allowed.includes(r[k])) params.set(k, r[k]);
-  if (Number(r.salary_min) > 0) params.set('salary', 'listed');
+  const min = Math.round(Number(r.salary_min));
+  if (min >= 1000 && min <= 2000000) params.set('salary_min', String(min));
   return params;
 }
 

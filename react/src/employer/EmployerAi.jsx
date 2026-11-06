@@ -9,20 +9,26 @@ export function postText(r) {
   return `${r.summary || ''}${section('What you will do', r.responsibilities)}${section('What you need', r.requirements)}${section('Nice to have', r.nice_to_have)}`.trim().slice(0, 8000);
 }
 
-export function AiPostWriter({ title, company, onUse, call = callAi }) {
+export function AiPostWriter({ title, company, current = '', onUse, call = callAi }) {
   const [open, setOpen] = useState(false);
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [missing, setMissing] = useState([]);
+  const [draft, setDraft] = useState('');
+  const latest = React.useRef({ open, current });
+  latest.current = { open, current };
   async function write() {
+    const before = current;
     if (!title.trim()) { setError({ error: 'Add the job title first.' }); return; }
     setBusy(true); setError(null);
     const res = await call('job_post_writer', { title: title.trim().slice(0, 160), company: (company || '').slice(0, 200), notes: notes.trim().slice(0, 4000) });
     setBusy(false);
     if (!res.ok) { setError(res); return; }
-    onUse(postText(res.result));
-    setMissing(res.result.missing_info || []);
+    const text = postText(res.result);
+    setMissing(Array.isArray(res.result.missing_info) ? res.result.missing_info : []);
+    // Only fill the box if the writer is still open and nobody typed in the description meanwhile.
+    if (latest.current.open && latest.current.current === before) { onUse(text); setDraft(''); } else setDraft(text);
   }
   if (!open) return <button className="btn btn-sm btn-outline" type="button" onClick={() => setOpen(true)}>✨ Write the description with AI</button>;
   return <div className="ai-tools">
@@ -31,7 +37,8 @@ export function AiPostWriter({ title, company, onUse, call = callAi }) {
     <div className="actions"><button className="btn btn-sm btn-primary" type="button" disabled={busy || notes.trim().length < 10} onClick={write}>{busy ? 'Writing…' : 'Write description'}</button> <button className="btn btn-sm btn-ghost" type="button" onClick={() => setOpen(false)}>Close</button></div>
     <AiError error={error} />
     {missing.length > 0 && <div className="ai-note"><strong>Consider adding:</strong><ul>{missing.map((m, i) => <li key={i}>{m}</li>)}</ul></div>}
-    <p className="ai-disclaimer">The description box now holds the AI draft. Review and edit it before saving.</p>
+    {draft && <div className="ai-note">You edited the description while the AI was writing, so we didn't replace it. <button className="btn btn-sm btn-outline" type="button" onClick={() => { onUse(draft); setDraft(''); }}>Replace description with the AI draft</button></div>}
+    <p className="ai-disclaimer">AI drafts go into the description box. Review and edit before saving.</p>
   </div>;
 }
 
@@ -54,7 +61,7 @@ export function AiShortlist({ call = callAi }) {
   }
   return <section className="card ai-tools">
     <h2>✨ AI candidate shortlist</h2>
-    <p className="sub">Paste a job description and up to 10 résumés. The AI ranks them on job-related skills and experience only. Résumés are sent to our AI provider to produce the ranking and are not stored. It's a suggestion for your review, not a hiring decision.</p>
+    <p className="sub">Paste a job description and up to 10 résumés. The AI ranks them on job-related skills and experience only; candidate labels are never sent. Fortune Jobs AI doesn't store the résumés, but our AI provider may keep request data for a limited time under its terms. The ranking is a suggestion for your review, not a hiring decision.</p>
     <input className="input" aria-label="Shortlist job title" maxLength={160} placeholder="Job title" value={job.title} onChange={(e) => setJob({ ...job, title: e.target.value })} />
     <textarea className="input" aria-label="Shortlist job description" maxLength={12000} placeholder="Job description (at least 50 characters)" value={job.description} onChange={(e) => setJob({ ...job, description: e.target.value })} />
     {cands.map((c, i) => <div key={i} className="ai-candidate">

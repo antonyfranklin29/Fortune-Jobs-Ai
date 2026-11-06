@@ -26,7 +26,7 @@ export function signInToSaveUrl(loc) {
   return './login.html?mode=signup&next=' + encodeURIComponent(back);
 }
 
-const HISTORY_FILTERS = ['location', 'country', 'date_posted', 'experience', 'job_type', 'work_mode', 'company', 'salary', 'industry'];
+const HISTORY_FILTERS = ['location', 'country', 'date_posted', 'experience', 'job_type', 'work_mode', 'company', 'salary', 'salary_min', 'industry'];
 /** The search history row for this page's search, or null when there is nothing to remember. */
 export function historyRow(query) {
   const q = String(query.q || '').trim().slice(0, 200);
@@ -105,7 +105,7 @@ export function ResultsPage({ afterDashboard }) {
     const controller = new AbortController();
     const filters = {
       country: initial.country || '', location: initial.location || '', date_posted: initial.date_posted || '',
-      experience: initial.experience || '', job_type: initial.job_type || '', work_mode: initial.work_mode || '', company: initial.company || '', salary: initial.salary || '', category: initial.category || ''
+      experience: initial.experience || '', job_type: initial.job_type || '', work_mode: initial.work_mode || '', company: initial.company || '', salary: initial.salary || '', salary_min: /^\d{4,7}$/.test(initial.salary_min || '') ? initial.salary_min : '', category: initial.category || ''
     };
     const request = initial.q || initial.mode === 'quick' || Object.values(filters).some(Boolean) ? quickMatches(initial.q || '', filters, controller.signal) : recentJobs(controller.signal);
     request
