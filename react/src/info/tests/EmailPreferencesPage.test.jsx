@@ -52,6 +52,16 @@ describe('EmailPreferencesPage', () => {
     await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Accounts are temporarily unavailable.'));
   });
 
+  it('explains unconfirmed email and expired sessions', async () => {
+    const confirm = vi.fn(async () => ({ ok: false, status: 403, json: async () => ({ error: 'Confirm your email first' }) }));
+    render(<EmailPreferencesPage client={createPreferenceClient({ sb: fakeSb(SESSION), config: CONFIG, fetch: confirm })} />);
+    await waitFor(() => expect($('status').textContent).toBe('Confirm your email address first, using the link we sent, then reload this page.'));
+    cleanup();
+    const expired = vi.fn(async () => ({ ok: false, status: 401, json: async () => ({}) }));
+    render(<EmailPreferencesPage client={createPreferenceClient({ sb: fakeSb(SESSION), config: CONFIG, fetch: expired })} />);
+    await waitFor(() => expect($('status').textContent).toBe('Your session has expired. Sign in again to manage email preferences.'));
+  });
+
   it('keeps the static wording of the page', async () => {
     const { readFileSync } = await import('node:fs');
     const { dirname, resolve } = await import('node:path');

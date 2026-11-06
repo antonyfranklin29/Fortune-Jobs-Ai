@@ -21,6 +21,11 @@ export function createPreferenceClient({ sb, config, fetch: fetchImpl = (...a) =
         body: body ? JSON.stringify(body) : undefined,
         signal: AbortSignal.timeout(10000),
       });
+      if (response.status === 401) throw new Error('Your session has expired. Sign in again to manage email preferences.');
+      if (response.status === 403) {
+        const detail = await response.json().catch(() => ({}));
+        if (/confirm/i.test(detail.error || '')) throw new Error('Confirm your email address first, using the link we sent, then reload this page.');
+      }
       if (!response.ok) throw new Error(NOT_AVAILABLE);
       return response.json();
     },

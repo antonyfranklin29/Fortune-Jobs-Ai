@@ -42,6 +42,10 @@ async function rememberSearch(userId) {
   const row = historyRow(initial);
   if (!row || remembered) return;
   remembered = true;
+  // Reloading or sharing the same results page does not add a duplicate entry.
+  const last = await supabase.from('search_history').select('query,mode,filters').order('created_at', { ascending: false }).limit(1);
+  const previous = !last.error && last.data && last.data[0];
+  if (previous && previous.query === row.query && previous.mode === row.mode && JSON.stringify(previous.filters || null) === JSON.stringify(row.filters)) return;
   const history = await supabase.from('search_history').insert(row);
   if (history.error) console.warn('search history', history.error.message);
   const filters = await supabase.from('profiles').update({ saved_filters: row.filters }).eq('id', userId);
@@ -113,7 +117,9 @@ export function ResultsPage({ afterDashboard }) {
       <div className="dashboard-body">
         {error && <p className="dashboard-status" role="alert">{error}</p>}
         {loading && <p className="dashboard-status" role="status">Loading jobs…</p>}
-        {!loading && !error && !jobs.length && <p className="dashboard-status">No recent listings match these filters. Try a broader role or location.</p>}
+        {!loading && !error && !jobs.length && <p className="dashboard-status">{initial.country && initial.country !== 'us'
+          ? 'Quick Match currently has United States listings only. Choose United States or Any country to see jobs.'
+          : 'No recent listings match these filters. Try a broader role or location.'}</p>}
         {saveMessage && <p className="dashboard-status" role="status">{saveMessage}</p>}
         {!!job && <div className="dashboard-grid">
           <section className="dashboard-card dashboard-list" aria-label="Job results">
