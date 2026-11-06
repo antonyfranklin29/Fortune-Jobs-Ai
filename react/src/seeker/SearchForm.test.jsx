@@ -52,6 +52,41 @@ describe('suggestion data', () => {
   });
 });
 
+describe('country suggestions', () => {
+  it('united → United States and United Kingdom; can → Canada; ind → India first', () => {
+    expect(localPlaces('united').map((p) => p.name)).toEqual(['United States', 'United Kingdom']);
+    expect(localPlaces('can')[0]).toMatchObject({ name: 'Canada', scope: 'country', country_code: 'ca' });
+    expect(localPlaces('ind').map((p) => p.name)).toEqual(['India', 'Indianapolis', 'Indiana']);
+    expect(localPlaces('usa')[0]).toMatchObject({ name: 'United States' });
+    expect(localPlaces('unitedkingdom')[0]).toMatchObject({ name: 'United Kingdom' });
+    expect(localPlaces('can', 'ca').map((p) => p.name)).toEqual(['Canada']);
+  });
+
+  it('picking a country searches with the Country filter, and typing one works too', () => {
+    render(<SearchForm sort="relevance" onSort={() => {}} />);
+    fireEvent.change(job(), { target: { value: 'Nurse' } });
+    fireEvent.change(loc(), { target: { value: 'can' } });
+    const first = options('Location suggestions')[0];
+    expect(first.textContent).toContain('Canada');
+    fireEvent.mouseDown(first); fireEvent.click(first);
+    expect(loc().value).toBe('Canada');
+    fireEvent.submit(job().closest('form'));
+    expect(params().get('country')).toBe('ca');
+    expect(params().get('location')).toBeNull();
+    cleanup();
+    render(<SearchForm sort="relevance" onSort={() => {}} />);
+    fireEvent.change(loc(), { target: { value: 'United Kingdom' } });
+    fireEvent.submit(loc().closest('form'));
+    expect(params().get('country')).toBe('gb');
+    expect(params().get('location')).toBeNull();
+  });
+
+  it('a country-only search shows the country name again on the results page', () => {
+    render(<SearchForm initial={{ country: 'in', q: 'Data Analyst' }} sort="relevance" onSort={() => {}} />);
+    expect(loc().value).toBe('India');
+  });
+});
+
 describe('SearchForm suggestions', () => {
   it('keyboard: pick Data Analyst and Chicago, then submit the picked values', async () => {
     vi.useFakeTimers();

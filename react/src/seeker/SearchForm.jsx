@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SuggestInput } from './SuggestInput.jsx';
-import { MIN_CHARS, fetchCities, localPlaces, matchTitles, mergePlaces, placeLabel } from './suggest.js';
+import { MIN_CHARS, SEARCH_COUNTRIES, exactCountry, fetchCities, localPlaces, matchTitles, mergePlaces, placeLabel } from './suggest.js';
 
 const KIND_LABEL = { title: 'Job title', skill: 'Skill', company: 'Company' };
 const flagOf = (cc) => (cc && cc.length === 2 ? String.fromCodePoint(...[...cc.toUpperCase()].map((c) => 0x1F1E6 + c.charCodeAt(0) - 65)) : '');
@@ -11,7 +11,8 @@ export function SearchForm({ initial = {}, sort, onSort }) {
   const resumeId = initial.resume_id || '';
   const [mode, setMode] = useState(initial.mode === 'live' ? 'live' : 'quick');
   const [query, setQuery] = useState(initial.q || '');
-  const [location, setLocation] = useState(initial.location || '');
+  // A country-only search shows the country name in the location box again.
+  const [location, setLocation] = useState(initial.location || (SEARCH_COUNTRIES.find((c) => c.code === initial.country)?.name ?? ''));
   const [country, setCountry] = useState(initial.country || '');
   const [date, setDate] = useState(initial.date_posted || '');
   const [experience, setExperience] = useState(initial.experience || '');
@@ -25,10 +26,12 @@ export function SearchForm({ initial = {}, sort, onSort }) {
     event.preventDefault();
     if (mode === 'live') { setError('Live Search is temporarily unavailable. Choose Quick Match to browse saved jobs.'); return; }
     const clean = query.trim();
+    // A country typed or picked in the location box searches with the Country filter.
+    const typedCountry = exactCountry(location);
     const params = new URLSearchParams({ mode: 'quick', q: clean });
     if (resume === '0' || resume === '1') params.set('resume', resume);
     if (resume === '1' && resumeId) params.set('resume_id', resumeId);
-    for (const [key, value] of Object.entries({ location: location.trim(), country, date_posted: date, experience, job_type: type, work_mode: workMode, company: company.trim(), salary, industry })) if (value) params.set(key, value);
+    for (const [key, value] of Object.entries({ location: typedCountry ? '' : location.trim(), country: typedCountry || country, date_posted: date, experience, job_type: type, work_mode: workMode, company: company.trim(), salary, industry })) if (value) params.set(key, value);
     window.location.href = `./results.html?${params}`;
   }
   return <form className="dashboard-search" onSubmit={submit}>
@@ -47,7 +50,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
       <label className="sb-field loc"><span aria-hidden="true">⌖</span><SuggestInput id="locationInput" aria-label="Location" placeholder="City, state or region" maxLength={120} listLabel="Location suggestions" minChars={MIN_CHARS}
         value={location} onChange={setLocation} getItems={(q) => localPlaces(q, country)}
         fetchMore={(q, signal) => fetchCities(q, country, { signal })} merge={mergePlaces}
-        describe={(p) => ({ label: p.name, at: 0, len: Math.min(location.split(',')[0].trim().length, p.name.length), detail: [p.admin1 !== p.name ? p.admin1 : '', p.country, p.kind].filter(Boolean).join(' · '), aside: flagOf(p.country_code) })}
+        describe={(p) => ({ label: p.name, at: 0, len: Math.min(location.split(',')[0].trim().length, p.name.length), detail: p.scope === 'country' ? 'Country' : [p.admin1 !== p.name ? p.admin1 : '', p.country, p.kind].filter(Boolean).join(' · '), aside: flagOf(p.country_code) })}
         onPick={(p) => { setLocation(placeLabel(p)); if (countries.some(([code]) => code && code === p.country_code)) setCountry(p.country_code); }} /></label>
       <button type="submit">⌕ Search Jobs</button>
     </div></div>

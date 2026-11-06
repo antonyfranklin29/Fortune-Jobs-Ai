@@ -61,18 +61,44 @@ const US_CITIES = [
 
 const regionEntries = Object.entries(states).map(([code, name]) => ({ code, name, admin1: name, country: 'United States', country_code: 'us', scope: 'region', kind: code === 'DC' ? 'District' : 'State' }));
 
-/** Instant location suggestions (no network): US states, then large US cities. */
+// Countries the search can filter by (the Country filter's options), with common short names.
+export const SEARCH_COUNTRIES = [
+  { code: 'us', name: 'United States', aliases: ['usa', 'united states of america', 'america'] },
+  { code: 'ca', name: 'Canada', aliases: [] },
+  { code: 'gb', name: 'United Kingdom', aliases: ['uk', 'great britain', 'britain', 'england'] },
+  { code: 'in', name: 'India', aliases: ['bharat'] },
+];
+const countryEntries = SEARCH_COUNTRIES.map((c) => ({ name: c.name, admin1: '', country: c.name, country_code: c.code, scope: 'country', kind: 'Country', aliases: c.aliases }));
+
+/** Countries matching what was typed (prefix of the name or a common short name). */
+export function countryPlaces(query) {
+  const q = fold(query).split(',')[0].trim();
+  if (q.length < MIN_CHARS) return [];
+  const tight = q.replace(/[\s.-]+/g, '');
+  return countryEntries.filter((c) => [c.name, ...c.aliases].some((n) => fold(n).startsWith(q) || fold(n).replace(/[\s.-]+/g, '').startsWith(tight)));
+}
+
+/** The country code when the whole location is a country name or short name ("Canada", "UK"), else ''. */
+export function exactCountry(location) {
+  const q = fold(location).trim().replace(/\.$/, '');
+  const hit = SEARCH_COUNTRIES.find((c) => [c.name, ...c.aliases].some((n) => fold(n) === q || fold(n).replace(/[\s.]+/g, '') === q.replace(/[\s.]+/g, '')));
+  return hit ? hit.code : '';
+}
+
+/** Instant location suggestions (no network): countries, US cities, then US states. */
 export function localPlaces(query, country = '') {
   const q = fold(query).split(',')[0].trim();
-  if (q.length < MIN_CHARS || (country && country !== 'us')) return [];
+  if (q.length < MIN_CHARS) return [];
+  const countries = countryPlaces(q);
+  if (country && country !== 'us') return countries;
   const tight = q.replace(/[\s.-]+/g, ''); // "newyork" and "st louis" still match
   const starts = (name) => fold(name).startsWith(q) || fold(name).replace(/[\s.-]+/g, '').startsWith(tight);
   const regions = regionEntries.filter((r) => starts(r.name) || r.code.toLowerCase() === q);
   const cities = US_CITIES.filter((c) => starts(c.name));
-  return [...cities, ...regions].slice(0, CITY_MAX);
+  return [...countries, ...cities, ...regions].slice(0, CITY_MAX);
 }
 
-export const placeLabel = (p) => (p.scope === 'region' ? p.name : [p.name, p.admin1 && p.admin1 !== p.name ? p.admin1 : null].filter(Boolean).join(', '));
+export const placeLabel = (p) => (p.scope === 'region' || p.scope === 'country' ? p.name : [p.name, p.admin1 && p.admin1 !== p.name ? p.admin1 : null].filter(Boolean).join(', '));
 export const placeKey = (p) => `${fold(p.name)}|${fold(p.admin1)}|${(p.country_code || '').toLowerCase()}`;
 
 const cityCache = new Map();
