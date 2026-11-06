@@ -20,27 +20,30 @@ describe('EmailPreferencesPage', () => {
   });
 
   it('reads the current choice with the session token, then saves the new one', async () => {
-    const fetch = vi.fn(async (_url, init) => ({ ok: true, json: async () => (init.method === 'GET' ? { subscribed: false, delivery_active: false } : { subscribed: true, delivery_active: false }) }));
+    const fetch = vi.fn(async (_url, init) => ({ ok: true, json: async () => (init.method === 'GET' ? { subscribed: false, delivery_active: false } : { subscribed: true, frequency: 'daily', delivery_active: false }) }));
     render(<EmailPreferencesPage client={createPreferenceClient({ sb: fakeSb(SESSION), config: CONFIG, fetch })} />);
     await waitFor(() => expect($('save').disabled).toBe(false));
-    expect($('status').textContent).toBe('Newsletter delivery is not active yet. You can choose whether to receive it when it launches.');
+    expect($('status').textContent).toBe('Job alert emails are starting soon. Choose now and we’ll use it when they launch.');
     const [url, init] = fetch.mock.calls[0];
     expect(url).toBe('https://project.supabase.co/functions/v1/email-preferences');
     expect(init).toMatchObject({ method: 'GET', headers: { apikey: 'anon-key', Authorization: 'Bearer tok-123' } });
     fireEvent.click($('weekly'));
     fireEvent.submit($('preferences'));
-    await waitFor(() => expect($('status').textContent).toBe('Preference saved. Newsletter delivery is not active yet; we’ll use this choice when it launches.'));
-    expect(fetch.mock.calls[1][1]).toMatchObject({ method: 'POST', body: JSON.stringify({ subscribed: true, consent_version: 'weekly-v1' }) });
+    await waitFor(() => expect($('status').textContent).toBe('Saved. Job alerts start soon; we’ll email you every morning.'));
+    expect(fetch.mock.calls[1][1]).toMatchObject({ method: 'POST', body: JSON.stringify({ subscribed: true, frequency: 'daily', consent_version: 'alerts-v2' }) });
     expect($('weekly').checked).toBe(true);
   });
 
   it('active delivery uses the active wording', async () => {
-    const fetch = vi.fn(async () => ({ ok: true, json: async () => ({ subscribed: true, delivery_active: true }) }));
+    const fetch = vi.fn(async (_u, init) => ({ ok: true, json: async () => (init.method === 'GET' ? { subscribed: true, frequency: 'weekly', delivery_active: true } : JSON.parse(init.body) && { subscribed: true, frequency: JSON.parse(init.body).frequency, delivery_active: true }) }));
     render(<EmailPreferencesPage client={createPreferenceClient({ sb: fakeSb(SESSION), config: CONFIG, fetch })} />);
     await waitFor(() => expect($('status').textContent).toBe('Your current email preference is shown above.'));
     expect($('weekly').checked).toBe(true);
+    expect(document.querySelector('input[value=weekly]').checked).toBe(true); // keeps the saved frequency
+    fireEvent.click(document.querySelector('input[value=daily]'));
     fireEvent.submit($('preferences'));
-    await waitFor(() => expect($('status').textContent).toBe('Preference saved. Weekly emails follow your choice.'));
+    await waitFor(() => expect($('status').textContent).toBe('Saved. We’ll email new matching jobs every morning.'));
+    expect(JSON.parse(fetch.mock.calls[1][1].body)).toEqual({ subscribed: true, frequency: 'daily', consent_version: 'alerts-v2' });
   });
 
   it('a failed request says nothing changed; a missing client says accounts are unavailable', async () => {
@@ -62,15 +65,13 @@ describe('EmailPreferencesPage', () => {
     await waitFor(() => expect($('status').textContent).toBe('Your session has expired. Sign in again to manage email preferences.'));
   });
 
-  it('keeps the static wording of the page', async () => {
-    const { readFileSync } = await import('node:fs');
-    const { dirname, resolve } = await import('node:path');
-    const { fileURLToPath } = await import('node:url');
-    const old = new DOMParser().parseFromString(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'legacy/email-preferences.html'), 'utf8'), 'text/html');
-    old.querySelectorAll('script,style,#status').forEach((n) => n.remove());
+  it('shows the job alert wording (daily or weekly, opt-in)', () => {
     render(<EmailPreferencesPage client={null} />);
-    const page = document.body.cloneNode(true); page.querySelector('#status').remove();
-    const norm = (s) => s.replace(/\s/g, '');
-    expect(norm(page.textContent)).toBe(norm(old.body.textContent));
+    const text = document.body.textContent;
+    expect(text).toContain('Job alert emails');
+    expect(text).toContain('Creating an account or signing in with Google does not subscribe you.');
+    expect(screen.getByLabelText('Daily, each morning')).toBeTruthy();
+    expect(screen.getByLabelText('Weekly')).toBeTruthy();
+    expect(document.querySelector('fieldset.alert-frequency').disabled).toBe(true); // until opted in
   });
 });

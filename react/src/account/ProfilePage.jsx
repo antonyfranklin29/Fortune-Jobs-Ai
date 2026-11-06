@@ -559,9 +559,8 @@ function FiltersAndAlerts({ user, profile, setProfile, toast }) {
         <div className="filters-saved"><span>{t || "None yet. Run a search with filters and they'll be saved here."}</span>
           {t ? <button className="btn btn-ghost btn-sm" type="button" onClick={clear}>Clear</button> : null}</div>
       </div>
-      <p style={{ margin: '20px 0' }}>Choose whether to receive our weekly job digest. Google sign-in does not subscribe you.</p>
-      <a className="btn btn-primary" href="email-preferences.html">Manage weekly emails</a>
-      <p className="hint" style={{ marginTop: 14 }}>Newsletter delivery is being prepared. Existing alert settings are not transferred into newsletter consent.</p>
+      <p style={{ margin: '20px 0' }}>Get new matching jobs by email, daily or weekly. Signing up or using Google sign-in does not subscribe you.</p>
+      <a className="btn btn-primary" href="email-preferences.html">Manage job alert emails</a>
     </section>
   );
 }
