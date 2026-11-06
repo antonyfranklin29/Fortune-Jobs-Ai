@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import { SuggestInput } from './SuggestInput.jsx';
+import { MIN_CHARS, fetchCities, localPlaces, matchTitles, mergePlaces, placeLabel } from './suggest.js';
+
+const KIND_LABEL = { title: 'Job title', skill: 'Skill', company: 'Company' };
+const flagOf = (cc) => (cc && cc.length === 2 ? String.fromCodePoint(...[...cc.toUpperCase()].map((c) => 0x1F1E6 + c.charCodeAt(0) - 65)) : '');
 
 const countries = [['','🌍 Any country'],['us','🇺🇸 United States'],['ca','🇨🇦 Canada'],['gb','🇬🇧 United Kingdom'],['in','🇮🇳 India']];
 export function SearchForm({ initial = {}, sort, onSort }) {
@@ -35,8 +40,15 @@ export function SearchForm({ initial = {}, sort, onSort }) {
       <button type="button" className={`mode-btn ${mode === 'live' ? 'active' : ''}`} aria-pressed={mode === 'live'} onClick={() => { setMode('live'); setError(''); }}>⌕ Live Search</button>
     </div>
     <div className="search-wrapper"><div className="search-bar">
-      <label className="sb-field"><span aria-hidden="true">⌕</span><input id="jobSearchInput" aria-label="Job title or keyword" placeholder="Job title, skill or company" value={query} onChange={event => setQuery(event.target.value)} maxLength={120} /></label>
-      <label className="sb-field loc"><span aria-hidden="true">⌖</span><input aria-label="Location" placeholder="City, state or region" value={location} onChange={event => setLocation(event.target.value)} maxLength={120} /></label>
+      <label className="sb-field"><span aria-hidden="true">⌕</span><SuggestInput id="jobSearchInput" aria-label="Job title or keyword" placeholder="Job title, skill or company" maxLength={120} listLabel="Job title suggestions" minChars={MIN_CHARS}
+        value={query} onChange={setQuery} getItems={(q) => matchTitles(q)}
+        describe={(it) => ({ label: it.text, at: it.at, len: it.len, detail: KIND_LABEL[it.kind] })}
+        onPick={(it) => { setQuery(it.text); if (!location.trim()) setTimeout(() => document.getElementById('locationInput')?.focus(), 0); }} /></label>
+      <label className="sb-field loc"><span aria-hidden="true">⌖</span><SuggestInput id="locationInput" aria-label="Location" placeholder="City, state or region" maxLength={120} listLabel="Location suggestions" minChars={MIN_CHARS}
+        value={location} onChange={setLocation} getItems={(q) => localPlaces(q, country)}
+        fetchMore={(q, signal) => fetchCities(q, country, { signal })} merge={mergePlaces}
+        describe={(p) => ({ label: p.name, at: 0, len: Math.min(location.split(',')[0].trim().length, p.name.length), detail: [p.admin1 !== p.name ? p.admin1 : '', p.country, p.kind].filter(Boolean).join(' · '), aside: flagOf(p.country_code) })}
+        onPick={(p) => { setLocation(placeLabel(p)); if (countries.some(([code]) => code && code === p.country_code)) setCountry(p.country_code); }} /></label>
       <button type="submit">⌕ Search Jobs</button>
     </div></div>
     {error && <p className="react-search-error" role="alert">{error}</p>}
