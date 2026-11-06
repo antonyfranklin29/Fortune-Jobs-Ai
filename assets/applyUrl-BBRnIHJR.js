@@ -1,0 +1,1 @@
+var e=/^https:\/\/(?:www\.)?adzuna\.com\/land\/ad\/(\d+)\/?$/i;function t(t){let n=e.exec(String(t||``).trim());return n?`https://www.adzuna.com/details/${n[1]}`:t}export{t};
