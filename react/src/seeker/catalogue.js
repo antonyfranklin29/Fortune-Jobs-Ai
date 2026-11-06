@@ -57,9 +57,9 @@ function candidateParams(tokens, filters, excludeSource) {
   if (excludeSource) params.set('source', `neq.${excludeSource}`);
   if (tokens.length) params.set('or', `(${tokens.map(token => `search_text.ilike.*${token.replace(/\*/g, '')}*`).join(',')})`);
   if (filters.country) params.set('country', `eq.${filters.country.toLowerCase()}`);
-  if (filters.date_posted) params.set('posted_at', `gte.${new Date(Date.now() - Number(filters.date_posted) * DAY).toISOString()}`);
+  if (['1', '3', '7', '30'].includes(filters.date_posted)) params.set('posted_at', `gte.${new Date(Date.now() - Number(filters.date_posted) * DAY).toISOString()}`);
   if (filters.salary === 'listed') params.set('salary', 'not.is.null');
-  if (filters.industry) params.set('category', `ilike.*${filters.industry}*`);
+  if (filters.category) params.set('category', `eq.${filters.category}`);
   if (filters.company) params.set('company', `ilike.*${filters.company}*`);
   return params;
 }

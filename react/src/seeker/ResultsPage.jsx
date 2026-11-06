@@ -94,7 +94,7 @@ export function ResultsPage({ afterDashboard }) {
     const controller = new AbortController();
     const filters = {
       country: initial.country || '', location: initial.location || '', date_posted: initial.date_posted || '',
-      experience: initial.experience || '', job_type: initial.job_type || '', work_mode: initial.work_mode || '', company: initial.company || '', salary: initial.salary || '', industry: initial.industry || ''
+      experience: initial.experience || '', job_type: initial.job_type || '', work_mode: initial.work_mode || '', company: initial.company || '', salary: initial.salary || '', category: initial.category || ''
     };
     const request = initial.q || initial.mode === 'quick' || Object.values(filters).some(Boolean) ? quickMatches(initial.q || '', filters, controller.signal) : recentJobs(controller.signal);
     request
