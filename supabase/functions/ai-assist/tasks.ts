@@ -107,7 +107,7 @@ export function buildPrompt(task: TaskName, input: any, today = new Date().toISO
         strengths: arr("Specific reasons the résumé fits, each citing résumé evidence.", { type: "string" }, 6),
         gaps: arr("Requirements the résumé does not show.", { type: "string" }, 6),
         advice: { type: "string", description: "One practical next step before applying." },
-      }) }, max_tokens: 900,
+      }) }, max_tokens: 1800,
     };
     case "smart_search": return {
       system: `You turn a job seeker's plain-English request into search filters for a US job board. Only fill a filter when the request clearly implies it. Today is ${today}. ${DATA}`,
@@ -123,7 +123,7 @@ export function buildPrompt(task: TaskName, input: any, today = new Date().toISO
         salary: { type: "string", enum: ["", "listed"], description: "'listed' when the person cares about pay." },
         salary_min: { type: "integer", description: "Minimum yearly salary in USD if stated, else 0." },
         explanation: { type: "string", description: "A short line telling the person what you searched for." },
-      }) }, max_tokens: 400,
+      }) }, max_tokens: 700,
     };
     case "interview_prep": return {
       system: `You are an interview coach. Prepare the person for an interview for one job, using their real experience for the answer outlines. ${HONEST} ${DATA}`,
