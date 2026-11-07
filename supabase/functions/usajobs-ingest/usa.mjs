@@ -25,6 +25,26 @@ export function stateOf(locations, idx) {
   return null;
 }
 
+// One location: as USAJOBS shows it. Several: "Denver, CO; Atlanta, GA; Austin, TX + 4 more", so the
+// card says where the job really is and a search for any listed city or state can find it.
+export function locationText(d, idx) {
+  const locs = d.PositionLocation || [];
+  const display = strip(d.PositionLocationDisplay, 200);
+  if (locs.length <= 1 && display && !/multiple locations/i.test(display)) return display;
+  const seen = new Set(), names = [];
+  for (const l of locs) {
+    const sub = String(l?.CountrySubDivisionCode || '').trim();
+    const code = /district of columbia/i.test(sub) ? 'DC' : idx.byName.get(sub.toLowerCase())?.code;
+    const city = strip(String(l?.CityName || l?.LocationName || '').split(',')[0], 60);
+    const name = city && code ? `${city}, ${code}` : (city || sub);
+    if (name && !seen.has(name.toLowerCase())) { seen.add(name.toLowerCase()); names.push(name); }
+  }
+  if (!names.length) return display || null;
+  let out = names[0], i = 1;
+  for (; i < names.length; i++) { const next = `${out}; ${names[i]}`; if (next.length > 170) break; out = next; }
+  return i < names.length ? `${out} + ${names.length - i} more` : out;
+}
+
 // "$95,000–$150,000" only for yearly pay the posting states; never estimated.
 export function salaryOf(pay) {
   const p = (pay || [])[0];
@@ -63,7 +83,7 @@ export function normalize(item, { roles, idx, fetchedAt, now = new Date() }) {
     country: 'us',
     job_title: title,
     company: strip(d.OrganizationName || d.DepartmentName, 200) || null,
-    location: strip(d.PositionLocationDisplay, 200) || null,
+    location: locationText(d, idx),
     salary: salaryOf(d.PositionRemuneration),
     apply_url: url,
     source_url: url,

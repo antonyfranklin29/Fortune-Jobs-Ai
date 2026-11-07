@@ -41,3 +41,15 @@ Deno.test("search asks for IT series, newest first, max page size", () => {
   assertEquals(u.searchParams.get("ResultsPerPage"), "500");
   assertEquals(u.searchParams.get("Page"), "2");
 });
+
+Deno.test("multiple locations are listed, not hidden behind 'Multiple Locations'", async () => {
+  const { locationText } = await import("../supabase/functions/usajobs-ingest/usa.mjs");
+  const locs = ["Denver, Colorado|Colorado", "Atlanta, Georgia|Georgia", "Austin, Texas|Texas", "Washington, District of Columbia|District of Columbia"]
+    .map((x) => { const [CityName, CountrySubDivisionCode] = x.split("|"); return { CityName, CountrySubDivisionCode }; });
+  assertEquals(locationText({ PositionLocationDisplay: "Multiple Locations", PositionLocation: locs }, idx), "Denver, CO; Atlanta, GA; Austin, TX; Washington, DC");
+  const many = Array.from({ length: 30 }, (_, i) => ({ CityName: `Town${i}, Texas`, CountrySubDivisionCode: "Texas" }));
+  const t = locationText({ PositionLocationDisplay: "Multiple Locations", PositionLocation: many }, idx);
+  assert(/\+ \d+ more$/.test(t) && t.length <= 200, t);
+  assertEquals(locationText({ PositionLocationDisplay: "Suitland, Maryland", PositionLocation: [locs[0]] }, idx), "Suitland, Maryland");
+  assertEquals(normalize(item({ PositionLocationDisplay: "Multiple Locations", PositionLocation: locs }), ctx).row?.location, "Denver, CO; Atlanta, GA; Austin, TX; Washington, DC");
+});
