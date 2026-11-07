@@ -39,8 +39,10 @@ Deno.serve(async (req: Request) => {
     const q = new URLSearchParams({ locale_code: "en_US", keywords, page_size: String(size), sort: "date", user_ip: userIp, user_agent: userAgent, fragment_size: "300" });
     if (location) q.set("location", location);
     const r = await fetch("https://search.api.careerjet.net/v4/query?" + q, { headers: { Authorization: "Basic " + btoa(apiKey + ":") }, signal: AbortSignal.timeout(15000) });
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) return json({ error: "Careerjet error", status: r.status, message: clip(data?.message, 200) }, 502);
+    const raw = await r.text();
+    let data: Record<string, any> = {};
+    try { data = JSON.parse(raw); } catch { /* not JSON */ }
+    if (!r.ok) return json({ error: "Careerjet error", status: r.status, message: clip(data?.message || data?.error || raw, 300), sentIpKind: userIp.includes(":") ? "ipv6" : "ipv4" }, 502);
     if (data.type === "LOCATIONS") return json({ type: "LOCATIONS", message: clip(data.message, 200), locations: (data.locations || []).slice(0, 10).map((l: unknown) => clip(l, 120)) });
     return json({ type: "JOBS", hits: Number(data.hits) || 0, jobs: (data.jobs || []).map(cleanJob).filter(Boolean) });
   } catch {
