@@ -37,16 +37,18 @@ export function JobDetail({ job, profile, compact = false, saved = false, onSave
   const url = safeApplyUrl(job.apply_url);
   const fit = dashboard ? null : fitFor(job, profile);
   const description = cleanDescription(job.job_description);
+  const actions = (where) => <div className={`react-detail-actions react-actions-${where}`}>{url && <a className="react-apply dashboard-gold" href={url} target="_blank" rel="noopener noreferrer">{dashboard ? 'Apply Now' : `Apply on ${job.source === 'adzuna' ? 'Adzuna' : 'the employer site'}`} ↗</a>}{onSave && <button type="button" className="react-save" aria-pressed={saved} onClick={() => onSave(job)}>{saved ? 'Saved' : 'Save job'}</button>}</div>;
   return <article className={`featured-detail ${compact ? 'react-detail-compact' : ''}`}>
     <div className="react-detail-head"><CompanyMark job={job} /><div><p className="react-company">{job.company}</p><h3>{job.job_title}</h3><p>{job.location || 'Location not specified'}</p></div></div>
     <div className="react-badges">{job.salary && <span>{job.salary}</span>}{job.employment_type && <span>{job.employment_type}</span>}{job.work_mode && <span>{job.work_mode}</span>}{jobAge(job) && <span>{jobAge(job)}</span>}</div>
+    {dashboard && actions('top')}
     {dashboard ? null : fit ? <section className="react-fit"><h4>Estimated job fit: {fit.score}/100</h4><p>Based on the skills named in this listing and details you confirmed. This is an estimate, not an ATS score or a hiring prediction.</p>{fit.matched?.length > 0 && <p><strong>Skills you have:</strong> {fit.matched.join(', ')}</p>}{fit.missing?.length > 0 && <p><strong>Skills to review:</strong> {fit.missing.join(', ')}</p>}</section> : profile?.skills?.length ? <section className="react-fit"><h4>Fit estimate unavailable</h4><p>This listing does not name enough specific skills to make a useful comparison with your confirmed details. Read the full job description before applying.</p></section> : <section className="react-fit"><h4>See how well it fits you</h4><p>Add a résumé or your experience to see an estimate with reasons.</p><a href="./resume-search.html?manual=1">Add experience and skills →</a></section>}
     {job.search_reason && <section><h4>Why it’s in your results</h4><p>{job.search_reason}</p></section>}
     {!compact && <AiJobTools job={job} />}
     <JobDescription job={job} description={description} url={url} />
     {dashboard && <><JobFacts job={job} /><ResumeKeywords job={job} profile={profile} /><InterviewReady job={job} /><BeforeYouApply job={job} /></>}
     <SourceCredit job={job} />
-    <div className="react-detail-actions">{url && <a className="react-apply dashboard-gold" href={url} target="_blank" rel="noopener noreferrer">{dashboard ? 'Apply Now' : `Apply on ${job.source === 'adzuna' ? 'Adzuna' : 'the employer site'}`} ↗</a>}{onSave && <button type="button" className="react-save" aria-pressed={saved} onClick={() => onSave(job)}>{saved ? 'Saved' : 'Save job'}</button>}</div>
+    {actions('bottom')}
   </article>;
 }
 
