@@ -43,6 +43,18 @@ Deno.serve(async (req: Request) => {
     const row = { user_id: userId, stripe_customer_id: sub.customer, stripe_subscription_id: sub.id, status: sub.status, current_period_end: periodEnd(sub), cancel_at_period_end: !!sub.cancel_at_period_end || Number.isFinite(sub.cancel_at), livemode: !!sub.livemode, updated_at: new Date().toISOString() };
     const w = await db("subscriptions", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(row) });
     if (!w.ok) throw new Error("db " + w.status);
+
+    // Account emails (each sent once; see account-email). They never hold up Stripe's reply.
+    const mail = (kind: string, key: string, data: Record<string, unknown> = {}) => fetch(`${BASE}/functions/v1/account-email`, {
+      method: "POST", headers: { "Content-Type": "application/json", "x-ingest-secret": Deno.env.get("INGEST_SECRET") || "" },
+      body: JSON.stringify({ kind, user_id: userId, key, data }), signal: AbortSignal.timeout(8000),
+    }).catch(() => null);
+    const mails: Promise<unknown>[] = [];
+    if (event.type === "invoice.payment_failed" && o.id) mails.push(mail("pro_payment_failed", String(o.id)));
+    else if (row.status === "canceled" || (live(row.status) && row.cancel_at_period_end))
+      mails.push(mail("pro_cancelled", `cancel:${sub.id}`, { ends: row.status === "canceled" ? null : (Number.isFinite(sub.cancel_at) ? new Date(sub.cancel_at * 1000).toISOString() : row.current_period_end) }));
+    else if (["active", "trialing"].includes(row.status)) mails.push(mail("pro_started", `start:${sub.id}`, { renews: row.current_period_end }));
+    await Promise.all(mails);
     return json({ ok: true, status: sub.status });
   } catch {
     // Let Stripe retry: forget the event id so the retry is processed.

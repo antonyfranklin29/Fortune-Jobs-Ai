@@ -249,6 +249,9 @@ async function cancelSubscription(uid: string): Promise<StepResult> {
     if (!row?.stripe_subscription_id || ["canceled", "incomplete_expired"].includes(row.status)) return { step, ok: true, removed: 0 };
     const secret = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
     if (!secret) return { step, ok: false, error: "stripe_not_configured" };
+    // The goodbye email already says Pro is cancelled: no separate "Pro cancelled" email.
+    await admin(`/rest/v1/account_emails`, { method: "POST", headers: { prefer: "return=minimal" },
+      body: JSON.stringify({ user_id: uid, kind: "pro_cancelled", key: `cancel:${row.stripe_subscription_id}` }) }).catch(() => {});
     const r = await fetch(`https://api.stripe.com/v1/subscriptions/${encodeURIComponent(row.stripe_subscription_id)}`, {
       method: "DELETE", headers: { Authorization: `Bearer ${secret}` }, signal: AbortSignal.timeout(15000) });
     if (!r.ok && r.status !== 404) return { step, ok: false, error: `stripe_${r.status}` };
@@ -330,6 +333,15 @@ Deno.serve(async (req: Request) => {
     return json({ status: "incomplete", reason: "subscription_not_cancelled", retryable: true, steps,
       message: "We couldn't cancel your Pro subscription, so nothing was deleted yet. Please try again in a minute." }, 409, origin);
   }
+
+  // Goodbye email, sent before the address is erased. It never blocks the deletion.
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/account-email`, {
+      method: "POST", headers: { "content-type": "application/json", "x-ingest-secret": Deno.env.get("INGEST_SECRET") ?? "" },
+      body: JSON.stringify({ kind: "account_deleted", user_id: uid, key: "deleted", email: caller.email, data: { hadPro: (steps[0].removed ?? 0) > 0 } }),
+      signal: AbortSignal.timeout(15000),
+    });
+  } catch { /* the deletion goes ahead */ }
 
   for (const bucket of BUCKETS) steps.push(await purgeBucket(bucket, uid));
   steps.push(await purgeRows("saved_jobs", `user_id=eq.${uid}`));
