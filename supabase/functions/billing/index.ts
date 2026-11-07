@@ -60,7 +60,7 @@ Deno.serve(async (req: Request) => {
       const subs = await stripe(secret, "GET", "subscriptions", { customer, status: "all", limit: 10 });
       const open = (subs.data || []).find((x: Record<string, any>) => ["active", "trialing", "past_due"].includes(x.status));
       if (open) {
-        await db("subscriptions", { method: "POST", headers: { Prefer: "resolution=merge-duplicates" }, body: JSON.stringify({ user_id: user.id, stripe_customer_id: customer, stripe_subscription_id: open.id, status: open.status, current_period_end: periodEnd(open), cancel_at_period_end: !!open.cancel_at_period_end, livemode: !!open.livemode, updated_at: new Date().toISOString() }) });
+        await db("subscriptions", { method: "POST", headers: { Prefer: "resolution=merge-duplicates" }, body: JSON.stringify({ user_id: user.id, stripe_customer_id: customer, stripe_subscription_id: open.id, status: open.status, current_period_end: periodEnd(open), cancel_at_period_end: !!open.cancel_at_period_end || Number.isFinite(open.cancel_at), livemode: !!open.livemode, updated_at: new Date().toISOString() }) });
         return json({ error: "You already have Pro. Manage it from your profile.", already: true }, 409);
       }
     }

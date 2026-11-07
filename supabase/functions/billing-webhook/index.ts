@@ -40,7 +40,7 @@ Deno.serve(async (req: Request) => {
     const current = (await (await db(`subscriptions?user_id=eq.${userId}&select=stripe_subscription_id,status`)).json())[0];
     if (current?.stripe_subscription_id && current.stripe_subscription_id !== sub.id && live(current.status) && !live(sub.status))
       return json({ ok: true, note: "kept the active subscription" });
-    const row = { user_id: userId, stripe_customer_id: sub.customer, stripe_subscription_id: sub.id, status: sub.status, current_period_end: periodEnd(sub), cancel_at_period_end: !!sub.cancel_at_period_end, livemode: !!sub.livemode, updated_at: new Date().toISOString() };
+    const row = { user_id: userId, stripe_customer_id: sub.customer, stripe_subscription_id: sub.id, status: sub.status, current_period_end: periodEnd(sub), cancel_at_period_end: !!sub.cancel_at_period_end || Number.isFinite(sub.cancel_at), livemode: !!sub.livemode, updated_at: new Date().toISOString() };
     const w = await db("subscriptions", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(row) });
     if (!w.ok) throw new Error("db " + w.status);
     return json({ ok: true, status: sub.status });
