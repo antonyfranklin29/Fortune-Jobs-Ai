@@ -19,7 +19,7 @@ export function ProCard({ subscription }) {
     <ul className="pro-perks"><li>Up to {PRO.results} results per search (free: {PRO.freeResults})</li><li>{PRO.aiPerDay} AI Coach actions a day (free: {PRO.freeAiPerDay})</li><li>Cancel anytime</li></ul>
     <p className="dashboard-upgrade-price"><strong>{PRO.price}</strong><span>/ month</span></p>
     {open ? <><button type="button" className="pro-subscribe" onClick={subscribe} disabled={busy}>{busy ? 'Opening secure checkout…' : 'Subscribe to Pro'}</button>
-    <p className="pro-fine">Renews monthly at {PRO.price} until you cancel. Cancel anytime from your profile; Pro stays on until the end of the month you paid for. Payments are handled by Stripe. <a href="./terms.html#pro">Terms</a></p></> : <p className="pro-fine">Pro is launching soon.</p>}
+    <p className="pro-fine">Renews monthly at {PRO.price} until you cancel. Cancel anytime from your profile; Pro stays on until the end of the month you paid for. Full refund within 7 days of your first payment. Payments are handled by Stripe. <a href="./terms.html#refunds">Refund policy</a> · <a href="./terms.html#pro">Terms</a></p></> : <p className="pro-fine">Pro is launching soon.</p>}
     {error && <p className="ai-error" role="alert">{error}</p>}
   </section>;
 }
