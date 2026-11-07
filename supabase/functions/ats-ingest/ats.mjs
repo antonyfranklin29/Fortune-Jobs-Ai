@@ -138,7 +138,7 @@ export function normalize(provider, raw, board, { roles, idx, fetchedAt, maxAgeD
     salary: null,
     apply_url: url,
     source_url: url,
-    job_description: j.description ? strip(j.description, 4000) : null,
+    job_description: null, // never copied: the employer's own page has the full text
     employment_type: EMPLOYMENT(j.employment),
     is_remote: mode === 'remote',
     work_mode: mode,
