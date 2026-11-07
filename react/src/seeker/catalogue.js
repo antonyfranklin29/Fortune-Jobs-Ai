@@ -65,6 +65,14 @@ function candidateParams(tokens, filters, excludeSource) {
   if (filters.company) params.set('company', `ilike.*${filters.company}*`);
   return params;
 }
+// The city a search asks for, as stored at the start of a job's location ("Chicago, IL").
+// A region-wide search has no city. Characters PostgREST treats specially are removed.
+const cityAliases = { 'new york city': 'new york', nyc: 'new york', 'saint louis': 'st louis', bangalore: 'bengaluru' };
+export function searchCity(filters = {}) {
+  if (filters.location_scope === 'region') return '';
+  const raw = String(filters.city || String(filters.location || '').split(',')[0]).toLowerCase().replace(/[^a-z0-9.\s'-]/g, ' ').replace(/\s+/g, ' ').trim();
+  return cityAliases[raw] || raw;
+}
 function score(job, tokens, phrase, filters) {
   const title = job.job_title.toLowerCase();
   let points = phrase && title.includes(phrase) ? 55 : 0;
@@ -102,8 +110,19 @@ export async function quickMatches(query, filters = {}, signal, limit = 10) {
   const tokens = tokensFor(query);
   const first = await read(candidateParams(tokens, filters), signal);
   let rows = first;
+  // The broad query returns the newest 300 matches nationwide, so a city's jobs can all fall
+  // outside it. A second query limited to the city keeps them in the pool.
+  const city = searchCity(filters);
+  if (city.length >= 2) {
+    try {
+      const params = candidateParams(tokens, filters);
+      params.set('location', `ilike.*${city}*`);
+      const urls = new Set(first.map(job => job.apply_url));
+      rows = first.concat((await read(params, signal)).filter(job => !urls.has(job.apply_url)));
+    } catch (error) { if (signal?.aborted) throw error; }
+  }
   if (first.length >= 10 && first.slice(0, 10).every(job => job.source === first[0].source)) {
-    try { rows = first.concat(await read(candidateParams(tokens, filters, first[0].source), signal)); }
+    try { rows = rows.concat(await read(candidateParams(tokens, filters, first[0].source), signal)); }
     catch (error) { if (signal?.aborted) throw error; }
   }
   const recent = rows.filter(job => ['employer_direct','employer_feed'].includes(job.source) || Date.parse(job.posted_at) >= Date.now() - 30 * DAY);
