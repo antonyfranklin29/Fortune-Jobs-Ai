@@ -642,6 +642,14 @@ export function DeleteAccount({ user, leaving, onDeleted }) {
   const done = useRef(false);
   const refs = { phrase: useRef(null), email: useRef(null), understood: useRef(null), start: useRef(null), confirm: useRef(null), reauth: useRef(null) };
   const endpoint = fj.config.url.replace(/\/$/, '') + '/functions/v1/delete-account';
+  // Pro members are told up front that deleting the account cancels Pro straight away.
+  const [pro, setPro] = useState(null);
+  useEffect(() => {
+    let active = true;
+    fj.sb?.from('subscriptions').select('status,current_period_end,cancel_at_period_end').eq('user_id', user.id).maybeSingle()
+      .then(({ data }) => { if (active) setPro(isActive(data) ? data : null); }, () => {});
+    return () => { active = false; };
+  }, [fj, user.id]);
 
   useEffect(() => { if (panel) refs.confirm.current?.focus(); }, [panel]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (reauth) refs.reauth.current?.focus(); }, [reauth]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -690,6 +698,7 @@ export function DeleteAccount({ user, leaving, onDeleted }) {
     <section className="card" id="delete-account" style={{ padding: 24, margin: '24px 0', borderColor: 'var(--red)' }} aria-labelledby="delTitle">
       <h2 id="delTitle">Delete your account</h2>
       <p style={{ margin: '12px 0' }}>This permanently deletes your profile, extracted resume text, uploaded resume and photo files, saved jobs, search history and email preferences, then closes your account. It cannot be undone, and deleted data cannot be restored. Download your data first if you want a copy.</p>
+      {pro && <p className="pro-delete-note" role="note" style={{ margin: '12px 0', padding: '10px 12px', borderRadius: 10, background: 'var(--red-bg)', border: '1px solid var(--red)' }}><strong>You have Fortune Jobs AI Pro.</strong> Deleting your account cancels Pro immediately, so you won’t be charged again. The rest of this month’s Pro time ends right away. To keep Pro until {new Date(pro.current_period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}, cancel it under Subscription instead and delete your account later.</p>}
       <p style={{ margin: '12px 0' }} className="sub">If you are the last owner of a company on Fortune Jobs AI, its live job listings are closed. Search usage records are kept without your account attached. For your security you may be asked to sign in again first.</p>
       <div className="field">
         <label htmlFor="delPhrase">Type DELETE MY ACCOUNT</label>
@@ -713,7 +722,7 @@ export function DeleteAccount({ user, leaving, onDeleted }) {
       <button ref={refs.start} className="btn btn-outline" type="button" disabled={busy} style={{ color: 'var(--red)', borderColor: 'var(--red)' }} onClick={start}>Delete my account…</button>
       {panel && (
         <div role="group" aria-labelledby="delConfirmText" style={{ marginTop: 16, padding: 16, border: '1px solid var(--red)', borderRadius: 12, background: 'var(--red-bg)' }}>
-          <p id="delConfirmText" style={{ marginBottom: 12 }}><strong>Last step.</strong> Your account and data will be deleted now.</p>
+          <p id="delConfirmText" style={{ marginBottom: 12 }}><strong>Last step.</strong> {pro ? 'Your Pro subscription will be cancelled, then your' : 'Your'} account and data will be deleted now.</p>
           <button ref={refs.confirm} className="btn btn-primary" type="button" disabled={busy} style={{ background: 'var(--red)', borderColor: 'var(--red)' }} onClick={confirm}>{busy ? 'Deleting…' : 'Delete permanently'}</button>
           <button className="btn btn-ghost" type="button" disabled={busy} onClick={cancel}>Cancel</button>
         </div>

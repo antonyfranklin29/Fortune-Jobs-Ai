@@ -25,6 +25,9 @@ export function outcome(status, body) {
   }
   if (b.reason === 'confirmation_required') return { kind: 'phrase', message: `Type ${PHRASE} exactly. Nothing has been deleted.` };
   if (b.reason === 'email_mismatch') return { kind: 'email', message: 'The email address does not match this account. Nothing has been deleted.' };
+  if (b.reason === 'subscription_not_cancelled') {
+    return { kind: 'subscription', message: 'We could not cancel your Pro subscription, so nothing was deleted. Try again in a minute, or cancel Pro first with “Manage or cancel” under Subscription.' };
+  }
   if (b.status === 'incomplete' && b.reason === 'identity_not_closed') {
     return { kind: 'identity', message: 'Your data was permanently deleted, but the account itself could not be closed. Please try again.' };
   }
