@@ -2,7 +2,7 @@
 // (change card, cancel). Signed-in users only. Deploy with --no-verify-jwt: the token is checked here.
 // Secret: STRIPE_SECRET_KEY (a test key, sk_test_…, until real payments are switched on).
 // The $9.99/month price is created once in Stripe (lookup key fortune_pro_monthly) and reused.
-import { PRO, stripe } from "./stripe.ts";
+import { PRO, periodEnd, stripe } from "./stripe.ts";
 
 const BASE = Deno.env.get("SUPABASE_URL") || "https://hqgakkcxcyspqhnlnscv.supabase.co";
 const KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -54,6 +54,16 @@ Deno.serve(async (req: Request) => {
     if (row && ["active", "trialing"].includes(row.status) && (!row.current_period_end || Date.parse(row.current_period_end) > Date.now()))
       return json({ error: "You already have Pro. Manage it from your profile.", already: true }, 409);
 
+    // Ask Stripe too, not just our table, so a second tab or a delayed webhook can't create a second
+    // subscription. If Stripe already has one, record it and send the person to their profile.
+    if (customer) {
+      const subs = await stripe(secret, "GET", "subscriptions", { customer, status: "all", limit: 10 });
+      const open = (subs.data || []).find((x: Record<string, any>) => ["active", "trialing", "past_due"].includes(x.status));
+      if (open) {
+        await db("subscriptions", { method: "POST", headers: { Prefer: "resolution=merge-duplicates" }, body: JSON.stringify({ user_id: user.id, stripe_customer_id: customer, stripe_subscription_id: open.id, status: open.status, current_period_end: periodEnd(open), cancel_at_period_end: !!open.cancel_at_period_end, livemode: !!open.livemode, updated_at: new Date().toISOString() }) });
+        return json({ error: "You already have Pro. Manage it from your profile.", already: true }, 409);
+      }
+    }
     if (!customer) {
       const c = await stripe(secret, "POST", "customers", { email: user.email, metadata: { user_id: user.id, site: "fortunejobsai" } });
       customer = c.id;
