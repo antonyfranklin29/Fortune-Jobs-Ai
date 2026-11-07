@@ -14,7 +14,7 @@ export const DISABLED_TASKS: TaskName[] = ["candidate_shortlist"];
 export const RESUME_TASKS: TaskName[] = ["tailor_resume", "fit_explain", "interview_prep", "skill_gap"];
 
 // Launch limits while Pro billing is switched off. Each AI action costs about 1–2 cents.
-export const LIMITS = { perUserPerDay: 25, globalPerDay: 1500 };
+export const LIMITS = { perUserPerDay: 25, proPerUserPerDay: 50, globalPerDay: 1500 };
 
 const MAX = { title: 160, company: 200, location: 200, description: 12000, resume: 15000, query: 300, notes: 4000, label: 60, candidates: 10 };
 

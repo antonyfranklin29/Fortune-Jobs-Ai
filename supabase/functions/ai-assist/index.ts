@@ -18,8 +18,13 @@ async function db(path: string, init: RequestInit = {}, headers: Record<string, 
 // One atomic reservation per AI call (see migrations/pending/20261106d_ai_usage.sql), so parallel
 // requests can't slip past the daily limits. A reservation is refunded only when Anthropic refuses
 // the request before processing it (4xx); 5xx, timeouts and network errors stay counted.
-async function reserve(user: string, task: TaskName) {
-  const r = await db("rpc/ai_reserve", { method: "POST", body: JSON.stringify({ p_user: user, p_task: task, p_model: MODEL, p_user_limit: LIMITS.perUserPerDay, p_global_limit: LIMITS.globalPerDay }) });
+// Pro members (an active Stripe subscription) get a higher daily limit.
+async function dailyLimit(user: string) {
+  try { return (await (await db("rpc/is_pro", { method: "POST", body: JSON.stringify({ p_user: user }) })).json()) === true ? LIMITS.proPerUserPerDay : LIMITS.perUserPerDay; }
+  catch { return LIMITS.perUserPerDay; }
+}
+async function reserve(user: string, task: TaskName, limit: number) {
+  const r = await db("rpc/ai_reserve", { method: "POST", body: JSON.stringify({ p_user: user, p_task: task, p_model: MODEL, p_user_limit: limit, p_global_limit: LIMITS.globalPerDay }) });
   return await r.json() as { id?: number; used?: number; error?: "user_limit" | "global_limit" };
 }
 class Refused extends Error { constructor(public status: number) { super("ai " + status); } }
@@ -80,8 +85,9 @@ Deno.serve(async (req: Request) => {
       if (!input.resume_text) return json({ error: "Add your résumé to your profile first.", need: "resume" }, 400);
     }
 
-    const spot = await reserve(user.id, task);
-    if (spot.error === "user_limit") return json({ error: `You've used today's ${LIMITS.perUserPerDay} AI actions. They reset at midnight UTC.`, remaining: 0 }, 429);
+    const limit = await dailyLimit(user.id);
+    const spot = await reserve(user.id, task, limit);
+    if (spot.error === "user_limit") return json({ error: `You've used today's ${limit} AI actions. They reset at midnight UTC.${limit < LIMITS.proPerUserPerDay ? " Pro members get " + LIMITS.proPerUserPerDay + " a day." : ""}`, remaining: 0 }, 429);
     if (spot.error === "global_limit") return json({ error: "AI features are busy today. Please try again tomorrow." }, 429);
     if (!spot.id) throw new Error("no reservation");
 
@@ -94,7 +100,7 @@ Deno.serve(async (req: Request) => {
     await db(`ai_usage?id=eq.${spot.id}`, { method: "PATCH", body: JSON.stringify({ input_tokens: answer.usage.input_tokens || 0, output_tokens: answer.usage.output_tokens || 0 }) }, { Prefer: "return=minimal" }).catch(() => {});
     const result = clean(spec.tool.input_schema, answer.result);
     if (!usable(task, result)) return json({ error: "The AI couldn't produce a usable answer. Please try again." }, 502);
-    return json({ task, result: task === "candidate_shortlist" ? labelShortlist(result, input.candidates) : result, remaining: Math.max(0, LIMITS.perUserPerDay - (spot.used || 0) - 1) });
+    return json({ task, result: task === "candidate_shortlist" ? labelShortlist(result, input.candidates) : result, remaining: Math.max(0, limit - (spot.used || 0) - 1) });
   } catch {
     return json({ error: "The AI assistant is unavailable right now. Please try again in a minute." }, 503);
   }

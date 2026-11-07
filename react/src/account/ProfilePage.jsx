@@ -3,6 +3,8 @@
 // data export and self-service account deletion. Row-level security limits
 // every query to the signed-in person; the page never passes another user's id.
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { SubscriptionSection } from '../shared/ProCard.jsx';
+import { isActive } from '../shared/billing.js';
 import { SuggestInput } from '../seeker/SuggestInput.jsx';
 import { MIN_CHARS, fetchCities, localPlaces, mergePlaces, placeLabel } from '../seeker/suggest.js';
 import { useAccountServices } from './services.jsx';
@@ -169,7 +171,7 @@ function ProfileApp({ user, profile, setProfile, toast, leaving, onDeleted }) {
   // "Saved Jobs" and other links arrive as profile.html#saved; the sections only exist once the profile loads.
   useEffect(() => {
     const id = decodeURIComponent((fj.hash() || '').replace(/^#/, ''));
-    if (!/^(profile|resume|saved|history|alerts)$/.test(id)) return;
+    if (!/^(profile|resume|saved|history|alerts|subscription)$/.test(id)) return;
     requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView?.({ block: 'start' }));
   }, [fj]);
 
@@ -230,6 +232,7 @@ function ProfileApp({ user, profile, setProfile, toast, leaving, onDeleted }) {
           <a href="#saved">Saved jobs <span className="n">{savedCount}</span></a>
           <a href="#history">Search history <span className="n">{historyCount}</span></a>
           <a href="#alerts">Filters & alerts</a>
+          <a href="#subscription">Subscription</a>
         </nav>
         <div className="stack">
           {/* A saved résumé review changes title, experience and skills: remount to refill the form (legacy fillForm()). */}
@@ -239,12 +242,32 @@ function ProfileApp({ user, profile, setProfile, toast, leaving, onDeleted }) {
           <SavedJobs toast={toast} onCount={setSavedCount} />
           <SearchHistory user={user} toast={toast} onCount={setHistoryCount} />
           <FiltersAndAlerts user={user} profile={profile} setProfile={setProfile} toast={toast} />
+          <ProSubscription fj={fj} user={user} />
         </div>
         <DataExport user={user} />
         <DeleteAccount user={user} leaving={leaving} onDeleted={onDeleted} />
       </main>
     </div>
   );
+}
+
+// Pro subscription status; ?pro=welcome after Stripe Checkout re-checks for a minute while Stripe confirms.
+function ProSubscription({ fj, user }) {
+  const [row, setRow] = useState(undefined);
+  const welcome = new URLSearchParams(fj.search()).get('pro') === 'welcome';
+  useEffect(() => {
+    let active = true, tries = 0, timer;
+    const load = async () => {
+      const { data } = await fj.sb.from('subscriptions').select('status,current_period_end,cancel_at_period_end').eq('user_id', user.id).maybeSingle();
+      if (!active) return;
+      setRow(data || null);
+      if (welcome && !isActive(data) && ++tries < 12) timer = setTimeout(load, 5000);
+    };
+    load();
+    return () => { active = false; clearTimeout(timer); };
+  }, [fj, user.id, welcome]);
+  if (row === undefined) return null;
+  return <div className="card"><SubscriptionSection subscription={row} welcome={welcome} /></div>;
 }
 
 function ProfileDetails({ user, profile, setProfile, toast, catalog }) {

@@ -97,7 +97,7 @@ export function salaryTop(text) {
 }
 const meetsSalary = (job, min) => !(Number(min) > 0) || salaryTop(job.salary) >= Number(min);
 
-export async function quickMatches(query, filters = {}, signal) {
+export async function quickMatches(query, filters = {}, signal, limit = 10) {
   if (!query.trim() && !Object.values(filters).some(Boolean)) return recentJobs(signal);
   const tokens = tokensFor(query);
   const first = await read(candidateParams(tokens, filters), signal);
@@ -115,11 +115,11 @@ export async function quickMatches(query, filters = {}, signal) {
   for (const job of ranked) {
     const company = job.company.trim().toLowerCase();
     const key = `${job.job_title.trim().toLowerCase()}|${company}`;
-    if (seen.has(key) || (companies.get(company) || 0) >= 2) continue;
+    if (seen.has(key) || (companies.get(company) || 0) >= (limit > 10 ? 4 : 2)) continue;
     seen.add(key); companies.set(company, (companies.get(company) || 0) + 1); top.push(job);
-    if (top.length === 10) break;
+    if (top.length === limit) break;
   }
-  if (top.length === 10 && top.filter(job => job.source === top[0].source).length >= 8) {
+  if (limit === 10 && top.length === 10 && top.filter(job => job.source === top[0].source).length >= 8) {
     const existing = new Set(top.map(job => job.apply_url));
     const alternate = ranked.find(job => job.source !== top[0].source && !existing.has(job.apply_url) &&
       job.search_score >= top[9].search_score - 10 && !seen.has(`${job.job_title.trim().toLowerCase()}|${job.company.trim().toLowerCase()}`));

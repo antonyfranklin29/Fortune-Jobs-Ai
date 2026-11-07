@@ -240,6 +240,24 @@ async function purgeBucket(bucket: string, uid: string): Promise<StepResult> {
   }
 }
 
+async function cancelSubscription(uid: string): Promise<StepResult> {
+  const step = "stripe:subscription";
+  try {
+    const res = await admin(`/rest/v1/subscriptions?user_id=eq.${uid}&select=stripe_subscription_id,status`);
+    const row = res.ok ? (await res.json())[0] : null;
+    if (!res.ok) return { step, ok: false, error: `http_${res.status}` };
+    if (!row?.stripe_subscription_id || ["canceled", "incomplete_expired"].includes(row.status)) return { step, ok: true, removed: 0 };
+    const secret = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
+    if (!secret) return { step, ok: false, error: "stripe_not_configured" };
+    const r = await fetch(`https://api.stripe.com/v1/subscriptions/${encodeURIComponent(row.stripe_subscription_id)}`, {
+      method: "DELETE", headers: { Authorization: `Bearer ${secret}` }, signal: AbortSignal.timeout(15000) });
+    if (!r.ok && r.status !== 404) return { step, ok: false, error: `stripe_${r.status}` };
+    return { step, ok: true, removed: 1 };
+  } catch (e) {
+    return { step, ok: false, error: String(e).slice(0, 120) };
+  }
+}
+
 async function purgeRows(table: string, filter: string): Promise<StepResult> {
   const step = `table:${table}`;
   try {
@@ -304,6 +322,14 @@ Deno.serve(async (req: Request) => {
 
   const uid = caller.id;
   const steps: StepResult[] = [];
+
+  // A Pro subscription is cancelled first, so a deleted account is never charged again.
+  // If Stripe can't be reached the deletion stops here and nothing else is removed yet.
+  steps.push(await cancelSubscription(uid));
+  if (!steps[0].ok) {
+    return json({ status: "incomplete", reason: "subscription_not_cancelled", retryable: true, steps,
+      message: "We couldn't cancel your Pro subscription, so nothing was deleted yet. Please try again in a minute." }, 409, origin);
+  }
 
   for (const bucket of BUCKETS) steps.push(await purgeBucket(bucket, uid));
   steps.push(await purgeRows("saved_jobs", `user_id=eq.${uid}`));

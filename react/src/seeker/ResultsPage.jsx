@@ -6,6 +6,8 @@ import { guestMatchProfile, quickMatches, recentJobs } from './catalogue.js';
 import { jobKey, supabase } from '../shared/supabase.js';
 
 import { MatchPanel } from './MatchPanel.jsx';
+import { ProCard } from '../shared/ProCard.jsx';
+import { PRO, isActive, mySubscription } from '../shared/billing.js';
 import '../styles/dashboard.css';
 
 const params = new URLSearchParams(window.location.search);
@@ -73,6 +75,7 @@ export function ResultsPage({ afterDashboard }) {
   const [account, setAccount] = useState(null);
   const [savedKeys, setSavedKeys] = useState(new Set());
   const [saveMessage, setSaveMessage] = useState('');
+  const [subscription, setSubscription] = useState(null);
   useEffect(() => {
     let active = true;
     supabase.auth.getUser().then(async ({ data }) => {
@@ -107,7 +110,13 @@ export function ResultsPage({ afterDashboard }) {
       country: initial.country || '', location: initial.location || '', date_posted: initial.date_posted || '',
       experience: initial.experience || '', job_type: initial.job_type || '', work_mode: initial.work_mode || '', company: initial.company || '', salary: initial.salary || '', salary_min: /^\d{4,7}$/.test(initial.salary_min || '') ? initial.salary_min : '', category: initial.category || ''
     };
-    const request = initial.q || initial.mode === 'quick' || Object.values(filters).some(Boolean) ? quickMatches(initial.q || '', filters, controller.signal) : recentJobs(controller.signal);
+    // Pro members see more results: check the subscription first (signed-out visitors skip this quickly).
+    const request = mySubscription().then((sub) => {
+      if (!controller.signal.aborted) setSubscription(sub);
+      return initial.q || initial.mode === 'quick' || Object.values(filters).some(Boolean)
+        ? quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10)
+        : recentJobs(controller.signal);
+    });
     request
       .then(rows => { if (!controller.signal.aborted) { setJobs(rows); setLoading(false); } })
       .catch(() => { if (!controller.signal.aborted) { setError('We could not load jobs right now. Please try your search again.'); setLoading(false); } });
@@ -137,12 +146,7 @@ export function ResultsPage({ afterDashboard }) {
             <h2>{visible.length} jobs found</h2>
             {Number(initial.salary_min) > 0 && <p className="dashboard-salary-note">Only jobs whose listed US-dollar pay reaches ${Number(initial.salary_min).toLocaleString('en-US')} a year. Listings without a clear salary are left out.</p>}
             <JobList jobs={visible} selected={selected} onSelect={selectJob} profile={profile} />
-            <section className="dashboard-upgrade" aria-labelledby="dashboard-upgrade-title">
-              <div className="dashboard-upgrade-top"><span>Fortune Jobs AI Pro</span><span>Coming soon</span></div>
-              <h3 id="dashboard-upgrade-title">Subscribe for more jobs</h3>
-              <p>Free searches show up to 10 jobs. Pro will add more results and more AI actions each day.</p>
-              <p className="dashboard-upgrade-price"><strong>$9.99</strong><span>/ month</span></p>
-            </section>
+            <ProCard subscription={subscription} />
           </section>
           <button type="button" className="dashboard-back" id="jobDetailTop" onClick={backToList}>← Back to results</button>
           <JobDetail job={job} profile={profile} saved={savedKeys.has(jobKey(job))} onSave={toggleSave} dashboard />
