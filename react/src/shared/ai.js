@@ -37,4 +37,5 @@ export const jobForAi = (job, describe = (t) => t) => ({
   company: String(job.company || '').slice(0, 200),
   location: String(job.location || '').slice(0, 200),
   description: describe(String(job.job_description || '')).slice(0, 12000),
+  apply_url: String(job.apply_url || '').slice(0, 2000),
 });

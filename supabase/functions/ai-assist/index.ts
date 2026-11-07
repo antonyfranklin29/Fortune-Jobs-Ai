@@ -2,6 +2,7 @@
 // Deploy with --no-verify-jwt: the bearer token is checked explicitly below.
 // Needs the ANTHROPIC_API_KEY secret; without it every request gets 503 "not switched on yet".
 // The key never leaves this function. Résumé text is read from the person's own profile.
+import { MIN_DESCRIPTION, fetchDescription, locate } from "./describe.ts";
 import { DISABLED_TASKS, EMPLOYER_TASKS, InputError, LIMITS, REFUNDABLE, RESUME_TASKS, buildPrompt, clean, isTask, labelShortlist, readInput, stripTags, usable, type TaskName } from "./tasks.ts";
 
 const BASE = Deno.env.get("SUPABASE_URL") || "https://hqgakkcxcyspqhnlnscv.supabase.co";
@@ -83,6 +84,26 @@ Deno.serve(async (req: Request) => {
       const rows = await (await db(`profiles?id=eq.${user.id}&select=resume_text`)).json();
       input.resume_text = stripTags(String(rows[0]?.resume_text || "").replace(/\u0000/g, "")).slice(0, 15000).trim();
       if (!input.resume_text) return json({ error: "Add your résumé to your profile first.", need: "resume" }, 400);
+    }
+
+    // Jobs from company career boards and USAJOBS are stored as links only; read the description
+    // from the employer's board for this request (not stored). If that fails, the AI works from the
+    // title and says so.
+    if (input.job && (input.job.description || "").length < MIN_DESCRIPTION && input.job.apply_url) {
+      try {
+        const row = (await (await db(`pre_scraped_jobs?apply_url=eq.${encodeURIComponent(input.job.apply_url)}&select=source,source_listing_id,job_description&limit=1`)).json())[0];
+        let text = String(row?.job_description || "");
+        const where = row && text.length < MIN_DESCRIPTION ? locate(row.source, row.source_listing_id, input.job.apply_url) : null;
+        if (where) {
+          const get = async (url: string, headers: Record<string, string> = {}) => {
+            const r = await fetch(url, { headers: { accept: "application/json", ...headers }, signal: AbortSignal.timeout(10000) });
+            if (!r.ok) throw new Error("board " + r.status);
+            return r.json();
+          };
+          text = await fetchDescription(where, get, { key: Deno.env.get("USAJOBS_API_KEY") || "", email: "info@fortunejobsai.com" });
+        }
+        if (text.length > (input.job.description || "").length) input.job.description = stripTags(text.replace(/\u0000/g, "")).slice(0, 12000).trim();
+      } catch { /* keep what we have */ }
     }
 
     const limit = await dailyLimit(user.id);

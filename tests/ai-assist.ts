@@ -39,6 +39,11 @@ reset();
     if (method === "DELETE") { world.rows = world.rows.filter((r) => r.id !== id); return new Response(null, { status: 204 }); }
     if (method === "PATCH") { Object.assign(world.rows.find((r) => r.id === id) || {}, JSON.parse(String(init?.body))); return new Response(null, { status: 204 }); }
   }
+  if (url.startsWith(SB + "/rest/v1/pre_scraped_jobs?apply_url=eq.")) {
+    const u = decodeURIComponent(url.split("apply_url=eq.")[1].split("&")[0]);
+    return Response.json(u === "https://boards.greenhouse.io/acme/jobs/42" ? [{ source: "greenhouse", source_listing_id: "acme:42", job_description: null }] : []);
+  }
+  if (url === "https://boards-api.greenhouse.io/v1/boards/acme/jobs/42") return Response.json({ content: "&lt;p&gt;Lead &lt;strong&gt;Kafka&lt;/strong&gt; platform work for our payments team. You will design, build and run streaming services in Java and Go, own on-call for them, mentor engineers and work with product on the roadmap.&lt;/p&gt;&lt;ul&gt;&lt;li&gt;8+ years of backend engineering&lt;/li&gt;&lt;/ul&gt;" });
   if (url.startsWith(SB + "/rest/v1/profiles")) return Response.json(world.resume ? [{ resume_text: world.resume }] : [{ resume_text: null }]);
   if (url.startsWith(SB + "/rest/v1/employer_org_members")) return Response.json(world.employer ? [{ org_id: "o1" }] : []);
   if (url === "https://api.anthropic.com/v1/messages") {
@@ -153,7 +158,7 @@ Deno.test("AI provider errors: refused (4xx) is refunded, 5xx stays counted", as
 });
 Deno.test("input validation", () => {
   const bad = (f: () => unknown) => { try { f(); return false; } catch (e) { return e instanceof InputError; } };
-  assert(bad(() => readInput("fit_explain", { job: { title: "x" } })), "description required");
+  assert(!bad(() => readInput("fit_explain", { job: { title: "x" } })), "description is optional (career-board jobs are links only)");
   assert(bad(() => readInput("smart_search", { query: "x".repeat(301) })), "query length");
   assert(bad(() => readInput("candidate_shortlist", { job, candidates: Array(11).fill({ resume_text: "x" }) })), "max 10 candidates");
   assertEquals(readInput("candidate_shortlist", { job, candidates: [{ resume_text: "SQL" }] }).candidates[0].label, "Candidate 1");
@@ -171,4 +176,22 @@ Deno.test("prompts treat user text as data and forbid invented facts", () => {
   assert(!/<\/?job>/.test(tricky.job.description) && !/<\/?\s*resume/i.test(tricky.resume_text), "user text cannot close the prompt tags");
   assertEquals(clean({ type: "array", maxItems: 2, items: { type: "string" } }, ["a", "b", "c"]), ["a", "b"]);
   assertEquals(labelShortlist({ ranking: [{ id: 0 }] }, []).ranking.length, 0);
+});
+
+Deno.test("career-board job without a description: the AI reads it from the employer's board", async () => {
+  reset(); Deno.env.set("ANTHROPIC_API_KEY", "fixture-ai-key");
+  const r = await post({ task: "fit_explain", job: { title: "Principal Software Engineer", company: "Acme", description: "", apply_url: "https://boards.greenhouse.io/acme/jobs/42" } });
+  assertEquals(r.status, 200);
+  const prompt = String((world.aiBodies[0] as { messages: { content: string }[] }).messages[0].content);
+  assert(prompt.includes("Lead Kafka platform work") && prompt.includes("• 8+ years of backend engineering"), "the board's description reaches the AI as plain text");
+  assert(!prompt.includes("could not be read"), "no fallback note when the description was found");
+});
+
+Deno.test("job with no description anywhere: the AI still answers from the title and says so", async () => {
+  reset(); Deno.env.set("ANTHROPIC_API_KEY", "fixture-ai-key");
+  const noDesc = { title: "Data Engineer", company: "Dice Co", apply_url: "https://www.dice.com/job-detail/x" };
+  for (const task of ["tailor_resume", "interview_prep"] as const) assertEquals(readInput(task, { job: noDesc }).job?.title, "Data Engineer", task);
+  assertEquals((await post({ task: "fit_explain", job: noDesc })).status, 200);
+  const prompt = String((world.aiBodies[0] as { messages: { content: string }[] }).messages[0].content);
+  assert(prompt.includes("could not be read"), "the prompt tells the AI the description is missing");
 });

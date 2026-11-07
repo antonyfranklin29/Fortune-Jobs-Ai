@@ -29,7 +29,7 @@ describe('AI tools', () => {
     render(<AiJobTools job={job} call={call} />);
     fireEvent.click(screen.getByRole('button', { name: /Why this fits me/ }));
     expect(await screen.findByText('You match the core work.', { exact: false })).toBeTruthy();
-    expect(call.mock.calls[0][1].job).toEqual({ title: 'Power BI Developer', company: 'Fixture Co', location: '', description: 'Build dashboards' });
+    expect(call.mock.calls[0][1].job).toEqual({ title: 'Power BI Developer', company: 'Fixture Co', location: '', description: 'Build dashboards', apply_url: 'https://x.test/1' });
     fireEvent.click(screen.getByRole('button', { name: /Why this fits me/ }));
     expect(call).toHaveBeenCalledTimes(1);
   });
