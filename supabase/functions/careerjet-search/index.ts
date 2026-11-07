@@ -38,7 +38,10 @@ Deno.serve(async (req: Request) => {
 
     const q = new URLSearchParams({ locale_code: "en_US", keywords, page_size: String(size), sort: "date", user_ip: userIp, user_agent: userAgent, fragment_size: "300" });
     if (location) q.set("location", location);
-    const r = await fetch("https://search.api.careerjet.net/v4/query?" + q, { headers: { Authorization: "Basic " + btoa(apiKey + ":") }, signal: AbortSignal.timeout(15000) });
+    // Careerjet requires the page the search came from, on the registered site (www.fortunejobsai.com).
+    const from = req.headers.get("Referer") || "";
+    const referer = /^https:\/\/(www\.)?fortunejobsai\.com\//.test(from) ? from.replace("://fortunejobsai.com", "://www.fortunejobsai.com").slice(0, 300) : "https://www.fortunejobsai.com/results.html";
+    const r = await fetch("https://search.api.careerjet.net/v4/query?" + q, { headers: { Authorization: "Basic " + btoa(apiKey + ":"), Referer: referer }, signal: AbortSignal.timeout(15000) });
     const raw = await r.text();
     let data: Record<string, any> = {};
     try { data = JSON.parse(raw); } catch { /* not JSON */ }
