@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { cleanDescription, fitFor, jobAge, logoFor, safeApplyUrl } from './catalogue.js';
 import { AiJobTools } from './AiTools.jsx';
+import { BeforeYouApply, InterviewReady, JobFacts, ResumeKeywords } from './JobInsights.jsx';
 
 export function CompanyMark({ job }) {
   const url = logoFor(job);
@@ -43,6 +44,7 @@ export function JobDetail({ job, profile, compact = false, saved = false, onSave
     {job.search_reason && <section><h4>Why it’s in your results</h4><p>{job.search_reason}</p></section>}
     {!compact && <AiJobTools job={job} />}
     <JobDescription job={job} description={description} url={url} />
+    {dashboard && <><JobFacts job={job} /><ResumeKeywords job={job} profile={profile} /><InterviewReady job={job} /><BeforeYouApply job={job} /></>}
     <SourceCredit job={job} />
     <div className="react-detail-actions">{url && <a className="react-apply dashboard-gold" href={url} target="_blank" rel="noopener noreferrer">{dashboard ? 'Apply Now' : `Apply on ${job.source === 'adzuna' ? 'Adzuna' : 'the employer site'}`} ↗</a>}{onSave && <button type="button" className="react-save" aria-pressed={saved} onClick={() => onSave(job)}>{saved ? 'Saved' : 'Save job'}</button>}</div>
   </article>;

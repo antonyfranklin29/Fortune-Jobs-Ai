@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { cleanDescription, fitFor } from './catalogue.js';
 import { AiError, FIT_LABEL, rememberFit, useAiFit } from './AiTools.jsx';
 import { callAi, jobForAi } from '../shared/ai.js';
+import { NextSteps, ProfileSnapshot } from './JobInsights.jsx';
 
 // How much of the ring an AI fit level fills. A level, not a score: the AI answer has no number.
 const RING = { strong: 90, good: 70, partial: 45, weak: 20 };
@@ -65,6 +66,8 @@ export function MatchPanel({ job, profile, call = callAi }) {
         <ul className="match-preview"><li>Your fit level: strong, good, partial or weak</li><li>Strengths from your résumé that match</li><li>Gaps to address before applying</li></ul>
       </>}
     </>}
+    <ProfileSnapshot profile={profile} />
+    <NextSteps />
     <a className="dashboard-gold match-action" href="./resume-builder.html">✧ Improve Résumé</a>
   </aside>;
 }

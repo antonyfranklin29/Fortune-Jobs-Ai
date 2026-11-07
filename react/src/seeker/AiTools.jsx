@@ -1,6 +1,6 @@
 // AI features for job seekers: fit explanation, résumé tailoring, interview prep (per job),
 // smart plain-English search and the skill gap plan. All answers come from ai-assist.
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { callAi, jobForAi } from '../shared/ai.js';
 import { cleanDescription } from './catalogue.js';
 import '../styles/ai.css';
@@ -91,6 +91,14 @@ export function AiJobTools({ job, call = callAi }) {
       ? { ...s, active: task, busy: false, error: null, results: { ...s.results, [task]: res.result } }
       : { ...s, active: task, busy: false, error: res });
   }
+  // Buttons elsewhere on the page ("Tailor my résumé with these", "Practice interview questions")
+  // ask this panel to run a tool, so every answer appears in one place.
+  const runRef = useRef(run); runRef.current = run;
+  useEffect(() => {
+    const onRun = (e) => { if (JOB_TOOLS.some(([t]) => t === e.detail)) runRef.current(e.detail); };
+    window.addEventListener('fj-ai-run', onRun);
+    return () => window.removeEventListener('fj-ai-run', onRun);
+  }, []);
   const Active = JOB_TOOLS.find(([t]) => t === s.active)?.[2];
   return <section className="ai-tools" aria-label="AI tools for this job">
     <h4>AI assistant</h4>

@@ -195,3 +195,20 @@
 .match-preview li { background:#eef3fb; }.match-preview li::before { content:'• '; color:#54657a; }
 .match-advice { background:#fbf3e0; border-radius:9px; padding:9px 10px; }
 .dashboard-match p.match-note { font-size:11.5px; color:#54657a; }
+/* Job insights: at a glance, keywords, interview, checklist; profile and next steps in the side panel */
+.insight-facts dl { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; margin:6px 0 0; }
+.insight-facts dl div { background:#f4f7fc; border:1px solid #e1e8f4; border-radius:10px; padding:8px 10px; min-width:0; }
+.insight-facts dt { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#54657a; }
+.insight-facts dd { margin:2px 0 0; font-size:13.5px; font-weight:600; color:#10243b; overflow-wrap:anywhere; }
+.insight-keywords ul,.insight-chips { list-style:none; padding:0; margin:6px 0; display:flex; flex-wrap:wrap; gap:6px; }
+.insight-keywords li { padding:6px 10px; border-radius:20px; font-size:12.5px; background:#eef3fb; color:#10243b; }
+.insight-keywords li.have { background:#e0f2e8; }.insight-keywords li.add { background:#f9efd9; }
+.insight-state { font-size:11px; color:#54657a; }
+.insight-interview ol,.insight-checklist ul { margin:6px 0; padding-left:20px; display:grid; gap:5px; font-size:13.5px; color:#1c2a4b; }
+.insight-ai { align-self:flex-start; margin-top:4px; border:1px solid #d4a843; background:#fbf3e0; color:#10243b; border-radius:20px; padding:7px 12px; font-weight:700; font-size:13px; cursor:pointer; }
+.insight-profile p { margin:4px 0; }
+.insight-chips li { padding:5px 9px; border-radius:20px; font-size:12px; background:#eef3fb; }
+.insight-profile a { font-size:13px; color:#174c78; font-weight:700; }
+.insight-next { display:grid; gap:7px; }
+.insight-next button { text-align:left; border:1px solid #dfe6f2; background:#fff; border-radius:10px; padding:10px 12px; font-size:13.5px; font-weight:600; color:#10243b; cursor:pointer; }
+.insight-next button:hover,.insight-ai:hover { border-color:#d4a843; }
