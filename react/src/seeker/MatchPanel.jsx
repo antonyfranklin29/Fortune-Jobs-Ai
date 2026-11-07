@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { cleanDescription, fitFor } from './catalogue.js';
-import { AiError, FIT_LABEL, rememberFit, useAiFit } from './AiTools.jsx';
+import { AiError, FIT_LABEL, rememberFit, useAiFit, useJobProgress } from './AiTools.jsx';
 import { callAi, jobForAi } from '../shared/ai.js';
-import { NextSteps, ProfileSnapshot } from './JobInsights.jsx';
+import { ApplyReady, NextSteps, ProfileSnapshot } from './JobInsights.jsx';
 
 // How much of the ring an AI fit level fills. A level, not a score: the AI answer has no number.
 const RING = { strong: 90, good: 70, partial: 45, weak: 20 };
@@ -16,9 +16,10 @@ export function short(text) {
 
 /** Résumé match for the open job: the skill estimate when the listing names enough skills, otherwise
  *  the AI's reading of the person's own résumé against the job (asked for, never run automatically). */
-export function MatchPanel({ job, profile, call = callAi }) {
+export function MatchPanel({ job, profile, saved = false, call = callAi }) {
   const fit = job && fitFor(job, profile);
   const ai = useAiFit(job);
+  const progress = useJobProgress(job);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   async function askAi() {
@@ -66,6 +67,7 @@ export function MatchPanel({ job, profile, call = callAi }) {
         <ul className="match-preview"><li>Your fit level: strong, good, partial or weak</li><li>Strengths from your résumé that match</li><li>Gaps to address before applying</li></ul>
       </>}
     </>}
+    {job && <ApplyReady job={job} profile={profile} saved={saved} progress={progress} />}
     <ProfileSnapshot profile={profile} />
     <NextSteps />
     <a className="dashboard-gold match-action" href="./resume-builder.html">✧ Improve Résumé</a>

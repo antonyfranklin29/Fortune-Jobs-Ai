@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { cleanDescription, fitFor, jobAge, logoFor, safeApplyUrl } from './catalogue.js';
 import { AiJobTools } from './AiTools.jsx';
-import { BeforeYouApply, InterviewReady, JobFacts, ResumeKeywords } from './JobInsights.jsx';
+import { BeforeYouApply, InterviewReady, JobFacts, ResumeKeywords, WhyReal } from './JobInsights.jsx';
+import { markStep } from './AiTools.jsx';
 
 export function CompanyMark({ job }) {
   const url = logoFor(job);
@@ -27,8 +28,8 @@ export function JobDescription({ job, description, url }) {
   const site = job.source === 'usajobs' ? 'USAJOBS' : job.source === 'adzuna' ? 'the original listing' : `${job.company || 'the employer'}’s site`;
   return <section className="react-description"><h4>About this role</h4>
     {description ? <p>{long && !open ? `${description.slice(0, 900).replace(/\s\S*$/, '')}…` : description}</p> : <p>This listing’s full description is on the employer’s page.</p>}
-    {long && <button type="button" className="react-more" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Show less' : 'Show full description'}</button>}
-    {url && preview && <p className="react-full-link">{description ? 'This is a preview. ' : ''}<a href={url} target="_blank" rel="noopener noreferrer">Read the complete job description on {site} ↗</a></p>}
+    {long && <button type="button" className="react-more" aria-expanded={open} onClick={() => { setOpen(!open); markStep(job, 'read'); }}>{open ? 'Show less' : 'Show full description'}</button>}
+    {url && <p className="react-full-link">{preview && description ? 'This is a preview. ' : ''}<a href={url} target="_blank" rel="noopener noreferrer" onClick={() => markStep(job, 'read')}>Read the complete job description on {site} ↗</a></p>}
   </section>;
 }
 
@@ -42,6 +43,7 @@ export function JobDetail({ job, profile, compact = false, saved = false, onSave
     <div className="react-detail-head"><CompanyMark job={job} /><div><p className="react-company">{job.company}</p><h3>{job.job_title}</h3><p>{job.location || 'Location not specified'}</p></div></div>
     <div className="react-badges">{job.salary && <span>{job.salary}</span>}{job.employment_type && <span>{job.employment_type}</span>}{job.work_mode && <span>{job.work_mode}</span>}{jobAge(job) && <span>{jobAge(job)}</span>}</div>
     {dashboard && actions('top')}
+    {dashboard && <WhyReal job={job} />}
     {dashboard ? null : fit ? <section className="react-fit"><h4>Estimated job fit: {fit.score}/100</h4><p>Based on the skills named in this listing and details you confirmed. This is an estimate, not an ATS score or a hiring prediction.</p>{fit.matched?.length > 0 && <p><strong>Skills you have:</strong> {fit.matched.join(', ')}</p>}{fit.missing?.length > 0 && <p><strong>Skills to review:</strong> {fit.missing.join(', ')}</p>}</section> : profile?.skills?.length ? <section className="react-fit"><h4>Fit estimate unavailable</h4><p>This listing does not name enough specific skills to make a useful comparison with your confirmed details. Read the full job description before applying.</p></section> : <section className="react-fit"><h4>See how well it fits you</h4><p>Add a résumé or your experience to see an estimate with reasons.</p><a href="./resume-search.html?manual=1">Add experience and skills →</a></section>}
     {job.search_reason && <section><h4>Why it’s in your results</h4><p>{job.search_reason}</p></section>}
     {!compact && <AiJobTools job={job} />}

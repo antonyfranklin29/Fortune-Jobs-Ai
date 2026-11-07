@@ -30,3 +30,22 @@ describe('job insights', () => {
     expect(seen.mock.calls.map((c) => c[0])).toEqual(['tailor_resume', 'interview_prep']);
   });
 });
+
+import { ApplyReady, WhyReal, applySteps } from './JobInsights.jsx';
+describe('Apply-ready and Where Apply goes', () => {
+  it('counts the steps the person has done', () => {
+    const steps = applySteps({ profile: { skills: ['SQL'] }, progress: { fit_explain: {}, read: true }, saved: true });
+    expect(steps.filter((s) => s[2]).length).toBe(4);
+    render(<ApplyReady job={job} profile={{ skills: ['SQL'] }} saved progress={{ fit_explain: {}, read: true }} />);
+    expect(screen.getByText('4/6')).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: 'Do it' }).length).toBe(2);
+  });
+  it('says plainly where Apply goes, by source', () => {
+    const { rerender } = render(<WhyReal job={{ source: 'greenhouse', company: 'Okta' }} />);
+    expect(screen.getByText('Direct from the employer.')).toBeTruthy();
+    rerender(<WhyReal job={{ source: 'usajobs' }} />);
+    expect(screen.getByText('Official federal job.')).toBeTruthy();
+    rerender(<WhyReal job={{ source: 'adzuna' }} />);
+    expect(screen.getByText('Listed via Adzuna.')).toBeTruthy();
+  });
+});

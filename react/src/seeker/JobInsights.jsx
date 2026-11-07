@@ -51,7 +51,7 @@ export function keywordsFor(job, profile) {
     .map(({ k, inListing }) => ({ keyword: k, inListing, have: !!mine && contains(mine, k) }));
 }
 
-const runAi = (task) => {
+export const runAi = (task) => {
   window.dispatchEvent(new CustomEvent('fj-ai-run', { detail: task }));
   document.querySelector('.ai-tools')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
@@ -112,5 +112,43 @@ export function NextSteps() {
     <button type="button" onClick={() => runAi('tailor_resume')}>✨ Tailor my résumé to this job</button>
     <button type="button" onClick={() => runAi('interview_prep')}>✨ Practice interview questions</button>
     <button type="button" onClick={() => runAi('fit_explain')}>✨ Explain my fit in detail</button>
+  </section>;
+}
+
+/** "Where Apply goes": tells people plainly whether the button opens the employer or another site. */
+export function WhyReal({ job }) {
+  const ats = ['greenhouse', 'lever', 'ashby', 'smartrecruiters'].includes(job.source);
+  const [icon, head, text, ok] =
+    ats ? ['✓', 'Direct from the employer', `Apply opens ${job.company || 'the company'}’s own careers page. No sign-up on another job site.`, true]
+    : job.source === 'usajobs' ? ['✓', 'Official federal job', 'Apply opens the posting on USAJOBS.gov, the U.S. government’s job site.', true]
+    : job.source === 'employer_direct' || job.source === 'employer_feed' ? ['✓', 'Posted by a verified employer', 'This employer posted the job on Fortune Jobs AI.', true]
+    : job.source === 'adzuna' ? ['i', 'Listed via Adzuna', 'Apply opens the job on Adzuna, which links to the employer.', false]
+    : ['i', 'From a job listing', 'Apply opens the original listing.', false];
+  return <p className={`why-real ${ok ? 'why-real-ok' : ''}`}><span aria-hidden="true">{icon}</span> <strong>{head}.</strong> {text}</p>;
+}
+
+/** Apply-ready: steps that make an application stronger, ticked off as the person does them. */
+export function applySteps({ profile, progress, saved }) {
+  return [
+    ['resume', 'Résumé on your profile', !!profile?.skills?.length, null],
+    ['fit_explain', 'Checked how you fit', !!progress.fit_explain, 'fit_explain'],
+    ['tailor_resume', 'Tailored your résumé to this job', !!progress.tailor_resume, 'tailor_resume'],
+    ['interview_prep', 'Practiced the interview questions', !!progress.interview_prep, 'interview_prep'],
+    ['read', 'Read the complete listing', !!progress.read, null],
+    ['saved', 'Saved the job to track it', !!saved, null],
+  ];
+}
+export function ApplyReady({ job, profile, saved, progress }) {
+  const steps = applySteps({ profile, progress, saved });
+  const n = steps.filter((s) => s[2]).length, all = n === steps.length;
+  return <section className={`apply-ready ${all ? 'apply-ready-done' : ''}`} aria-label="Apply-ready checklist">
+    <div className="apply-ready-head"><h3>Apply-ready</h3><span>{n}/{steps.length}</span></div>
+    <div className="apply-ready-bar" aria-hidden="true"><i style={{ width: `${Math.round(100 * n / steps.length)}%` }} /></div>
+    <p>{all ? 'You’re ready. Go apply!' : 'Tick these off to send a stronger application.'}</p>
+    <ul>{steps.map(([id, label, ok, task]) => <li key={id} className={ok ? 'ok' : ''}>
+      <span aria-hidden="true">{ok ? '✓' : '○'}</span> {label}
+      {!ok && task && <button type="button" onClick={() => runAi(task)}>Do it</button>}
+      {!ok && id === 'resume' && <a href="./profile.html#resume">Add</a>}
+    </li>)}</ul>
   </section>;
 }

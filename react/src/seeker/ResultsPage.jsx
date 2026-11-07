@@ -146,7 +146,7 @@ export function ResultsPage({ afterDashboard }) {
           </section>
           <button type="button" className="dashboard-back" id="jobDetailTop" onClick={backToList}>← Back to results</button>
           <JobDetail job={job} profile={profile} saved={savedKeys.has(jobKey(job))} onSave={toggleSave} dashboard />
-          <MatchPanel job={job} profile={profile} />
+          <MatchPanel job={job} profile={profile} saved={savedKeys.has(jobKey(job))} />
         </div>}
       </div>
       {afterDashboard}

@@ -215,3 +215,21 @@
 /* Apply and Save sit right under the job title, where people look first; a second pair waits at the end. */
 .dashboard .react-actions-top { margin-top:2px; padding-top:4px; }
 .dashboard .react-actions-top .react-apply { padding:12px; font-size:15px; }
+/* Where Apply goes */
+.why-real { margin:0; padding:9px 12px; border-radius:10px; font-size:13px; line-height:1.45; background:#eef3fb; color:#1c2a4b; border:1px solid #dfe6f2; }
+.why-real-ok { background:#e6f4ec; border-color:#bfe1cc; }
+.why-real > span { font-weight:800; color:#137849; }
+/* Apply-ready checklist */
+.apply-ready { border:1px solid #e6d3a6; background:#fffaf0; border-radius:14px; padding:12px; display:grid; gap:6px; }
+.apply-ready-done { border-color:#9fd3b4; background:#eef8f2; }
+.apply-ready-head { display:flex; justify-content:space-between; align-items:center; }
+.apply-ready-head span { font-weight:800; color:#10243b; }
+.apply-ready-bar { height:7px; border-radius:6px; background:#ece3cf; overflow:hidden; }
+.apply-ready-bar i { display:block; height:100%; background:linear-gradient(90deg,#d4a843,#1f9d61); transition:width .3s; }
+.dashboard-match .apply-ready p { margin:2px 0; }
+.dashboard-match .apply-ready ul { gap:4px; }
+.dashboard-match .apply-ready li { display:flex; align-items:center; gap:6px; padding:5px 6px; background:none; }
+.apply-ready li > span { width:16px; color:#865c16; font-weight:800; }
+.apply-ready li.ok > span { color:#137849; }
+.apply-ready li.ok { color:#54657a; }
+.apply-ready li button,.apply-ready li a { margin-left:auto; border:1px solid #d4a843; background:#fff; border-radius:14px; padding:2px 9px; font-size:11.5px; font-weight:700; color:#10243b; cursor:pointer; text-decoration:none; }

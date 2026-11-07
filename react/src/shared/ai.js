@@ -23,11 +23,11 @@ export async function callAi(task, payload, { fetchImpl = (...a) => window.fetch
       signal: AbortSignal.timeout(70000),
     });
   } catch {
-    return { ok: false, status: 0, error: 'Could not reach the AI assistant. Check your connection and try again.' };
+    return { ok: false, status: 0, error: 'Could not reach Fortune AI Coach. Check your connection and try again.' };
   }
   let data = {};
   try { data = await response.json(); } catch { /* keep the generic message */ }
-  if (!response.ok) return { ok: false, status: response.status, error: data.error || 'The AI assistant is unavailable right now.', need: data.need };
+  if (!response.ok) return { ok: false, status: response.status, error: data.error || 'Fortune AI Coach is unavailable right now.', need: data.need };
   return { ok: true, result: data.result, remaining: data.remaining };
 }
 

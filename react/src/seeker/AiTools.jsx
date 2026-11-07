@@ -8,15 +8,24 @@ import '../styles/ai.css';
 const List = ({ items, className }) => (Array.isArray(items) && items.length ? <ul className={className}>{items.map((x, i) => <li key={i}>{x}</li>)}</ul> : null);
 export const FIT_LABEL = { strong: 'Strong fit', good: 'Good fit', partial: 'Partial fit', weak: 'Weak fit' };
 
-// One "Why this fits me" answer per job, shared by the AI buttons and the Résumé Match panel,
-// so the person pays for (and waits for) the answer once, wherever they ask for it.
-const fits = new Map(), listeners = new Set();
+// Per job, for this visit: each AI answer (shared by the Coach buttons and the Résumé Match panel,
+// so the person waits and pays once) and the Apply-ready steps the person has done.
+const done = new Map(), listeners = new Set();
 export const aiJobKey = (job) => `${job?.job_title}|${job?.company}|${job?.apply_url}`;
-export function rememberFit(job, result) { fits.set(aiJobKey(job), result); listeners.forEach((f) => f()); }
-export function useAiFit(job) {
+export function markStep(job, step, value = true) {
+  const k = aiJobKey(job);
+  done.set(k, { ...(done.get(k) || {}), [step]: value });
+  listeners.forEach((f) => f());
+}
+export const rememberFit = (job, result) => markStep(job, 'fit_explain', result);
+export function useJobProgress(job) {
   const [, tick] = useState(0);
   useEffect(() => { const f = () => tick((n) => n + 1); listeners.add(f); return () => { listeners.delete(f); }; }, []);
-  return job ? fits.get(aiJobKey(job)) || null : null;
+  return job ? done.get(aiJobKey(job)) || {} : {};
+}
+export function useAiFit(job) {
+  const p = useJobProgress(job);
+  return p.fit_explain && typeof p.fit_explain === 'object' ? p.fit_explain : null;
 }
 
 export function AiError({ error }) {
@@ -78,14 +87,15 @@ const JOB_TOOLS = [
 export function AiJobTools({ job, call = callAi }) {
   const [state, setState] = useState({ key: null, active: null, busy: false, error: null, results: {} });
   const key = aiJobKey(job);
-  const shared = useAiFit(job);
+  const progress = useJobProgress(job);
   const base = state.key === key ? state : { key, active: null, busy: false, error: null, results: {} };
-  const s = shared && !base.results.fit_explain ? { ...base, results: { ...base.results, fit_explain: shared } } : base;
+  const shared = Object.fromEntries(JOB_TOOLS.map(([t]) => [t, progress[t]]).filter(([, v]) => v && typeof v === 'object'));
+  const s = { ...base, results: { ...shared, ...base.results } };
   async function run(task) {
     if (s.results[task]) { setState({ ...s, active: task, error: null }); return; }
     setState({ ...s, active: task, busy: true, error: null });
     const res = await call(task, { job: jobForAi(job, cleanDescription) });
-    if (res.ok && task === 'fit_explain') rememberFit(job, res.result);
+    if (res.ok) markStep(job, task, res.result);
     // Stored under this job's key: if another job is open by now, it is simply not shown.
     setState(res.ok
       ? { ...s, active: task, busy: false, error: null, results: { ...s.results, [task]: res.result } }
@@ -100,8 +110,8 @@ export function AiJobTools({ job, call = callAi }) {
     return () => window.removeEventListener('fj-ai-run', onRun);
   }, []);
   const Active = JOB_TOOLS.find(([t]) => t === s.active)?.[2];
-  return <section className="ai-tools" aria-label="AI tools for this job">
-    <h4>AI assistant</h4>
+  return <section className="ai-tools" aria-label="Fortune AI Coach for this job">
+    <h4>Fortune AI Coach</h4>
     <div className="ai-buttons" role="group">{JOB_TOOLS.map(([task, label]) => <button key={task} type="button" aria-pressed={s.active === task} disabled={s.busy} onClick={() => run(task)}>{label}</button>)}</div>
     <div aria-live="polite">
       {s.busy && <p className="ai-busy">Thinking… this takes about 10 seconds.</p>}
