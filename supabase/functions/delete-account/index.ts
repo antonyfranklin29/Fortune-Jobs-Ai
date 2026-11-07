@@ -254,7 +254,11 @@ async function cancelSubscription(uid: string): Promise<StepResult> {
       body: JSON.stringify({ user_id: uid, kind: "pro_cancelled", key: `cancel:${row.stripe_subscription_id}` }) }).catch(() => {});
     const r = await fetch(`https://api.stripe.com/v1/subscriptions/${encodeURIComponent(row.stripe_subscription_id)}`, {
       method: "DELETE", headers: { Authorization: `Bearer ${secret}` }, signal: AbortSignal.timeout(15000) });
-    if (!r.ok && r.status !== 404) return { step, ok: false, error: `stripe_${r.status}` };
+    if (!r.ok && r.status !== 404) {
+      // Not cancelled: a later cancellation should still get its own email.
+      await admin(`/rest/v1/account_emails?user_id=eq.${uid}&kind=eq.pro_cancelled&key=eq.${encodeURIComponent(`cancel:${row.stripe_subscription_id}`)}&provider_id=is.null`, { method: "DELETE" }).catch(() => {});
+      return { step, ok: false, error: `stripe_${r.status}` };
+    }
     return { step, ok: true, removed: 1 };
   } catch (e) {
     return { step, ok: false, error: String(e).slice(0, 120) };
