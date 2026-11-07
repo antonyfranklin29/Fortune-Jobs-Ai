@@ -3,6 +3,8 @@
 // data export and self-service account deletion. Row-level security limits
 // every query to the signed-in person; the page never passes another user's id.
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { SuggestInput } from '../seeker/SuggestInput.jsx';
+import { MIN_CHARS, fetchCities, localPlaces, mergePlaces, placeLabel } from '../seeker/suggest.js';
 import { useAccountServices } from './services.jsx';
 import { AccountNav, AdzunaCredit, Avatar, StatusMessage, Spinner, useDocumentTitle, useToast } from './components.jsx';
 import { avatarPath, exportAccount, httpUrl, isAdzunaJob, removeResume } from './lib/dataSafety.js';
@@ -51,8 +53,9 @@ export function completeness(profile) {
   return { pct: Math.round((done / checks.length) * 100), hint: next ? `Next: ${next[1]}` : '🎉 All set' };
 }
 
-/** Chip list editor (skills, locations). Adds on Enter, comma or blur. */
-export function ChipInput({ id, values, onChange, max, placeholder, maxLength, listId, toast, inputRef }) {
+/** Chip list editor (skills, locations). Adds on Enter, comma or blur.
+ *  With `places`, it suggests cities, states and countries as you type (like the search box). */
+export function ChipInput({ id, values, onChange, max, placeholder, maxLength, listId, toast, inputRef, places = false }) {
   const [draft, setDraft] = useState('');
   const local = useRef(null);
   const ref = inputRef || local;
@@ -68,13 +71,23 @@ export function ChipInput({ id, values, onChange, max, placeholder, maxLength, l
       {values.map((v, i) => (
         <span className="chip" key={v + i}>{v}<button type="button" aria-label={`Remove ${v}`} onClick={(e) => { e.stopPropagation(); const l = values.slice(); l.splice(i, 1); onChange(l); }}>×</button></span>
       ))}
-      <input ref={ref} id={id} list={listId} placeholder={placeholder} maxLength={maxLength} value={draft}
-        onChange={(e) => { const val = e.target.value; if (val.includes(',')) add(val); else setDraft(val); }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add(draft); }
-          else if (e.key === 'Backspace' && !draft && values.length) onChange(values.slice(0, -1));
-        }}
-        onBlur={() => add(draft)} />
+      {places
+        ? <SuggestInput inputRef={ref} id={id} placeholder={placeholder} maxLength={maxLength} value={draft} listLabel="Location suggestions" minChars={MIN_CHARS}
+            onChange={setDraft} getItems={(q) => localPlaces(q)} fetchMore={(q, signal) => fetchCities(q, '', { signal })} merge={mergePlaces}
+            describe={(p) => ({ label: p.name, at: 0, len: Math.min(draft.trim().length, p.name.length), detail: [p.admin1 !== p.name ? p.admin1 : '', p.country, p.kind].filter(Boolean).join(' · ') })}
+            onPick={(p) => add(placeLabel(p))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add(draft); }
+              else if (e.key === 'Backspace' && !draft && values.length) onChange(values.slice(0, -1));
+            }}
+            onBlur={() => add(draft)} />
+        : <input ref={ref} id={id} list={listId} placeholder={placeholder} maxLength={maxLength} value={draft}
+            onChange={(e) => { const val = e.target.value; if (val.includes(',')) add(val); else setDraft(val); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add(draft); }
+              else if (e.key === 'Backspace' && !draft && values.length) onChange(values.slice(0, -1));
+            }}
+            onBlur={() => add(draft)} />}
     </div>
   );
 }
@@ -308,7 +321,7 @@ function ProfileDetails({ user, profile, setProfile, toast, catalog }) {
         </div>
         <div className="field">
           <label htmlFor="locInput">Preferred locations</label>
-          <ChipInput id="locInput" inputRef={locRef} values={locations} onChange={setLocations} max={10} placeholder="e.g. Chicago, Remote, Toronto" maxLength={80} toast={toast} />
+          <ChipInput id="locInput" inputRef={locRef} values={locations} onChange={setLocations} max={10} placeholder="e.g. Chicago, Remote, Toronto" maxLength={80} toast={toast} places />
           <div className="hint">Add up to 10. Press Enter or comma after each one.</div>
         </div>
         <div className="form-foot">

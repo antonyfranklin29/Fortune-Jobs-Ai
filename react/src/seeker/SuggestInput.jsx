@@ -1,6 +1,7 @@
 // An input with a suggestion dropdown (ARIA combobox). Typing still works as
 // free text: a suggestion is only used when the person picks it.
 import React, { useEffect, useId, useRef, useState } from 'react';
+import '../styles/suggest.css';
 
 function Highlight({ text, at = 0, len = 0 }) {
   if (!len || at < 0) return text;
@@ -15,7 +16,7 @@ function Highlight({ text, at = 0, len = 0 }) {
  * @param {(item)=>{ label:string, detail?:string, at?:number, len?:number, aside?:string }} p.describe
  * @param {(item)=>void} p.onPick
  */
-export function SuggestInput({ value, onChange, getItems, fetchMore, merge = (a, b) => [...a, ...b], describe, onPick, minChars = 3, listLabel, className = '', ...inputProps }) {
+export function SuggestInput({ value, onChange, getItems, fetchMore, merge = (a, b) => [...a, ...b], describe, onPick, minChars = 3, listLabel, className = '', onKeyDown: userKeyDown, onBlur: userBlur, inputRef, ...inputProps }) {
   const uid = useId().replace(/:/g, '');
   const listId = `${inputProps.id || 'suggest'}-${uid}-list`;
   const [items, setItems] = useState([]);
@@ -61,18 +62,19 @@ export function SuggestInput({ value, onChange, getItems, fetchMore, merge = (a,
   }
 
   function onKeyDown(event) {
-    if (!open || !items.length) return;
+    if (!open || !items.length) { userKeyDown?.(event); return; }
     if (event.key === 'ArrowDown') { event.preventDefault(); setActive((a) => (a + 1) % items.length); }
     else if (event.key === 'ArrowUp') { event.preventDefault(); setActive((a) => (a <= 0 ? items.length - 1 : a - 1)); }
     else if (event.key === 'Enter' && active >= 0) { event.preventDefault(); pick(active); }
     else if (event.key === 'Escape') { event.preventDefault(); close(); }
     else if (event.key === 'Tab') close();
+    if (!event.defaultPrevented) userKeyDown?.(event); // e.g. chip inputs add on Enter or comma
   }
 
   return <span className={`suggest ${className}`}>
-    <input {...inputProps} value={value} autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={open} aria-controls={listId}
+    <input {...inputProps} ref={inputRef} value={value} autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={open} aria-controls={listId}
       aria-activedescendant={open && active >= 0 ? `${listId}-${active}` : undefined}
-      onChange={(e) => update(e.target.value)} onKeyDown={onKeyDown} onBlur={() => setTimeout(close, 120)}
+      onChange={(e) => update(e.target.value)} onKeyDown={onKeyDown} onBlur={(e) => { setTimeout(close, 120); userBlur?.(e); }}
       onFocus={() => { if (items.length && value.trim().length >= minChars) setOpen(true); }} />
     <ul className={`suggest-list${open ? ' open' : ''}`} id={listId} role="listbox" aria-label={listLabel} ref={listRef} hidden={!open}
       onMouseDown={(e) => e.preventDefault()}>
