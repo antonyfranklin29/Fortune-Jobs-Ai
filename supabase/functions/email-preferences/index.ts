@@ -28,9 +28,9 @@ Deno.serve(async(req:Request)=>{
   const token=url.searchParams.get('token');
   if(token){
    const id=await tokenUser(token);if(!id)return html('<h1>Link unavailable</h1><p>Use email preferences in your profile, or contact info@fortunejobsai.com.</p>',400);
-   if(req.method==='GET')return html('<h1>Stop weekly emails?</h1><p>No sign-in required. This does not delete your account.</p><form method="post"><button style="background:#D4A843;color:#10243B;padding:14px;border:0;border-radius:6px;font-size:16px">Unsubscribe</button></form>');
+   if(req.method==='GET')return html('<h1>Stop job alert emails?</h1><p>No sign-in required. This does not delete your account.</p><form method="post"><button style="background:#D4A843;color:#10243B;padding:14px;border:0;border-radius:6px;font-size:16px">Unsubscribe</button></form>');
    await db('newsletter_preferences?user_id=eq.'+id,'PATCH',{subscribed:false,unsubscribed_at:new Date().toISOString(),updated_at:new Date().toISOString()});
-   return html('<h1>You’re unsubscribed.</h1><p>Weekly newsletters are now off. You can still use Fortune Jobs AI.</p>');
+   return html('<h1>You’re unsubscribed.</h1><p>Job alert emails are now off. You can still use Fortune Jobs AI, and turn alerts back on from your profile.</p>');
   }
   if(origin&&!ORIGINS.includes(origin))return json({error:'Origin not allowed'},403);
   const bearer=req.headers.get('Authorization');if(!bearer?.startsWith('Bearer '))return json({error:'Sign in required'},401);
@@ -38,18 +38,23 @@ Deno.serve(async(req:Request)=>{
   if(!check.ok)return json({error:'Sign in required'},401);const user=await check.json();
   if(!user.id||!user.email_confirmed_at)return json({error:'Confirm your email first'},403);
   if(req.method==='GET'){
-   const rows=await db('newsletter_preferences?user_id=eq.'+user.id+'&select=subscribed,consent_at');
-   return json({subscribed:rows[0]?.subscribed||false,delivery_active:Deno.env.get('NEWSLETTER_ENABLED')==='true'});
+   const rows=await db('newsletter_preferences?user_id=eq.'+user.id+'&select=subscribed,consent_at,frequency');
+   return json({subscribed:rows[0]?.subscribed||false,frequency:rows[0]?.frequency||'weekly',delivery_active:Deno.env.get('NEWSLETTER_ENABLED')==='true'});
   }
   const raw=await req.text();if(raw.length>2000)return json({error:'Request too large'},413);
   let body;try{body=JSON.parse(raw);}catch{return json({error:'Invalid request'},400);}
-  if(typeof body.subscribed!=='boolean'||body.consent_version!=='weekly-v1')return json({error:'Invalid preference'},400);
+  // alerts-v2: opt-in job alerts, daily or weekly. weekly-v1 (older pages) means weekly.
+  const version=body.consent_version, frequency=version==='weekly-v1'?'weekly':body.frequency;
+  if(typeof body.subscribed!=='boolean'||!['weekly-v1','alerts-v2'].includes(version)||!['daily','weekly'].includes(frequency))return json({error:'Invalid preference'},400);
   const now=new Date().toISOString();
-  // Keep repeated opt-in saves from resetting the weekly schedule.
-  const existing=(await db('newsletter_preferences?user_id=eq.'+user.id+'&select=subscribed'))[0];
-  if(!existing||existing.subscribed!==body.subscribed){
-   await db('newsletter_preferences?on_conflict=user_id','POST',{user_id:user.id,subscribed:body.subscribed,consent_version:'weekly-v1',consent_at:body.subscribed?now:null,unsubscribed_at:body.subscribed?null:now,updated_at:now,next_send_at:new Date(Date.now()+7*86400000).toISOString()});
+  // Repeated saves with the same choice change nothing (no schedule reset). Opting in, or
+  // switching frequency, makes the person due at the next daily run.
+  const existing=(await db('newsletter_preferences?user_id=eq.'+user.id+'&select=subscribed,frequency'))[0];
+  if(!existing||existing.subscribed!==body.subscribed||existing.frequency!==frequency){
+   const optingIn=body.subscribed&&!existing?.subscribed;
+   await db('newsletter_preferences?on_conflict=user_id','POST',{user_id:user.id,subscribed:body.subscribed,frequency,consent_version:version,
+    ...(optingIn?{consent_at:now,unsubscribed_at:null}:body.subscribed?{}:{unsubscribed_at:now}),updated_at:now,next_send_at:now});
   }
-  return json({subscribed:body.subscribed,delivery_active:Deno.env.get('NEWSLETTER_ENABLED')==='true'});
+  return json({subscribed:body.subscribed,frequency,delivery_active:Deno.env.get('NEWSLETTER_ENABLED')==='true'});
  }catch{return json({error:'Email preferences are temporarily unavailable'},503);}
 });

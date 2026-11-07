@@ -1,3 +1,4 @@
+import { FJAccuracy, FJCompanyLogos, FJDataSafety } from '../lib/sharedLibs.js';
 import { fixApplyUrl } from '../shared/applyUrl.js';
 import * as Guest from '../resume/lib/guestResume.js';
 import * as Matching from '../resume/lib/resumeMatching.js';
@@ -13,9 +14,9 @@ async function read(params, signal) {
   return response.json();
 }
 
-export function safeApplyUrl(value) { return window.FJDataSafety.httpUrl(fixApplyUrl(value)); }
+export function safeApplyUrl(value) { return FJDataSafety.httpUrl(fixApplyUrl(value)); }
 export function logoFor(job) {
-  const value = window.FJCompanyLogos.urlFor(job);
+  const value = FJCompanyLogos.urlFor(job);
   return value?.startsWith('assets/') ? `./${value}` : value;
 }
 export function jobAge(job) {
@@ -106,7 +107,7 @@ export async function quickMatches(query, filters = {}, signal) {
     catch (error) { if (signal?.aborted) throw error; }
   }
   const recent = rows.filter(job => ['employer_direct','employer_feed'].includes(job.source) || Date.parse(job.posted_at) >= Date.now() - 30 * DAY);
-  const accuracy = window.FJAccuracy;
+  const accuracy = FJAccuracy;
   const filtered = accuracy.filterJobs(recent, query, filters).filter((job) => meetsSalary(job, filters.salary_min));
   const ranked = filtered.map(job => ({ ...job, search_reason: accuracy.matchReason(job, query, filters), search_score: score(job, tokens, query.toLowerCase().trim(), filters) }));
   ranked.sort((a, b) => b.search_score - a.search_score);
@@ -133,5 +134,5 @@ export function guestMatchProfile() {
   try { return Guest.load(sessionStorage, Date.now(), params.get('resume') === '1' ? params.get('resume_id') || '' : null); } catch { return null; }
 }
 export function fitFor(job, profile) {
-  return profile ? Matching.assess(job, profile, window.FJAccuracy?.metadata) : null;
+  return profile ? Matching.assess(job, profile, FJAccuracy.metadata) : null;
 }

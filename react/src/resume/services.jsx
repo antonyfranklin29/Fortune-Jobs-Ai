@@ -2,6 +2,7 @@
 // imports from other feature folders. Pass the app's account services in as
 // `account` (any object with sb, user()), or nothing for signed-out use.
 import { createContext, useContext } from 'react';
+import { JOB_SUGGESTIONS, loadMammoth } from '../lib/sharedLibs.js';
 
 const ResumeServicesContext = createContext(null);
 
@@ -23,7 +24,7 @@ export function createResumeServices(opts = {}) {
     account: opts.account || null,
     pdfToText: opts.pdfToText || null,
     docxToText: opts.docxToText || null,
-    catalog: opts.catalog || (() => (win && win.JOB_SUGGESTIONS) || null),
+    catalog: opts.catalog || (() => (win && win.JOB_SUGGESTIONS) || JOB_SUGGESTIONS || null),
     storage: opts.storage || (win ? win.sessionStorage : null),
     navigate: opts.navigate || ((url) => { win.location.href = url; }),
     search: opts.search || (() => (win ? win.location.search : '')),
@@ -32,13 +33,14 @@ export function createResumeServices(opts = {}) {
   };
 }
 
-/** Readers the legacy site already ships: /resume-extraction.mjs (pdf.js) and /vendor/mammoth.browser.js. */
+/** Résumé readers: /resume-extraction.mjs (pdf.js) and mammoth, each loaded only when used. */
 export function createBrowserResumeReaders({ extractionUrl = '/resume-extraction.mjs', win = typeof window === 'object' ? window : globalThis } = {}) {
   return {
     async pdfToText(file) { return (await import(/* @vite-ignore */ extractionUrl)).pdfToText(file); },
     async docxToText(file) {
-      if (!win.mammoth) throw new Error('The document reader is still loading. Try again in a moment.');
-      return (await win.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() })).value.trim();
+      let reader = win.mammoth;
+      if (!reader) { try { reader = await loadMammoth(); } catch { throw new Error('The document reader is still loading. Try again in a moment.'); } }
+      return (await reader.extractRawText({ arrayBuffer: await file.arrayBuffer() })).value.trim();
     },
   };
 }

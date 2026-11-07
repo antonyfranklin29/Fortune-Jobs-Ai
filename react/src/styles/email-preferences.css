@@ -7,3 +7,7 @@ label{display:flex;align-items:flex-start;gap:12px;line-height:1.6;padding:18px 
 input{margin-top:6px;width:20px;height:20px;flex-shrink:0}
 #status{min-height:55px;padding:12px 0}
 button{margin-top:16px}
+.alert-frequency{border:0;margin:14px 0 6px;padding:0 0 0 30px;display:flex;gap:22px;flex-wrap:wrap}
+.alert-frequency legend{font-weight:600;margin-bottom:6px;padding:0}
+.alert-frequency label{display:flex;gap:8px;align-items:center}
+.alert-frequency:disabled{opacity:.5}

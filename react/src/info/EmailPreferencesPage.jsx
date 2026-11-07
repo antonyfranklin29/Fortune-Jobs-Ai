@@ -1,4 +1,4 @@
-// email-preferences.html: the signed-in person's weekly newsletter choice.
+// email-preferences.html: the signed-in person's job alert emails (opt-in, daily or weekly).
 // Port of newsletter-preferences.js. The choice is read and saved only through
 // the email-preferences Edge Function with the person's own session token.
 import React, { useEffect, useRef, useState } from 'react';
@@ -34,6 +34,7 @@ export function createPreferenceClient({ sb, config, fetch: fetchImpl = (...a) =
 
 export function EmailPreferencesPage({ client }) {
   const [subscribed, setSubscribed] = useState(false);
+  const [frequency, setFrequency] = useState('daily');
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('Checking your preferences…');
@@ -49,7 +50,8 @@ export function EmailPreferencesPage({ client }) {
         const current = await client.request();
         if (!mounted.current) return;
         setSubscribed(!!current.subscribed);
-        setStatus(current.delivery_active ? 'Your current email preference is shown above.' : 'Newsletter delivery is not active yet. You can choose whether to receive it when it launches.');
+        if (current.subscribed && (current.frequency === 'daily' || current.frequency === 'weekly')) setFrequency(current.frequency);
+        setStatus(current.delivery_active ? 'Your current email preference is shown above.' : 'Job alert emails are starting soon. Choose now and we’ll use it when they launch.');
         setReady(true);
       } catch (error) {
         if (mounted.current) setStatus(error.message);
@@ -63,9 +65,10 @@ export function EmailPreferencesPage({ client }) {
     if (!ready || busy) return;
     setBusy(true);
     try {
-      const data = await client.request({ subscribed, consent_version: 'weekly-v1' });
+      const data = await client.request({ subscribed, frequency, consent_version: 'alerts-v2' });
       setSubscribed(!!data.subscribed);
-      setStatus(data.delivery_active ? 'Preference saved. Weekly emails follow your choice.' : 'Preference saved. Newsletter delivery is not active yet; we’ll use this choice when it launches.');
+      const how = data.frequency === 'daily' ? 'every morning' : 'once a week';
+      setStatus(!data.subscribed ? 'Saved. You won’t get job alert emails.' : data.delivery_active ? `Saved. We’ll email new matching jobs ${how}.` : `Saved. Job alerts start soon; we’ll email you ${how}.`);
     } catch (error) {
       setStatus(error.message);
     } finally {
@@ -77,11 +80,15 @@ export function EmailPreferencesPage({ client }) {
   return <>
     <nav className="top-nav"><a className="logo-text" href="index.html">Fortune Jobs AI</a><a className="nav-link" href="profile.html">Back to profile</a></nav>
     <main>
-      <h1>Your weekly job digest</h1>
-      <p>A short email every seven days with relevant recent jobs, one career tip, and occasional product updates. If we have no suitable fresh listings, we skip that issue.</p>
+      <h1>Job alert emails</h1>
+      <p>New jobs matching your role and area, up to five per email. If there are no new matches, we don't send anything.</p>
       <form id="preferences" onSubmit={onSubmit}>
-        <label><input type="checkbox" id="weekly" disabled={disabled} checked={subscribed} onChange={(e) => setSubscribed(e.target.checked)} /><span>Yes, email me the Fortune Jobs AI weekly newsletter. I can unsubscribe at any time.</span></label>
-        <p style={{ fontSize: '14px' }}>Optional. Creating an account or signing in with Google does not subscribe you. These promotional emails use your saved role and search filters; résumé documents are not sent to the email provider.</p>
+        <label><input type="checkbox" id="weekly" disabled={disabled} checked={subscribed} onChange={(e) => setSubscribed(e.target.checked)} /><span>Yes, email me job alerts from Fortune Jobs AI. I can unsubscribe at any time.</span></label>
+        <fieldset className="alert-frequency" disabled={disabled || !subscribed}><legend>How often?</legend>
+          <label><input type="radio" name="frequency" value="daily" checked={frequency === 'daily'} onChange={() => setFrequency('daily')} /><span>Daily, each morning</span></label>
+          <label><input type="radio" name="frequency" value="weekly" checked={frequency === 'weekly'} onChange={() => setFrequency('weekly')} /><span>Weekly</span></label>
+        </fieldset>
+        <p style={{ fontSize: '14px' }}>Optional. Creating an account or signing in with Google does not subscribe you. Matches use the job title on your profile and the location from your last search or profile. Résumé documents are not sent to the email provider.</p>
         <button className="btn btn-primary" type="submit" id="save" disabled={disabled}>Save email preference</button>
       </form>
       <p id="status" role="status" aria-live="polite">{status}{signIn && <a href="login.html?next=email-preferences.html"> Sign in</a>}</p>
