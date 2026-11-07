@@ -186,3 +186,12 @@
 @media(max-width:768px) and (prefers-reduced-transparency:reduce), (max-width:768px) and (prefers-contrast:more) {
   .dashboard nav.mobile-tabs { background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; border-color:#dfe5ef; }
 }
+/* Résumé Match: AI fit and the full job description */
+.match-ring strong.match-level { font-size:clamp(17px,1.8vw,26px); }
+.match-ring-strong { background:conic-gradient(#1f9d61 var(--score),#dce4f1 0); }
+.match-ring-good { background:conic-gradient(#4f9a3a var(--score),#dce4f1 0); }
+.match-ai-button { border:0; border-radius:10px; padding:12px; font-weight:700; font-size:14px; cursor:pointer; background:#10243b; color:#fff; }
+.match-ai-button:disabled { opacity:.7; cursor:progress; }
+.match-preview li { background:#eef3fb; }.match-preview li::before { content:'• '; color:#54657a; }
+.match-advice { background:#fbf3e0; border-radius:9px; padding:9px 10px; }
+.dashboard-match p.match-note { font-size:11.5px; color:#54657a; }

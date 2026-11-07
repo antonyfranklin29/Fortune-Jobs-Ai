@@ -1,12 +1,23 @@
 // AI features for job seekers: fit explanation, résumé tailoring, interview prep (per job),
 // smart plain-English search and the skill gap plan. All answers come from ai-assist.
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { callAi, jobForAi } from '../shared/ai.js';
 import { cleanDescription } from './catalogue.js';
 import '../styles/ai.css';
 
 const List = ({ items, className }) => (Array.isArray(items) && items.length ? <ul className={className}>{items.map((x, i) => <li key={i}>{x}</li>)}</ul> : null);
-const FIT_LABEL = { strong: 'Strong fit', good: 'Good fit', partial: 'Partial fit', weak: 'Weak fit' };
+export const FIT_LABEL = { strong: 'Strong fit', good: 'Good fit', partial: 'Partial fit', weak: 'Weak fit' };
+
+// One "Why this fits me" answer per job, shared by the AI buttons and the Résumé Match panel,
+// so the person pays for (and waits for) the answer once, wherever they ask for it.
+const fits = new Map(), listeners = new Set();
+export const aiJobKey = (job) => `${job?.job_title}|${job?.company}|${job?.apply_url}`;
+export function rememberFit(job, result) { fits.set(aiJobKey(job), result); listeners.forEach((f) => f()); }
+export function useAiFit(job) {
+  const [, tick] = useState(0);
+  useEffect(() => { const f = () => tick((n) => n + 1); listeners.add(f); return () => { listeners.delete(f); }; }, []);
+  return job ? fits.get(aiJobKey(job)) || null : null;
+}
 
 export function AiError({ error }) {
   if (!error) return null;
@@ -66,12 +77,15 @@ const JOB_TOOLS = [
 /** The AI buttons under a job. One answer per tool is kept while the job stays open. */
 export function AiJobTools({ job, call = callAi }) {
   const [state, setState] = useState({ key: null, active: null, busy: false, error: null, results: {} });
-  const key = `${job.job_title}|${job.company}|${job.apply_url}`;
-  const s = state.key === key ? state : { key, active: null, busy: false, error: null, results: {} };
+  const key = aiJobKey(job);
+  const shared = useAiFit(job);
+  const base = state.key === key ? state : { key, active: null, busy: false, error: null, results: {} };
+  const s = shared && !base.results.fit_explain ? { ...base, results: { ...base.results, fit_explain: shared } } : base;
   async function run(task) {
     if (s.results[task]) { setState({ ...s, active: task, error: null }); return; }
     setState({ ...s, active: task, busy: true, error: null });
     const res = await call(task, { job: jobForAi(job, cleanDescription) });
+    if (res.ok && task === 'fit_explain') rememberFit(job, res.result);
     // Stored under this job's key: if another job is open by now, it is simply not shown.
     setState(res.ok
       ? { ...s, active: task, busy: false, error: null, results: { ...s.results, [task]: res.result } }

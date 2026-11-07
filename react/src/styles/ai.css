@@ -26,3 +26,9 @@
 .ai-candidate{display:grid;gap:6px;margin:10px 0}
 .ai-tools textarea.input{min-height:90px}
 @media(max-width:520px){.ai-smart-search>div,.ai-skill-gap form{flex-direction:column}.ai-buttons button{flex:1 1 100%}}
+
+/* Job description: full text and the link to the complete original */
+.react-description p { white-space:pre-line; }
+.react-more { background:none; border:0; padding:0; color:#174c78; font-weight:700; cursor:pointer; text-decoration:underline; }
+.react-full-link { font-size:13px; }
+.react-full-link a { color:#174c78; font-weight:700; }
