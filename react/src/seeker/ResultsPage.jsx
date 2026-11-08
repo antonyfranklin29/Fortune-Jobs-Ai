@@ -143,7 +143,7 @@ export function ResultsPage({ afterDashboard }) {
         {saveMessage && <p className="dashboard-status" role="status">{saveMessage}</p>}
         {!!job && <div className="dashboard-grid">
           <section className="dashboard-card dashboard-list" aria-label="Job results">
-            <h2>{visible.length} jobs found</h2>
+            <h2>{visible.length} {visible.length === 1 ? 'job' : 'jobs'} found</h2>
             {Number(initial.salary_min) > 0 && <p className="dashboard-salary-note">Only jobs whose listed US-dollar pay reaches ${Number(initial.salary_min).toLocaleString('en-US')} a year. Listings without a clear salary are left out.</p>}
             <JobList jobs={visible} selected={selected} onSelect={selectJob} profile={profile} />
             <ProCard subscription={subscription} />

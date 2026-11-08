@@ -152,8 +152,8 @@ export function EmployerWorkspacePage({ prompt: askPrompt }) {
             <p style={{ marginTop: 14 }}><a className="btn btn-primary" href={fj.loginUrl('employers.html')}>Employer sign in</a> <a className="btn btn-outline" href="employer-login.html?mode=signup">Create employer account</a></p>
             <div className="onboarding-steps">
               <div><b>1. Register your company</b>Use your work email and tell us your company website.</div>
-              <div><b>2. We verify it once</b>Prepare job drafts while our team checks the company. No DNS changes are needed.</div>
-              <div><b>3. Post jobs</b>Routine posts can go live after automatic checks; others receive a team review.</div>
+              <div><b>2. Verified by your work email</b>Register with an email at your company's domain and you're verified at once. New companies can keep up to 3 live jobs in their first week while our team checks them.</div>
+              <div><b>3. Post jobs</b>Routine posts go live after automatic checks; anything unusual waits for our team.</div>
             </div>
           </section>
         )}

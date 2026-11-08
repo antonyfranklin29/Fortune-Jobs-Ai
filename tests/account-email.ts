@@ -5,7 +5,8 @@ import { KINDS, render } from "../supabase/functions/account-email/templates.mjs
 Deno.test("every account email renders, with the operator line and no newsletter wording", () => {
   for (const k of KINDS) {
     const m = render(k, { name: "Franklin Antony", data: { renews: "2026-12-07T19:56:01Z", ends: "2026-12-07T19:56:01Z", hadPro: true }, address: "1 Main St, Somerset, NJ" });
-    assert(m.subject && m.html.includes("Hi Franklin,") && m.text.includes("Hi Franklin,"), k);
+    const hi = k.startsWith("review_") ? "Hi there," : "Hi Franklin,"; // reviewer alerts go to a team inbox
+    assert(m.subject && m.html.includes(hi) && m.text.includes(hi), k);
     assert(m.html.includes("operated by YOU DO LMS INC"), k);
     assert(m.html.includes("not a newsletter"), k);
     assert(!/unsubscribe/i.test(m.html), k);

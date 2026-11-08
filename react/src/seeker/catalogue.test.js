@@ -41,3 +41,12 @@ describe('quickMatches with a city', () => {
     expect(urls.some(u => u.includes('location='))).toBe(false);
   });
 });
+
+describe('catalogue retry', () => {
+  it('retries once when the database times out', async () => {
+    let n = 0;
+    vi.stubGlobal('fetch', vi.fn(async () => (++n === 1 ? new Response('{}', { status: 500 }) : new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } }))));
+    await quickMatches('Data Analyst', {});
+    expect(n).toBe(2);
+  });
+});

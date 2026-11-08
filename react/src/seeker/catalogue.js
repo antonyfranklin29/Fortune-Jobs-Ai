@@ -9,7 +9,13 @@ const DAY = 86400000;
 async function read(params, signal) {
   const config = window.FJ_CONFIG;
   const headers = { apikey: config.key, Authorization: `Bearer ${config.key}` };
-  const response = await fetch(`${config.url}/rest/v1/pre_scraped_jobs?${params}`, { headers, signal });
+  let response = await fetch(`${config.url}/rest/v1/pre_scraped_jobs?${params}`, { headers, signal });
+  // A busy database occasionally cancels a broad search at its time limit (HTTP 500); one retry
+  // almost always succeeds, so try once more before showing an error.
+  if (response.status >= 500 && !signal?.aborted) {
+    await new Promise((r) => setTimeout(r, 400));
+    response = await fetch(`${config.url}/rest/v1/pre_scraped_jobs?${params}`, { headers, signal });
+  }
   if (!response.ok) throw new Error('The job catalogue is temporarily unavailable. Please try again.');
   return response.json();
 }
