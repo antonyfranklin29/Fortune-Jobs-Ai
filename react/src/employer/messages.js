@@ -7,7 +7,7 @@ export const MESSAGES = {
   email_not_confirmed: 'Please confirm your email address, then reload this page.',
   account_banned: 'Employer access is unavailable for this account. Contact info@fortunejobsai.com for help.',
   account_unavailable: 'This account is no longer available. Please sign out.',
-  domain_already_registered: 'That domain is already registered. If it belongs to your company, contact info@fortunejobsai.com.',
+  domain_already_registered: 'Your company is already registered on Fortune Jobs AI. Ask the colleague who registered it, or contact info@fortunejobsai.com to be added.',
   company_email_required: 'Sign in with your work email address, such as name@yourcompany.com, to register a company. Personal email addresses cannot register one.',
   email_domain_mismatch: 'Your work email address must be at the company domain you enter, or at a subdomain of it. Check the domain, or sign in with an address at that company.',
   free_email_domain_not_allowed: "Personal email providers cannot be used as a company domain. Enter your company's own domain.",

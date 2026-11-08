@@ -48,7 +48,34 @@ export function render(kind, { name, data = {}, address = '' } = {}) {
       html: layout({ address, kicker: 'ACCOUNT DELETED', title: 'Your account has been deleted.', body: p(hi) + p(`As you asked, we’re deleting your Fortune Jobs AI account: your profile, résumé, saved jobs, search history and email preferences.${data.hadPro ? ' Your Pro subscription has been cancelled, so you won’t be charged again.' : ''}`) + p('This is the last email we’ll send to this address. If you didn’t ask for this, reply right away.') + p(`You’re welcome back any time at <a href="${SITE}">fortunejobsai.com</a>.`) }),
       text: `${hi}\n\nAs you asked, we're deleting your Fortune Jobs AI account and its data.${data.hadPro ? " Your Pro subscription has been cancelled, so you won't be charged again." : ''}\nThis is the last email we'll send to this address. If you didn't ask for this, reply right away.\n\nFortune Jobs AI is operated by YOU DO LMS INC.${address ? '\n' + address : ''}`,
     };
+    // Reviewer emails (to reviews@): something to check on the Review queue.
+    case 'review_company': return {
+      subject: `New company to check: ${String(data.company || 'a company').slice(0, 80)}`,
+      html: layout({ address, kicker: 'REVIEW', title: 'A new company joined.', cta: { href: `${SITE}/employers.html#review`, label: 'Review now' }, body: p(hi) + p('A company registered as an employer:') + list([`<strong>${esc(data.company)}</strong> · ${esc(data.domain)}`, `Registered by ${esc(data.registrant)}`]) + p(data.auto_verified ? 'It was verified automatically by its work email and can post up to 3 live jobs this week. Check that the company and website look real, then confirm it, or suspend it to take its jobs down.' : 'It is waiting for a reviewer.') }),
+      text: `${hi}\n\nA company registered: ${data.company} (${data.domain}), by ${data.registrant}.\n${data.auto_verified ? 'Verified automatically by work email; up to 3 live jobs this week until confirmed.' : 'Waiting for a reviewer.'}\nReview: ${SITE}/employers.html#review`,
+    };
+    case 'review_post': return {
+      subject: `Job post to review: ${String(data.title || 'a job').slice(0, 80)} (${String(data.company || '').slice(0, 60)})`,
+      html: layout({ address, kicker: 'REVIEW', title: data.edit ? 'An edit to a live job needs a check.' : 'A job post needs a check.', cta: { href: `${SITE}/employers.html#review`, label: 'Review now' }, body: p(hi) + p('This post did not pass the automatic checks, so it is waiting for a person:') + list([`<strong>${esc(data.title)}</strong>`, `${esc(data.company)} · ${esc(data.domain)}`, `Apply link: ${esc(data.apply_url)}`]) + p('Common reasons: the Apply link is not on the company’s own website, wording that suggests fees or off-site chat, dates out of range, or more than 3 posts in a day.') }),
+      text: `${hi}\n\nJob post to review: ${data.title} (${data.company}, ${data.domain}).\nApply link: ${data.apply_url}\nReview: ${SITE}/employers.html#review`,
+    };
+    // Employer emails: the reviewer's decision.
+    case 'post_approved': return {
+      subject: `Approved: ${String(data.title || 'your job post').slice(0, 80)}`,
+      html: layout({ address, kicker: 'JOB POST', title: data.live ? 'Your job is live.' : 'Your job post is approved.', cta: { href: `${SITE}/employers.html`, label: 'Open your workspace' }, body: p(hi) + p(`<strong>${esc(data.title)}</strong> for ${esc(data.company)} was approved by our team.`) + p(data.live ? 'It now appears in Fortune Jobs AI search.' : 'Open your workspace and click “Make live” when you have a free slot.') }),
+      text: `${hi}\n\n${data.title} for ${data.company} was approved. ${data.live ? 'It is now live in search.' : 'Click "Make live" in your workspace when you have a free slot.'}\n${SITE}/employers.html`,
+    };
+    case 'post_rejected': return {
+      subject: `Changes needed: ${String(data.title || 'your job post').slice(0, 80)}`,
+      html: layout({ address, kicker: 'JOB POST', title: 'Your job post needs changes.', cta: { href: `${SITE}/employers.html`, label: 'Edit the post' }, body: p(hi) + p(`Our team could not approve <strong>${esc(data.title)}</strong> for ${esc(data.company)}${data.live ? '; the version already live stays up' : ''}.`) + (data.note ? p(`Reason: <em>${esc(data.note)}</em>`) : '') + p('Edit the post in your workspace and submit it again.') }),
+      text: `${hi}\n\nWe could not approve ${data.title} for ${data.company}.${data.note ? ' Reason: ' + data.note : ''}\nEdit and resubmit: ${SITE}/employers.html`,
+    };
+    case 'company_suspended': return {
+      subject: `${String(data.company || 'Your company')} is ${data.status === 'rejected' ? 'not approved' : 'suspended'} on Fortune Jobs AI`,
+      html: layout({ address, kicker: 'EMPLOYER ACCOUNT', title: data.status === 'rejected' ? 'Your company was not approved.' : 'Your company is suspended.', body: p(hi) + p(`<strong>${esc(data.company)}</strong> can no longer publish jobs on Fortune Jobs AI, and its live jobs have been taken down.`) + (data.note ? p(`Reason: <em>${esc(data.note)}</em>`) : '') + p('If you think this is a mistake, reply to this email with details about your company.') }),
+      text: `${hi}\n\n${data.company} can no longer publish jobs on Fortune Jobs AI and its live jobs were taken down.${data.note ? ' Reason: ' + data.note : ''}\nReply to this email if you think this is a mistake.`,
+    };
     default: throw new Error('unknown email');
   }
 }
-export const KINDS = ['welcome', 'pro_started', 'pro_payment_failed', 'pro_cancelled', 'account_deleted'];
+export const KINDS = ['welcome', 'pro_started', 'pro_payment_failed', 'pro_cancelled', 'account_deleted', 'review_company', 'review_post', 'post_approved', 'post_rejected', 'company_suspended'];

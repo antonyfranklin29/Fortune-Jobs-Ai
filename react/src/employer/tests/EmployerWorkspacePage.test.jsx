@@ -102,6 +102,24 @@ describe('EmployerWorkspacePage', () => {
     expect(b.rpcCalls().some((c) => c[0].startsWith('operator_verify') || c[0] === 'operator_set_org_status')).toBe(false);
   });
 
+  it('a company verified by work email can be confirmed or suspended from the queue', async () => {
+    const queue = { orgs: [{ id: 'org7', name: 'Acme', domain: 'acme.com', status: 'verified', domain_verified: true, auto_verified: true, active_posts: 2, registrant_email: 'jane@acme.com' }], posts: [], sources: [] };
+    const b = mount({ user: { email: 'reviews@fortunejobsai.com' }, queue, prompt: () => 'Checked acme.com and LinkedIn',
+      rpc: { operator_set_org_status: () => ({ data: {}, error: null }) } });
+    await screen.findByText(/verified by work email · 2 live jobs/);
+    expect(screen.queryByRole('button', { name: 'Verify' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await waitFor(() => expect(b.rpcCalls().find((c) => c[0] === 'operator_set_org_status')?.[1]).toEqual({ p_org: 'org7', p_status: 'verified', p_note: 'Checked acme.com and LinkedIn' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Suspend' }));
+    await waitFor(() => expect(b.rpcCalls().filter((c) => c[0] === 'operator_set_org_status').at(-1)[1].p_status).toBe('suspended'));
+    expect(b.rpcCalls().some((c) => c[0] === 'operator_verify_domain')).toBe(false);
+  });
+
+  it('a new company sees its first-week limit', async () => {
+    mount({ user: { email: 'hr@synthetic.com' }, state: { orgs: [{ ...company, active_limit: 3 }], plan: PLAN } });
+    await screen.findByText(/Verified by your work email. During your first week you can keep up to 3 live jobs/);
+  });
+
   it('a post without a visible description cannot be approved', async () => {
     const queue = { orgs: [], posts: [{ id: 'p2', job_title: 'Analyst', org: 'Other Co', revision: 3, description: '' }], sources: [] };
     mount({ user: { email: 'reviewer@fortunejobsai.com' }, queue });

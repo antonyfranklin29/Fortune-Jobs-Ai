@@ -187,12 +187,12 @@ function RegisterForm({ run, rpc, say, autoFocus }) {
     e.preventDefault();
     const n = name.trim(), d = normalizeDomain(domain);
     if (!n || !d) { say('Enter your company name and website domain.', 'error'); return; }
-    await run(() => rpc('employer_register_org', { p_name: n, p_domain: d }), 'Registered. Your company is awaiting review; you can prepare job drafts now.');
+    await run(() => rpc('employer_register_org', { p_name: n, p_domain: d }), (r) => r?.status === 'verified' ? 'Registered and verified by your work email. You can publish jobs now.' : 'Registered. Your company is awaiting review; you can prepare job drafts now.');
   }
   return (
     <section className="card">
       <h2>Register your organization</h2>
-      <p className="sub">Registration starts as pending. Our team checks your company and may contact your work email for more evidence. You can prepare job drafts meanwhile. After company verification, routine posts can pass automatic checks.</p>
+      <p className="sub">Your company is verified at once by your work email (it must be at the domain you enter). Routine job posts go live after automatic checks; anything unusual waits for our team. New companies can keep up to 3 live jobs in their first week while our team checks them.</p>
       <form className="stack" noValidate onSubmit={onSubmit}>
         <div className="field"><label htmlFor="org-name">Organisation name</label><input ref={nameRef} className="input" id="org-name" maxLength={200} required autoComplete="organization" value={name} onChange={(e) => setName(e.target.value)} /></div>
         <div className="field"><label htmlFor="org-domain">Company website domain</label><input className="input" id="org-domain" maxLength={253} required placeholder="example.com" inputMode="url" autoCapitalize="off" spellCheck="false" value={domain} onChange={(e) => setDomain(e.target.value)} /><span className="hint">Just the domain, like acme.com. Not a URL.</span></div>
@@ -218,6 +218,7 @@ function OrgCard({ org: o, plan, taxonomy, run, rpc, say, render }) {
     <section className="card">
       <h2>{o.name} <Chip status={ORG_STATUS[o.status] || [o.status, '']} /></h2>
       <p className="sub">{o.primary_domain}</p>
+      {o.status === 'verified' && o.active_limit <= 3 && <p className="msg info show">{`Verified by your work email. During your first week you can keep up to ${o.active_limit} live jobs while our team checks your company; the limit then rises automatically.`}</p>}
       {o.status === 'pending' && <p className="msg info show">Your company is awaiting review. You can prepare job drafts now; nothing goes public until the company is verified and the posting passes its checks. No DNS changes are needed.</p>}
 
       {/* Plan and quota: read from the server only. */}
@@ -413,24 +414,38 @@ function ReviewQueue({ queue: q, run, rpc, ask }) {
       await rpc('operator_set_org_status', { p_org: o.id, p_status: 'verified', p_note: note.trim() });
     }, 'Organization verified.');
   };
+  const confirmOrg = (o) => {
+    const note = ask('What did you check? (for example: website, LinkedIn page, the jobs it posted)');
+    if (note && note.trim()) run(() => rpc('operator_set_org_status', { p_org: o.id, p_status: 'verified', p_note: note.trim() }), 'Company confirmed. Its first-week limit is lifted.');
+  };
+  const suspendOrg = (o) => { const n = ask('Reason for suspending this company? The employer sees it, and all its live jobs come down.'); if (n) run(() => rpc('operator_set_org_status', { p_org: o.id, p_status: 'suspended', p_note: n }), 'Company suspended and its jobs taken down.'); };
   const rejectOrg = (o) => { const n = ask('Reason for rejecting this organization?'); if (n) run(() => rpc('operator_set_org_status', { p_org: o.id, p_status: 'rejected', p_note: n }), 'Organization rejected.'); };
   const approvePost = (p) => run(async () => { const r = await rpc('operator_review_post', { p_post: p.id, p_revision: p.revision, p_decision: 'approve', p_note: null }); if (r && r.published === false) throw new Error(r.state); }, 'Approved and published.');
   const rejectPost = (p) => { const n = ask('Reason for the employer?'); if (n) run(() => rpc('operator_review_post', { p_post: p.id, p_revision: p.revision, p_decision: 'reject', p_note: n }), 'Rejected.'); };
   const empty = !q.orgs.length && !q.posts.length && !q.sources.length;
   return (
-    <section className="card">
+    <section className="card" id="review">
       <h2>Review queue</h2>
       <p className="sub">Visible to Fortune Jobs AI reviewers only. You cannot review an organization you belong to.</p>
       <div className="stack">
         {empty && <p className="sub">Nothing waiting.</p>}
         {q.orgs.map((o) => (
           <div className="post" key={'o' + o.id}>
-            <div><strong>{o.name}</strong> <span className="meta">{`${o.domain} · ${o.domain_verified ? 'proof recorded' : 'proof needed'}`}</span></div>
-            <p className="meta">{`Account requesting access: ${o.registrant_email || 'email unavailable'}. Confirm their authority through an independent company contact before verifying.`}</p>
-            <div className="actions">
-              <button className="btn btn-sm btn-primary" type="button" onClick={() => verify(o)}>Verify</button>
-              <button className="btn btn-sm btn-danger" type="button" onClick={() => rejectOrg(o)}>Reject</button>
-            </div>
+            {o.auto_verified ? <>
+              <div><strong>{o.name}</strong> <span className="meta">{`${o.domain} · verified by work email · ${o.active_posts ?? 0} live job${o.active_posts === 1 ? '' : 's'}`}</span></div>
+              <p className="meta">{`Registered by ${o.registrant_email || 'email unavailable'}. Check the company's website and its jobs, then confirm it, or suspend it to take its jobs down.`}</p>
+              <div className="actions">
+                <button className="btn btn-sm btn-primary" type="button" onClick={() => confirmOrg(o)}>Confirm</button>
+                <button className="btn btn-sm btn-danger" type="button" onClick={() => suspendOrg(o)}>Suspend</button>
+              </div>
+            </> : <>
+              <div><strong>{o.name}</strong> <span className="meta">{`${o.domain} · ${o.domain_verified ? 'proof recorded' : 'proof needed'}`}</span></div>
+              <p className="meta">{`Account requesting access: ${o.registrant_email || 'email unavailable'}. Confirm their authority through an independent company contact before verifying.`}</p>
+              <div className="actions">
+                <button className="btn btn-sm btn-primary" type="button" onClick={() => verify(o)}>Verify</button>
+                <button className="btn btn-sm btn-danger" type="button" onClick={() => rejectOrg(o)}>Reject</button>
+              </div>
+            </>}
           </div>
         ))}
         {q.posts.map((p) => (
