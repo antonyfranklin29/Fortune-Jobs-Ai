@@ -22,16 +22,19 @@ Deno.test("fetchDescription reads each provider's format", async () => {
     "https://api.lever.co/v0/postings/p/1?mode=json": { descriptionPlain: "Intro", lists: [{ text: "You will", content: "<li>Ship</li>" }], additionalPlain: "Benefits" },
     "https://api.ashbyhq.com/posting-api/job-board/n": { jobs: [{ id: "a", descriptionPlain: "Other" }, { id: "b", descriptionPlain: "Ashby text" }] },
     "https://api.smartrecruiters.com/v1/companies/S/postings/9": { jobAd: { sections: { jobDescription: { title: "Job", text: "<p>Do X</p>" }, qualifications: { title: "Quals", text: "<p>Y</p>" } } } },
-    "https://data.usajobs.gov/api/search?ControlNumber=7": { SearchResult: { SearchResultItems: [{ MatchedObjectDescriptor: { QualificationSummary: "GS-12", UserArea: { Details: { JobSummary: "Serve", MajorDuties: ["Duty 1", "Duty 2"] } } } }] } },
+    "https://data.usajobs.gov/api/search?Keyword=Data%20Scientist&ResultsPerPage=250": { SearchResult: { SearchResultItems: [
+      { MatchedObjectId: "5", MatchedObjectDescriptor: { QualificationSummary: "JD required", UserArea: { Details: { JobSummary: "Attorney" } } } },
+      { MatchedObjectId: "7", MatchedObjectDescriptor: { QualificationSummary: "GS-12", UserArea: { Details: { JobSummary: "Serve", MajorDuties: ["Duty 1", "Duty 2"] } } } }] } },
   };
   const get = async (url: string, headers?: Record<string, string>) => { calls.push(url + (headers?.["Authorization-Key"] ? " +key" : "")); if (!(url in data)) throw new Error("404"); return data[url]; };
   const lever = await fetchDescription({ source: "lever", slug: "p", id: "1" }, get);
   assert(lever.includes("Intro") && lever.includes("• Ship") && lever.includes("Benefits"));
   assertEquals(await fetchDescription({ source: "ashby", slug: "n", id: "b" }, get), "Ashby text");
   assertEquals(await fetchDescription({ source: "smartrecruiters", slug: "S", id: "9" }, get), "Job\nDo X\n\nQuals\nY");
-  const usa = await fetchDescription({ source: "usajobs", slug: "", id: "7" }, get, { key: "k", email: "e" });
-  assert(usa.includes("Serve") && usa.includes("Duty 2") && usa.includes("GS-12"));
-  assert(calls.includes("https://data.usajobs.gov/api/search?ControlNumber=7 +key"), "USAJOBS call carries the key");
+  const usa = await fetchDescription({ source: "usajobs", slug: "", id: "7", title: "Data Scientist" }, get, { key: "k", email: "e" });
+  assert(usa.includes("Serve") && usa.includes("Duty 2") && usa.includes("GS-12") && !usa.includes("Attorney"), "only the job with the same number is used");
+  assert(calls.includes("https://data.usajobs.gov/api/search?Keyword=Data%20Scientist&ResultsPerPage=250 +key"), "USAJOBS call carries the key");
+  assertEquals(await fetchDescription({ source: "usajobs", slug: "", id: "99", title: "Data Scientist" }, get, { key: "k", email: "e" }), "", "no matching job number, no description");
   assertEquals(await fetchDescription({ source: "greenhouse", slug: "gone", id: "1" }, get), "", "a failed board read gives an empty description, not an error");
-  assertEquals(await fetchDescription({ source: "usajobs", slug: "", id: "7" }, get), "", "no USAJOBS key, no call");
+  assertEquals(await fetchDescription({ source: "usajobs", slug: "", id: "7", title: "Data Scientist" }, get), "", "no USAJOBS key, no call");
 });

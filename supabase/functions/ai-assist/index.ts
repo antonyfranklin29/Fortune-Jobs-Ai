@@ -100,7 +100,7 @@ Deno.serve(async (req: Request) => {
             if (!r.ok) throw new Error("board " + r.status);
             return r.json();
           };
-          text = await fetchDescription(where, get, { key: Deno.env.get("USAJOBS_API_KEY") || "", email: "info@fortunejobsai.com" });
+          text = await fetchDescription({ ...where, title: input.job.title }, get, { key: Deno.env.get("USAJOBS_API_KEY") || "", email: "info@fortunejobsai.com" });
         }
         if (text.length > (input.job.description || "").length) input.job.description = stripTags(text.replace(/\u0000/g, "")).slice(0, 12000).trim();
       } catch { /* keep what we have */ }

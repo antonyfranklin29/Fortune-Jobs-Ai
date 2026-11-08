@@ -35,7 +35,7 @@ export function locate(source: string, listingId: string | null, applyUrl: strin
 }
 
 /** Plain-text description from the provider's public API, or "" when it can't be read. */
-export async function fetchDescription(where: { source: string; slug: string; id: string }, get: Get, usajobs?: { key: string; email: string }): Promise<string> {
+export async function fetchDescription(where: { source: string; slug: string; id: string; title?: string }, get: Get, usajobs?: { key: string; email: string }): Promise<string> {
   const e = encodeURIComponent;
   const { source, slug, id } = where;
   try {
@@ -60,8 +60,14 @@ export async function fetchDescription(where: { source: string; slug: string; id
         .map((k) => s[k]?.text ? `${s[k].title || ""}\n${toText(s[k].text)}` : "").filter(Boolean).join("\n\n").trim();
     }
     if (source === "usajobs" && usajobs?.key) {
-      const r = await get(`https://data.usajobs.gov/api/search?ControlNumber=${e(id)}`, { Host: "data.usajobs.gov", "User-Agent": usajobs.email, "Authorization-Key": usajobs.key });
-      const d = r?.SearchResult?.SearchResultItems?.[0]?.MatchedObjectDescriptor;
+      // The search API has no lookup by job number, so search the title and keep only the result
+      // whose job number matches. Never fall back to another job's text.
+      const q = String(where.title || "").trim();
+      if (!q) return "";
+      const r = await get(`https://data.usajobs.gov/api/search?Keyword=${e(q)}&ResultsPerPage=250`, { Host: "data.usajobs.gov", "User-Agent": usajobs.email, "Authorization-Key": usajobs.key });
+      // deno-lint-ignore no-explicit-any
+      const d = (r?.SearchResult?.SearchResultItems || []).map((x: { MatchedObjectId?: string; MatchedObjectDescriptor?: Record<string, any> }) => ({ ...x.MatchedObjectDescriptor, _id: String(x.MatchedObjectId || "") }))
+        .find((x: { _id: string; PositionURI?: string }) => x._id === id || String(x.PositionURI || "").endsWith("/" + id));
       if (!d) return "";
       const det = d.UserArea?.Details || {};
       const duties = Array.isArray(det.MajorDuties) ? det.MajorDuties.join("\n") : String(det.MajorDuties || "");
