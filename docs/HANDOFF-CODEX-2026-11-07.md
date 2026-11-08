@@ -64,3 +64,32 @@ This is a status update covering what changed on Nov 6–7. All of it is live. *
 - Nov 10 release check.
 
 **Report back:** anything above that conflicts with what you have locally, plus any broken Apply links you find from the new sources.
+
+## Evening handoff — November 7, approximately 9:35 PM ET
+
+Codex takes over the remaining launch checks as Claude's available credits run low. This update is based on Claude's operational handoff and source reviewed through main `ef0266f`. Live deployment details below are reported by Claude unless separately verified. This documentation update authorizes no production changes.
+
+### Released search, AI and employer changes
+
+- City search now supplements the national 300-candidate pool with a city-limited query (`d920d5d`). This addresses the Chicago searches that missed existing jobs. The broad request still runs first; failure of both broad attempts can prevent the city request from running.
+- The catalogue GET reader now waits 400 ms and retries once on any HTTP status of 500 or above (`d164453`, released in `ef0266f`). This is broader than Codex's earlier proposal to retry only a confirmed statement timeout. It adds at most one request per failed GET; the database scan itself is unchanged. Keep this distinction in future performance checks.
+- Fortune AI Coach can retrieve missing descriptions from supported employer boards and USAJobs using the listing link (`90ed06e`, `f4e2a49`). If a description remains unavailable, it uses the title and explains the limitation. USAJobs lookup now checks the exact job number so it cannot silently substitute another returned job (`7fa6f06`).
+- Companies registered with a confirmed work email matching their domain are verified immediately. Automatic checks still govern job publication. Until independently confirmed, a company can keep at most three live jobs during its first seven days. The work-email migration is applied, according to Claude.
+- Signed-out employer instructions now describe work-email verification and the first-week limit. The result count now says `1 job found` for a single listing (`ef0266f`).
+- Claude reports `account-email` v3 sends reviewer notices to `reviews@fortunejobsai.com`, the sole account in `employer_operators`. That address is a GoDaddy alias of `info@fortunejobsai.com`; an Outlook rule puts its mail in the **Reviews** folder. Mail routing alone does not grant website reviewer access.
+
+### Franklin-only checks
+
+Franklin must sign in as `reviews@fortunejobsai.com` at `https://fortunejobsai.com/employers.html#review`, reject **TEST Review Check**, then check that `info@fortunejobsai.com` receives a **Changes needed** email. Franklin must also **Confirm** the company **fortunejobs**. These are human review actions; Codex must not perform them on Franklin's behalf.
+
+The public **TEST Data Analyst (Fortune Jobs AI test, please ignore)** listing is catalogue ID `13386`, source `employer_direct`, Edison, NJ, with Apply pointing to `https://fortunejobsai.com/contact.html`. Its card, detail, direct-employer attribution and Contact destination were independently checked on desktop and at 390px phone width. Claude reports that it closes automatically after seven days; Franklin can close it earlier as `info@fortunejobsai.com`. Leave it untouched during read-only QA.
+
+### Remaining launch work and holds
+
+- **Stripe live activation remains on hold** pending the administrator's email verification. Preserve the current keys, webhook, billing functions and `PRO_OPEN` until Franklin explicitly authorizes the next billing step.
+- **Cloudflare visits:** confirm recorded visits and establish a baseline. The prior Codex attempt could not read analytics because Chrome control failed and the in-app session required sign-in; real visits have not yet been independently confirmed.
+- **Backup restore drill:** still required with Franklin. The earlier OneDrive access issue must be resolved and an encrypted backup restored successfully before marking this complete.
+- **November 10 release check:** recheck search reliability, Chicago/city coverage, mobile navigation, Apply destinations, current employer copy, and the AI description path. Franklin owns the reviewer checks above. The separate timeout proposal is on `codex/search-timeout-review-1108` at `ffc204d`; it has not been applied wholesale.
+- **Optional employer improvement:** an **Invite a colleague** flow. A second person registering the same company currently gets **already registered**. Design an invitation and membership flow separately; matching a work-email domain must not automatically grant access to an existing company.
+
+No deploys, migrations, cron changes, secret changes or production data changes are authorized by this handoff. Obtain Franklin's explicit wording for any such next action. Continue read-only checks and report concrete blockers.
