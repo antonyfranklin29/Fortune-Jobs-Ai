@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from 'react';
 import { readErrorText, readResumeFile, useResumeServices } from './services.jsx';
 import * as Guest from './lib/guestResume.js';
 import * as Matching from './lib/resumeMatching.js';
+import { atsCheckText } from './lib/atsCheck.js';
+import { AtsPanel } from './AtsPanel.jsx';
 import './resume-base.css';
 import './resume-search.css';
 
@@ -36,6 +38,8 @@ export function ResumeSearchPage() {
   const [notice, setNotice] = useState({ text: '', error: false });
   const [draft, setDraft] = useState(null); // the detected or saved profile behind the form
   const [form, setForm] = useState(null);
+  const [resumeText, setResumeText] = useState(''); // in memory only, for the ATS check
+  const [jobText, setJobText] = useState('');
   const generation = useRef(0);
   const fileInput = useRef(null);
   const reviewRef = useRef(null);
@@ -52,6 +56,7 @@ export function ResumeSearchPage() {
   function fill(profile) { setDraft(profile); setForm(toForm(profile)); }
   function startManual() {
     generation.current++;
+    setResumeText('');
     fill({ ...EMPTY });
     say('Enter your experience and skills below. No résumé file is needed.');
     setScrollKey((k) => k + 1);
@@ -71,7 +76,7 @@ export function ResumeSearchPage() {
   async function extract(file) {
     const token = ++generation.current;
     say('Reading your résumé in this browser…');
-    setForm(null); setDraft(null);
+    setForm(null); setDraft(null); setResumeText('');
     try {
       const text = await readResumeFile(svc, file, { messages: READ_MESSAGES });
       if (token !== generation.current) return;
@@ -80,7 +85,7 @@ export function ResumeSearchPage() {
       const profile = Guest.detect(text, { ...(svc.catalog() || {}), countries: COUNTRY_CODES }, Matching);
       profile.scope = profile.region ? 'region' : 'city';
       profile.skills = profile.skills.slice(0, 30);
-      fill(profile);
+      fill(profile); setResumeText(text);
       say('Your résumé was read. Review your job title and skills below before searching.');
       setScrollKey((k) => k + 1);
     } catch (error) {
@@ -115,11 +120,12 @@ export function ResumeSearchPage() {
   function forget() {
     generation.current++;
     try { Guest.clear(svc.storage); } catch { /* storage blocked */ }
-    setDraft(null); setForm(null);
+    setDraft(null); setForm(null); setResumeText(''); setJobText('');
     say('Temporary résumé details cleared.');
   }
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const ats = resumeText ? atsCheckText(resumeText, jobText, { target: form ? form.current_title : '' }) : null;
   return (
     <div className="fja-res fja-resume-search">
       <nav className="nav"><a className="brand" href="index.html">Fortune Jobs AI</a><a href="about.html">About</a><a href="find-jobs.html" style={{ color: 'var(--gold)' }}>Find Jobs</a></nav>
@@ -169,6 +175,12 @@ export function ResumeSearchPage() {
               <button className="btn btn-outline" type="button" onClick={() => fileInput.current?.click()}>Use another résumé</button>
             </div>
           </form>
+        )}
+        {ats && (
+          <div className="panel" id="atsPanel">
+            <AtsPanel ats={ats} jobText={jobText} onJobText={setJobText} intro="We checked the text of your uploaded résumé for what applicant tracking systems (ATS) and recruiters commonly look for." />
+            <p className="sub">Want to fix these? <a href="resume-builder.html">Open the résumé builder</a> and import the same file.</p>
+          </div>
         )}
         <p className="sub">Fit estimates are based on confirmed skills and details found in each job listing. They are not ATS scores or hiring predictions. Search stays available without a résumé.</p>
       </main>

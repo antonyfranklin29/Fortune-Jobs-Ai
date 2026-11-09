@@ -34,19 +34,6 @@
 .fja-resume-builder .source-text{white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;font-size:12px;padding:12px;border:1px solid var(--gray-200);margin-top:10px}
 .fja-resume-builder .import-card details{margin-top:10px}
 .fja-resume-builder .import-card summary{cursor:pointer;font-weight:700}
-.fja-resume-builder .ats-card{border:1px solid var(--gray-200);border-radius:12px;padding:16px;margin:8px 0 14px;background:#f8fafc}
-.fja-resume-builder .ats-head{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}
-.fja-resume-builder .ats-head h2{font-size:18px;margin:0 0 2px}
-.fja-resume-builder .ats-head p{margin:2px 0}
-.fja-resume-builder .ats-score{flex:0 0 64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:22px;font-weight:800;color:#10243b;border:6px solid #d4a843;background:#fff}
-.fja-resume-builder .ats-strong{border-color:#15803d}.fja-resume-builder .ats-good{border-color:#174c78}.fja-resume-builder .ats-work{border-color:#d4a843}.fja-resume-builder .ats-start{border-color:#b45309}
-.fja-resume-builder .ats-keywords{font-size:13px;margin:0 0 10px;overflow-wrap:anywhere}
-.fja-resume-builder .ats-keywords p{margin:4px 0}
-.fja-resume-builder .ats-checks{list-style:none;margin:0;padding:0}
-.fja-resume-builder .ats-checks li{display:flex;gap:10px;font-size:13px;padding:7px 0;border-top:1px solid var(--gray-200)}
-.fja-resume-builder .ats-mark{flex:0 0 22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;background:#b45309}
-.fja-resume-builder .ats-checks li.ok .ats-mark{background:#15803d}
-.fja-resume-builder .ats-tip{color:var(--gray-600)}
 @media(max-width:900px){.fja-resume-builder .layout{grid-template-columns:1fr}
 .fja-resume-builder .preview-wrap{position:static}
 .fja-resume-builder .paper{padding:34px 30px;min-height:720px}}

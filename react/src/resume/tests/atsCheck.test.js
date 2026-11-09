@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { atsCheck, jobKeywords } from '../lib/atsCheck.js';
+import { atsCheck, atsCheckText, fromText, jobKeywords } from '../lib/atsCheck.js';
 import { draft } from '../lib/resumeBuilder.js';
 
 const strong = draft({
@@ -52,5 +52,22 @@ describe('atsCheck', () => {
   it('ignores very short job text and never matches words inside other words', () => {
     expect(jobKeywords('SQL')).toEqual([]);
     expect(jobKeywords('Our team does research and development on a tight schedule every day of the week.')).not.toContain('R');
+  });
+
+  it('reads sections from an uploaded résumé text', () => {
+    const text = ['Ana Silva', 'Data Analyst', 'ana@example.com | (555) 010-0100', 'Summary', 'Data Analyst with 4 years of experience building SQL and Power BI reporting for sales and finance teams across three regions.',
+      'Experience', 'Data Analyst, Example Co. | Jan 2022 – Present', '• Built 12 Power BI dashboards used by 150 managers', '• Automated SQL reports, cutting close time by 40%',
+      'Analyst, Sample LLC | 2019 – 2021', '• Reconciled $2M in monthly sales data', 'Skills', 'SQL, Power BI, Excel, Python, DAX, Tableau', 'Education', 'B.S. Statistics, State University'].join('\n');
+    const { data, headings } = fromText(text, { target: 'Data Analyst' });
+    expect(data.name).toBe('Ana Silva');
+    expect(data.email).toBe('ana@example.com');
+    expect(data.phone).toMatch(/555/);
+    expect(data.skills).toEqual(['SQL', 'Power BI', 'Excel', 'Python', 'DAX', 'Tableau']);
+    expect(headings).toEqual(expect.arrayContaining(['summary', 'experience', 'skills', 'education']));
+    const r = atsCheckText(text, '', { target: 'Data Analyst' });
+    expect(r.checks.find((c) => c.id === 'format').ok).toBe(true);
+    expect(r.checks.find((c) => c.id === 'experience').ok).toBe(true);
+    const plain = atsCheckText('Ana Silva\nI did many things at many places over many years for many people.');
+    expect(plain.checks.find((c) => c.id === 'format').tip).toMatch(/Experience/);
   });
 });

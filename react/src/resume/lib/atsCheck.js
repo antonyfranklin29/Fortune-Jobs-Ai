@@ -60,11 +60,11 @@ const words = (s) => (String(s || '').match(/[A-Za-z0-9][\w'’+#.-]*/g) || []).
  * @param jobText optional pasted job description
  * @returns { score, max, grade, checks: [{ id, label, ok, points, max, tip }], keywords: { matched, missing } | null }
  */
-export function atsCheck(data, jobText = '') {
+export function atsCheck(data, jobText = '', upload = null) {
   const d = data || {};
   const exp = d.experience || [], skills = d.skills || [], edu = d.education || [], proj = d.projects || [];
-  const all = [d.name, d.target, d.summary, ...exp, ...skills, ...edu, ...proj].filter(Boolean).join('\n');
-  const total = words(all);
+  const all = upload ? String(upload.fullText || '') : [d.name, d.target, d.summary, ...exp, ...skills, ...edu, ...proj].filter(Boolean).join('\n');
+  const total = upload ? upload.words : words(all);
   const evidence = [...exp, ...proj];
   const dated = exp.filter((l) => DATE.test(l)).length;
   const action = evidence.filter((l) => ACTION.test(l)).length;
@@ -78,15 +78,19 @@ export function atsCheck(data, jobText = '') {
   add('title', 'Target job title', 8, d.target ? 8 : 0, 'Add the exact job title you are applying for. Recruiters often search the ATS by title.');
   const sl = (d.summary || '').length;
   add('summary', 'Short professional summary', 8, sl >= 150 && sl <= 700 ? 8 : sl ? 4 : 0, sl > 700 ? 'Keep the summary to 2–4 sentences.' : 'Write a 2–4 sentence summary that names your role, years of experience and main skills.');
-  add('experience', 'Experience section with dates', 14, exp.length ? 6 + (dated ? 8 * Math.min(1, dated / Math.max(1, Math.ceil(exp.length / 3))) : 0) : 0,
+  add('experience', 'Experience section with dates', 14, exp.length ? 6 + (dated >= 2 || (dated && exp.length <= 6) ? 8 : dated ? 4 : 0) : 0,
     exp.length ? 'Put the employer and dates (e.g. "2022–2025" or "Jan 2022 – Present") on each role line. Many ATS systems calculate experience from dates.' : 'Add your work experience, one line per role or achievement.');
   add('action', 'Lines start with action verbs', 8, evidence.length ? 8 * Math.min(1, action / Math.max(1, Math.ceil(evidence.length / 2))) - (weak ? 2 : 0) : 0,
     weak ? 'Replace "Responsible for" / "Worked on" with what you did: "Built…", "Reduced…", "Led…".' : 'Start achievement lines with a verb such as Built, Led, Reduced or Automated.');
   add('results', 'Measurable results', 10, evidence.length ? 10 * Math.min(1, measured / 2) : 0, 'Add numbers you can verify, such as "cut report time by 40%" or "supported 120 users".');
   add('skills', 'Skills section (6+ skills)', 12, Math.min(12, skills.length * 2), 'List at least 6 specific skills or tools, one per line, using the same words as the job listing.');
   add('education', 'Education or certifications', 6, edu.length ? 6 : 0, 'Add your degree, school or certifications. Some ATS filters require an education entry.');
-  add('length', 'Length fits one or two pages', 6, total >= 250 && total <= 900 ? 6 : total >= 120 ? 3 : 0, total > 900 ? 'Trim to the most relevant work; about 400–800 words reads best.' : 'Add more detail about your work; about 400–800 words reads best.');
-  add('format', 'Plain layout ATS can read', 8, 8, '');
+  const most = upload ? 1100 : 900;
+  add('length', 'Length fits one or two pages', 6, total >= 250 && total <= most ? 6 : total >= 120 ? 3 : 0, total > most ? 'Trim to the most relevant work; one to two pages reads best.' : 'Add more detail about your work; about 400–800 words reads best.');
+  if (upload) {
+    const found = ['experience', 'skills', 'education'].filter((h) => upload.headings.includes(h)).length;
+    add('format', 'Standard section headings', 8, (found / 3) * 8, 'Use plain headings such as "Experience", "Skills" and "Education" so ATS software can find each section. Avoid tables, text boxes and images.');
+  } else add('format', 'Plain layout ATS can read', 8, 8, '');
 
   let keywords = null;
   const wanted = jobKeywords(jobText, d.target ? [d.target] : []);
@@ -102,4 +106,50 @@ export function atsCheck(data, jobText = '') {
   const score = Math.round((checks.reduce((s, c) => s + c.points, 0) / max) * 100);
   const grade = score >= 85 ? 'Strong' : score >= 70 ? 'Good' : score >= 50 ? 'Needs work' : 'Getting started';
   return { score, max: 100, grade, checks, keywords };
+}
+
+// ---- Uploaded résumés: find the sections in plain text, then run the same checks. ----
+const HEADINGS = [
+  ['summary', /^(?:professional\s+|career\s+|executive\s+)?(?:summary|profile|objective|about(?:\s+me)?)$/i],
+  ['experience', /^(?:professional\s+|work\s+|relevant\s+|career\s+)?(?:experience|employment(?:\s+history)?|work\s+history|career\s+history)$/i],
+  ['skills', /^(?:(?:technical|core|key|professional)\s+)?(?:skills|competencies|technologies|expertise|tools)(?:\s*(?:&|and)\s*(?:tools|technologies|abilities))?$/i],
+  ['education', /^(?:education|academic\s+background|education\s*(?:&|and)\s*(?:certifications?|training)|certifications?|licenses?(?:\s*(?:&|and)\s*certifications?)?|training)$/i],
+  ['projects', /^(?:(?:key|personal|selected|academic)\s+)?projects$/i],
+];
+const PHONE = /(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/;
+const bullet = (l) => l.replace(/^[\s•●▪◦*·–-]+/, '').trim();
+
+/** Split plain résumé text into the builder's draft shape. headings = which standard sections were found. */
+export function fromText(text, { target = '' } = {}) {
+  const lines = String(text || '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const sections = { summary: [], experience: [], skills: [], education: [], projects: [] };
+  const headings = new Set();
+  let current = null, firstHeading = -1;
+  lines.forEach((line, i) => {
+    const key = line.length <= 45 ? HEADINGS.find(([, re]) => re.test(line.replace(/[:\s]+$/, '').replace(/\s+/g, ' ')))?.[0] : null;
+    if (key) { current = key; headings.add(key); if (firstHeading < 0) firstHeading = i; return; }
+    if (current) sections[current].push(bullet(line));
+  });
+  const top = lines.slice(0, firstHeading < 0 ? 6 : Math.min(firstHeading, 8));
+  const email = (String(text).match(/[^\s@<>()]+@[^\s@<>()]+\.[a-z]{2,}/i) || [''])[0];
+  const phone = (String(text).match(PHONE) || [''])[0];
+  const name = top.find((l) => /^[A-Za-z][A-Za-z.'’ -]{2,60}$/.test(l) && l.split(/\s+/).length >= 2 && l.split(/\s+/).length <= 5) || '';
+  const body = headings.has('experience') ? sections.experience : lines.slice(top.length).map(bullet);
+  const skills = sections.skills.flatMap((l) => l.replace(/^[^:]{1,30}:\s*/, '').split(/\s*[,|;•·]\s*/)).map((s) => s.trim()).filter((s) => s && s.length <= 60);
+  return {
+    data: {
+      name, email, phone, location: '', link: '', target: String(target || '').trim(),
+      summary: sections.summary.join(' ').slice(0, 2000), experience: body.slice(0, 80), skills: [...new Set(skills)].slice(0, 60),
+      education: sections.education.slice(0, 20), projects: sections.projects.slice(0, 20),
+    },
+    headings: [...headings],
+    words: words(text),
+  };
+}
+
+/** ATS readiness for an uploaded résumé's text. */
+export function atsCheckText(text, jobText = '', opts = {}) {
+  const { data, headings, words: total } = fromText(text, opts);
+  const r = atsCheck(data, jobText, { fullText: text, headings, words: total });
+  return r;
 }

@@ -120,4 +120,17 @@ describe('ResumeSearchPage', () => {
     expect(screen.getByRole('status').textContent).toMatch(/could not keep the temporary matching details/);
     expect(navigate).not.toHaveBeenCalled();
   });
+
+  it('scores an uploaded résumé for ATS readiness and checks pasted job keywords; manual entry has no score', async () => {
+    setup();
+    upload(file('cv.pdf'));
+    await waitFor(() => expect(document.getElementById('atsPanel')).toBeTruthy());
+    expect(document.getElementById('atsScore').textContent).toMatch(/\d+\/100/);
+    expect(document.getElementById('atsChecks').textContent).toMatch(/Standard section headings/);
+    fireEvent.change(document.getElementById('jobText'), { target: { value: 'Data Analyst role using SQL, Tableau and Snowflake for weekly reporting.' } });
+    expect(document.getElementById('atsKeywords').textContent).toMatch(/SQL/);
+    expect(document.getElementById('atsKeywords').textContent).toMatch(/Missing:.*Tableau/);
+    fireEvent.click(screen.getByText('Enter experience and skills instead'));
+    expect(document.getElementById('atsPanel')).toBeNull();
+  });
 });
