@@ -47,3 +47,6 @@
 .fja-employer .post .actions{justify-content:flex-start}}
 .fja-employer .apply-method{display:flex;flex-direction:column;gap:8px;padding:0;margin:4px 0}
 .fja-employer .apply-method label{display:flex;gap:8px;align-items:center;font-weight:500}
+.fja-employer .plan-current{border-color:#15803d;box-shadow:0 0 0 2px rgba(21,128,61,.15)}
+.fja-employer .plus-state{margin:8px 0}
+.fja-employer .plan .btn{margin-top:10px}

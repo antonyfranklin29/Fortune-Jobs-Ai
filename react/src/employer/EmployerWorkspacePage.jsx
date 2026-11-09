@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AiPostWriter } from './EmployerAi.jsx';
 import { useAccountServices } from '../account/services.jsx';
+import { goToBilling } from '../shared/billing.js';
 import { useDocumentTitle } from '../account/components.jsx';
 import {
   FREE_LIMIT_FALLBACK, ORG_STATUS, POST_STATUS, WORDING_VERSION,
@@ -86,6 +87,8 @@ export function EmployerWorkspacePage({ prompt: askPrompt }) {
     setStatus({ text: '', kind: 'info' });
     setRegisterOpen(state.orgs.length === 0);
     setView({ phase: 'ready', user, state, queue: null });
+    const plus = new URLSearchParams(String(fj.search ? fj.search() : '')).get('plus');
+    if (plus === 'welcome') say('Thank you for subscribing to Employer Plus! It can take a minute to show as active here.', 'ok');
     // Reviewer panel: shown only if the server says the caller is a reviewer.
     try {
       const { data, error } = await fj.sb.rpc('operator_queue', {});
@@ -232,12 +235,12 @@ function OrgCard({ org: o, plan, taxonomy, run, rpc, say, render }) {
 
       {/* Plan and quota: read from the server only. */}
       <div style={{ marginTop: 20 }}>
-        <h3>Active posts</h3>
+        <h3 id="plan">Active posts</h3>
         <div className="meter" role="img" aria-label={`${used} of ${limit} active posts used`}><span style={{ width: `${Math.min(100, Math.round((used / Math.max(1, limit)) * 100))}%` }} /></div>
         <p className="sub">{`${used} of ${limit} active posts. Closing or expiring a post frees a slot; drafts and posts in review don't count.`}</p>
         <div className="plans">
           <div className="plan"><strong>Free</strong><div className="price">$0</div><p className="note">{`Up to ${plan.free_active_posts} active posts at a time, across your whole organization.`}</p></div>
-          <div className="plan"><strong>Employer Plus</strong><div className="price">{`$${(plan.monthly_price_cents / 100).toFixed(2)}/month`}</div><p className="note">Post more than 15 active jobs. Verification and review still apply.</p><span className="unavailable">Not available yet</span></div>
+          <PlusPlan org={o} plan={plan} say={say} />
         </div>
       </div>
 
@@ -263,6 +266,42 @@ function OrgCard({ org: o, plan, taxonomy, run, rpc, say, render }) {
       </div>
       {/* AI candidate shortlist (EmployerAi.jsx) stays hidden until candidate notice and human review are in place. */}
     </section>
+  );
+}
+
+const longDate = (d) => { const t = Date.parse(d); return Number.isFinite(t) ? new Date(t).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : ''; };
+
+/** Employer Plus card: buy (company owner), or manage billing; state comes from the server only. */
+function PlusPlan({ org: o, plan, say, billing = goToBilling }) {
+  const [busy, setBusy] = useState(false);
+  const price = `$${(plan.monthly_price_cents / 100).toFixed(2)}/month`;
+  const paidLimit = Number(plan.paid_active_limit) || 50;
+  const e = o.entitlement;
+  const current = e && ['active', 'canceled', 'past_due'].includes(e.status) && (!e.paid_through || Date.parse(e.paid_through) > Date.now());
+  const owner = o.role === 'owner';
+  async function go(action) {
+    setBusy(true);
+    const err = await billing(action, { extra: { org: o.id } });
+    setBusy(false);
+    if (err) say(err, 'error');
+  }
+  let body;
+  if (!plan.checkout_available) body = <span className="unavailable">Not available yet</span>;
+  else if (current) {
+    const when = longDate(e.paid_through);
+    body = <>
+      <p className="plus-state"><strong>{e.status === 'past_due' ? 'Payment problem' : 'Active'}</strong>{e.status === 'canceled' ? ` · ends ${when}` : e.status === 'past_due' ? ' · update your card to keep it' : when ? ` · renews ${when}` : ''}</p>
+      {owner && <button className="btn btn-sm btn-outline" type="button" disabled={busy} onClick={() => go('employer_portal')}>{busy ? 'Opening…' : 'Manage billing'}</button>}
+    </>;
+  } else if (o.status !== 'verified') body = <p className="note">Available once your company is verified.</p>;
+  else if (!owner) body = <p className="note">Ask your company’s owner to upgrade.</p>;
+  else body = <button className="btn btn-sm btn-primary" type="button" disabled={busy} onClick={() => go('employer_checkout')}>{busy ? 'Opening secure checkout…' : 'Upgrade to Employer Plus'}</button>;
+  return (
+    <div className={'plan' + (current ? ' plan-current' : '')}>
+      <strong>Employer Plus</strong><div className="price">{price}</div>
+      <p className="note">{`Up to ${paidLimit} active jobs at a time. Cancel any time. Verification and review still apply; new companies keep the 3-job limit for their first week until our team confirms them.`}</p>
+      {body}
+    </div>
   );
 }
 

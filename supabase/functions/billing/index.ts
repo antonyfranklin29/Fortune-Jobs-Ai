@@ -3,6 +3,7 @@
 // Secret: STRIPE_SECRET_KEY (a test key, sk_test_…, until real payments are switched on).
 // The $9.99/month price is created once in Stripe (lookup key fortune_pro_monthly) and reused.
 import { PRO, periodEnd, stripe } from "./stripe.ts";
+import { employerBilling } from "./employer.ts";
 
 const BASE = Deno.env.get("SUPABASE_URL") || "https://hqgakkcxcyspqhnlnscv.supabase.co";
 const KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -36,8 +37,14 @@ Deno.serve(async (req: Request) => {
     const user = check.ok ? await check.json() : null;
     if (!user?.id) return json({ error: "Sign in to subscribe.", status: 401 }, 401);
     if (!user.email_confirmed_at) return json({ error: "Confirm your email address first." }, 403);
-    let body: { action?: string } = {};
+    let body: { action?: string; org?: string } = {};
     try { body = await req.json(); } catch { /* empty */ }
+    if (body.action === "employer_checkout" || body.action === "employer_portal") {
+      // Employer Plus is bought per company and never uses a test key.
+      if (secret.startsWith("sk_test_")) return json({ error: "Employer Plus is launching soon." }, 403);
+      const r = await employerBilling(body.action, body.org, { id: user.id, email: user.email }, secret, db);
+      return json(r.body, r.status);
+    }
 
     const row = (await (await db(`subscriptions?user_id=eq.${user.id}&select=stripe_customer_id,status,current_period_end`)).json())[0];
     let customer = row?.stripe_customer_id as string | undefined;

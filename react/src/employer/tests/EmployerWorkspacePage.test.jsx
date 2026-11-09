@@ -51,6 +51,22 @@ describe('EmployerWorkspacePage', () => {
     expect(screen.getByText('Not available yet')).toBeTruthy();
   });
 
+  it('Employer Plus: owner can upgrade when checkout is on; an active plan shows Manage billing', async () => {
+    const open = { ...PLAN, checkout_available: true, paid_active_limit: 50, monthly_price_cents: 1499 };
+    mount({ user: { email: 'hr@synthetic.com' }, state: { orgs: [{ ...company, role: 'owner' }], plan: open } });
+    await screen.findByText('Upgrade to Employer Plus');
+    expect(screen.getByText(/Up to 50 active jobs at a time/)).toBeTruthy();
+    cleanup();
+    mount({ user: { email: 'hr@synthetic.com' }, state: { orgs: [{ ...company, role: 'member' }], plan: open } });
+    await screen.findByText('Ask your company’s owner to upgrade.');
+    cleanup();
+    const ent = { plan_code: 'employer_plus', status: 'active', paid_through: '2999-01-05T12:00:00Z' };
+    mount({ user: { email: 'hr@synthetic.com' }, state: { orgs: [{ ...company, role: 'owner', entitlement: ent }], plan: open } });
+    await screen.findByText('Manage billing');
+    expect(screen.getByText(/renews January 5, 2999/)).toBeTruthy();
+    expect(screen.queryByText('Upgrade to Employer Plus')).toBeNull();
+  });
+
   it('pending companies see review guidance without any DNS task', async () => {
     mount({ user: { email: 'hr@synthetic.com' }, state: { orgs: [{ ...company, status: 'pending', dns_record: '_x', dns_value: 'secret-fixture' }], plan: PLAN } });
     await screen.findByText(/awaiting review/);

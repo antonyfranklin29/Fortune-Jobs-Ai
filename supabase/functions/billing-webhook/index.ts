@@ -3,7 +3,7 @@
 // Secrets: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET (whsec_… from the Stripe webhook endpoint).
 // Events can arrive twice or out of order, so each one re-reads the subscription from Stripe and
 // stores its current state; the event id is recorded so a repeat is ignored.
-import { periodEnd, stripe, verifySignature } from "./stripe.ts";
+import { entitlementStatus, periodEnd, stripe, verifySignature } from "./stripe.ts";
 
 const BASE = Deno.env.get("SUPABASE_URL") || "https://hqgakkcxcyspqhnlnscv.supabase.co";
 const KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -28,6 +28,20 @@ Deno.serve(async (req: Request) => {
     if (!subId || typeof subId !== "string") return json({ ok: true, note: "no subscription" });
     const sub = await stripe(secret, "GET", `subscriptions/${subId}`);
     if (sub.metadata?.site && sub.metadata.site !== "fortunejobsai") return json({ ignored: "other site" }); // the account also bills another business
+    if (sub.metadata?.kind === "employer_plus") {
+      // Employer Plus: one row per company in employer_entitlements, from the subscription's current state.
+      let orgId = sub.metadata?.org_id;
+      if (!UUID.test(String(orgId || ""))) orgId = (await (await db(`employer_billing_customers?stripe_customer_id=eq.${encodeURIComponent(sub.customer)}&select=org_id`)).json())[0]?.org_id;
+      if (!UUID.test(String(orgId || ""))) return json({ ok: true, note: "unknown company" });
+      const live = (st: string) => ["active", "trialing", "past_due"].includes(st);
+      const cur = (await (await db(`employer_entitlements?org_id=eq.${orgId}&select=provider_ref,status`)).json())[0];
+      if (cur?.provider_ref && cur.provider_ref !== sub.id && ["active", "canceled", "past_due"].includes(cur.status) && !live(sub.status))
+        return json({ ok: true, note: "kept the active subscription" });
+      const ent = { org_id: orgId, plan_code: "employer_plus", status: entitlementStatus(sub), paid_through: periodEnd(sub), provider: sub.livemode ? "stripe" : "stripe_test", provider_ref: sub.id, verified_event_at: new Date((event.created || Date.now() / 1000) * 1000).toISOString(), updated_at: new Date().toISOString() };
+      const w = await db("employer_entitlements", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(ent) });
+      if (!w.ok) throw new Error("db " + w.status);
+      return json({ ok: true, status: sub.status, employer: true });
+    }
     let userId = sub.metadata?.user_id;
     if (!UUID.test(String(userId || ""))) {
       const r = (await (await db(`subscriptions?stripe_customer_id=eq.${encodeURIComponent(sub.customer)}&select=user_id`)).json())[0];

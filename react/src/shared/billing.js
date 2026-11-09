@@ -31,12 +31,12 @@ export async function mySubscription() {
 }
 
 /** Sends the person to Stripe. Resolves to an error message when that isn't possible. */
-export async function goToBilling(action, { fetchImpl = (...a) => window.fetch(...a), go = (u) => { window.location.href = u; } } = {}) {
+export async function goToBilling(action, { fetchImpl = (...a) => window.fetch(...a), go = (u) => { window.location.href = u; }, extra = {} } = {}) {
   const s = await aiSession();
   if (!s) { go(`./login.html?next=${encodeURIComponent(window.location.pathname.replace(/^\//, '') + window.location.search)}`); return null; }
   const { url, key } = window.FJ_CONFIG || {};
   try {
-    const r = await fetchImpl(`${url}/functions/v1/billing`, { method: 'POST', headers: { apikey: key, Authorization: `Bearer ${s.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ action }), signal: AbortSignal.timeout(20000) });
+    const r = await fetchImpl(`${url}/functions/v1/billing`, { method: 'POST', headers: { apikey: key, Authorization: `Bearer ${s.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ ...extra, action }), signal: AbortSignal.timeout(20000) });
     const data = await r.json().catch(() => ({}));
     if (r.ok && /^https:\/\/(checkout|billing)\.stripe\.com\//.test(data.url || '')) { go(data.url); return null; }
     return data.error || 'Payments are unavailable right now. Please try again in a minute.';

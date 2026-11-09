@@ -1,5 +1,14 @@
 // Small Stripe helpers shared by billing and billing-webhook. No SDK: form-encoded REST calls.
 export const PRO = { lookupKey: "fortune_pro_monthly", name: "Fortune Jobs AI Pro", amount: 999, currency: "usd", interval: "month" };
+export const EMPLOYER_PLUS = { lookupKey: "fortune_employer_plus_monthly", name: "Fortune Jobs AI Employer Plus", amount: 1499, currency: "usd", interval: "month" };
+
+/** Stripe subscription status -> employer_entitlements.status (active, canceled, past_due, expired). */
+export function entitlementStatus(sub: Record<string, any>): string {
+  const st = String(sub?.status || "");
+  if (st === "active" || st === "trialing") return sub.cancel_at_period_end || Number.isFinite(sub.cancel_at) ? "canceled" : "active";
+  if (st === "past_due") return "past_due";
+  return "expired";
+}
 
 /** Stripe's form encoding: nested objects become a[b][c]=v. */
 export function form(obj: Record<string, unknown>, prefix = "", out = new URLSearchParams()) {
