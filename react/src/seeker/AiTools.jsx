@@ -138,7 +138,8 @@ export function SmartSearch({ call = callAi, go = (url) => { window.location.hre
     go(`./results.html?${smartSearchParams(res.result)}`);
   }
   return <div className="ai-smart-search" role="search">
-    <label htmlFor="aiSmartSearch">✨ Or describe the job you want</label>
+    <label htmlFor="aiSmartSearch">✨ Or describe the job you want <span className="ai-smart-badge">AI search</span></label>
+    <p className="ai-smart-hint">Type it the way you’d say it. AI turns it into the right filters.</p>
     <div><input id="aiSmartSearch" maxLength={300} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') submit(e); }} placeholder="e.g. remote Power BI jobs in New Jersey posted this week" />
       <button type="button" onClick={submit} disabled={busy || text.trim().length < 3}>{busy ? 'Searching…' : 'Ask AI'}</button></div>
     <AiError error={error} />

@@ -18,14 +18,18 @@
 .ai-disclaimer{margin:10px 0 0;font-size:13px;color:#5b6676}
 .ai-question{border-top:1px solid rgba(16,36,59,.1);padding:8px 0}.ai-question summary{cursor:pointer;font-weight:600}
 .ai-tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:rgba(16,36,59,.08);margin-right:4px}
-.ai-smart-search{margin-top:14px}
+.ai-smart-search{margin-top:16px;padding:14px 16px;border:2px solid transparent;border-radius:16px;background:linear-gradient(#f7f9ff,#f7f9ff) padding-box,linear-gradient(135deg,#174c78,#7c5cff,#d4a843) border-box;box-shadow:0 6px 18px rgba(23,76,120,.14)}
+.ai-smart-badge{display:inline-block;margin-left:6px;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#174c78,#7c5cff);border-radius:999px;padding:3px 9px;vertical-align:middle}
+.ai-smart-hint{margin:0 0 8px;font-size:13px;color:#435477}
+.ai-smart-search button{background:linear-gradient(135deg,#174c78,#7c5cff)!important;border-color:transparent!important;font-weight:700!important;padding:10px 20px!important;box-shadow:0 4px 12px rgba(124,92,255,.3)}
+.ai-smart-search button:disabled{opacity:.8!important}
 .ai-smart-search label{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
 .ai-smart-search>div{display:flex;gap:8px}
 .ai-smart-search input,.ai-skill-gap input{flex:1;min-width:0;font:inherit;font-size:15px;padding:10px 12px;border:1px solid rgba(16,36,59,.25);border-radius:10px}
 .ai-skill-gap form{display:flex;gap:8px;margin-top:8px}
 .ai-candidate{display:grid;gap:6px;margin:10px 0}
 .ai-tools textarea.input{min-height:90px}
-@media(max-width:520px){.ai-smart-search>div,.ai-skill-gap form{flex-direction:column}.ai-buttons button{flex:1 1 100%}}
+@media(max-width:520px){.ai-smart-badge{margin:4px 0 0}.ai-smart-search>div,.ai-skill-gap form{flex-direction:column}.ai-buttons button{flex:1 1 100%}}
 
 /* Job description: full text and the link to the complete original */
 .react-description p { white-space:pre-line; }
