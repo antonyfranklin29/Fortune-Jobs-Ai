@@ -1,9 +1,9 @@
-// Pure rules for company career-board ingestion (Greenhouse, Lever, Ashby, SmartRecruiters).
+// Pure rules for company career-board ingestion (Greenhouse, Lever, Ashby, SmartRecruiters, Workable).
 // No network, no database. Every kept job links to the employer's own posting, so the
 // Apply button never sends a person through another job site.
 import { canonicalUrl, classifyRole, parsePostedAt, stateFromEvidence } from './core.mjs';
 
-export const PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters'];
+export const PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workable'];
 
 // Public, keyless job-list feeds that each provider publishes for a company's own career page.
 export function boardUrl(provider, slug) {
@@ -13,6 +13,7 @@ export function boardUrl(provider, slug) {
     case 'lever': return `https://api.lever.co/v0/postings/${s}?mode=json`;
     case 'ashby': return `https://api.ashbyhq.com/posting-api/job-board/${s}`;
     case 'smartrecruiters': return `https://api.smartrecruiters.com/v1/companies/${s}/postings?country=us&limit=100`;
+    case 'workable': return `https://apply.workable.com/api/v1/widget/accounts/${s}`;
     default: throw new Error('unknown provider');
   }
 }
@@ -31,6 +32,7 @@ const HOSTED = {
   lever: /(^|\.)lever\.co$/i,
   ashby: /(^|\.)ashbyhq\.com$/i,
   smartrecruiters: /(^|\.)smartrecruiters\.com$/i,
+  workable: /(^|\.)workable\.com$/i,
 };
 const AGGREGATORS = /(^|\.)(indeed|linkedin|ziprecruiter|glassdoor|careerjet|jobviewtrack|jooble|haystackapp|adzuna|monster|simplyhired|talent)\.(com|io|org|net)$/i;
 
@@ -90,6 +92,16 @@ export function extract(provider, j, board) {
         id: j.id, title: j.name, url: `https://jobs.smartrecruiters.com/${encodeURIComponent(board.slug)}/${encodeURIComponent(j.id)}`,
         locations: [l.city && l.region ? `${l.city}, ${l.region}` : l.region, l.fullLocation],
         posted: j.releasedDate, workplace: l.remote ? 'remote' : (l.hybrid ? 'hybrid' : ''), employment: j.typeOfEmployment?.label || null,
+        description: null };
+    }
+    case 'workable': {
+      // Only the job's US locations; a job listed only outside the US is skipped.
+      const us = (Array.isArray(j.locations) ? j.locations : []).filter((l) => l && !l.hidden && String(l.countryCode || '').toUpperCase() === 'US');
+      if (!us.length) return null;
+      return {
+        id: j.shortcode, title: j.title, url: j.url || j.shortlink,
+        locations: us.map((l) => (l.city && l.region ? `${l.city}, ${l.region}` : l.region || l.city)),
+        posted: j.published_on || j.created_at, workplace: j.telecommuting ? 'remote' : '', employment: j.employment_type || null,
         description: null };
     }
   }

@@ -57,7 +57,7 @@ export const runAi = (task) => {
 };
 
 export function JobFacts({ job }) {
-  const source = job.source === 'adzuna' ? 'Adzuna' : job.source === 'usajobs' ? 'USAJOBS (federal)' : ['greenhouse', 'lever', 'ashby', 'smartrecruiters'].includes(job.source) ? `${job.company} careers site` : 'Employer';
+  const source = job.source === 'adzuna' ? 'Adzuna' : job.source === 'usajobs' ? 'USAJOBS (federal)' : ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workable'].includes(job.source) ? `${job.company} careers site` : 'Employer';
   const rows = [
     ['Company', job.company], ['Location', job.location || 'Not specified'],
     ['Work mode', job.work_mode ? job.work_mode[0].toUpperCase() + job.work_mode.slice(1) : 'Not stated'],
@@ -117,7 +117,7 @@ export function NextSteps() {
 
 /** "Where Apply goes": tells people plainly whether the button opens the employer or another site. */
 export function WhyReal({ job }) {
-  const ats = ['greenhouse', 'lever', 'ashby', 'smartrecruiters'].includes(job.source);
+  const ats = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workable'].includes(job.source);
   const [icon, head, text, ok] =
     ats ? ['✓', 'Direct from the employer', `Apply opens ${job.company || 'the company'}’s own careers page. No sign-up on another job site.`, true]
     : job.source === 'usajobs' ? ['✓', 'Official federal job', 'Apply opens the posting on USAJOBS.gov, the U.S. government’s job site.', true]

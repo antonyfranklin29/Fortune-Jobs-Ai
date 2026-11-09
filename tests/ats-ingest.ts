@@ -69,3 +69,14 @@ Deno.test("core.mjs and config.mjs are current copies of job-ingest (run scripts
   const b = await Deno.readTextFile(new URL("../supabase/functions/ats-ingest/config.mjs", import.meta.url));
   assertEquals(a, b);
 });
+
+Deno.test("workable: US locations only, link to the Workable posting", () => {
+  const job = { shortcode: "AB12", title: "Senior Software Engineer", url: "https://apply.workable.com/j/AB12", published_on: new Date().toISOString().slice(0, 10), telecommuting: false, employment_type: "Full-time",
+    locations: [{ country: "Canada", countryCode: "CA", city: "Toronto", region: "Ontario" }, { country: "United States", countryCode: "US", city: "Austin", region: "Texas" }] };
+  const r = normalize("workable", job, board("workable", "Valsoft Corporation"), ctx);
+  assertEquals(r.row?.state_code, "TX");
+  assertEquals(r.row?.apply_url, "https://apply.workable.com/j/AB12");
+  assertEquals(r.row?.employment_type, "Full-time");
+  assertEquals(normalize("workable", { ...job, locations: [{ countryCode: "FR", city: "Paris", region: "Île-de-France" }] }, board("workable"), ctx).reject, "malformed_or_non_us");
+  assertEquals(normalize("workable", { ...job, url: "https://www.linkedin.com/jobs/1" }, board("workable"), ctx).reject, "not_employer_link");
+});
