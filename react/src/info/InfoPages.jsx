@@ -64,8 +64,8 @@ export function TermsPage() {
 <nav className="top-nav"><a className="logo-text logo" href="index.html">Fortune Jobs AI</a><div><a className="nav-link" href="find-jobs.html">Find jobs</a><a className="nav-link" href="contact.html">Contact</a></div></nav>
 <main>
 <h1>Terms of Use</h1>
-<p>Effective November 7, 2026</p>
-<div className="notice">Fortune Jobs AI is a job-discovery service in its launch phase. Search results may be limited while job feeds and employer posting are being tested. The Pro subscription described below opens to everyone when it is announced on the site; no employer publishing plan is available today.</div>
+<p>Effective November 8, 2026</p>
+<div className="notice">Fortune Jobs AI is a job-discovery service in its launch phase. Search results may be limited while job feeds and employer posting are being tested. The Pro subscription described below is available to everyone; no paid employer publishing plan is available today.</div>
 <h2>Who provides the service</h2>
 <p>These terms are an agreement between you and YOU DO LMS INC. (“we”, “us”), a New Jersey corporation that operates Fortune Jobs AI at fortunejobsai.com. Mailing address: 1553 Route 27, Suite 1000, Somerset, NJ 08873, United States.</p>
 <h2>Using the service</h2>
@@ -85,7 +85,7 @@ export function TermsPage() {
 <p>Employers may not submit fake or misleading opportunities, discriminatory ads, unlawful recruitment requirements, malware, or posts that require applicants to pay to get a job. They must have the rights needed for us to display and format submitted content and must comply with employment, privacy and advertising laws that apply to their postings and hiring process. We may reject, pause, remove or correct a post or feed when necessary to protect users or comply with law. Approved companies can have up to 15 active posts under the current free allowance; drafts and posts awaiting review do not count as active.</p>
 <p>Submitting content gives Fortune Jobs AI permission to store, review, format and display it for the job-discovery service while the submission remains authorized. The employer keeps responsibility for its content and application process. A third-party feed or job listing does not become the employer's own post merely because it appears in search.</p>
 <h2>Plans and communications</h2>
-<p>Paid plans are being planned but are not available, and we are not collecting subscription payments. Prices shown on the site are proposals until checkout terms are published and billing is enabled. Creating an account, using Google sign-in or searching does not sign you up for a paid plan or the optional marketing newsletter. Account and security emails may still be sent to operate your account. See <a href="privacy.html">Privacy information</a> for data handling and email choices.</p>
+<p>The only paid plan today is Fortune Jobs AI Pro, described above; you are charged only after you choose Pro and confirm payment at checkout. Creating an account, using Google sign-in or searching does not sign you up for a paid plan or the optional marketing newsletter. Account and security emails may still be sent to operate your account. See <a href="privacy.html">Privacy information</a> for data handling and email choices.</p>
 <h2>Availability and changes</h2>
 <p>Features and listings may be unavailable or change during testing. We may restrict access that threatens the service, other users or legal compliance. We will post updates to these terms with a new effective date and seek any additional agreement required before applying material new terms. These terms do not remove rights that applicable law does not allow us to waive.</p>
 <h2>Questions and reports</h2>

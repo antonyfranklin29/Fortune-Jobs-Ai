@@ -14,16 +14,14 @@ describe('Pro', () => {
     expect(isActive({ ...active, current_period_end: new Date(Date.now() - 1000).toISOString() })).toBe(false);
     expect(isActive(null)).toBe(false);
   });
-  it('shows "Coming soon" with no Subscribe button until Pro opens', () => {
+  it('Pro is open: everyone sees Subscribe, not "Coming soon"', () => {
     render(<ProCard subscription={null} />);
-    expect(screen.getByText('Coming soon')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: /subscribe/i })).toBeNull();
+    expect(screen.queryByText('Coming soon')).toBeNull();
+    expect(screen.getAllByRole('button', { name: 'Subscribe to Pro' }).length).toBeGreaterThan(0);
   });
-  it('shows Subscribe and the renewal terms to testers', () => {
-    sessionStorage.setItem('fj_pro_test', '1');
+  it('shows the renewal and refund terms next to Subscribe', () => {
     render(<ProCard subscription={null} />);
-    expect(screen.getByRole('button', { name: 'Subscribe to Pro' })).toBeTruthy();
-    expect(screen.getByText(/Renews monthly at \$9\.99 until you cancel/)).toBeTruthy();
+    expect(screen.getAllByText(/Renews monthly at \$9\.99 until you cancel/).length).toBeGreaterThan(0);
   });
   it('tells members they have Pro and when it renews', () => {
     render(<><ProCard subscription={active} /><SubscriptionSection subscription={active} /></>);

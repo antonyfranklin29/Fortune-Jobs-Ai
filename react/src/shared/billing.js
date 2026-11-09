@@ -3,7 +3,7 @@ import { aiSession } from './ai.js';
 
 // Pro is open to everyone only once real payments are switched on. Until then the Subscribe button
 // shows for testers who open any results page with ?pro_test=1 (remembered for the tab).
-export const PRO_OPEN = false;
+export const PRO_OPEN = true;
 export function proVisible(search = typeof window !== 'undefined' ? window.location.search : '') {
   if (PRO_OPEN) return true;
   try {
