@@ -29,8 +29,14 @@
 .dashboard .search-bar button { margin-left:13px; padding:11px 18px; min-height:46px; cursor:pointer; white-space:nowrap; }
 .dashboard-resume-links { display:flex; align-items:center; flex-wrap:wrap; gap:12px 25px; margin-top:12px; font-size:14px; }
 .dashboard-resume-links a { color:#064bc8; }
-.dashboard .dashboard-upload { border:1px solid #c8d6ea; background:#f8fbffc9; border-radius:12px; padding:7px 14px; box-shadow:0 3px 8px #314b7424; color:var(--ink); text-decoration:none; font-weight:650; }
-.dashboard-upload small { margin-left:6px; font-weight:400; color:#435477; }
+.dashboard .dashboard-upload { display:flex; align-items:center; gap:14px; flex:1 1 100%; border:2px solid #d4a843; background:linear-gradient(135deg,#fff8e6,#fffdf7); border-radius:16px; padding:14px 18px; box-shadow:0 6px 18px #d4a84340; color:var(--ink); text-decoration:none; transition:transform .15s, box-shadow .15s; }
+.dashboard .dashboard-upload:hover, .dashboard .dashboard-upload:focus-visible { transform:translateY(-1px); box-shadow:0 10px 24px #d4a84366; }
+.dashboard-upload-icon { flex:0 0 44px; height:44px; border-radius:12px; display:grid; place-items:center; background:#10243b; color:#fff; font-size:22px; font-weight:800; }
+.dashboard-upload-text { display:flex; flex-direction:column; gap:3px; min-width:0; }
+.dashboard-upload-text strong { font-size:17px; font-weight:750; display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.dashboard-upload-badge { font-size:11px; font-weight:800; letter-spacing:.03em; text-transform:uppercase; background:#15803d; color:#fff; border-radius:999px; padding:3px 9px; }
+.dashboard-upload small { font-size:13px; font-weight:400; color:#435477; line-height:1.4; }
+.dashboard-upload-arrow { margin-left:auto; font-size:22px; color:#10243b; font-weight:700; }
 .dashboard-filterbar { display:flex; align-items:center; flex-wrap:wrap; gap:10px; background:#f6f9fe60; border-block:1px solid #fff9; padding:12px clamp(16px,2.3vw,36px); }
 .dashboard-filterbar .filter-pill,.dashboard-more summary { display:inline-flex; align-items:center; border:1px solid #d0dcf0; border-radius:22px; min-height:36px; padding:0 12px; background:#f7faffba; box-shadow:0 3px 8px #314b7418; color:var(--ink); }
 .dashboard-filterbar select,.dashboard-filterbar input { width:auto; min-width:0; background:transparent; color:inherit; border:0; font:inherit; font-size:14px; padding:4px; }

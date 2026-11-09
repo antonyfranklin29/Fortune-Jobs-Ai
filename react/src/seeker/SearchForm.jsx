@@ -57,7 +57,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
     </div></div>
     {error && <p className="react-search-error" role="alert">{error}</p>}
     <SmartSearch />
-    <div className="dashboard-resume-links"><a className="dashboard-upload" href="./resume-search.html">⇧ Upload Résumé <small>PDF, DOCX · up to 10MB</small></a><a href={`./results.html?${new URLSearchParams({ mode: 'quick', resume: '0', q: query.trim(), location: location.trim() })}`}>Search without résumé</a></div>
+    <div className="dashboard-resume-links"><a className="dashboard-upload" href="./resume-search.html"><span className="dashboard-upload-icon" aria-hidden="true">⇧</span><span className="dashboard-upload-text"><strong>Upload your résumé <span className="dashboard-upload-badge">Free ATS score</span></strong><small>Get matched jobs and an ATS readiness check · PDF or DOCX, up to 5 MB</small></span><span className="dashboard-upload-arrow" aria-hidden="true">→</span></a><a href={`./results.html?${new URLSearchParams({ mode: 'quick', resume: '0', q: query.trim(), location: location.trim() })}`}>Search without résumé</a></div>
     </div></div>
     <div className="dashboard-filterbar">
     <details className="dashboard-more"><summary>☷ Filters</summary><div className="dashboard-extra">
