@@ -130,3 +130,19 @@ describe('ResumeBuilderPage', () => {
     expect($('importStatus').textContent).toBe('');
   });
 });
+
+describe('ATS readiness score', () => {
+  it('updates as the person types and checks pasted job keywords', () => {
+    setup();
+    const score = () => Number($('atsScore').textContent.match(/(\d+)\/100/)[1]);
+    const before = score();
+    type('name', 'Ana Silva'); type('email', 'ana@example.com'); type('phone', '555-0100'); type('target', 'Data Analyst');
+    type('skills', 'SQL\nPower BI\nExcel');
+    expect(score()).toBeGreaterThan(before);
+    expect($('atsKeywords')).toBeNull();
+    type('jobText', 'Data Analyst needed with SQL, Power BI and Snowflake experience for weekly reporting.');
+    expect($('atsKeywords').textContent).toMatch(/SQL/);
+    expect($('atsKeywords').textContent).toMatch(/Missing:.*Snowflake/);
+    expect($('preview').textContent).not.toMatch(/ATS/);
+  });
+});

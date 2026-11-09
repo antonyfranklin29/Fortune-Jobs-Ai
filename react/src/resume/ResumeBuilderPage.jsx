@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { readErrorText, readResumeFile, useResumeServices } from './services.jsx';
 import { FIELDS, advice, contactLine, draft, profileSuggestions } from './lib/resumeBuilder.js';
 import { suggest } from './lib/resumeMatching.js';
+import { atsCheck } from './lib/atsCheck.js';
 import './resume-base.css';
 import './resume-builder.css';
 
@@ -25,6 +26,7 @@ export function ResumeBuilderPage() {
   const svc = useResumeServices();
   const [values, setValues] = useState(BLANK);
   const [confirmed, setConfirmed] = useState(false);
+  const [jobText, setJobText] = useState('');
   const [profile, setProfile] = useState({ status: '', signIn: false, suggestions: null });
   const [imported, setImported] = useState({ status: '', text: '', suggestions: null });
   const profileGen = useRef(0);
@@ -37,6 +39,7 @@ export function ResumeBuilderPage() {
 
   const data = draft(values);
   const tips = advice(data);
+  const ats = atsCheck(data, jobText);
   const canExport = confirmed && !!data.name && !!(data.email || data.phone);
   const set = (k) => (e) => setValues((v) => ({ ...v, [k]: e.target.value }));
   const fillEmpty = (pairs) => setValues((v) => {
@@ -52,7 +55,7 @@ export function ResumeBuilderPage() {
     importGen.current++; profileGen.current++;
     setImported({ status: '', text: '', suggestions: null });
     setProfile({ status: '', signIn: false, suggestions: null });
-    setValues(BLANK); setConfirmed(false);
+    setValues(BLANK); setConfirmed(false); setJobText('');
   }
 
   async function loadProfile() {
@@ -166,6 +169,34 @@ export function ResumeBuilderPage() {
               <div className="field"><label htmlFor="skills">Skills, one per line</label>{area('skills', 'Skills', { maxLength: 2000, rows: 4, placeholder: 'SQL\nPower BI' })}</div>
               <div className="field"><label htmlFor="education">Education and credentials, one per line</label>{area('education', 'Education', { maxLength: 2000, rows: 3 })}</div>
               <div className="field"><label htmlFor="projects">Projects, one per line</label>{area('projects', 'Projects', { maxLength: 3000, rows: 3 })}</div>
+            </section>
+            <section className="ats-card" aria-labelledby="atsTitle">
+              <div className="ats-head">
+                <div className={'ats-score ats-' + (ats.score >= 85 ? 'strong' : ats.score >= 70 ? 'good' : ats.score >= 50 ? 'work' : 'start')} aria-hidden="true"><span>{ats.score}</span></div>
+                <div>
+                  <h2 id="atsTitle">ATS readiness score</h2>
+                  <p id="atsScore" role="status" aria-live="polite"><strong>{ats.score}/100 · {ats.grade}</strong></p>
+                  <p className="small">Checks what applicant tracking systems (ATS) and recruiters commonly look for. Every employer’s ATS is different, so no tool can predict your exact result.</p>
+                </div>
+              </div>
+              <div className="field">
+                <label htmlFor="jobText">Paste a job description to check keywords (optional)</label>
+                <textarea className="input" id="jobText" rows={3} maxLength={20000} value={jobText} onChange={(e) => setJobText(e.target.value)} placeholder="Paste the full job listing here. It stays in this browser tab." />
+              </div>
+              {ats.keywords && (
+                <div id="atsKeywords" className="ats-keywords">
+                  <p><strong>Job keywords on your résumé:</strong> {ats.keywords.matched.length ? ats.keywords.matched.join(', ') : 'none yet'}</p>
+                  {ats.keywords.missing.length > 0 && <p><strong>Missing:</strong> {ats.keywords.missing.join(', ')}. Add only the ones you really have.</p>}
+                </div>
+              )}
+              <ul id="atsChecks" className="ats-checks">
+                {ats.checks.map((c) => (
+                  <li key={c.id} className={c.ok ? 'ok' : 'todo'}>
+                    <span className="ats-mark" aria-hidden="true">{c.ok ? '✓' : '!'}</span>
+                    <span><strong>{c.label}</strong> <span className="small">{c.points}/{c.max}</span>{c.tip && <><br /><span className="ats-tip">{c.tip}</span></>}</span>
+                  </li>
+                ))}
+              </ul>
             </section>
             <div id="advice" className="notice" aria-live="polite">
               <strong>{tips.length ? 'Before you export' : 'Ready to review'}</strong>
