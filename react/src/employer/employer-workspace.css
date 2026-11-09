@@ -45,3 +45,5 @@
 .fja-employer .employer-nav-actions{gap:12px}}
 @media (max-width:560px){.fja-employer .post{grid-template-columns:1fr}
 .fja-employer .post .actions{justify-content:flex-start}}
+.fja-employer .apply-method{display:flex;flex-direction:column;gap:8px;padding:0;margin:4px 0}
+.fja-employer .apply-method label{display:flex;gap:8px;align-items:center;font-weight:500}

@@ -1,0 +1,23 @@
+.fja-apply{--navy:#10243b;--blue:#174c78;--gold:#d4a843;--gray:#5a6b7d;font-family:Inter,Arial,sans-serif;color:var(--navy);background:#f5f8fc;min-height:100vh}
+.fja-apply *{box-sizing:border-box}
+.fja-apply .nav{display:flex;align-items:center;gap:20px;max-width:900px;margin:auto;padding:18px 16px;border-bottom:1px solid #e2e8f0}
+.fja-apply .nav .brand{margin-right:auto;font-weight:800;font-size:18px;color:var(--navy);text-decoration:none}
+.fja-apply .nav a{font-weight:600;color:var(--blue);text-decoration:none}
+.fja-apply main{max-width:820px;margin:28px auto;padding:0 16px}
+.fja-apply .card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px}
+.fja-apply h1{font-size:30px;line-height:1.2;margin:4px 0 8px}
+.fja-apply h2{font-size:19px;margin:22px 0 8px}
+.fja-apply .company{font-weight:700;color:var(--blue);margin:0}
+.fja-apply .meta{color:var(--gray);margin:0 0 14px}
+.fja-apply .preview{background:#fff7e0;border:1px solid var(--gold);border-radius:10px;padding:10px 12px;margin:0 0 14px;font-size:14px}
+.fja-apply .apply-box{border:2px solid var(--gold);background:linear-gradient(135deg,#fff8e6,#fffdf7);border-radius:14px;padding:16px 18px;margin:16px 0}
+.fja-apply .apply-box h2{margin-top:0}
+.fja-apply .apply-box p{line-height:1.6;overflow-wrap:anywhere}
+.fja-apply .actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.fja-apply .btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 20px;border-radius:999px;background:var(--navy);color:#fff;font:inherit;font-weight:700;text-decoration:none;border:1px solid var(--navy);cursor:pointer}
+.fja-apply .btn-outline{background:#fff;color:var(--navy)}
+.fja-apply .small{font-size:13px;color:var(--gray)}
+.fja-apply .desc{white-space:pre-wrap;line-height:1.7}
+.fja-apply .safety{font-size:13px;color:var(--gray);border-top:1px solid #e2e8f0;padding-top:14px;margin-top:22px}
+.fja-apply .error{color:#b42318}
+@media(max-width:600px){.fja-apply h1{font-size:24px}.fja-apply .card{padding:18px}.fja-apply .actions .btn{flex:1 1 100%}}

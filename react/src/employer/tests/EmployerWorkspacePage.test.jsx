@@ -81,8 +81,33 @@ describe('EmployerWorkspacePage', () => {
     const [, args] = b.rpcCalls().find((c) => c[0] === 'employer_save_post');
     expect(args.p_org).toBe('org1');
     expect(args.p_post).toBeNull();
-    expect(Object.keys(args.p_fields).sort()).toEqual(['apply_url', 'canonical_role', 'city', 'closing_date', 'description', 'employment_type', 'job_title', 'posting_date', 'state_code', 'work_mode']);
-    expect(args.p_fields).toMatchObject({ job_title: 'Analyst', canonical_role: 'data_analyst', state_code: 'NC', work_mode: 'onsite', employment_type: 'Full-time' });
+    expect(Object.keys(args.p_fields).sort()).toEqual(['apply_email', 'apply_url', 'canonical_role', 'city', 'closing_date', 'description', 'employment_type', 'job_title', 'posting_date', 'state_code', 'work_mode']);
+    expect(args.p_fields).toMatchObject({ job_title: 'Analyst', canonical_role: 'data_analyst', state_code: 'NC', work_mode: 'onsite', employment_type: 'Full-time', apply_email: '' });
+  });
+
+  it('a job can take applications by email at the company domain instead of a link', async () => {
+    const b = mount({ user: { email: 'hr@synthetic.com' }, state: { orgs: [company], plan: PLAN }, rpc: { employer_save_post: () => ({ data: {}, error: null }) } });
+    await screen.findByText('Private Synthetic Company');
+    fireEvent.click(screen.getByRole('button', { name: 'New job post' }));
+    fireEvent.change(screen.getByLabelText('Job title'), { target: { value: 'Java Developer' } });
+    fireEvent.change(screen.getByLabelText('City'), { target: { value: 'Edison' } });
+    fireEvent.click(screen.getByLabelText('By email (no link needed)'));
+    expect(screen.queryByLabelText('Application link')).toBeNull();
+    fireEvent.change(screen.getByLabelText('Application email'), { target: { value: 'jobs.synthetic@gmail.com' } });
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Save draft' })); });
+    expect(screen.getByText('The email address must be at synthetic.com, your verified company domain.')).toBeTruthy();
+    expect(b.rpcCalls().some((c) => c[0] === 'employer_save_post')).toBe(false);
+    fireEvent.change(screen.getByLabelText('Application email'), { target: { value: 'Recruiting@Synthetic.com' } });
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Save draft' })); });
+    const [, args] = b.rpcCalls().find((c) => c[0] === 'employer_save_post');
+    expect(args.p_fields).toMatchObject({ apply_email: 'recruiting@synthetic.com', apply_url: '' });
+  });
+
+  it('shows the email method and a preview link for email-apply posts', async () => {
+    const post = { id: 'p9', job_title: 'Java Developer', status: 'draft', city: 'Edison', state_code: 'NJ', employment_type: 'Contract', work_mode: 'hybrid', closing_date: '2026-12-01', apply_url: 'https://fortunejobsai.com/apply.html?job=p9' };
+    mount({ user: { email: 'hr@synthetic.com' }, state: { orgs: [{ ...company, posts: [post] }], plan: PLAN }, rpc: { employer_apply_emails: () => ({ data: { p9: 'recruiting@synthetic.com' }, error: null }) } });
+    await screen.findByText(/Candidates apply by email to/);
+    expect(screen.getByText('Preview apply page').getAttribute('href')).toBe('https://fortunejobsai.com/apply.html?job=p9');
   });
 
   it('a rejected edit to a live post explains that the live version is unchanged', async () => {

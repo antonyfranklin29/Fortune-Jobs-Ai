@@ -25,7 +25,8 @@ export default defineConfig({
         privacy: resolve(import.meta.dirname, 'privacy.html'),
         terms: resolve(import.meta.dirname, 'terms.html'),
         contact: resolve(import.meta.dirname, 'contact.html'),
-        emailPreferences: resolve(import.meta.dirname, 'email-preferences.html')
+        emailPreferences: resolve(import.meta.dirname, 'email-preferences.html'),
+        apply: resolve(import.meta.dirname, 'apply.html')
       }
     }
   }

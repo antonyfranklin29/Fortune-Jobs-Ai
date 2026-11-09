@@ -6,7 +6,7 @@ const required = [
   'index.html', 'find-jobs.html', 'results.html', 'login.html',
   'employer-login.html', 'profile.html', 'employers.html',
   'resume-search.html', 'resume-builder.html', 'privacy.html',
-  'terms.html', 'about.html', 'contact.html', 'email-preferences.html'
+  'terms.html', 'about.html', 'contact.html', 'email-preferences.html', 'apply.html'
 ];
 const missing = [];
 
@@ -16,7 +16,7 @@ for (const page of required) {
   const html = fs.readFileSync(file, 'utf8');
   // Public pages can be listed by search engines; account pages never are.
   const noindex = /<meta\s+name=["']robots["']\s+content=["']noindex\s*,\s*nofollow["']/i.test(html);
-  const privatePage = ['login.html', 'profile.html', 'email-preferences.html', 'employer-login.html', 'employers.html'].includes(page);
+  const privatePage = ['login.html', 'profile.html', 'email-preferences.html', 'employer-login.html', 'employers.html', 'apply.html'].includes(page);
   if (privatePage && !noindex) missing.push(`${page} → account page must keep its noindex tag`);
   if (!privatePage && noindex) missing.push(`${page} → public page must not carry a noindex tag`);
   // Shared helpers are bundled into the React app (src/lib/sharedLibs.js); no page loads them as legacy scripts.

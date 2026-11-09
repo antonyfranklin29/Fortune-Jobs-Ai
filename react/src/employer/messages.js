@@ -26,6 +26,8 @@ export const MESSAGES = {
   board_already_registered: 'That career board is already registered.',
   try_again_in_a_minute: 'Please wait a minute before checking again.',
   upgrade_required: 'You already have 15 active posts. Close one to free a slot. Employer Plus is not available yet.',
+  apply_email_domain_mismatch: 'The application email must be at your verified company domain, for example recruiting@yourcompany.com.',
+  apply_link_required: 'Add an application link, or choose By email and enter an address at your company domain.',
   apply_url_already_listed: 'This application link is already listed on Fortune Jobs AI. Our team will check it.',
   org_not_verified: 'Approved. It will go live once your organization is verified.',
   expired: 'The closing date has passed. Edit the dates and resubmit.',

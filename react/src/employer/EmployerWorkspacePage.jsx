@@ -74,6 +74,15 @@ export function EmployerWorkspacePage({ prompt: askPrompt }) {
     }
     if (v !== version.current) return;
     if (!state || !Array.isArray(state.orgs) || !state.plan) { setView({ phase: 'error', user, state: null, queue: null }); say('Company details could not be loaded. Please reload.', 'error'); return; }
+    // Apply-by-email addresses are read separately (not part of employer_my_state).
+    for (const o of state.orgs) {
+      if (!Array.isArray(o.posts) || !o.posts.length) continue;
+      try {
+        const { data, error } = await fj.sb.rpc('employer_apply_emails', { p_org: o.id });
+        if (!error && data && typeof data === 'object') o.posts = o.posts.map((p) => (data[p.id] ? { ...p, apply_email: data[p.id] } : p));
+      } catch { /* older database: links only */ }
+    }
+    if (v !== version.current) return;
     setStatus({ text: '', kind: 'info' });
     setRegisterOpen(state.orgs.length === 0);
     setView({ phase: 'ready', user, state, queue: null });
@@ -271,6 +280,7 @@ function PostRow({ org: o, post: p, taxonomy, run, rpc, say, render }) {
         <div>
           <div><strong>{p.job_title}</strong> <Chip status={POST_STATUS[p.status] || [p.status, '']} /></div>
           <div className="meta">{`${p.city}, ${p.state_code} · ${p.employment_type} · ${p.work_mode} · closes ${p.closing_date}`}</div>
+          {p.apply_email && <div className="meta">{'Candidates apply by email to '}{p.apply_email}{' · '}<a href={p.apply_url} target="_blank" rel="noopener noreferrer">Preview apply page</a></div>}
           {notes.map((n) => <div className="meta" key={n}>{n}</div>)}
         </div>
         <div className="actions">{actions.map(([label, fn, cls]) => <button key={label} className={'btn btn-sm ' + cls} type="button" onClick={fn}>{label}</button>)}</div>
@@ -282,7 +292,7 @@ function PostRow({ org: o, post: p, taxonomy, run, rpc, say, render }) {
 
 function PostForm({ org: o, post: p, taxonomy, rpc, say, render, onCancel }) {
   const v = p || {};
-  const ids = { title: useFieldId(), role: useFieldId(), type: useFieldId(), city: useFieldId(), state: useFieldId(), mode: useFieldId(), desc: useFieldId(), url: useFieldId(), from: useFieldId(), to: useFieldId() };
+  const ids = { title: useFieldId(), role: useFieldId(), type: useFieldId(), city: useFieldId(), state: useFieldId(), mode: useFieldId(), desc: useFieldId(), url: useFieldId(), email: useFieldId(), from: useFieldId(), to: useFieldId() };
   // Like a native <select> with no selected option, an unknown value falls back to the first option.
   const firstOr = (opts, val) => (opts.some(([k]) => k === val) ? val : (opts[0] ? opts[0][0] : ''));
   const roleOpts = taxonomy.roles.map((r) => [r.id, r.name]);
@@ -292,17 +302,27 @@ function PostForm({ org: o, post: p, taxonomy, rpc, say, render, onCancel }) {
   const [f, setF] = useState(() => ({
     job_title: v.job_title || '', canonical_role: firstOr(roleOpts, v.canonical_role), state_code: firstOr(regionOpts, v.state_code), city: v.city || '',
     work_mode: firstOr(modeOpts, v.work_mode), employment_type: firstOr(typeOpts, v.employment_type), description: v.description || '',
-    apply_url: v.apply_url || '', posting_date: v.posting_date || today(), closing_date: v.closing_date || plusDays(today(), 30),
+    apply_url: v.apply_email ? '' : (v.apply_url || ''), apply_email: v.apply_email || '', posting_date: v.posting_date || today(), closing_date: v.closing_date || plusDays(today(), 30),
   }));
   const [msg, setMsg] = useState('');
+  const [method, setMethod] = useState(v.apply_email ? 'email' : 'link');
   const set = (k) => (val) => setF((cur) => ({ ...cur, [k]: typeof val === 'string' ? val : val.target.value }));
+  const domain = String(o.primary_domain || o.domain || '').toLowerCase();
 
   async function onSubmit(e) {
     e.preventDefault();
     // Content fields only. Status, plan and approval are never sent.
     const fields = {};
     for (const [k, val] of Object.entries(f)) fields[k] = String(val).trim();
-    if (!/^https:\/\//i.test(fields.apply_url)) { setMsg('The application link must start with https://'); return; }
+    if (method === 'email') {
+      fields.apply_email = fields.apply_email.toLowerCase(); fields.apply_url = '';
+      const at = fields.apply_email.split('@')[1] || '';
+      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(fields.apply_email)) { setMsg('Enter the email address where candidates should send their résumé.'); return; }
+      if (domain && at !== domain && !at.endsWith('.' + domain)) { setMsg(`The email address must be at ${domain}, your verified company domain.`); return; }
+    } else {
+      fields.apply_email = '';
+      if (!/^https:\/\//i.test(fields.apply_url)) { setMsg('The application link must start with https://'); return; }
+    }
     try {
       await rpc('employer_save_post', { p_org: o.id, p_post: p ? p.id : null, p_fields: fields });
       say('Saved. Submit it for review when you are ready.', 'ok');
@@ -327,7 +347,14 @@ function PostForm({ org: o, post: p, taxonomy, rpc, say, render, onCancel }) {
       </div>
       {o.status === 'verified' && <AiPostWriter title={f.job_title} company={o.name} current={f.description} onUse={(text) => set('description')(text)} />}
       <Field label="Description" id={ids.desc} hint="Plain text, at least 50 characters. Do not ask candidates to pay or to send sensitive personal data."><textarea className="input" id={ids.desc} maxLength={8000} required value={f.description} onChange={set('description')} /></Field>
-      <Field label="Application link" id={ids.url} hint="An https page where candidates apply. We review every link before it goes live."><input className="input" id={ids.url} type="url" maxLength={2000} required placeholder="https://" value={f.apply_url} onChange={set('apply_url')} /></Field>
+      <fieldset className="apply-method">
+        <legend>How should candidates apply?</legend>
+        <label><input type="radio" name="applyMethod" value="link" checked={method === 'link'} onChange={() => setMethod('link')} /> Through a link (careers page or job board)</label>
+        <label><input type="radio" name="applyMethod" value="email" checked={method === 'email'} onChange={() => setMethod('email')} /> By email (no link needed)</label>
+      </fieldset>
+      {method === 'link'
+        ? <Field label="Application link" id={ids.url} hint="An https page where candidates apply. We review every link before it goes live."><input className="input" id={ids.url} type="url" maxLength={2000} required placeholder="https://" value={f.apply_url} onChange={set('apply_url')} /></Field>
+        : <Field label="Application email" id={ids.email} hint={`Candidates email their résumé straight to this address. It must be at ${domain || 'your company domain'}. Email jobs are checked by our team before they go live.`}><input className="input" id={ids.email} type="email" maxLength={254} required placeholder={domain ? `recruiting@${domain}` : 'recruiting@yourcompany.com'} value={f.apply_email} onChange={set('apply_email')} /></Field>}
       <div className="grid2">
         <Field label="Posting date" id={ids.from}><input className="input" id={ids.from} type="date" required value={f.posting_date} onChange={set('posting_date')} /></Field>
         <Field label="Closing date" id={ids.to} hint="Up to 90 days after posting."><input className="input" id={ids.to} type="date" required value={f.closing_date} onChange={set('closing_date')} /></Field>
@@ -456,7 +483,7 @@ function ReviewQueue({ queue: q, run, rpc, ask }) {
               <p className="meta">{`${p.org} · ${p.org_domain || 'domain unavailable'} · ${p.org_status || 'status unavailable'}`}</p>
               <p className="meta">{`${p.city || 'City unavailable'}, ${p.state_code || 'state unavailable'} · ${p.work_mode || 'work mode unavailable'} · ${p.employment_type || 'type unavailable'} · ${p.canonical_role || 'role unavailable'}`}</p>
               <p className="meta">{`Posted ${p.posting_date || 'date unavailable'} · Closes ${p.closing_date || 'date unavailable'}`}</p>
-              <p>Apply link: <a href={p.apply_url} rel="noopener noreferrer nofollow" target="_blank">{p.apply_url}</a></p>
+              <p>{/\/apply\.html\?job=/.test(p.apply_url || '') ? 'Apply by email. Check the address on the preview page: ' : 'Apply link: '}<a href={p.apply_url} rel="noopener noreferrer nofollow" target="_blank">{p.apply_url}</a></p>
               <p className="meta">Submitted description</p>
               <p style={{ whiteSpace: 'pre-wrap' }}>{p.description || 'Description unavailable. Do not approve until the submitted revision is visible.'}</p>
               <div className="actions"><button className="btn btn-sm btn-primary" type="button" disabled={!p.description} onClick={() => approvePost(p)}>Approve this revision</button></div>
