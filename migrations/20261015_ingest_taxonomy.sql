@@ -100,20 +100,20 @@ returns text language plpgsql immutable set search_path = public, pg_temp as $$
 declare t text := coalesce(p_title, '');
 begin
   if (t ~* '\ydata\s+(?:&|and)?\s*(?:\w+\s+)?analyst\y' or t ~* '\yanalytics\s+analyst\y' or t ~* '\yreporting\s+(?:&\s+)?(?:data\s+)?analyst\y' or t ~* '\ydata\s+insights?\s+analyst\y') and not (t ~* '\ydata\s+engineer' or t ~* '\ydata\s+scien' or t ~* '\ydata\s+entry\y' or t ~* '\ydatabase\s+admin' or t ~* '\ysecurity\s+analyst\y' or t ~* '\ydata\s+center\y' or t ~* '\yarchitect\y') then return 'data-analyst'; end if;
-  if (t ~* '\ybusiness\s+(?:systems\s+)?analyst\y') and not (t ~* '\ybusiness\s+data\s+analyst\y') then return 'business-analyst'; end if;
+  if (t ~* '\ybusiness\s+(?:systems\s+)?analyst\y' or t ~* '\y(?:it|information\s+technology)\s+specialist\y.*\([^)]*\y(?:sysanalysis|plcypln)\y') and not (t ~* '\ybusiness\s+data\s+analyst\y') then return 'business-analyst'; end if;
   if (t ~* '\y(?:business\s+intelligence|bi)\s+(?:developer|engineer)\y') and not false then return 'business-intelligence-developer'; end if;
   if (t ~* '\ypower\s*bi\y.*\y(?:developer|engineer|consultant)\y') and not false then return 'power-bi-developer'; end if;
   if (t ~* '\ytableau\y.*\y(?:developer|engineer|consultant)\y') and not false then return 'tableau-developer'; end if;
   if (t ~* '\ysql\s+(?:server\s+)?developer\y') and not false then return 'sql-developer'; end if;
-  if (t ~* '\ydata\s+engineer\y') and not false then return 'data-engineer'; end if;
+  if (t ~* '\ydata\s+engineer\y' or t ~* '\y(?:it|information\s+technology)\s+specialist\y.*\([^)]*\ydatamgt\y') and not false then return 'data-engineer'; end if;
   if (t ~* '\ydata\s+scientist\y') and not false then return 'data-scientist'; end if;
   if (t ~* '\y(?:machine\s+learning|ml)\s+engineer\y' or t ~* '\y(?:ai|artificial\s+intelligence)\s+engineer\y') and not false then return 'machine-learning-engineer'; end if;
-  if (t ~* '\ysoftware\s+(?:engineer|developer)\y' or t ~* '(?:\y(?:java|python|c\+\+|golang|ruby|php|javascript|typescript|react|angular|node(?:\.js)?|ios|android|mobile|front[\s-]*end|back[\s-]*end|web)|\.net|\yc#)\s+(?:software\s+)?(?:developer|engineer|programmer)\y') and not (t ~* '\ytest\y' or t ~* '\yqa\y' or t ~* '\ysales\y' or t ~* '\ysupport\s+engineer\y') then return 'software-engineer'; end if;
+  if (t ~* '\ysoftware\s+(?:engineer|developer)\y' or t ~* '(?:\y(?:java|python|c\+\+|golang|ruby|php|javascript|typescript|react|angular|node(?:\.js)?|ios|android|mobile|front[\s-]*end|back[\s-]*end|web)|\.net|\yc#)\s+(?:software\s+)?(?:developer|engineer|programmer)\y' or t ~* '\y(?:it|information\s+technology)\s+specialist\y.*\([^)]*\yappsw\y') and not (t ~* '\ytest\y' or t ~* '\yqa\y' or t ~* '\ysales\y' or t ~* '\ysupport\s+engineer\y') then return 'software-engineer'; end if;
   if (t ~* '\yfull[\s-]*stack\y') and not false then return 'full-stack-developer'; end if;
-  if (t ~* '\ydevops\y' or t ~* '\ysite\s+reliability\s+engineer\y') and not false then return 'devops-engineer'; end if;
-  if (t ~* '\ycloud\s+(?:engineer|architect)\y') and not false then return 'cloud-engineer'; end if;
+  if (t ~* '\ydevops\y' or t ~* '\ysite\s+reliability\s+engineer\y' or t ~* '\y(?:it|information\s+technology)\s+specialist\y.*\([^)]*\y(?:sysadmin|network|inet|os)\y') and not false then return 'devops-engineer'; end if;
+  if (t ~* '\ycloud\s+(?:engineer|architect)\y' or t ~* '\y(?:it|information\s+technology)\s+specialist\y.*\([^)]*\y(?:entarch|cloud)\y') and not false then return 'cloud-engineer'; end if;
   if (t ~* '\y(?:qa|quality\s+assurance|test(?:ing)?|sdet)\y.*\y(?:engineer|analyst|tester)\y') and not false then return 'qa-engineer'; end if;
-  if (t ~* '\y(?:cyber\s*security|information\s+security|security|soc)\s+analyst\y') and not false then return 'cybersecurity-analyst'; end if;
+  if (t ~* '\y(?:cyber\s*security|information\s+security|security|soc)\s+analyst\y' or t ~* '\y(?:it|information\s+technology)\s+specialist\y.*\([^)]*\y(?:infosec|cyber|security)\y' or t ~* '\y(?:it|information\s+technology)\s+cyber\s*security\s+specialist\y') and not false then return 'cybersecurity-analyst'; end if;
   if (t ~* '\yservicenow\y') and not false then return 'servicenow-developer'; end if;
   if (t ~* '\ysalesforce\y.*\y(?:developer|engineer)\y') and not false then return 'salesforce-developer'; end if;
   if (t ~* '\yanaplan\y') and not false then return 'anaplan-model-builder'; end if;

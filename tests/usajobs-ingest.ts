@@ -53,3 +53,14 @@ Deno.test("multiple locations are listed, not hidden behind 'Multiple Locations'
   assertEquals(locationText({ PositionLocationDisplay: "Suitland, Maryland", PositionLocation: [locs[0]] }, idx), "Suitland, Maryland");
   assertEquals(normalize(item({ PositionLocationDisplay: "Multiple Locations", PositionLocation: locs }), ctx).row?.location, "Denver, CO; Atlanta, GA; Austin, TX; Washington, DC");
 });
+
+Deno.test("federal IT Specialist titles count toward the matching IT role", () => {
+  const role = (PositionTitle: string) => normalize(item({ PositionTitle }), ctx).row?.canonical_role ?? null;
+  assertEquals(role("IT Specialist (INFOSEC)"), "cybersecurity-analyst");
+  assertEquals(role("Information Technology Specialist (APPSW)"), "software-engineer");
+  assertEquals(role("IT Specialist (SYSADMIN/NETWORK)"), "devops-engineer");
+  assertEquals(role("IT Specialist (DATAMGT)"), "data-engineer");
+  assertEquals(role("IT Specialist (PLCYPLN)"), "business-analyst");
+  assertEquals(role("IT Cybersecurity Specialist"), "cybersecurity-analyst");
+  assertEquals(role("IT Specialist (CUSTSPT)"), null);
+});

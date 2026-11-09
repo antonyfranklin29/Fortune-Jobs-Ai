@@ -60,7 +60,8 @@
       "query": "business analyst",
       "review": "initial",
       "include": [
-        "\\bbusiness\\s+(?:systems\\s+)?analyst\\b"
+        "\\bbusiness\\s+(?:systems\\s+)?analyst\\b",
+        "\\b(?:it|information\\s+technology)\\s+specialist\\b.*\\([^)]*\\b(?:sysanalysis|plcypln)\\b"
       ],
       "exclude": [
         "\\bbusiness\\s+data\\s+analyst\\b"
@@ -112,7 +113,8 @@
       "query": "data engineer",
       "review": "initial",
       "include": [
-        "\\bdata\\s+engineer\\b"
+        "\\bdata\\s+engineer\\b",
+        "\\b(?:it|information\\s+technology)\\s+specialist\\b.*\\([^)]*\\bdatamgt\\b"
       ],
       "exclude": []
     },
@@ -144,7 +146,8 @@
       "review": "initial",
       "include": [
         "\\bsoftware\\s+(?:engineer|developer)\\b",
-        "(?:\\b(?:java|python|c\\+\\+|golang|ruby|php|javascript|typescript|react|angular|node(?:\\.js)?|ios|android|mobile|front[\\s-]*end|back[\\s-]*end|web)|\\.net|\\bc#)\\s+(?:software\\s+)?(?:developer|engineer|programmer)\\b"
+        "(?:\\b(?:java|python|c\\+\\+|golang|ruby|php|javascript|typescript|react|angular|node(?:\\.js)?|ios|android|mobile|front[\\s-]*end|back[\\s-]*end|web)|\\.net|\\bc#)\\s+(?:software\\s+)?(?:developer|engineer|programmer)\\b",
+        "\\b(?:it|information\\s+technology)\\s+specialist\\b.*\\([^)]*\\bappsw\\b"
       ],
       "exclude": [
         "\\btest\\b",
@@ -170,7 +173,8 @@
       "review": "initial",
       "include": [
         "\\bdevops\\b",
-        "\\bsite\\s+reliability\\s+engineer\\b"
+        "\\bsite\\s+reliability\\s+engineer\\b",
+        "\\b(?:it|information\\s+technology)\\s+specialist\\b.*\\([^)]*\\b(?:sysadmin|network|inet|os)\\b"
       ],
       "exclude": []
     },
@@ -180,7 +184,8 @@
       "query": "cloud engineer",
       "review": "initial",
       "include": [
-        "\\bcloud\\s+(?:engineer|architect)\\b"
+        "\\bcloud\\s+(?:engineer|architect)\\b",
+        "\\b(?:it|information\\s+technology)\\s+specialist\\b.*\\([^)]*\\b(?:entarch|cloud)\\b"
       ],
       "exclude": []
     },
@@ -200,7 +205,9 @@
       "query": "cybersecurity analyst",
       "review": "initial",
       "include": [
-        "\\b(?:cyber\\s*security|information\\s+security|security|soc)\\s+analyst\\b"
+        "\\b(?:cyber\\s*security|information\\s+security|security|soc)\\s+analyst\\b",
+        "\\b(?:it|information\\s+technology)\\s+specialist\\b.*\\([^)]*\\b(?:infosec|cyber|security)\\b",
+        "\\b(?:it|information\\s+technology)\\s+cyber\\s*security\\s+specialist\\b"
       ],
       "exclude": []
     },
