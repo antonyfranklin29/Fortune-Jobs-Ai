@@ -12,7 +12,7 @@ export function proVisible(search = typeof window !== 'undefined' ? window.locat
   } catch { return false; }
 }
 
-export const PRO = { price: '$9.99', results: 50, aiPerDay: 50, freeResults: 10, freeAiPerDay: 25 };
+export const PRO = { price: '$9.99', results: 100, resultsLabel: '50+', aiPerDay: 50, freeResults: 10, freeAiPerDay: 25 };
 
 /** True while Stripe says the subscription is active (or trialing) and the paid period hasn't ended. */
 export function isActive(row, now = Date.now()) {
