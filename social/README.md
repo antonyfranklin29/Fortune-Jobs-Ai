@@ -12,4 +12,8 @@ Make.com scenario "Fortune Jobs AI – Instagram posts":
    so each 8-hour slot gets the next post and the list repeats in order.
 4. Instagram for Business → Create a Photo Post: photo
    `https://fortunejobsai.com/social/post-{{padded id}}.jpg`; caption =
-   caption + "\n\n👉 Free at fortunejobsai.com (link in bio)\n\n" + post tags + shared hashtags.
+   the ready-made `post_caption` (caption + "👉 Free at fortunejobsai.com (link in bio)" + hashtags).
+
+Hashtags: Instagram allows at most 5 per post, so every `post_caption` ends with exactly 5:
+topic tags first, then audience/broad ones (#jobsearch, #careeradvice, #hiring). Put search words
+(job search, résumé, ATS, interview, students) in the caption text too — Instagram search reads it.
