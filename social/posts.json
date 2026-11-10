@@ -1,0 +1,259 @@
+{
+  "_about": "Instagram posts for the Make.com scenario 'Fortune Jobs AI – Instagram posts'. Images are social/post-NN.jpg on fortunejobsai.com. Make picks one post per run in order (see social/README.md).",
+  "hashtags": "#jobsearch #hiring #jobs #careers #resume #resumetips #ats #jobhunting #nowhiring #careeradvice #techjobs #remotejobs #newgrad #collegestudents #internships",
+  "posts": [
+    {
+      "id": 1,
+      "kicker": "NEW",
+      "title": "Free ATS résumé score",
+      "points": [
+        "Upload your PDF or DOCX",
+        "See your score out of 100",
+        "Fix what's flagged in minutes"
+      ],
+      "caption": "Most big companies run your résumé through an ATS before a person sees it. Upload yours on Fortune Jobs AI and get a free ATS readiness score with clear fixes. Your file never leaves your browser.",
+      "tags": "#atsresume #resumecheck"
+    },
+    {
+      "id": 2,
+      "kicker": "APPLY DIRECT",
+      "title": "Skip the middleman",
+      "points": [
+        "Jobs straight from company career sites",
+        "Apply on the employer's own page",
+        "No sign-up on another job board"
+      ],
+      "caption": "Tired of job boards that send you through five other sites? On Fortune Jobs AI most jobs come straight from the company's own careers page, so Apply takes you right to the employer.",
+      "tags": "#applydirect #jobboard"
+    },
+    {
+      "id": 3,
+      "kicker": "AI SEARCH",
+      "title": "Search the way you talk",
+      "points": [
+        "\"remote data analyst jobs in NJ\"",
+        "AI turns it into filters",
+        "Results in seconds"
+      ],
+      "caption": "No more fiddling with ten filters. Type the job you want in plain English, like \"remote Power BI jobs in New Jersey posted this week\", and our AI search does the rest.",
+      "tags": "#ai #aitools"
+    },
+    {
+      "id": 4,
+      "kicker": "KEYWORDS",
+      "title": "Is your résumé missing keywords?",
+      "points": [
+        "Paste any job description",
+        "See matched and missing keywords",
+        "Add only what you really have"
+      ],
+      "caption": "Recruiters search the ATS by keywords from the job ad. Paste a job description into our free checker to see which keywords your résumé already has and which are missing.",
+      "tags": "#resumekeywords #jobtips"
+    },
+    {
+      "id": 5,
+      "kicker": "RÉSUMÉ BUILDER",
+      "title": "Build an ATS-friendly résumé free",
+      "points": [
+        "Clean one-column layout",
+        "Live ATS score as you type",
+        "Download a PDF"
+      ],
+      "caption": "Fancy templates with columns and icons often confuse ATS software. Our free résumé builder uses a clean layout recruiters and ATS systems read easily, with a live score as you type.",
+      "tags": "#resumebuilder #freeresume"
+    },
+    {
+      "id": 6,
+      "kicker": "AI COACH",
+      "title": "Practice the interview",
+      "points": [
+        "Questions for the exact job",
+        "Tips on what to say",
+        "Free with every job"
+      ],
+      "caption": "Found a job you like? Open it on Fortune Jobs AI and tap Practice interview questions. Our AI coach writes questions for that exact role so you walk in ready.",
+      "tags": "#interviewtips #interviewprep"
+    },
+    {
+      "id": 7,
+      "kicker": "TIP",
+      "title": "Start lines with a verb",
+      "points": [
+        "Not: \"Responsible for reports\"",
+        "Yes: \"Built 12 weekly dashboards\"",
+        "Our ATS check flags weak lines"
+      ],
+      "caption": "Résumé tip: replace \"Responsible for…\" with what you actually did. \"Built\", \"Reduced\", \"Led\" and \"Automated\" show impact. Our free ATS check flags the weak lines for you.",
+      "tags": "#resumetip #careertips"
+    },
+    {
+      "id": 8,
+      "kicker": "TIP",
+      "title": "Numbers get interviews",
+      "points": [
+        "\"Cut report time by 40%\"",
+        "\"Supported 120 users\"",
+        "Only numbers you can back up"
+      ],
+      "caption": "Résumé tip: numbers make achievements real. Add results you can verify, like time saved, users supported or money managed. Our ATS score rewards measurable results.",
+      "tags": "#resumetip #jobseekers"
+    },
+    {
+      "id": 9,
+      "kicker": "FEDERAL JOBS",
+      "title": "Government IT jobs, included",
+      "points": [
+        "Official USAJOBS listings",
+        "Cybersecurity, cloud, data roles",
+        "Updated every day"
+      ],
+      "caption": "Looking for a stable government role? Fortune Jobs AI includes official federal IT jobs from USAJOBS, from cybersecurity to cloud and data, updated daily.",
+      "tags": "#federaljobs #governmentjobs #cybersecurity"
+    },
+    {
+      "id": 10,
+      "kicker": "NEW GRADS",
+      "title": "First job? Start here",
+      "points": [
+        "Free ATS résumé score",
+        "Résumé builder for new grads",
+        "Entry-level filters"
+      ],
+      "caption": "Graduating soon? Build your first résumé free, check its ATS score and search entry-level jobs in one place. Share this with a classmate who's job hunting.",
+      "tags": "#newgrad #classof2027 #entryleveljobs"
+    },
+    {
+      "id": 11,
+      "kicker": "SAFE SEARCH",
+      "title": "Spot a fake job",
+      "points": [
+        "Asks you to pay a fee",
+        "Wants SSN or bank details early",
+        "Interview only by chat app"
+      ],
+      "caption": "Real employers never ask you to pay to get a job or share your Social Security or bank details before an interview. Jobs posted on Fortune Jobs AI by employers are checked by our team.",
+      "tags": "#jobscams #jobsafety",
+      "mark": "✕"
+    },
+    {
+      "id": 12,
+      "kicker": "EMPLOYERS",
+      "title": "Hiring? Post jobs free",
+      "points": [
+        "Verify with your work email",
+        "Up to 15 live jobs free",
+        "Apply by link or by email"
+      ],
+      "caption": "Employers and recruiters: post your openings on Fortune Jobs AI for free. Verify with your company email and reach job seekers searching right now.",
+      "tags": "#hiringnow #recruiting #smallbusiness"
+    },
+    {
+      "id": 13,
+      "kicker": "REMOTE",
+      "title": "Find remote jobs fast",
+      "points": [
+        "Filter: Remote",
+        "Real employer postings",
+        "Across the U.S."
+      ],
+      "caption": "Want to work from home? Search any role and filter by Remote to see real remote jobs from employer career sites across the U.S.",
+      "tags": "#remotework #workfromhome"
+    },
+    {
+      "id": 14,
+      "kicker": "MATCH",
+      "title": "See your fit before you apply",
+      "points": [
+        "Upload your résumé once",
+        "Fit estimate on each job",
+        "Know which jobs to prioritise"
+      ],
+      "caption": "Stop applying blindly. Upload your résumé once and Fortune Jobs AI shows an explainable fit estimate on jobs with enough detail, so you can focus on the best matches.",
+      "tags": "#jobmatch #careergoals"
+    },
+    {
+      "id": 15,
+      "kicker": "TIP",
+      "title": "One résumé per job type",
+      "points": [
+        "Match the job title",
+        "Mirror the job's keywords",
+        "Keep it honest"
+      ],
+      "caption": "Résumé tip: tailor your résumé to each kind of role. Use the exact job title you're applying for and the job ad's keywords you really have. Our AI coach can tailor it for you.",
+      "tags": "#tailoredresume #jobhuntingtips"
+    },
+    {
+      "id": 16,
+      "kicker": "TECH JOBS",
+      "title": "Jobs from top tech companies",
+      "points": [
+        "Engineering, data, cloud, security",
+        "From 150+ company career sites",
+        "Apply on their own page"
+      ],
+      "caption": "Software, data, cloud and cybersecurity jobs from more than 150 company career sites, all in one search. Apply directly on each company's own page.",
+      "tags": "#techjobs #softwareengineer #dataanalyst"
+    },
+    {
+      "id": 17,
+      "kicker": "TIP",
+      "title": "Keep it to 1–2 pages",
+      "points": [
+        "About 400–800 words",
+        "Most relevant work first",
+        "Cut old, unrelated roles"
+      ],
+      "caption": "Résumé tip: recruiters skim. Keep your résumé to one or two pages, put your most relevant experience first and cut what doesn't support the job you want.",
+      "tags": "#resumeadvice #careercoach"
+    },
+    {
+      "id": 18,
+      "kicker": "PRIVACY",
+      "title": "Your résumé stays yours",
+      "points": [
+        "Read in your browser",
+        "Not stored by us",
+        "Delete your details anytime"
+      ],
+      "caption": "When you upload a résumé to check jobs or your ATS score, it's read in your own browser. We don't store the file. Your career, your data.",
+      "tags": "#privacy #jobseekers"
+    },
+    {
+      "id": 19,
+      "kicker": "STUDENTS",
+      "title": "Internship hunting?",
+      "points": [
+        "Search \"intern\" + your city",
+        "Free ATS-ready résumé",
+        "Practice interview questions"
+      ],
+      "caption": "Students: find internships near you, build an ATS-ready résumé for free and practise interview questions for each role. Tag a friend who needs this.",
+      "tags": "#internship #collegelife #studentlife"
+    },
+    {
+      "id": 20,
+      "kicker": "TIP",
+      "title": "Use standard headings",
+      "points": [
+        "Experience · Skills · Education",
+        "No tables or text boxes",
+        "So the ATS finds every section"
+      ],
+      "caption": "Résumé tip: ATS software looks for standard section headings. Use \"Experience\", \"Skills\" and \"Education\", and avoid tables and text boxes. Check yours free on Fortune Jobs AI.",
+      "tags": "#atstips #resumeformat"
+    },
+    {
+      "id": 21,
+      "kicker": "FREE",
+      "title": "Everything you need, free",
+      "points": [
+        "AI job search",
+        "ATS résumé score",
+        "Résumé builder + interview coach"
+      ],
+      "caption": "AI job search, a free ATS résumé score, a résumé builder and an interview coach, all free on Fortune Jobs AI. Link in bio.",
+      "tags": "#careerhelp #jobsearchtips"
+    }
+  ]
+}
