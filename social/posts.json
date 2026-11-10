@@ -1,7 +1,47 @@
 {
-  "_about": "Instagram posts for the Make.com scenario 'Fortune Jobs AI – Instagram posts'. Images are social/post-NN.jpg on fortunejobsai.com. Make picks one post per run in order (see social/README.md).",
+  "_about": "Instagram posts for the Make.com scenario 'Fortune Jobs AI – Instagram posts'. Images are social/post-NN.jpg on fortunejobsai.com. Make posts them in this order, starting with the flyer (id 0) (see social/README.md).",
   "hashtags": "#jobsearch #hiring #jobs #careers #resume #resumetips #ats #jobhunting #nowhiring #careeradvice #techjobs #remotejobs #newgrad #collegestudents #internships",
   "posts": [
+    {
+      "id": 0,
+      "kicker": "WHY FORTUNE JOBS AI",
+      "title": "Why choose Fortune Jobs AI for your job search",
+      "flyer": true,
+      "reasons": [
+        [
+          "🏢",
+          "Jobs straight from employers",
+          "Apply on the company's own careers page"
+        ],
+        [
+          "📊",
+          "Free ATS résumé score",
+          "See your score and fix it in minutes"
+        ],
+        [
+          "✨",
+          "AI job search",
+          "Type what you want in plain English"
+        ],
+        [
+          "🎯",
+          "Fit before you apply",
+          "Know which jobs match your skills"
+        ],
+        [
+          "🎤",
+          "AI interview coach",
+          "Practice questions for each job"
+        ],
+        [
+          "🔒",
+          "Private and free",
+          "Your résumé stays in your browser"
+        ]
+      ],
+      "caption": "Why choose Fortune Jobs AI for your job search? Real U.S. jobs straight from employer career sites, a free ATS résumé score, AI job search in plain English, fit estimates before you apply and an AI interview coach. All free, and your résumé stays private. Start your search today.",
+      "tags": "#jobsearch2026 #findajob #careerchange"
+    },
     {
       "id": 1,
       "kicker": "NEW",
