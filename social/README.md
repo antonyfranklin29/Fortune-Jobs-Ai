@@ -1,15 +1,32 @@
-# Instagram posts (Make.com)
+# Fortune Jobs AI Instagram library
 
-`posts.json` lists the posts; `post-NN.jpg` are the 1080×1350 images, served from
-`https://fortunejobsai.com/social/`. Images are rendered from the same template, so to add
-a post: add an entry to `posts.json` (next id), render its image, and publish the site.
+`posts.json` and `post-NN.jpg` provide 52 photos in feed order. IDs 00–21 are the original photos. IDs 22–51 are additions. `reels.json` provides a video, photo cover and hook-prefixed caption for each of the 52 IDs.
 
-Make.com scenario "Fortune Jobs AI – Instagram posts":
-1. Schedule: every 8 hours (3 posts a day; 2 a day = every 12 hours).
-2. HTTP → GET `https://fortunejobsai.com/social/posts.json`, parse response.
-3. Post number for this run: `mod(floor((formatDate(now; "X") - START) / INTERVAL); length(posts))`
-   (0-based; START = the scenario start time in Unix seconds, INTERVAL = seconds between posts),
-   so each 8-hour slot gets the next post and the list repeats in order.
-4. Instagram for Business → Create a Photo Post: photo
-   `https://fortunejobsai.com/social/post-{{padded id}}.jpg`; caption =
-   caption + "\n\n👉 Free at fortunejobsai.com (link in bio)\n\n" + post tags + shared hashtags.
+| Make.com feed | Schedule (America/New_York) | Fields |
+|---|---|---|
+| Photos | Daily at 11 AM | `posts.json` → `posts[].image`, `posts[].post_caption` |
+| Reels | Mon, Wed, Fri and Sun at 7 PM | `reels.json` → `[].video`, `[].cover`, `[].caption` |
+
+Claude owns the Make.com scenarios and connects the reel feed after Franklin approves publication. Consume both feeds in ID order. The photo manifest's original `_about` text describes a previous rotation interval. Use the schedule above for the handoff.
+
+## Rebuild the assets
+
+From the repository root with Python 3.10+, Pillow, NumPy, and FFmpeg with libx264 and AAC on PATH:
+
+```sh
+python -m pip install Pillow numpy
+python scripts/render-reels/render.py
+```
+
+The script renders photos starting at ID 22, the four audio loops, the reels, and `reels.json`. It reads the brand mark from `favicon.svg` and uses the bundled Inter font with its Open Font License. For a subset preview, run `python scripts/render-reels/render.py --ids 0 22 49`. Subset runs regenerate the same four loops and leave the reel manifest alone. Use `--workers 1` to reduce CPU use.
+
+Reels are 1080×1920, 9.5 seconds, 24 fps, H.264/AAC, with the MP4 header at the front for playback over HTTP. The original ID 00 flyer has six reasons, so its reel uses reasons 1, 2 and 5. Its photo and full post caption remain the original cover and caption body.
+
+Each music loop is composed in the renderer from synthesized instruments and percussion. The four tempos are 104, 108, 112, and 116 BPM. Assign loop `(id % 4) + 1`.
+
+| Loop | Reel IDs |
+|---|---|
+| `loop-1.m4a` | 00, 04, 08, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48 |
+| `loop-2.m4a` | 01, 05, 09, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49 |
+| `loop-3.m4a` | 02, 06, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50 |
+| `loop-4.m4a` | 03, 07, 11, 15, 19, 23, 27, 31, 35, 39, 43, 47, 51 |
