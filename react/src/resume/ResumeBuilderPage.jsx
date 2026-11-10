@@ -34,7 +34,7 @@ export function ResumeBuilderPage() {
   const importGen = useRef(0);
 
   useEffect(() => {
-    if (typeof document !== 'undefined') { const t = document.title; document.title = 'Résumé workspace · Fortune Jobs AI'; return () => { document.title = t; }; }
+    if (typeof document !== 'undefined') { const t = document.title; document.title = 'Free Résumé Builder with ATS Score Checker | Fortune Jobs AI'; return () => { document.title = t; }; }
     return undefined;
   }, []);
 

@@ -49,7 +49,7 @@ export function ResumeSearchPage() {
 
   useEffect(() => { if (scrollKey) reviewRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }); }, [scrollKey]);
   useEffect(() => {
-    if (typeof document !== 'undefined') { const t = document.title; document.title = 'Find jobs with your résumé · Fortune Jobs AI'; return () => { document.title = t; }; }
+    if (typeof document !== 'undefined') { const t = document.title; document.title = 'Upload Your Résumé: Free ATS Score and Job Matches | Fortune Jobs AI'; return () => { document.title = t; }; }
     return undefined;
   }, []);
 
