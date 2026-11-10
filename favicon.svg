@@ -1,9 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="290 50 100 100">
   <rect x="290" y="50" width="100" height="100" rx="20" fill="#D4A843"/>
-  <path d="M310 100 L325 78 L340 100 L352 86 L370 108" fill="none" stroke="#1A1A2E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <g fill="#1A1A2E">
-    <circle cx="325" cy="78" r="5"/>
-    <circle cx="352" cy="86" r="5"/>
-    <circle cx="370" cy="108" r="5"/>
+  <!-- A rising career path: four steps, one dip, ending at the highest point. -->
+  <g transform="translate(340 100) scale(-1.3 1.3) translate(-347.5 -93)">
+    <path d="M325 78 L340 100 L352 86 L370 108" fill="none" stroke="#1A1A2E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#1A1A2E"><circle cx="325" cy="78" r="5"/><circle cx="340" cy="100" r="5"/><circle cx="352" cy="86" r="5"/><circle cx="370" cy="108" r="5"/></g>
   </g>
 </svg>
