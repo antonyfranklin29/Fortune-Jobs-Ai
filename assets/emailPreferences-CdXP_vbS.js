@@ -1,0 +1,1 @@
+import"./rolldown-runtime-COiEfhsA.js";import{n as e,r as t,t as n}from"./jsx-runtime-E4CshApZ.js";import{n as r}from"./supabase-ryTdXaWQ.js";import{n as i,t as a}from"./info-BKwfEEcw.js";t();var o=e(),s=n(),c=i({sb:r,config:window.FJ_CONFIG});(0,o.createRoot)(document.getElementById(`root`)).render((0,s.jsx)(a,{client:c}));
