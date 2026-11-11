@@ -34,6 +34,14 @@ current (append a dated line under "Log" when you finish something). Franklin ap
 4. **Free-traffic SEO:** city/role landing pages (e.g. "Data Analyst jobs in Raleigh, NC") generated from
    live jobs, plus Google for Jobs `JobPosting` markup. Keep pages honest and noindex any page with < 5 jobs.
 
+## Goal (Franklin, Nov 11): 100 paying Pro subscribers by Jan 29, 2027
+Pro stays **$9.99/month — no discounts, coupons or founding prices.** Grow through free traffic and value instead.
+Extra tasks after #1–4:
+5. Shareable ATS score card ("My résumé scored 87/100 on Fortune Jobs AI") with an Open Graph image.
+6. Referral: invite 3 friends who sign up → 1 free month of Pro (a free month, not a price cut; needs Franklin's OK before going live).
+7. Drafts for 20 college career-center emails (NC/NJ first: ECU, NC State, UNC, Rutgers, NJIT…) in `docs/outreach/career-centers.md`.
+8. Product Hunt launch kit (tagline, description, 5 screenshots, first comment) in `docs/launch/product-hunt.md`.
+
 ## Rules
 - Work on a branch and open a PR. Don't push to `main`, don't touch Make.com, don't post anywhere.
 - Never commit keys, tokens or passwords. Don't publish EIN/tax IDs or personal names.
@@ -41,3 +49,4 @@ current (append a dated line under "Log" when you finish something). Franklin ap
 
 ## Log
 - 2026-11-11 Claude: wrote this handoff.
+- 2026-11-11 Claude: added the 100-subscriber goal (no discounts) and tasks 5–8.
