@@ -3,6 +3,7 @@ import { Footer, Header, MobileTabs } from '../shared/Shell.jsx';
 import { SearchForm } from './SearchForm.jsx';
 import { JobDetail, JobList } from './JobViews.jsx';
 import { guestMatchProfile, quickMatches, recentJobs } from './catalogue.js';
+import { workAuthorizationFilter } from './workAuthorization.js';
 import { jobKey, supabase } from '../shared/supabase.js';
 
 import { MatchPanel } from './MatchPanel.jsx';
@@ -28,7 +29,7 @@ export function signInToSaveUrl(loc) {
   return './login.html?mode=signup&next=' + encodeURIComponent(back);
 }
 
-const HISTORY_FILTERS = ['location', 'country', 'date_posted', 'experience', 'job_type', 'work_mode', 'company', 'salary', 'salary_min', 'industry'];
+const HISTORY_FILTERS = ['location', 'country', 'date_posted', 'experience', 'job_type', 'work_mode', 'company', 'salary', 'salary_min', 'industry', 'sponsorship'];
 /** The search history row for this page's search, or null when there is nothing to remember. */
 export function historyRow(query) {
   const q = String(query.q || '').trim().slice(0, 200);
@@ -107,7 +108,7 @@ export function ResultsPage({ afterDashboard }) {
     if (initial.mode === 'live') return;
     const controller = new AbortController();
     const filters = {
-      country: initial.country || '', location: initial.location || '', date_posted: initial.date_posted || '',
+      country: initial.country || '', location: initial.location || '', date_posted: initial.date_posted || '', sponsorship: workAuthorizationFilter(initial.sponsorship),
       experience: initial.experience || '', job_type: initial.job_type || '', work_mode: initial.work_mode || '', company: initial.company || '', salary: initial.salary || '', salary_min: /^\d{4,7}$/.test(initial.salary_min || '') ? initial.salary_min : '', category: initial.category || ''
     };
     // Pro members see more results: check the subscription first (signed-out visitors skip this quickly).

@@ -3,7 +3,9 @@ import { fixApplyUrl } from '../shared/applyUrl.js';
 import * as Guest from '../resume/lib/guestResume.js';
 import * as Matching from '../resume/lib/resumeMatching.js';
 
-const fields = 'job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,closed_at';
+import { workAuthorizationFilter } from './workAuthorization.js';
+
+const fields = 'job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,closed_at,sponsorship';
 const DAY = 86400000;
 
 async function read(params, signal) {
@@ -63,7 +65,16 @@ function tokensFor(text) { return String(text || '').toLowerCase().replace(/[^a-
 function candidateParams(tokens, filters, excludeSource) {
   const params = new URLSearchParams({ select: fields, limit: '300', closed_at: 'is.null', order: 'posted_at.desc.nullslast' });
   if (excludeSource) params.set('source', `neq.${excludeSource}`);
-  if (tokens.length) params.set('or', `(${tokens.map(token => `search_text.ilike.*${token.replace(/\*/g, '')}*`).join(',')})`);
+  const keywords = tokens.map(token => `search_text.ilike.*${token.replace(/\*/g, '')}*`).join(',');
+  const sponsorship = workAuthorizationFilter(filters.sponsorship);
+  if (sponsorship === 'hide_no_sponsorship') {
+    const allowed = 'sponsorship.is.null,sponsorship.neq.no_sponsorship';
+    if (keywords) params.set('and', `(or(${keywords}),or(${allowed}))`);
+    else params.set('or', `(${allowed})`);
+  } else {
+    if (keywords) params.set('or', `(${keywords})`);
+    if (sponsorship) params.set('sponsorship', `eq.${sponsorship}`);
+  }
   if (filters.country) params.set('country', `eq.${filters.country.toLowerCase()}`);
   if (['1', '3', '7', '30'].includes(filters.date_posted)) params.set('posted_at', `gte.${new Date(Date.now() - Number(filters.date_posted) * DAY).toISOString()}`);
   if (filters.salary === 'listed' || Number(filters.salary_min) > 0) params.set('salary', 'not.is.null');

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SuggestInput } from './SuggestInput.jsx';
 import { SmartSearch } from './AiTools.jsx';
+import { WORK_AUTHORIZATION_OPTIONS, workAuthorizationFilter } from './workAuthorization.js';
 import { MIN_CHARS, SEARCH_COUNTRIES, exactCountry, fetchCities, localPlaces, matchTitles, mergePlaces, placeLabel } from './suggest.js';
 
 const KIND_LABEL = { title: 'Job title', skill: 'Skill', company: 'Company' };
@@ -22,6 +23,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
   const [company, setCompany] = useState(initial.company || '');
   const [salary, setSalary] = useState(initial.salary || '');
   const [category, setCategory] = useState(initial.category || '');
+  const [sponsorship, setSponsorship] = useState(workAuthorizationFilter(initial.sponsorship));
   const [error, setError] = useState('');
   function submit(event) {
     event.preventDefault();
@@ -32,7 +34,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
     const params = new URLSearchParams({ mode: 'quick', q: clean });
     if (resume === '0' || resume === '1') params.set('resume', resume);
     if (resume === '1' && resumeId) params.set('resume_id', resumeId);
-    for (const [key, value] of Object.entries({ location: typedCountry ? '' : location.trim(), country: typedCountry || country, date_posted: date, experience, job_type: type, work_mode: workMode, company: company.trim(), salary, category })) if (value) params.set(key, value);
+    for (const [key, value] of Object.entries({ location: typedCountry ? '' : location.trim(), country: typedCountry || country, date_posted: date, experience, job_type: type, work_mode: workMode, company: company.trim(), salary, category, sponsorship })) if (value) params.set(key, value);
     window.location.href = `./results.html?${params}`;
   }
   return <form className="dashboard-search" onSubmit={submit}>
@@ -57,7 +59,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
     </div></div>
     {error && <p className="react-search-error" role="alert">{error}</p>}
     <SmartSearch />
-    <div className="dashboard-resume-links"><a className="dashboard-upload" href="./resume-search.html"><span className="dashboard-upload-icon" aria-hidden="true">⇧</span><span className="dashboard-upload-text"><strong>Upload your résumé <span className="dashboard-upload-badge">Free ATS score</span></strong><small>Get matched jobs and an ATS readiness check · PDF or DOCX, up to 5 MB</small></span><span className="dashboard-upload-arrow" aria-hidden="true">→</span></a><a href={`./results.html?${new URLSearchParams({ mode: 'quick', resume: '0', q: query.trim(), location: location.trim() })}`}>Search without résumé</a></div>
+    <div className="dashboard-resume-links"><a className="dashboard-upload" href="./resume-search.html"><span className="dashboard-upload-icon" aria-hidden="true">⇧</span><span className="dashboard-upload-text"><strong>Upload your résumé <span className="dashboard-upload-badge">Free ATS score</span></strong><small>Get matched jobs and an ATS readiness check · PDF or DOCX, up to 5 MB</small></span><span className="dashboard-upload-arrow" aria-hidden="true">→</span></a><a href={`./results.html?${new URLSearchParams({ mode: 'quick', resume: '0', q: query.trim(), location: location.trim(), ...(sponsorship && { sponsorship }) })}`}>Search without résumé</a></div>
     </div></div>
     <div className="dashboard-filterbar">
     <details className="dashboard-more"><summary>☷ Filters</summary><div className="dashboard-extra">
@@ -73,7 +75,9 @@ export function SearchForm({ initial = {}, sort, onSort }) {
       <option value="">Job Category</option>
       {['Data Analyst', 'Software Engineer', 'Data Engineer', 'Business Analyst'].map(role => <option key={role}>{role}</option>)}
     </select></label>
+    <label className="filter-pill"><select aria-label="Work authorization" value={sponsorship} onChange={event => setSponsorship(event.target.value)}>{WORK_AUTHORIZATION_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
     <label className="filter-pill dashboard-sort"><select aria-label="Sort jobs" value={sort} onChange={e => onSort(e.target.value)}><option value="relevance">Sort: Relevance</option><option value="newest">Sort: Newest</option></select></label>
     </div>
+    {sponsorship && <p className="react-search-hint">Based on listing text. Confirm requirements with the employer.</p>}
   </form>;
 }
