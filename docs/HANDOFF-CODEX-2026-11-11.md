@@ -34,7 +34,14 @@ current (append a dated line under "Log" when you finish something). Franklin ap
 4. **Free-traffic SEO:** city/role landing pages (e.g. "Data Analyst jobs in Raleigh, NC") generated from
    live jobs, plus Google for Jobs `JobPosting` markup. Keep pages honest and noindex any page with < 5 jobs.
 
-## NOW — top priority (Franklin, Nov 11 3 PM): Careerjet live search
+## NOW #1 — Cloudflare Web Analytics on every page (Franklin approved Nov 11 3:31 PM; quick)
+The beacon `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5e0de46ee5d94ffa87d7f7d4363a4b3d"}'></script>`
+(public site token, already on about/contact/find-jobs etc.) is missing on: apply, email-preferences, employer-login,
+employers, login, profile, results, resume-builder, resume-search, and all generated /jobs/ city pages (add it to
+scripts/build-job-seo.mjs). Put it in the react/*.html sources (and seo.cjs if that's the right place) so builds keep it.
+Add a check in react/scripts/check-dist.cjs that every built page has the beacon. One small PR; Claude deploys.
+
+## NOW #2 — Careerjet live search
 Franklin created a Careerjet publisher account; the key is already a Supabase secret `CAREERJET_API_KEY` (never print or commit it).
 Careerjet's API requires the end user's `user_ip` and `user_agent`, so it is for LIVE searches, not batch ingestion:
 - New edge function `supabase/functions/careerjet-search/` (verify_jwt false, CORS for fortunejobsai.com): takes
@@ -90,4 +97,5 @@ Extra tasks after #1–4:
 - 2026-11-11 Codex added student and new-grad photos and captions for IDs 52–81 on `codex/student-social-posts`. All 30 JPEGs and five-tag captions passed checks, and IDs 0–51 were preserved.
 - 2026-11-11 Codex rendered and verified Reels 52–81 with licensed stock photos, the original loops and spinning-logo outro. Six have captioned local AI narration. Both Reel feeds were appended on `codex/student-reels`.
 - 2026-11-11 Codex added ten link-free Reddit answers and the “7 ATS mistakes” post for manual use on `codex/reddit-drafts`.
+- 2026-11-11 Claude: added NOW #1 analytics-on-all-pages and NOW #2 Careerjet tasks.
 - 2026-11-11 Claude: deployed posts/reels 52–81, Reddit drafts, city/role pages (PR #2–4, #7) and the visa/OPT filter (PR #6; migration applied, 16,731 jobs classified). Tracker (PR #5) waits on its migration.
