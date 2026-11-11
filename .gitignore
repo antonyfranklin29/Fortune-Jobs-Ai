@@ -8,3 +8,4 @@ react/dist/
 react/public/
 react/src/generated/
 scripts/render-reels/build-outro/
+__pycache__/
