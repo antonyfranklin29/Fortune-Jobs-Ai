@@ -34,6 +34,21 @@ current (append a dated line under "Log" when you finish something). Franklin ap
 4. **Free-traffic SEO:** city/role landing pages (e.g. "Data Analyst jobs in Raleigh, NC") generated from
    live jobs, plus Google for Jobs `JobPosting` markup. Keep pages honest and noindex any page with < 5 jobs.
 
+## NOW — top priority (Franklin, Nov 11 3 PM): Careerjet live search
+Franklin created a Careerjet publisher account; the key is already a Supabase secret `CAREERJET_API_KEY` (never print or commit it).
+Careerjet's API requires the end user's `user_ip` and `user_agent`, so it is for LIVE searches, not batch ingestion:
+- New edge function `supabase/functions/careerjet-search/` (verify_jwt false, CORS for fortunejobsai.com): takes
+  `{q, location, page}`; reads the caller IP from `x-forwarded-for` and the browser `user-agent`; calls
+  `https://search.api.careerjet.net/v4/query` (check the current endpoint in Careerjet's docs) with Basic auth
+  (key as username, empty password), `locale_code=en_US`, `page_size` 20; returns title, company, location, date,
+  salary, short description and the Careerjet click URL. Timeout 5 s; on any error return `{jobs: []}` so search never breaks.
+  Do NOT store results in the database (Careerjet's model is live display). Cache identical queries in memory ≤10 min at most.
+- Frontend: on the results page, below our own results, a "More jobs from Careerjet" section (logo/credit "Jobs by
+  Careerjet" linking to careerjet.com, as their terms ask), loading after our results so it never slows them.
+  Links open in a new tab with rel="nofollow sponsored noopener".
+- Tests: unit tests for the response mapping and error fallback; no real key in tests.
+- One PR; do not deploy. Claude reviews and deploys the function and site after Franklin's OK.
+
 ## TONIGHT — top priority (Franklin approved Nov 11, 00:32 ET): build these two first, then continue the list
 A. **Visa / OPT-friendly filter** on search results.
    - Classify each job from its title + description into `sponsorship`: `sponsors` (e.g. "H-1B sponsorship available",
