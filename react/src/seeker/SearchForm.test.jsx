@@ -87,6 +87,16 @@ describe('country suggestions', () => {
   });
 });
 
+it('carries the work authorization filter into both search paths', () => {
+  render(<SearchForm initial={{ q: 'Engineer' }} sort="relevance" onSort={() => {}} />);
+  const select = screen.getByRole('combobox', { name: 'Work authorization' });
+  fireEvent.change(select, { target: { value: 'opt_friendly' } });
+  const skip = screen.getByRole('link', { name: 'Search without résumé' });
+  expect(new URL(skip.href).searchParams.get('sponsorship')).toBe('opt_friendly');
+  fireEvent.submit(job().closest('form'));
+  expect(params().get('sponsorship')).toBe('opt_friendly');
+});
+
 describe('SearchForm suggestions', () => {
   it('keyboard: pick Data Analyst and Chicago, then submit the picked values', async () => {
     vi.useFakeTimers();

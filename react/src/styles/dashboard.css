@@ -40,6 +40,7 @@
 .dashboard-filterbar { display:flex; align-items:center; flex-wrap:wrap; gap:10px; background:#f6f9fe60; border-block:1px solid #fff9; padding:12px clamp(16px,2.3vw,36px); }
 .dashboard-filterbar .filter-pill,.dashboard-more summary { display:inline-flex; align-items:center; border:1px solid #d0dcf0; border-radius:22px; min-height:36px; padding:0 12px; background:#f7faffba; box-shadow:0 3px 8px #314b7418; color:var(--ink); }
 .dashboard-filterbar select,.dashboard-filterbar input { width:auto; min-width:0; background:transparent; color:inherit; border:0; font:inherit; font-size:14px; padding:4px; }
+.react-search-hint { margin:6px clamp(16px,2.3vw,36px); font-size:13px; }
 .dashboard-more { position:relative; }
 .dashboard-more summary { cursor:pointer; font-weight:700; }
 .dashboard-extra { position:absolute; z-index:5; top:44px; left:0; display:flex; flex-wrap:wrap; gap:8px; width:min(350px,85vw); background:#f7faff; border:1px solid var(--line); border-radius:14px; padding:12px; box-shadow:0 8px 18px #364d8430; }

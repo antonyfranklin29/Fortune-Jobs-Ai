@@ -70,6 +70,7 @@ Extra tasks after #1–4:
 - 2026-11-11 Codex: City and role SEO [PR #7](https://github.com/antonyfranklin29/Fortune-Jobs-Ai/pull/7) open. Generated 24 pages and tested Google for Jobs markup with fixtures. No eligible live posting was present for Google validation.
 - 2026-11-11 Claude: wrote this handoff.
 - 2026-11-11 Claude: added TONIGHT tasks A (visa/OPT filter) and B (application tracker), C later.
+- 2026-11-11 Codex: Work authorization filter [PR #6](https://github.com/antonyfranklin29/Fortune-Jobs-Ai/pull/6) open. React tests, build and disposable PostgreSQL checks passed. Migration pending review.
 - 2026-11-11 Claude: added the 100-subscriber goal (no discounts) and tasks 5–8.
 - 2026-11-11 Codex added student and new-grad photos and captions for IDs 52–81 on `codex/student-social-posts`. All 30 JPEGs and five-tag captions passed checks, and IDs 0–51 were preserved.
 - 2026-11-11 Codex rendered and verified Reels 52–81 with licensed stock photos, the original loops and spinning-logo outro. Six have captioned local AI narration. Both Reel feeds were appended on `codex/student-reels`.

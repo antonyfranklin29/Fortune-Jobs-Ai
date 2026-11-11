@@ -40,7 +40,7 @@ export function filterText(f) {
 export function searchUrl(query, mode, f) {
   const p = new URLSearchParams({ q: query });
   if (mode) p.set('mode', mode);
-  ['location', 'country', 'date_posted', 'experience', 'job_type', 'work_mode', 'company', 'salary', 'industry'].forEach((k) => { if (f && f[k]) p.set(k, f[k]); });
+  ['location', 'country', 'date_posted', 'experience', 'job_type', 'work_mode', 'company', 'salary', 'industry', 'sponsorship'].forEach((k) => { if (f && f[k]) p.set(k, f[k]); });
   return 'index.html?' + p.toString();
 }
 export function completeness(profile) {
