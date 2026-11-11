@@ -48,7 +48,8 @@ the caption text too; Instagram search reads it.
 
 `reels-feed.json` repeats `reels.json` in the shape of `posts.json` (`posts[].image` = reel MP4 URL,
 `posts[].post_caption` = reel caption, plus `cover`) so the Make.com Reels scenario reuses the photo
-scenario's JSON structure. Regenerate it whenever `reels.json` changes. The scenario runs Mon, Wed, Fri
-and Sun at 18:00 America/Chicago (7 PM ET) and picks reel
-`(floor((now − 1794204000) / 604800) × 4 + (weekday − 1) / 2 − 1) mod 52`, where weekday is ISO
-(Mon = 1 … Sun = 7) — so the first run (Wed Nov 11, 2026) posts reel 0 and each run takes the next one.
+scenario's JSON structure. Regenerate it whenever `reels.json` changes. The Reels scenario runs every day at 18:00 America/Chicago (7 PM ET) and posts reel
+`floor((now − 1794376800) / 86400) mod 52` (reel 0 on Wed Nov 11, 2026, then one a day).
+
+The photo scenario runs twice a day, 11:00 and 19:30 America/Chicago (12 PM and 8:30 PM ET), and posts
+`(floor((now − 1794151800) / 86400) × 2 + (hour ≥ 15 ? 1 : 0) − 3) mod 52` from posts.json.
