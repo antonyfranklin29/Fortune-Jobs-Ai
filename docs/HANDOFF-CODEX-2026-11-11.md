@@ -34,6 +34,25 @@ current (append a dated line under "Log" when you finish something). Franklin ap
 4. **Free-traffic SEO:** city/role landing pages (e.g. "Data Analyst jobs in Raleigh, NC") generated from
    live jobs, plus Google for Jobs `JobPosting` markup. Keep pages honest and noindex any page with < 5 jobs.
 
+## TONIGHT — top priority (Franklin approved Nov 11, 00:32 ET): build these two first, then continue the list
+A. **Visa / OPT-friendly filter** on search results.
+   - Classify each job from its title + description into `sponsorship`: `sponsors` (e.g. "H-1B sponsorship available",
+     "will sponsor", "visa sponsorship provided"), `opt_friendly` ("OPT", "CPT", "STEM OPT", "F-1 students welcome"),
+     `no_sponsorship` ("no sponsorship", "must be authorized to work without sponsorship", "US citizens only",
+     "security clearance required"), else `unknown`. Negations win over positives ("unable to sponsor" = no_sponsorship).
+   - Store it on `pre_scraped_jobs` (new nullable column + backfill function) via a migration in
+     `migrations/pending/`, and set it on insert in the ingest paths (shared helper, unit-tested with ≥20 real-style phrases).
+   - UI: a "Work authorization" filter (Any · Sponsors visa · OPT/CPT friendly · Hide "no sponsorship" jobs) and a small
+     badge on job cards. Wording must be honest: "Mentions visa sponsorship" / "Mentions OPT/CPT" — never promise a job sponsors.
+B. **Application tracker** for signed-in users' saved jobs.
+   - Stages: Saved → Applied → Interview → Offer → Rejected, with date changed and an optional note (≤500 chars).
+   - Extend the existing saved-jobs table/RLS (migration in `migrations/pending/`, row-level security: owner only).
+   - UI on the profile/saved-jobs page: stage dropdown per job, counts per stage at the top, filter by stage.
+Both: tests (unit + SQL where relevant), build passes, one PR each. Do NOT apply migrations or deploy; Claude reviews in the
+morning and deploys after Franklin's OK. Append a Log line when each PR is open.
+C. (After A and B, lower priority) "Fix my résumé" button after the ATS score: uses the existing AI Coach to rewrite weak
+   lines, add missing job keywords and switch to the ATS-safe layout in the résumé builder.
+
 ## Goal (Franklin, Nov 11): 100 paying Pro subscribers by Jan 29, 2027
 Pro stays **$9.99/month — no discounts, coupons or founding prices.** Grow through free traffic and value instead.
 Extra tasks after #1–4:
@@ -49,4 +68,5 @@ Extra tasks after #1–4:
 
 ## Log
 - 2026-11-11 Claude: wrote this handoff.
+- 2026-11-11 Claude: added TONIGHT tasks A (visa/OPT filter) and B (application tracker), C later.
 - 2026-11-11 Claude: added the 100-subscriber goal (no discounts) and tasks 5–8.
