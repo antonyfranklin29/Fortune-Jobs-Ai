@@ -52,3 +52,11 @@ scenario's JSON structure. Regenerate it whenever `reels.json` changes. The scen
 and Sun at 18:00 America/Chicago (7 PM ET) and picks reel
 `(floor((now − 1794204000) / 604800) × 4 + (weekday − 1) / 2 − 1) mod 52`, where weekday is ISO
 (Mon = 1 … Sun = 7) — so the first run (Wed Nov 11, 2026) posts reel 0 and each run takes the next one.
+
+## Twice-daily photo posts
+
+Since Nov 11, 2026 the photo scenario posts twice a day, at 11:00 and 19:30 America/Chicago
+(12:00 PM and 8:30 PM ET), reading `photo-feed.json` (posts in posting order; student and new-grad
+posts 52-71 mixed in first). Slot = `floor((now − 1794376800) / 86400) × 2 + (hour ≥ 15 ? 1 : 0)`,
+taken mod the number of posts. To change the order, rebuild `photo-feed.json`; `posts.json` keeps
+ids in creation order. Posts 52-71 were rendered with `render.photo()` only (no reels yet).

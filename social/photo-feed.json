@@ -1,0 +1,365 @@
+{
+  "_about": "Make.com feed for the photo scenario (Publish Fortune Jobs Posts to Instagram): posts in posting order, 2 a day (12:00 PM and 8:30 PM ET). Student and new-grad posts (52-71) are mixed in first. Same fields as posts.json.",
+  "posts": [
+    {
+      "id": 52,
+      "image": "https://fortunejobsai.com/social/post-52.jpg",
+      "post_caption": "Graduating soon? Employers often hire months ahead. Start early, set job alerts and apply while listings are fresh.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#collegestudents #graduation #jobsearch #newgrad #careeradvice"
+    },
+    {
+      "id": 3,
+      "image": "https://fortunejobsai.com/social/post-03.jpg",
+      "post_caption": "No more fiddling with ten filters. Type the job you want in plain English, like \"remote Power BI jobs in New Jersey posted this week\", and our AI search does the rest.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#ai #aitools #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 53,
+      "image": "https://fortunejobsai.com/social/post-53.jpg",
+      "post_caption": "Entry-level résumés can still show real work. Put your best projects where recruiters can see them.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#newgrad #entryleveljobs #resumetips #collegestudents #jobsearch"
+    },
+    {
+      "id": 4,
+      "image": "https://fortunejobsai.com/social/post-04.jpg",
+      "post_caption": "Recruiters search the ATS by keywords from the job ad. Paste a job description into our free checker to see which keywords your résumé already has and which are missing.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumekeywords #jobtips #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 54,
+      "image": "https://fortunejobsai.com/social/post-54.jpg",
+      "post_caption": "Internships are competitive. A tailored résumé and steady follow-through make a real difference.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#internships #collegestudents #internship #careeradvice #jobsearch"
+    },
+    {
+      "id": 5,
+      "image": "https://fortunejobsai.com/social/post-05.jpg",
+      "post_caption": "Fancy templates with columns and icons often confuse ATS software. Our free résumé builder uses a clean layout recruiters and ATS systems read easily, with a live score as you type.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumebuilder #freeresume #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 55,
+      "image": "https://fortunejobsai.com/social/post-55.jpg",
+      "post_caption": "Many employers screen résumés with software first. Check yours free on Fortune Jobs AI before you hit apply.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#atsresume #resumetips #collegestudents #newgrad #jobsearch"
+    },
+    {
+      "id": 6,
+      "image": "https://fortunejobsai.com/social/post-06.jpg",
+      "post_caption": "Found a job you like? Open it on Fortune Jobs AI and tap Practice interview questions. Our AI coach writes questions for that exact role so you walk in ready.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#interviewtips #interviewprep #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 56,
+      "image": "https://fortunejobsai.com/social/post-56.jpg",
+      "post_caption": "You don't need every preferred skill. Focus on the requirements and apply when you're a solid fit.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#firstjob #entryleveljobs #newgrad #jobsearch #careeradvice"
+    },
+    {
+      "id": 7,
+      "image": "https://fortunejobsai.com/social/post-07.jpg",
+      "post_caption": "Résumé tip: replace \"Responsible for…\" with what you actually did. \"Built\", \"Reduced\", \"Led\" and \"Automated\" show impact. Our free ATS check flags the weak lines for you.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumetip #careertips #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 57,
+      "image": "https://fortunejobsai.com/social/post-57.jpg",
+      "post_caption": "Your university career center is free help many students never use. Pair it with Fortune Jobs AI for your search.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#careercenter #collegestudents #university #careeradvice #jobsearch"
+    },
+    {
+      "id": 8,
+      "image": "https://fortunejobsai.com/social/post-08.jpg",
+      "post_caption": "Résumé tip: numbers make achievements real. Add results you can verify, like time saved, users supported or money managed. Our ATS score rewards measurable results.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumetip #jobseekers #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 58,
+      "image": "https://fortunejobsai.com/social/post-58.jpg",
+      "post_caption": "Recruiters skim. A clear one-page résumé that matches the job beats a long one.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumetips #newgrad #collegestudents #resume #jobsearch"
+    },
+    {
+      "id": 9,
+      "image": "https://fortunejobsai.com/social/post-09.jpg",
+      "post_caption": "Looking for a stable government role? Fortune Jobs AI includes official federal IT jobs from USAJOBS, from cybersecurity to cloud and data, updated daily.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#federaljobs #governmentjobs #cybersecurity #jobsearch #careeradvice"
+    },
+    {
+      "id": 59,
+      "image": "https://fortunejobsai.com/social/post-59.jpg",
+      "post_caption": "\"Tell me about yourself\" is almost always the first question. Practice a short, confident answer.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#interviewtips #interviewprep #newgrad #collegestudents #careeradvice"
+    },
+    {
+      "id": 10,
+      "image": "https://fortunejobsai.com/social/post-10.jpg",
+      "post_caption": "Graduating soon? Build your first résumé free, check its ATS score and search entry-level jobs in one place. Share this with a classmate who's job hunting.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#newgrad #classof2027 #entryleveljobs #jobsearch #careeradvice"
+    },
+    {
+      "id": 60,
+      "image": "https://fortunejobsai.com/social/post-60.jpg",
+      "post_caption": "Skills sections help both recruiters and screening software. Be specific and honest.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumetips #skills #newgrad #jobsearch #careeradvice"
+    },
+    {
+      "id": 11,
+      "image": "https://fortunejobsai.com/social/post-11.jpg",
+      "post_caption": "Real employers never ask you to pay to get a job or share your Social Security or bank details before an interview. Jobs posted on Fortune Jobs AI by employers are checked by our team.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobscams #jobsafety #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 61,
+      "image": "https://fortunejobsai.com/social/post-61.jpg",
+      "post_caption": "Set free job alerts on Fortune Jobs AI and get new matching jobs by email.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobalerts #jobsearch #collegestudents #newgrad #hiring"
+    },
+    {
+      "id": 12,
+      "image": "https://fortunejobsai.com/social/post-12.jpg",
+      "post_caption": "Employers and recruiters: post your openings on Fortune Jobs AI for free. Verify with your company email and reach job seekers searching right now.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#hiringnow #recruiting #smallbusiness #hiring #jobsearch"
+    },
+    {
+      "id": 62,
+      "image": "https://fortunejobsai.com/social/post-62.jpg",
+      "post_caption": "Fortune Jobs AI links straight to employer application pages, so you apply where the hiring happens.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#newgrad #jobsearch #entryleveljobs #hiring #careeradvice"
+    },
+    {
+      "id": 13,
+      "image": "https://fortunejobsai.com/social/post-13.jpg",
+      "post_caption": "Want to work from home? Search any role and filter by Remote to see real remote jobs from employer career sites across the U.S.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#remotework #workfromhome #remotejobs #jobsearch #careeradvice"
+    },
+    {
+      "id": 63,
+      "image": "https://fortunejobsai.com/social/post-63.jpg",
+      "post_caption": "Campus jobs and part-time roles count. Show what you learned and achieved.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#studentjobs #parttimejobs #collegestudents #jobsearch #careeradvice"
+    },
+    {
+      "id": 14,
+      "image": "https://fortunejobsai.com/social/post-14.jpg",
+      "post_caption": "Stop applying blindly. Upload your résumé once and Fortune Jobs AI shows an explainable fit estimate on jobs with enough detail, so you can focus on the best matches.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobmatch #careergoals #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 64,
+      "image": "https://fortunejobsai.com/social/post-64.jpg",
+      "post_caption": "Fortune AI Coach helps you understand each job and prepare. Always review and edit what it suggests.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#aitools #jobsearch #newgrad #interviewprep #careeradvice"
+    },
+    {
+      "id": 15,
+      "image": "https://fortunejobsai.com/social/post-15.jpg",
+      "post_caption": "Résumé tip: tailor your résumé to each kind of role. Use the exact job title you're applying for and the job ad's keywords you really have. Our AI coach can tailor it for you.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#tailoredresume #jobhuntingtips #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 65,
+      "image": "https://fortunejobsai.com/social/post-65.jpg",
+      "post_caption": "Recruiters often check LinkedIn after your résumé. Keep both consistent.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#linkedin #personalbranding #newgrad #collegestudents #jobsearch"
+    },
+    {
+      "id": 16,
+      "image": "https://fortunejobsai.com/social/post-16.jpg",
+      "post_caption": "Software, data, cloud and cybersecurity jobs from more than 150 company career sites, all in one search. Apply directly on each company's own page.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#techjobs #softwareengineer #dataanalyst #jobsearch #careeradvice"
+    },
+    {
+      "id": 66,
+      "image": "https://fortunejobsai.com/social/post-66.jpg",
+      "post_caption": "A short thank-you note is simple, professional and still noticed.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#interviewtips #careeradvice #newgrad #jobsearch #professionalism"
+    },
+    {
+      "id": 17,
+      "image": "https://fortunejobsai.com/social/post-17.jpg",
+      "post_caption": "Résumé tip: recruiters skim. Keep your résumé to one or two pages, put your most relevant experience first and cut what doesn't support the job you want.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumeadvice #careercoach #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 67,
+      "image": "https://fortunejobsai.com/social/post-67.jpg",
+      "post_caption": "Public-service careers are open to students and recent graduates. Search federal jobs alongside private ones.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#federaljobs #governmentjobs #collegestudents #newgrad #jobsearch"
+    },
+    {
+      "id": 18,
+      "image": "https://fortunejobsai.com/social/post-18.jpg",
+      "post_caption": "When you upload a résumé to check jobs or your ATS score, it's read in your own browser. We don't store the file. Your career, your data.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#privacy #jobseekers #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 68,
+      "image": "https://fortunejobsai.com/social/post-68.jpg",
+      "post_caption": "Remote doesn't always mean anywhere. Read the location rules before you apply.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#remotejobs #remotework #newgrad #jobsearch #careeradvice"
+    },
+    {
+      "id": 19,
+      "image": "https://fortunejobsai.com/social/post-19.jpg",
+      "post_caption": "Students: find internships near you, build an ATS-ready résumé for free and practise interview questions for each role. Tag a friend who needs this.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#internship #collegelife #studentlife #collegestudents #internships"
+    },
+    {
+      "id": 69,
+      "image": "https://fortunejobsai.com/social/post-69.jpg",
+      "post_caption": "A simple tracking habit keeps your search moving and stress lower.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobsearch #productivity #collegestudents #newgrad #careeradvice"
+    },
+    {
+      "id": 20,
+      "image": "https://fortunejobsai.com/social/post-20.jpg",
+      "post_caption": "Résumé tip: ATS software looks for standard section headings. Use \"Experience\", \"Skills\" and \"Education\", and avoid tables and text boxes. Check yours free on Fortune Jobs AI.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#atstips #resumeformat #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 70,
+      "image": "https://fortunejobsai.com/social/post-70.jpg",
+      "post_caption": "Every job seeker gets turned down. Keep improving, keep applying and keep going.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobsearch #motivation #newgrad #collegestudents #careeradvice"
+    },
+    {
+      "id": 21,
+      "image": "https://fortunejobsai.com/social/post-21.jpg",
+      "post_caption": "AI job search, a free ATS résumé score, a résumé builder and an interview coach, all free on Fortune Jobs AI. Link in bio.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#careerhelp #jobsearchtips #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 71,
+      "image": "https://fortunejobsai.com/social/post-71.jpg",
+      "post_caption": "Students, new grads and experienced job seekers use Fortune Jobs AI to search smarter. It's free to start.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobsearch #collegestudents #newgrad #hiring #careeradvice"
+    },
+    {
+      "id": 22,
+      "image": "https://fortunejobsai.com/social/post-22.jpg",
+      "post_caption": "Try two related titles for your next search. Compare the responsibilities and skill lists to see which openings fit the work you want to do.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobsearchtips #careerplanning #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 23,
+      "image": "https://fortunejobsai.com/social/post-23.jpg",
+      "post_caption": "Write one bullet that explains what you did, how you did it, and what changed. A concrete result gives readers a clearer picture of your contribution.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumewriting #achievement #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 24,
+      "image": "https://fortunejobsai.com/social/post-24.jpg",
+      "post_caption": "Prepare three short stories you can adapt to common interview questions. Keep the context brief and spend most of your time on your actions and the result.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#interviewprep #starinterview #interviewtips #jobsearch #careeradvice"
+    },
+    {
+      "id": 25,
+      "image": "https://fortunejobsai.com/social/post-25.jpg",
+      "post_caption": "Coursework can show how you solve problems. Add a project that relates to the role and tell the reader exactly what you built, analyzed, or improved.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#studentcareer #portfolio #collegestudents #internships #jobsearch"
+    },
+    {
+      "id": 26,
+      "image": "https://fortunejobsai.com/social/post-26.jpg",
+      "post_caption": "Quick Match lets you browse our U.S. catalogue as a guest. Open any result to review its details and follow the application link.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#quickmatch #jobsearchtips #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 27,
+      "image": "https://fortunejobsai.com/social/post-27.jpg",
+      "post_caption": "Before applying, copy a few lines from your PDF into a plain-text editor. If the text is missing or out of order, review the export and try a simpler layout.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#pdfresume #resumecheck #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 28,
+      "image": "https://fortunejobsai.com/social/post-28.jpg",
+      "post_caption": "Use the Date posted filter to focus your first pass. A wider window can help when the role or location has fewer openings.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobfilters #searchtips #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 29,
+      "image": "https://fortunejobsai.com/social/post-29.jpg",
+      "post_caption": "Employers use different titles for early-career roles. Try a few related searches and read the experience requirements before deciding where to apply.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#earlycareer #graduatejobs #newgrad #entryleveljobs #jobsearch"
+    },
+    {
+      "id": 30,
+      "image": "https://fortunejobsai.com/social/post-30.jpg",
+      "post_caption": "A good interview question helps you understand the day-to-day work. Prepare two questions based on the responsibilities in the listing.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#interviewquestions #jobinterview #interviewtips #interviewprep #jobsearch"
+    },
+    {
+      "id": 31,
+      "image": "https://fortunejobsai.com/social/post-31.jpg",
+      "post_caption": "Use Résumé Studio to organize the experience and skills you already have. Review names, dates and details before you share your résumé.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumebuilder #resumehelp #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 32,
+      "image": "https://fortunejobsai.com/social/post-32.jpg",
+      "post_caption": "An employer’s application page may contain extra instructions or a closing date. Read the original listing before submitting your application.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#applywithconfidence #jobapplications #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 33,
+      "image": "https://fortunejobsai.com/social/post-33.jpg",
+      "post_caption": "A skills list is easier to trust when your experience shows how you used those tools. Add one specific example to a relevant résumé bullet.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#skillsbasedhiring #resumewriting #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 34,
+      "image": "https://fortunejobsai.com/social/post-34.jpg",
+      "post_caption": "Sign in to try Fortune Jobs AI’s plain-English search. Describe the role and location you want, then review the filters and results.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#aisearch #jobsearchtools #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 35,
+      "image": "https://fortunejobsai.com/social/post-35.jpg",
+      "post_caption": "Practice a concise answer to “Tell me about yourself.” Choose one example that connects your experience to the job you’re interviewing for.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#interviewcoach #interviewtips #interviewprep #jobsearch #careeradvice"
+    },
+    {
+      "id": 36,
+      "image": "https://fortunejobsai.com/social/post-36.jpg",
+      "post_caption": "Spend a minute checking your contact details before sending a résumé. Test portfolio and profile links from a private browser window if they are meant to be public.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumecheck #applicationtips #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 37,
+      "image": "https://fortunejobsai.com/social/post-37.jpg",
+      "post_caption": "Save promising roles in your Fortune Jobs AI profile so you can compare them later. Check each application destination when you are ready to apply.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#savedjobs #jobsearchorganization #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 38,
+      "image": "https://fortunejobsai.com/social/post-38.jpg",
+      "post_caption": "Volunteer work can show planning, teamwork, analysis, and other relevant skills. Give it the same clear description you would give paid experience.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#volunteerexperience #studentcareer #collegestudents #internships #jobsearch"
+    },
+    {
+      "id": 39,
+      "image": "https://fortunejobsai.com/social/post-39.jpg",
+      "post_caption": "Two listings with the same title can ask for different work. Compare their core responsibilities before choosing which one fits your goals.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#careerplanning #jobsearchtips #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 40,
+      "image": "https://fortunejobsai.com/social/post-40.jpg",
+      "post_caption": "A match estimate can help you decide where to spend time. Read the supporting details and review the employer’s requirements before applying.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobmatching #careertools #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 41,
+      "image": "https://fortunejobsai.com/social/post-41.jpg",
+      "post_caption": "Make your work and education timeline easy to follow. Choose one format for dates and check it stays consistent in your final export.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumeformat #resumecheck #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 42,
+      "image": "https://fortunejobsai.com/social/post-42.jpg",
+      "post_caption": "Pick a project you know well and practice explaining it to someone unfamiliar with it. Show why you made your choices and how you measured the outcome.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#projectstory #interviewprep #interviewtips #jobsearch #careeradvice"
+    },
+    {
+      "id": 43,
+      "image": "https://fortunejobsai.com/social/post-43.jpg",
+      "post_caption": "Build a short pre-application routine. Confirm the listing, open the exact résumé you plan to attach, and note the date once you apply.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#applicationchecklist #jobsearchtips #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 44,
+      "image": "https://fortunejobsai.com/social/post-44.jpg",
+      "post_caption": "Eligibility and document requirements vary across federal listings. Use the original USAJOBS posting to check the instructions for that specific job.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#usajobs #federalcareers #federaljobs #governmentjobs #jobsearch"
+    },
+    {
+      "id": 45,
+      "image": "https://fortunejobsai.com/social/post-45.jpg",
+      "post_caption": "Fortune AI Coach can suggest résumé edits when you sign in and provide résumé details. Keep the wording that accurately describes your experience and verify every change.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumeediting #responsibleai #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 46,
+      "image": "https://fortunejobsai.com/social/post-46.jpg",
+      "post_caption": "Group projects are useful evidence when your contribution is clear. Explain the part you owned and how it helped the team deliver the result.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#graduatecareers #teamwork #newgrad #entryleveljobs #jobsearch"
+    },
+    {
+      "id": 47,
+      "image": "https://fortunejobsai.com/social/post-47.jpg",
+      "post_caption": "Remote jobs can still have location, time zone or travel requirements. Check the employer’s full listing before investing time in an application.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#remotework #workmode #remotejobs #jobsearch #careeradvice"
+    },
+    {
+      "id": 48,
+      "image": "https://fortunejobsai.com/social/post-48.jpg",
+      "post_caption": "The free ATS readiness check looks for common résumé basics. Use the feedback to improve clarity and formatting, and follow the employer’s own instructions.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#atsreadiness #resumehelp #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 49,
+      "image": "https://fortunejobsai.com/social/post-49.jpg",
+      "post_caption": "Fortune AI Coach can suggest interview questions and answer outlines based on a job and your résumé details. Use them to practice your own examples.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#aiinterview #interviewpractice #interviewtips #interviewprep #jobsearch"
+    },
+    {
+      "id": 50,
+      "image": "https://fortunejobsai.com/social/post-50.jpg",
+      "post_caption": "A short focused session can move one promising application forward. Review the listing carefully and make your most relevant evidence easy to find.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobsearchroutine #careerplanning #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 51,
+      "image": "https://fortunejobsai.com/social/post-51.jpg",
+      "post_caption": "Write down three searches you can run this week. Comparing the results will show which titles and locations are worth exploring next.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobsearchplan #nextrole #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 0,
+      "image": "https://fortunejobsai.com/social/post-00.jpg",
+      "post_caption": "Why choose Fortune Jobs AI for your job search? Real U.S. jobs straight from employer career sites, a free ATS résumé score, AI job search in plain English, fit estimates before you apply and an AI interview coach. All free, and your résumé stays private. Start your search today.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobsearch2026 #findajob #careerchange #jobsearch #newgrad"
+    },
+    {
+      "id": 1,
+      "image": "https://fortunejobsai.com/social/post-01.jpg",
+      "post_caption": "Most big companies run your résumé through an ATS before a person sees it. Upload yours on Fortune Jobs AI and get a free ATS readiness score with clear fixes. Your file never leaves your browser.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#atsresume #resumecheck #jobsearch #careeradvice #hiring"
+    },
+    {
+      "id": 2,
+      "image": "https://fortunejobsai.com/social/post-02.jpg",
+      "post_caption": "Tired of job boards that send you through five other sites? On Fortune Jobs AI most jobs come straight from the company's own careers page, so Apply takes you right to the employer.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#applydirect #jobboard #jobsearch #careeradvice #hiring"
+    }
+  ]
+}
