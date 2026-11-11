@@ -54,6 +54,9 @@ Careerjet's API requires the end user's `user_ip` and `user_agent`, so it is for
   Careerjet" linking to careerjet.com, as their terms ask), loading after our results so it never slows them.
   Links open in a new tab with rel="nofollow sponsored noopener".
 - Tests: unit tests for the response mapping and error fallback; no real key in tests.
+- Privacy Policy (react source of privacy.html, plus any parity fixture): add one sentence, e.g. "When you search, your search
+  words, IP address and browser type are sent to our job partners (such as Careerjet) to show live results and prevent
+  fraud. We never send your name, email, résumé or account details." Franklin approved this wording on Nov 11.
 - One PR; do not deploy. Claude reviews and deploys the function and site after Franklin's OK.
 
 ## TONIGHT — top priority (Franklin approved Nov 11, 00:32 ET): build these two first, then continue the list
