@@ -41,3 +41,4 @@ current (append a dated line under "Log" when you finish something). Franklin ap
 
 ## Log
 - 2026-11-11 Claude: wrote this handoff.
+- 2026-11-11 Codex added student and new-grad photos and captions for IDs 52–81 on `codex/student-social-posts`. All 30 JPEGs and five-tag captions passed checks, and IDs 0–51 were preserved.
