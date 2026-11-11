@@ -75,3 +75,4 @@ Extra tasks after #1–4:
 - 2026-11-11 Codex added student and new-grad photos and captions for IDs 52–81 on `codex/student-social-posts`. All 30 JPEGs and five-tag captions passed checks, and IDs 0–51 were preserved.
 - 2026-11-11 Codex rendered and verified Reels 52–81 with licensed stock photos, the original loops and spinning-logo outro. Six have captioned local AI narration. Both Reel feeds were appended on `codex/student-reels`.
 - 2026-11-11 Codex added ten link-free Reddit answers and the “7 ATS mistakes” post for manual use on `codex/reddit-drafts`.
+- 2026-11-11 Claude: deployed posts/reels 52–81, Reddit drafts, city/role pages (PR #2–4, #7) and the visa/OPT filter (PR #6; migration applied, 16,731 jobs classified). Tracker (PR #5) waits on its migration.
