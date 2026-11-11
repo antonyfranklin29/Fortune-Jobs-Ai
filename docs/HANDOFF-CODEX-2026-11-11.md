@@ -38,7 +38,7 @@ current (append a dated line under "Log" when you finish something). Franklin ap
 Pro stays **$9.99/month — no discounts, coupons or founding prices.** Grow through free traffic and value instead.
 Extra tasks after #1–4:
 5. Shareable ATS score card ("My résumé scored 87/100 on Fortune Jobs AI") with an Open Graph image.
-6. Referral: invite 3 friends who sign up → 1 free month of Pro (a free month, not a price cut; needs Franklin's OK before going live).
+6. (On hold — Franklin said "not yet": no referral rewards or free months. Don't build.)
 7. Drafts for 20 college career-center emails (NC/NJ first: ECU, NC State, UNC, Rutgers, NJIT…) in `docs/outreach/career-centers.md`.
 8. Product Hunt launch kit (tagline, description, 5 screenshots, first comment) in `docs/launch/product-hunt.md`.
 
