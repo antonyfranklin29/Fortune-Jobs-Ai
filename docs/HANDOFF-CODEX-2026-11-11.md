@@ -59,6 +59,22 @@ Careerjet's API requires the end user's `user_ip` and `user_agent`, so it is for
   fraud. We never send your name, email, résumé or account details." Franklin approved this wording on Nov 11.
 - One PR; do not deploy. Claude reviews and deploys the function and site after Franklin's OK.
 
+## NEXT — more job sources (Franklin, Nov 11 4:48 PM: "add everything")
+Build each as its own PR, same pattern as Careerjet. Never commit keys; Franklin adds them as Supabase secrets.
+3. **Jooble** (after Franklin's key arrives; secret `JOOBLE_API_KEY`): POST `https://jooble.org/api/{key}` with
+   `{keywords, location, page}`. Read Jooble's terms when the key arrives: if storing is allowed, add an `ingest`
+   source like Adzuna (role × state, nightly, budget-limited); if not, live search like Careerjet. Always link out via
+   the URL Jooble returns; credit "Jobs by Jooble".
+4. **WhatJobs** (after publisher approval; secret `WHATJOBS_API_KEY` / feed URL): follow
+   https://www.whatjobs.com/xml-feed-specification. Prefer the XML feed → filter to U.S. + our roles + posted ≤30 days →
+   upsert into pre_scraped_jobs with source `whatjobs`, keep their tracking apply URL, close jobs missing from the feed.
+5. **Breezy HR employers** (no key): add a `breezy` provider to `supabase/functions/ats-ingest/ats.mjs` using each
+   company's public `https://{slug}.breezy.hr/json` list; add 30–50 U.S. employer slugs to boards.mjs (verify each
+   returns U.S. jobs); same role filter as other providers; tests with fixtures.
+6. **Jobg8** — later, once traffic analytics show steady visitors; just prepare `docs/outreach/jobg8.md` (what to send).
+Skip: Lensa (employer ad product, no confirmed publisher feed), CalJOBS/state "open data" (not a real job API; states
+come via NLx), Indeed/ZipRecruiter/Workday (closed to small sites).
+
 ## TONIGHT — top priority (Franklin approved Nov 11, 00:32 ET): build these two first, then continue the list
 A. **Visa / OPT-friendly filter** on search results.
    - Classify each job from its title + description into `sponsorship`: `sponsors` (e.g. "H-1B sponsorship available",
