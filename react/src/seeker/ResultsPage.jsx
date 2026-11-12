@@ -14,6 +14,8 @@ import '../styles/dashboard.css';
 
 const params = new URLSearchParams(window.location.search);
 const initial = Object.fromEntries(params);
+// Careerjet requires fixed outbound IPs. Keep disabled on serverless hosting.
+const CAREERJET_ENABLED = false;
 const livePartnerQuery = partnerQuery(initial);
 
 // Fields kept within the saved_jobs table limits.
@@ -155,7 +157,7 @@ export function ResultsPage({ afterDashboard }) {
           <JobDetail job={job} profile={profile} saved={savedKeys.has(jobKey(job))} onSave={toggleSave} dashboard />
           <MatchPanel job={job} profile={profile} saved={savedKeys.has(jobKey(job))} />
         </div>}
-        {!loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="Careerjet" site="https://www.careerjet.com/" endpoint="careerjet-search" />}
+        {CAREERJET_ENABLED && !loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="Careerjet" site="https://www.careerjet.com/" endpoint="careerjet-search" />}
         {!loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="Jooble" site="https://jooble.org/" endpoint="jooble-search" onDemand />}
       </div>
       {afterDashboard}
