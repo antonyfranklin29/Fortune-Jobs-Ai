@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import { PartnerJobs, partnerQuery } from './PartnerJobs.jsx';
 
@@ -28,4 +28,15 @@ it('renders attributed partner links and omits browser credentials', async () =>
   expect(fetchJobs).toHaveBeenCalledWith('https://example.test/functions/v1/careerjet-search', expect.objectContaining({
     credentials: 'omit', body: JSON.stringify(query),
   }));
+});
+
+it('waits for a visitor to request Jooble and handles a provider failure', async () => {
+  window.FJ_CONFIG = { url: 'https://example.test', key: 'public-key-fixture' };
+  const fetchJobs = vi.fn(async () => new Response(null, { status: 429 }));
+  vi.stubGlobal('fetch', fetchJobs);
+  render(<PartnerJobs query={partnerQuery({ q: 'Analyst' })} name="Jooble" site="https://jooble.org/" endpoint="jooble-search" onDemand />);
+  expect(fetchJobs).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button', { name: 'Search Jooble' }));
+  expect(await screen.findByText('No Jooble results available for this search.')).toBeTruthy();
+  expect(fetchJobs).toHaveBeenCalledTimes(1);
 });
