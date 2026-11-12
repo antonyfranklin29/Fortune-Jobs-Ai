@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Footer, Header, MobileTabs } from '../shared/Shell.jsx';
 import { SearchForm } from './SearchForm.jsx';
+import { PartnerJobs, partnerQuery } from './PartnerJobs.jsx';
 import { JobDetail, JobList } from './JobViews.jsx';
 import { guestMatchProfile, quickMatches, recentJobs } from './catalogue.js';
 import { workAuthorizationFilter } from './workAuthorization.js';
@@ -13,6 +14,7 @@ import '../styles/dashboard.css';
 
 const params = new URLSearchParams(window.location.search);
 const initial = Object.fromEntries(params);
+const livePartnerQuery = partnerQuery(initial);
 
 // Fields kept within the saved_jobs table limits.
 const SAVED_LIMITS = { job_title: 300, company: 200, location: 200, salary: 120, apply_url: 2000, match_reason: 2000 };
@@ -153,6 +155,8 @@ export function ResultsPage({ afterDashboard }) {
           <JobDetail job={job} profile={profile} saved={savedKeys.has(jobKey(job))} onSave={toggleSave} dashboard />
           <MatchPanel job={job} profile={profile} saved={savedKeys.has(jobKey(job))} />
         </div>}
+        {!loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="Careerjet" site="https://www.careerjet.com/" endpoint="careerjet-search" />}
+        {!loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="Jooble" site="https://jooble.org/" endpoint="jooble-search" onDemand />}
       </div>
       {afterDashboard}
     </main>

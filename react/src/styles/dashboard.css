@@ -247,3 +247,8 @@
 .pro-subscribe:disabled { opacity:.7; cursor:progress; }
 .pro-fine { font-size:11.5px !important; color:#54657a !important; line-height:1.45; }
 .dashboard-upgrade-pro a { color:#174c78; font-weight:700; font-size:13px; }
+
+.partner-jobs { margin-top: 20px; padding: 20px; }
+.partner-jobs ul { list-style: none; padding: 0; margin: 12px 0 0; }
+.partner-jobs li { padding: 12px 0; border-top: 1px solid #dce5ef; }
+.partner-jobs li p { margin: 4px 0 0; overflow-wrap: anywhere; }
