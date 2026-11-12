@@ -159,6 +159,7 @@ export function ResultsPage({ afterDashboard }) {
         </div>}
         {CAREERJET_ENABLED && !loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="Careerjet" site="https://www.careerjet.com/" endpoint="careerjet-search" />}
         {!loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="Jooble" site="https://jooble.org/" endpoint="jooble-search" onDemand />}
+        {!loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="WhatJobs" site="https://www.whatjobs.com/" endpoint="whatjobs-search" onDemand />}
       </div>
       {afterDashboard}
     </main>
