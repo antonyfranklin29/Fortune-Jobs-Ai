@@ -1,0 +1,42 @@
+name: Refresh public job search pages
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '45 13 * * *'
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: job-seo-refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REFRESH_BRANCH: automation/job-seo-refresh
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Test and rebuild from the public catalogue
+        run: |
+          node --test tests/job-seo.mjs
+          node scripts/build-job-seo.mjs
+      - name: Open or update the generated snapshot PR
+        run: |
+          set -euo pipefail
+          git add -A -- ':(glob)jobs/**/index.html' jobs/index.html sitemap.xml
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Refresh generated job search pages'
+          remote_tip="$(git ls-remote origin "refs/heads/$REFRESH_BRANCH" | cut -f1)"
+          git push "--force-with-lease=refs/heads/$REFRESH_BRANCH:$remote_tip" origin "HEAD:refs/heads/$REFRESH_BRANCH"
+          open_pr="$(gh pr list --state open --base main --head "$REFRESH_BRANCH" --json number --jq '.[0].number // empty')"
+          if [[ -z "$open_pr" ]]; then
+            gh pr create --base main --head "$REFRESH_BRANCH" --title 'Refresh generated job search pages' --body 'Daily rebuild from the public catalogue. Updates generated job pages and sitemap for review.'
+          fi

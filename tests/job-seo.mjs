@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { applicationUrl, cityListings, jobPosting } from '../jobs/catalogue.mjs';
-import { addSitemapUrls, renderCity } from '../scripts/build-job-seo.mjs';
+import { applicationUrl, cityListings, jobPosting, readOpenCatalogue } from '../jobs/catalogue.mjs';
+import { addSitemapUrls, planPages, renderArea, renderCity } from '../scripts/build-job-seo.mjs';
+import { readFileSync } from 'node:fs';
 
 const now = Date.parse('2026-11-11T16:00:00Z');
 const target = { city: 'Raleigh', state: 'NC', role: 'data-analyst', title: 'Data Analyst' };
@@ -13,6 +14,21 @@ const job = {
   apply_url: 'https://example.com/jobs/100?a=1&b=2',
   job_description: 'Maintain reporting dashboards and analyze data with the operations team.',
 };
+
+test('the catalogue reads past the public page limit without skipping IDs', async t => {
+  const urls = [];
+  t.mock.method(globalThis, 'fetch', async url => {
+    urls.push(new URL(url));
+    return Response.json(urls.length === 1
+      ? Array.from({ length: 1000 }, (_, i) => ({ id: i + 1 }))
+      : [{ id: 1001 }]);
+  });
+  const rows = await readOpenCatalogue({ url: 'https://catalogue.example.com', key: 'fixture' });
+  assert.equal(rows.length, 1001);
+  assert.equal(urls[0].searchParams.get('closed_at'), 'is.null');
+  assert.equal(urls[0].searchParams.get('order'), 'id.asc');
+  assert.equal(urls[1].searchParams.get('id'), 'gt.1000');
+});
 
 test('city results require a current distinct listing in the requested city, state and role', () => {
   const rows = [
@@ -73,4 +89,27 @@ test('sitemap regeneration preserves existing pages and removes stale generated 
   assert.match(refreshed, /<loc>https:\/\/fortunejobsai\.com\/jobs\/<\/loc>/);
   assert.doesNotMatch(refreshed, /posting\/100/);
   assert.equal(addSitemapUrls(refreshed, ['/jobs/']), refreshed);
+});
+
+test('state pages require 40 distinct open listings and cities use the full taxonomy', () => {
+  const { roles } = JSON.parse(readFileSync(new URL('../config/job-roles.json', import.meta.url)));
+  const { regions } = JSON.parse(readFileSync(new URL('../config/us-regions.json', import.meta.url)));
+  const rows = Array.from({ length: 40 }, (_, i) => ({
+    ...job, id: i + 100, apply_url: 'https://example.com/jobs/' + i,
+  }));
+  const nearly = planPages([...rows.slice(0, 39), { ...rows[0], id: 1000 }, { ...rows[39], closed_at: '2026-11-11' }], roles, regions, now);
+  assert.equal(nearly.statePages.length, 0);
+  const full = planPages(rows, roles, regions, now);
+  assert.equal(full.statePages.length, 1);
+  assert.equal(full.cityPages.length, 19 * 26);
+  assert.equal(full.statePages[0].rows.length, 40);
+  const html = renderArea(full.statePages[0].target, full.statePages[0].rows, new Set(), '2026-11-11',
+    full.cityPages.filter(page => page.target.city === 'Raleigh' && page.rows.length));
+  assert.match(html, /<title>40 Data Analyst jobs in North Carolina/);
+  assert.match(html, /Showing 20 of 40 open listings/);
+  assert.match(html, /href="\/jobs\/data-analyst\/raleigh-nc\/"/);
+  assert.doesNotMatch(html, /noindex|JobPosting/);
+  const schema = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]);
+  assert.equal(schema['@type'], 'BreadcrumbList');
+  assert.equal(schema.itemListElement.at(-1).item, 'https://fortunejobsai.com/jobs/data-analyst/north-carolina/');
 });

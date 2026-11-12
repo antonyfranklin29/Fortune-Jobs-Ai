@@ -1,5 +1,5 @@
 import {
-  MIN_CITY_JOBS, applicationUrl, getCityListings, getEmployerPostings, jobPosting, postingPath,
+  MIN_CITY_JOBS, MIN_STATE_JOBS, DISPLAY_LIMIT, applicationUrl, getAreaListings, getEmployerPostings, jobPosting, postingPath,
 } from './catalogue.mjs';
 
 const panel = document.querySelector('[data-job-page]');
@@ -27,33 +27,33 @@ function applyLink(job, href = applicationUrl(job.apply_url), text = 'View origi
   return link;
 }
 
-async function refreshCity() {
+async function refreshArea() {
   const { city, state, role } = panel.dataset;
   const list = panel.querySelector('ul');
   const status = panel.querySelector('[role="status"]');
   const detailIds = new Set(panel.dataset.detailIds.split(',').filter(Boolean));
   try {
-    const rows = await getCityListings(window.FJ_CONFIG, { city, state, role });
-    if (rows.length < MIN_CITY_JOBS) noindex();
-    list.replaceChildren(...rows.map(job => {
+    const rows = await getAreaListings(window.FJ_CONFIG, { city, state, role });
+    if (rows.length < (city ? MIN_CITY_JOBS : MIN_STATE_JOBS)) noindex();
+    const visible = rows.slice(0, DISPLAY_LIMIT);
+    list.replaceChildren(...visible.map(job => {
       const item = document.createElement('li');
       const title = textElement('h2', job.job_title);
       const meta = textElement('p', job.company + ' · ' + job.location);
-      const date = textElement('p', 'Posted ' + job.posted_at.slice(0, 10));
       const link = detailIds.has(String(job.id))
         ? applyLink(job, postingPath(job.id), 'View job details')
         : applyLink(job);
-      item.append(title, meta, date, link);
+      item.append(title, meta);
+      if (job.posted_at) item.append(textElement('p', 'Posted ' + job.posted_at.slice(0, 10)));
+      item.append(link);
       if (job.source === 'adzuna') item.append(' ', textElement('small', 'Job source: Adzuna'));
       return item;
     }));
     status.textContent = rows.length
-      ? 'Showing ' + rows.length + ' recent ' + (rows.length === 1 ? 'listing.' : 'listings.')
-      : 'No current listings match this city and role. Try a broader search.';
+      ? 'Showing ' + visible.length + ' of ' + rows.length + ' open listings.'
+      : 'No open listings match this area and role. Try a broader search.';
   } catch {
-    noindex();
-    list.replaceChildren();
-    status.textContent = 'Could not verify current listings. Try the main job search.';
+    status.append(' Live availability could not be checked.');
   }
 }
 
@@ -84,5 +84,5 @@ async function refreshPosting() {
   }
 }
 
-if (panel?.dataset.jobPage === 'city') refreshCity();
+if (['area', 'city'].includes(panel?.dataset.jobPage)) refreshArea();
 if (panel?.dataset.jobPage === 'posting') refreshPosting();
