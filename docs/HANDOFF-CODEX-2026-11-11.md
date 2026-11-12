@@ -34,7 +34,28 @@ current (append a dated line under "Log" when you finish something). Franklin ap
 4. **Free-traffic SEO:** city/role landing pages (e.g. "Data Analyst jobs in Raleigh, NC") generated from
    live jobs, plus Google for Jobs `JobPosting` markup. Keep pages honest and noindex any page with < 5 jobs.
 
-## NOW #1 — Cloudflare Web Analytics on every page (Franklin approved Nov 11 3:31 PM; quick)
+## NOW #3 — More Google job pages (Franklin chose this Nov 12, 9:54 AM ET). Top priority today.
+The generator already exists: `scripts/build-job-seo.mjs` (6 cities × 4 roles = 24 pages under /jobs/, `jobs/live.mjs`
+refreshes listings in the browser, pages with < 5 jobs are noindex). Extend it, don't rewrite it:
+1. **State pages:** add `/jobs/<role>/<state>/` (e.g. /jobs/software-engineer/texas/) for every role × state that has
+   **≥ 40 open jobs** (about 40 pages today; open-job counts on Nov 12: software-engineer CA 949, TX 329, NY 294, VA 196,
+   WA 186, MD 185, NC 125, NJ 122, FL 118, MA 114, IL 110, CO 100; qa-engineer CA 163; ML engineer CA 143, VA 107,
+   NY 92; data-scientist VA 122, CA 112, NY 74; product-manager CA 118; devops CA 107, VA 98, MD 88; data-analyst VA 102,
+   TX 85; full-stack VA 99, NY 82; business-analyst VA 87, IL 80, CA 77; data-engineer VA 76, TX 74; servicenow VA 83;
+   cybersecurity VA 80). Pick the list from the data at build time with the same ≥ 40 rule, not hard-coded.
+2. **More roles on city pages:** use every role in the taxonomy (26 roles), keep the < 5 jobs → noindex rule.
+3. **More cities:** add Dallas TX, Houston TX, Charlotte NC, Atlanta GA, Boston MA, Washington DC, Jersey City NJ,
+   Newark NJ, Arlington VA, Los Angeles CA, San Jose CA, Denver CO, Phoenix AZ.
+4. **Each page:** unique title + meta description with the real count ("124 Software Engineer jobs in Texas"),
+   a 2–3 sentence honest intro, links to the related city/state pages, `JobPosting` JSON-LD only for jobs whose
+   detail page we host, breadcrumb JSON-LD. Add every indexed page to sitemap.xml; update /jobs/ index by state.
+5. **Do NOT** make "OPT / visa sponsorship" pages yet: only ~6 jobs are tagged sponsors/opt, too thin.
+6. **Keep fresh:** add a GitHub Actions workflow that rebuilds the pages daily (reuse catalogue-health.yml's
+   Supabase read setup) and opens a PR or commits only generated files. No keys in the repo.
+7. Tests for the ≥ 40 rule, noindex rule, sitemap, and JSON-LD; `npm test` + build must pass.
+Open a PR; Claude reviews and deploys after Franklin approves.
+
+## NOW #1 (DONE) — Cloudflare Web Analytics on every page (Franklin approved Nov 11 3:31 PM; quick)
 The beacon `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5e0de46ee5d94ffa87d7f7d4363a4b3d"}'></script>`
 (public site token, already on about/contact/find-jobs etc.) is missing on: apply, email-preferences, employer-login,
 employers, login, profile, results, resume-builder, resume-search, and all generated /jobs/ city pages (add it to
@@ -133,3 +154,4 @@ Extra tasks after #1–4:
 - 2026-11-11 Codex: Add 40 verified Breezy HR career boards ([PR #13](https://github.com/antonyfranklin29/Fortune-Jobs-Ai/pull/13)). 40 verified public boards; 370 eligible rows in the read-only check. ATS tests and React build passed.
 - 2026-11-11 Claude: deployed #11 (Careerjet off), #12 WhatJobs (whatjobs-search v3; fixed: API answers via same-host redirect, so redirect:'follow' + host check — live test 6 jobs for customer service Raleigh), #13 Breezy (ats-ingest v9, 40 boards; one-off run of all 4 parts).
 - 2026-11-11 Codex: Application tracker [PR #5](https://github.com/antonyfranklin29/Fortune-Jobs-Ai/pull/5) open. React tests, build and disposable PostgreSQL checks passed. Migration pending review.
+- Nov 12 (Claude): tracker migration applied (no backfill; 0 saved jobs) and PR #5 live (347a433). Breezy: 370 jobs on first run. Added NOW #3 (Google job pages). Career-center outreach email drafted by Claude (Franklin approves list before sending).
