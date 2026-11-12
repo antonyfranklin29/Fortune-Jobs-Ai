@@ -59,7 +59,7 @@ async function rememberSearch(userId) {
   if (filters.error) console.warn('saved filters', filters.error.message);
 }
 
-export function ResultsPage({ afterDashboard }) {
+export function ResultsPage({ afterSearch, afterDashboard }) {
   const [jobs, setJobs] = useState([]);
   const [sort, setSort] = useState('relevance');
   const [selected, setSelected] = useState(0);
@@ -139,6 +139,7 @@ export function ResultsPage({ afterDashboard }) {
         location: initial.location || (initial.resume === '1' ? [profile?.city, profile?.region].filter(Boolean).join(', ') : ''),
         country: initial.country || (initial.resume === '1' ? profile?.country : ''),
       }} sort={sort} onSort={value => { setSort(value); setSelected(0); }} />
+      {afterSearch}
       <div className="dashboard-body">
         {error && <p className="dashboard-status" role="alert">{error}</p>}
         {loading && <p className="dashboard-status" role="status">Loading jobs…</p>}
