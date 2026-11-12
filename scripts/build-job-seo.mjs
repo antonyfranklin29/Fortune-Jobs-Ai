@@ -45,7 +45,7 @@ function page({ path, title, description, body, noindex = false, live = false, t
     '<meta name="description" content="' + escape(description) + '">\n' +
     '<link rel="canonical" href="' + SITE + path + '">\n' +
     (noindex ? '<meta name="robots" content="noindex,follow">\n' : '') +
-    '<link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/jobs/jobs.css">\n' +
+    '<link rel="icon" href="/favicon.ico?v=2" sizes="48x48"><link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2"><link rel="stylesheet" href="/jobs/jobs.css">\n' +
     (live ? '<script src="/config.js"></script><script type="module" src="/jobs/live.mjs"></script>\n' : '') +
     '<script type="application/ld+json">' + schema + '</script>\n' +
     '</head><body><header><nav aria-label="Main navigation">' +
