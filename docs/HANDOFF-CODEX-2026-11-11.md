@@ -65,9 +65,15 @@ Build each as its own PR, same pattern as Careerjet. Never commit keys; Franklin
    `{keywords, location, page}`. Read Jooble's terms when the key arrives: if storing is allowed, add an `ingest`
    source like Adzuna (role × state, nightly, budget-limited); if not, live search like Careerjet. Always link out via
    the URL Jooble returns; credit "Jobs by Jooble".
-4. **WhatJobs** (after publisher approval; secret `WHATJOBS_API_KEY` / feed URL): follow
-   https://www.whatjobs.com/xml-feed-specification. Prefer the XML feed → filter to U.S. + our roles + posted ≤30 days →
-   upsert into pre_scraped_jobs with source `whatjobs`, keep their tracking apply URL, close jobs missing from the feed.
+4. **WhatJobs — NOW (Franklin's U.S. publisher account is live, publisher ID 7594, site www.whatjobs.com).**
+   No API key and no IP whitelist: GET `https://api.whatjobs.com/api/v1/jobs.json` with `publisher=7594`,
+   `user_ip` (mandatory, the visitor's IP), `user_agent`, `keyword`, `location`, `radius`, `limit` (≤50, default 20), `page`.
+   200 = ok, 422 = bad params, 503 = maintenance. Response `data[]`: url, title, company, location, postcode, snippet
+   (contains `<span class="highlighted">` — strip HTML), salary, job_type, age, age_days. It's a LIVE per-visitor feed with
+   click tracking in `url`, so build it like Jooble: a `whatjobs-search` edge function on the shared live-job-partner
+   handler (keep publisher ID in env `WHATJOBS_PUBLISHER_ID`, default 7594), a "Search WhatJobs" button/section with
+   "Jobs by WhatJobs" credit, links open the returned `url` unchanged (their URL Validator checks tracking). Don't store.
+   Also optional later: their `unique_id` param can feed daily job-alert emails without repeats.
 5. **Breezy HR employers** (no key): add a `breezy` provider to `supabase/functions/ats-ingest/ats.mjs` using each
    company's public `https://{slug}.breezy.hr/json` list; add 30–50 U.S. employer slugs to boards.mjs (verify each
    returns U.S. jobs); same role filter as other providers; tests with fixtures.
