@@ -25,7 +25,7 @@ test('builds a publisher request from the search and edge headers', async () => 
       publisher: '7594', user_ip: '203.0.113.10', user_agent: 'Fixture browser', keyword: 'Data Analyst',
       location: 'Raleigh', limit: '20', page: '2', radius: '25',
     });
-    assert.equal(init.redirect, 'error');
+    assert.equal(init.redirect, 'follow');
     assert.ok(init.signal);
     return Response.json({ data: [row] });
   } });

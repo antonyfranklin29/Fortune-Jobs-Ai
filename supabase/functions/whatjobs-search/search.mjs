@@ -20,10 +20,13 @@ export async function searchWhatJobs({ key, q, location, page, ip, userAgent, fe
     location, limit: '20', page: String(page),
   }).toString();
   if (location) url.searchParams.set('radius', '25');
+  // The API answers through a same-host redirect, so follow it but only accept a final response from api.whatjobs.com.
   const response = await fetchImpl(url, {
     headers: { Accept: 'application/json' },
-    redirect: 'error',
+    redirect: 'follow',
     signal,
   });
-  return response.ok ? whatJobsListings(await response.json()) : [];
+  if (!response.ok) return [];
+  try { if (response.url && new URL(response.url).host !== 'api.whatjobs.com') return []; } catch { return []; }
+  return whatJobsListings(await response.json());
 }
