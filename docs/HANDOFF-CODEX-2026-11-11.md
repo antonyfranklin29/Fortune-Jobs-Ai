@@ -119,3 +119,4 @@ Extra tasks after #1–4:
 - 2026-11-11 Claude: added NOW #1 analytics-on-all-pages and NOW #2 Careerjet tasks.
 - 2026-11-11 Claude: deployed posts/reels 52–81, Reddit drafts, city/role pages (PR #2–4, #7) and the visa/OPT filter (PR #6; migration applied, 16,731 jobs classified). Tracker (PR #5) waits on its migration.
 - 2026-11-11 Codex: Add Cloudflare Web Analytics to every site page ([PR #8](https://github.com/antonyfranklin29/Fortune-Jobs-Ai/pull/8)). React build and generated page checks passed.
+- 2026-11-11 Codex: Add Careerjet live partner results and privacy disclosure ([PR #9](https://github.com/antonyfranklin29/Fortune-Jobs-Ai/pull/9)). Mocked provider, privacy parity and React build checks passed.
