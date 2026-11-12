@@ -3,11 +3,42 @@ import { assert, assertEquals } from "./deno/assert.ts";
 import * as L from "../supabase/functions/ats-ingest/core.mjs";
 import { ROLES, REGIONS } from "../supabase/functions/ats-ingest/config.mjs";
 import { BOARDS } from "../supabase/functions/ats-ingest/boards.mjs";
-import { employerUrl, listOf, normalize, sliceFor, stateOf } from "../supabase/functions/ats-ingest/ats.mjs";
+import { boardUrl, employerUrl, listOf, normalize, sliceFor, stateOf } from "../supabase/functions/ats-ingest/ats.mjs";
 
 const roles = L.compileRoles(ROLES), idx = L.regionIndex(REGIONS);
 const now = new Date("2026-11-07T12:00:00Z"), ctx = { roles, idx, fetchedAt: now.toISOString(), now };
 const board = (provider: string, slug = "acme") => ({ provider, slug, name: "Acme" });
+
+Deno.test("Breezy keeps state-qualified US jobs and their original employer links", () => {
+  const link = "https://acme.breezy.hr/p/94b225808238-data-analyst";
+  const ca = { country: { id: "CA" }, city: "Toronto", state: { id: "ON" } };
+  const us = { country: { id: "US" }, city: "Raleigh", state: { id: "NC" }, is_remote: true };
+  const job = { id: "94b225808238", name: "Data Analyst", url: link, location: ca,
+    locations: [ca, us], published_date: "2026-11-01T00:00:00Z", type: { name: "Full-Time" } };
+  const read = (row: object) => normalize("breezy", row, board("breezy"), ctx);
+  assertEquals(boardUrl("breezy", "acme"), "https://acme.breezy.hr/json");
+  assertEquals(listOf("breezy", [job]), [job]);
+  assertEquals(read(job).row?.apply_url, link);
+  assertEquals(read(job).row?.state_code, "NC");
+  assertEquals(read(job).row?.location, "Raleigh, NC");
+  assertEquals(read(job).row?.work_mode, "remote");
+  assertEquals(read(job).row?.employment_type, "Full-time");
+  assertEquals(read(job).row?.job_description, null);
+  assertEquals(read({ ...job, locations: [ca] }).reject, "malformed_or_non_us");
+  assertEquals(read({ ...job, locations: [{ country: { id: "US" } }] }).reject, "malformed_or_non_us");
+  assertEquals(read({ ...job, url: link.replace("acme", "another-board") }).reject, "malformed_or_non_us");
+  assertEquals(read({ ...job, name: "Untracked Test Position" }).reject, "no_role");
+  assertEquals(read({ ...job, published_date: "2025-01-01" }).reject, "too_old");
+});
+
+Deno.test("malformed Breezy feeds fail rather than look like a board with no openings", () => {
+  assertEquals(listOf("breezy", []), []);
+  for (const invalid of [{ jobs: [] }, [null], [{ id: "one" }]]) {
+    let failed = false;
+    try { listOf("breezy", invalid); } catch { failed = true; }
+    assert(failed);
+  }
+});
 
 Deno.test("greenhouse job becomes an employer-linked row", () => {
   const n = normalize("greenhouse", { id: 42, title: "Senior Data Analyst", absolute_url: "https://boards.greenhouse.io/acme/jobs/42", location: { name: "Chicago, IL" }, first_published: "2026-11-01T00:00:00Z" }, board("greenhouse"), ctx);
