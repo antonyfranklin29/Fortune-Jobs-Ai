@@ -1,5 +1,3 @@
-begin;
-
 -- Keep the public catalogue's row-level visibility rules, including employer revocations.
 create function public.top_hiring_companies("limit" integer default 24)
 returns table(company text, open_jobs bigint)
@@ -7,8 +5,10 @@ language sql stable security invoker set search_path = ''
 as $$
   with exclusions as (
     select array['indeed', 'eliassen group', 'insight global', 'robert half',
-      'system one', 'kimmel associates', 'bright vision technologies', 'dataannotation']::text[] as names,
-      '(staffing|recruit|talent)'::text as pattern
+      'system one', 'kimmel associates', 'bright vision technologies', 'dataannotation',
+      'apex systems', 'teksystems', 'randstad', 'adecco', 'kforce', 'cybercoders', 'experis', 'jobot', 'dice',
+      'aerotek', 'kelly services', 'ziprecruiter', 'linkedin', 'glassdoor', 'monster']::text[] as names,
+      '(staffing|recruit|talent|manpower)'::text as pattern
   ), names as (
     select btrim(regexp_replace(j.company, '[[:space:]]+', ' ', 'g')) as display
     from public.pre_scraped_jobs j
@@ -33,4 +33,3 @@ $$;
 revoke all on function public.top_hiring_companies(integer) from public;
 grant execute on function public.top_hiring_companies(integer) to anon, authenticated;
 
-commit;
