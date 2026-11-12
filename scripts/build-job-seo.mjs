@@ -36,7 +36,8 @@ function page({ path, title, description, body, noindex = false, live = false })
     '<a class="brand" href="/"><img src="/favicon.svg" alt="">Fortune Jobs AI</a>' +
     '<a href="/find-jobs.html">Find jobs</a></nav></header><main>\n' +
     body + '\n</main><footer><a href="/jobs/">Jobs by city</a> · ' +
-    '<a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></footer></body></html>\n';
+    '<a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></footer>' +
+    "<script type=\"module\" src=\"https://static.cloudflareinsights.com/beacon.min.js\" data-cf-beacon='{\"token\":\"5e0de46ee5d94ffa87d7f7d4363a4b3d\"}'></script>" + '</body></html>\n';
 }
 
 export function renderCity(target, rows, details, date) {

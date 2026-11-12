@@ -14,6 +14,10 @@ for (const page of required) {
   const file = path.join(dist, page);
   if (!fs.existsSync(file)) { missing.push(page); continue; }
   const html = fs.readFileSync(file, 'utf8');
+  const beacons = [...html.matchAll(/<script\b[^>]*\bsrc=["']https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js["'][^>]*>/gi)];
+  if (beacons.length !== 1 || !/\bdata-cf-beacon=/.test(beacons[0]?.[0] || '')) {
+    missing.push(`\${page} → expected exactly one configured Cloudflare analytics beacon`);
+  }
   // Public pages can be listed by search engines; account pages never are.
   const noindex = /<meta\s+name=["']robots["']\s+content=["']noindex\s*,\s*nofollow["']/i.test(html);
   const privatePage = ['login.html', 'profile.html', 'email-preferences.html', 'employer-login.html', 'employers.html', 'apply.html'].includes(page);

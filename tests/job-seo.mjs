@@ -41,6 +41,10 @@ test('city HTML noindexes fewer than five listings and never emits JobPosting', 
   assert.doesNotMatch(indexable, /noindex|JobPosting|<example>/);
   assert.match(indexable, /Data Analyst &lt;example&gt;/);
   assert.match(indexable, /href="\/jobs\/posting\/100\/"/);
+  for (const page of [sparse, indexable]) {
+    assert.equal(page.match(/static\.cloudflareinsights\.com\/beacon\.min\.js/g)?.length, 1);
+    assert.match(page, /data-cf-beacon=/);
+  }
 });
 
 test('Google markup is built only from a complete, eligible, open employer listing', () => {
