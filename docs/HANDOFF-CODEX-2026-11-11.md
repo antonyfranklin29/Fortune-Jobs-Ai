@@ -132,3 +132,4 @@ Extra tasks after #1–4:
 - 2026-11-11 Codex: Add on-demand WhatJobs publisher search ([PR #12](https://github.com/antonyfranklin29/Fortune-Jobs-Ai/pull/12)). Mocked partner tests, privacy parity and production build passed.
 - 2026-11-11 Codex: Add 40 verified Breezy HR career boards ([PR #13](https://github.com/antonyfranklin29/Fortune-Jobs-Ai/pull/13)). 40 verified public boards; 370 eligible rows in the read-only check. ATS tests and React build passed.
 - 2026-11-11 Claude: deployed #11 (Careerjet off), #12 WhatJobs (whatjobs-search v3; fixed: API answers via same-host redirect, so redirect:'follow' + host check — live test 6 jobs for customer service Raleigh), #13 Breezy (ats-ingest v9, 40 boards; one-off run of all 4 parts).
+- 2026-11-11 Codex: Application tracker [PR #5](https://github.com/antonyfranklin29/Fortune-Jobs-Ai/pull/5) open. React tests, build and disposable PostgreSQL checks passed. Migration pending review.

@@ -498,29 +498,106 @@ function ResumeSection({ user, profile, setProfile, toast, onReviewSaved }) {
   );
 }
 
+const APPLICATION_STAGES = [
+  ['saved', 'Saved'],
+  ['applied', 'Applied'],
+  ['interview', 'Interview'],
+  ['offer', 'Offer'],
+  ['rejected', 'Rejected'],
+];
+
+function ApplicationProgress({ job, onSave }) {
+  const currentStage = job.stage || 'saved';
+  const currentNote = job.application_note || '';
+  const [stage, setStage] = useState(currentStage);
+  const [note, setNote] = useState(currentNote);
+  const [pending, setPending] = useState(false);
+  const changedAt = job.stage_changed_at || job.created_at;
+
+  async function submit(event) {
+    event.preventDefault();
+    const changes = {};
+    if (stage !== currentStage) changes.stage = stage;
+    if (note.trim() !== currentNote) changes.application_note = note.trim() || null;
+    if (pending || !Object.keys(changes).length) return;
+    setPending(true);
+    try {
+      await onSave(job.id, changes);
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return <form className="application-progress" onSubmit={submit}>
+    <label>Stage for {job.job_title}
+      <select value={stage} disabled={pending} onChange={event => setStage(event.target.value)}>
+        {APPLICATION_STAGES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+      </select>
+    </label>
+    <p className="meta">Stage changed <time dateTime={changedAt}>{new Date(changedAt).toLocaleDateString()}</time></p>
+    <label>Private note for {job.job_title}
+      <textarea rows={2} maxLength={500} value={note} disabled={pending} onChange={event => setNote(event.target.value)} />
+    </label>
+    <button type="submit" className="btn btn-outline btn-sm" disabled={pending || (stage === currentStage && note.trim() === currentNote)}>
+      {pending ? 'Saving…' : 'Save progress'}
+    </button>
+  </form>;
+}
+
 function SavedJobs({ toast, onCount }) {
   const fj = useAccountServices();
   const [state, setState] = useState({ loading: true, error: false, rows: [] });
+  const [filter, setFilter] = useState('');
   const load = useCallback(async () => {
-    const { data, error } = await fj.sb.from('saved_jobs').select('*').order('created_at', { ascending: false }).limit(100);
-    if (error) { setState({ loading: false, error: true, rows: [] }); return; }
-    setState({ loading: false, error: false, rows: data }); onCount(data.length);
+    const rows = [];
+    const pageSize = 100;
+    for (let start = 0; ; start += pageSize) {
+      const { data, error } = await fj.sb.from('saved_jobs').select('*')
+        .order('created_at', { ascending: false }).order('id').range(start, start + pageSize - 1);
+      if (error) { setState({ loading: false, error: true, rows: [] }); return; }
+      rows.push(...data);
+      if (data.length < pageSize) break;
+    }
+    setState({ loading: false, error: false, rows }); onCount(rows.length);
   }, [fj, onCount]);
   useEffect(() => { load(); }, [load]);
+  async function saveProgress(id, changes) {
+    const { data, error } = await fj.sb.from('saved_jobs').update(changes)
+      .eq('id', id).select('stage,stage_changed_at,application_note').single();
+    if (error || !data) { toast("Couldn't save application progress."); return; }
+    setState(current => ({ ...current, rows: current.rows.map(job => job.id === id ? { ...job, ...data } : job) }));
+    toast('Application progress saved');
+  }
   async function unsave(id) {
     const { error } = await fj.sb.from('saved_jobs').delete().eq('id', id);
     if (error) { toast("Couldn't remove it."); return; }
-    load(); toast('Removed from saved jobs');
+    setState(current => ({ ...current, rows: current.rows.filter(job => job.id !== id) }));
+    onCount(count => count - 1);
+    toast('Removed from saved jobs');
+  }
+  const rows = filter ? state.rows.filter(job => (job.stage || 'saved') === filter) : state.rows;
+  const counts = new Map(APPLICATION_STAGES.map(([value]) => [value, 0]));
+  for (const job of state.rows) {
+    const stage = job.stage || 'saved';
+    counts.set(stage, (counts.get(stage) || 0) + 1);
   }
   return (
     <section className="card" id="saved">
-      <div className="card-head"><div><h2>Saved jobs</h2><p className="sub">Jobs you bookmarked from your searches.</p></div></div>
+      <div className="card-head"><div><h2>Saved jobs</h2><p className="sub">Track your applications and keep private notes.</p></div></div>
+      {!state.error && !state.loading && <div className="application-overview">
+        <ul aria-label="Application counts">{APPLICATION_STAGES.map(([value, label]) => <li key={value}>{label} <strong>{counts.get(value)}</strong></li>)}</ul>
+        <label>Filter by stage <select value={filter} onChange={event => setFilter(event.target.value)}>
+          <option value="">All stages</option>
+          {APPLICATION_STAGES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+        </select></label>
+      </div>}
       <div>
         {state.error ? <p className="empty">Couldn't load saved jobs.</p>
           : !state.loading && !state.rows.length ? <p className="empty">No saved jobs yet. Tap <b>🔖 Save</b> on any job card to keep it here.</p>
+            : !state.loading && !rows.length ? <p className="empty">No jobs at this stage.</p>
             : (
               <div className="jobs">
-                {state.rows.map((j) => {
+                {rows.map((j) => {
                   const url = httpUrl(fixApplyUrl(j.apply_url));
                   return (
                     <div className="sjob" key={j.id}>
@@ -528,6 +605,7 @@ function SavedJobs({ toast, onCount }) {
                         <div><div className="ttl">{j.job_title}</div><div className="co">{j.company || ''}</div></div></div>
                       <div className="meta">📍 {j.location || 'Location not listed'}</div>
                       <div className="meta">{j.salary || 'Salary not listed'} · saved {timeAgo(j.created_at)}</div>
+                      <ApplicationProgress key={JSON.stringify([j.stage, j.application_note])} job={j} onSave={saveProgress} />
                       <div className="acts"><button className="btn btn-danger btn-sm" type="button" onClick={() => unsave(j.id)}>Remove</button>
                         {url ? <a className="btn btn-dark btn-sm" href={url} target="_blank" rel="noopener">Apply →</a> : null}</div>
                       {isAdzunaJob(j) ? <AdzunaCredit /> : null}

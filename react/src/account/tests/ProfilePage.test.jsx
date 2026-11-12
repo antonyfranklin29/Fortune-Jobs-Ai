@@ -8,10 +8,15 @@ afterEach(cleanup);
 const USER = { id: 'u1', email: 'jane@example.com' };
 const PROFILE = { id: 'u1', full_name: 'Jane Doe', current_title: 'Data Analyst', skills: ['SQL'], preferred_locations: [], job_types: ['fulltime'], years_experience: 4 };
 
-function mount({ user = USER, profile = PROFILE, saved = [], history = [], fetch } = {}) {
+function mount({ user = USER, profile = PROFILE, saved = [], saveProgress, history = [], fetch } = {}) {
   const sb = fakeSupabase({ user, tables: {
     profiles: (q) => (q.ops.some(([op]) => op === 'update') ? { data: { ...profile, ...q.ops.find(([op]) => op === 'update')[1] }, error: null } : { data: profile, error: null }),
-    saved_jobs: { data: saved, error: null },
+    saved_jobs: (q) => {
+      const update = q.ops.find(([op]) => op === 'update');
+      if (update) return saveProgress(update[1]);
+      const [, start, end] = q.ops.find(([op]) => op === 'range');
+      return { data: saved.slice(start, end + 1), error: null };
+    },
     search_history: { data: history, error: null },
   } });
   const loc = fakeLocation('https://fortunejobsai.com/profile.html');
@@ -44,6 +49,40 @@ describe('ProfilePage', () => {
     const applies = screen.getAllByRole('link', { name: 'Apply →' });
     expect(applies.map((a) => a.getAttribute('href'))).toEqual(['https://www.adzuna.com/details/9']);
     expect(screen.getByRole('link', { name: 'Jobs supplied by Adzuna' })).toBeTruthy();
+  });
+
+  it('saves a private note and stage, updates counts, and filters saved jobs', async () => {
+    const { sb } = mount({
+      saved: [{ id: 1, job_title: 'Engineer', created_at: '2026-01-01T12:00:00Z' }],
+      saveProgress: changes => ({ data: { ...changes, stage_changed_at: '2026-02-01T12:00:00Z' }, error: null }),
+    });
+    const stage = await screen.findByLabelText('Stage for Engineer');
+    expect(stage.value).toBe('saved');
+    fireEvent.change(stage, { target: { value: 'interview' } });
+    const note = screen.getByLabelText('Private note for Engineer');
+    expect(note.maxLength).toBe(500);
+    fireEvent.change(note, { target: { value: '  Follow up Friday  ' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save progress' }));
+    await waitFor(() => expect(screen.getByRole('list', { name: 'Application counts' }).textContent).toContain('Interview 1'));
+    expect(sb.calls.find(([, table]) => table === 'saved_jobs')[2]).toEqual(expect.arrayContaining([
+      ['update', { stage: 'interview', application_note: 'Follow up Friday' }], ['eq', 'id', 1],
+    ]));
+    expect(screen.getByLabelText('Private note for Engineer').value).toBe('Follow up Friday');
+    expect(screen.getByText('Stage changed').querySelector('time').dateTime).toBe('2026-02-01T12:00:00Z');
+    fireEvent.change(screen.getByLabelText('Filter by stage'), { target: { value: 'offer' } });
+    expect(screen.getByText('No jobs at this stage.')).toBeTruthy();
+  });
+
+  it('keeps unsaved input and counts on a write error', async () => {
+    mount({
+      saved: [{ id: 1, job_title: 'Engineer', created_at: '2026-01-01T12:00:00Z' }],
+      saveProgress: () => ({ data: null, error: { message: 'write failed' } }),
+    });
+    fireEvent.change(await screen.findByLabelText('Stage for Engineer'), { target: { value: 'applied' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save progress' }));
+    await screen.findByText("Couldn't save application progress.");
+    expect(screen.getByLabelText('Stage for Engineer').value).toBe('applied');
+    expect(screen.getByRole('list', { name: 'Application counts' }).textContent).toContain('Saved 1');
   });
 
   it('saves profile details including a typed but unconfirmed skill', async () => {
