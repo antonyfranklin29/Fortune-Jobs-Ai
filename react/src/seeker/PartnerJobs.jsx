@@ -9,11 +9,12 @@ export function partnerQuery(initial) {
   return { q, location: initial.location?.trim() || '', page: 1 };
 }
 
-export function PartnerJobs({ query, name, site, endpoint }) {
-  const [jobs, setJobs] = useState([]);
+export function PartnerJobs({ query, name, site, endpoint, onDemand = false }) {
+  const [requested, setRequested] = useState(!onDemand);
+  const [jobs, setJobs] = useState(null);
   useEffect(() => {
     const config = window.FJ_CONFIG;
-    if (!query || !config) return;
+    if (!requested || !query || !config) return;
     const controller = new AbortController();
     fetch(config.url + '/functions/v1/' + endpoint, {
       method: 'POST',
@@ -23,20 +24,23 @@ export function PartnerJobs({ query, name, site, endpoint }) {
       body: JSON.stringify(query),
     }).then(response => response.ok ? response.json() : null)
       .then(data => {
-        if (!controller.signal.aborted && Array.isArray(data?.jobs)) setJobs(data.jobs);
+        if (!controller.signal.aborted) setJobs(Array.isArray(data?.jobs) ? data.jobs : []);
       })
-      .catch(() => {});
+      .catch(() => { if (!controller.signal.aborted) setJobs([]); });
     return () => controller.abort();
-  }, [query, endpoint]);
+  }, [query, endpoint, requested]);
 
-  if (!jobs.length) return null;
+  if (!query || (!onDemand && !jobs?.length)) return null;
   return <section className="dashboard-card partner-jobs" aria-label={`More jobs from ${name}`}>
     <h2>More jobs from {name}</h2>
     <a href={site} target="_blank" rel="nofollow sponsored noopener noreferrer">Jobs by {name}</a>
-    <ul>{jobs.map(job => <li key={job.url}>
+    {onDemand && (!requested
+      ? <p><button className="react-save" type="button" onClick={() => setRequested(true)}>Search {name}</button></p>
+      : !jobs?.length && <p role="status">{jobs ? `No ${name} results available for this search.` : `Loading ${name} jobs…`}</p>)}
+    {!!jobs?.length && <ul>{jobs.map(job => <li key={job.url}>
       <a href={job.url} target="_blank" rel="nofollow sponsored noopener noreferrer">{job.title}</a>
       <p>{[job.company, job.location, job.salary].filter(Boolean).join(' · ')}</p>
       {job.description && <p>{job.description}</p>}
-    </li>)}</ul>
+    </li>)}</ul>}
   </section>;
 }

@@ -156,6 +156,7 @@ export function ResultsPage({ afterDashboard }) {
           <MatchPanel job={job} profile={profile} saved={savedKeys.has(jobKey(job))} />
         </div>}
         {!loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="Careerjet" site="https://www.careerjet.com/" endpoint="careerjet-search" />}
+        {!loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="Jooble" site="https://jooble.org/" endpoint="jooble-search" onDemand />}
       </div>
       {afterDashboard}
     </main>
