@@ -1,9 +1,9 @@
-// Pure rules for company career-board ingestion (Greenhouse, Lever, Ashby, SmartRecruiters, Workable).
+// Pure rules for company career-board ingestion.
 // No network, no database. Every kept job links to the employer's own posting, so the
 // Apply button never sends a person through another job site.
 import { canonicalUrl, classifyRole, parsePostedAt, stateFromEvidence } from './core.mjs';
 
-export const PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workable'];
+export const PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workable', 'breezy'];
 
 // Public, keyless job-list feeds that each provider publishes for a company's own career page.
 export function boardUrl(provider, slug) {
@@ -14,12 +14,21 @@ export function boardUrl(provider, slug) {
     case 'ashby': return `https://api.ashbyhq.com/posting-api/job-board/${s}`;
     case 'smartrecruiters': return `https://api.smartrecruiters.com/v1/companies/${s}/postings?country=us&limit=100`;
     case 'workable': return `https://apply.workable.com/api/v1/widget/accounts/${s}`;
+    case 'breezy':
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error('Invalid Breezy board slug');
+      return `https://${slug}.breezy.hr/json`;
     default: throw new Error('unknown provider');
   }
 }
 
 // The job list inside each provider's response.
 export function listOf(provider, body) {
+  if (provider === 'breezy') {
+    if (!Array.isArray(body) || body.some(row => !row || typeof row !== 'object' || typeof row.id !== 'string' || typeof row.name !== 'string')) {
+      throw new Error('Unexpected Breezy feed format');
+    }
+    return body;
+  }
   if (provider === 'lever') return Array.isArray(body) ? body : [];
   if (provider === 'smartrecruiters') return Array.isArray(body?.content) ? body.content : [];
   return Array.isArray(body?.jobs) ? body.jobs : [];
@@ -33,6 +42,7 @@ const HOSTED = {
   ashby: /(^|\.)ashbyhq\.com$/i,
   smartrecruiters: /(^|\.)smartrecruiters\.com$/i,
   workable: /(^|\.)workable\.com$/i,
+  breezy: /^[a-z0-9-]+\.breezy\.hr$/i,
 };
 const AGGREGATORS = /(^|\.)(indeed|linkedin|ziprecruiter|glassdoor|careerjet|jobviewtrack|jooble|haystackapp|adzuna|monster|simplyhired|talent)\.(com|io|org|net)$/i;
 
@@ -103,6 +113,24 @@ export function extract(provider, j, board) {
         locations: us.map((l) => (l.city && l.region ? `${l.city}, ${l.region}` : l.region || l.city)),
         posted: j.published_on || j.created_at, workplace: j.telecommuting ? 'remote' : '', employment: j.employment_type || null,
         description: null };
+    }
+    case 'breezy': {
+      const us = [j.location, ...(Array.isArray(j.locations) ? j.locations : [])]
+        .filter(location => location?.country?.id === 'US' && /^[A-Z]{2}$/.test(location.state?.id || ''));
+      if (!us.length) return null;
+      const location = us[0];
+      let url;
+      try { url = new URL(j.url); } catch { return null; }
+      const id = String(j.id || '');
+      if (!/^[a-z0-9]+$/i.test(id) || url.origin !== `https://${board.slug}.breezy.hr` ||
+          url.username || url.password ||
+          !(url.pathname === `/p/${id}` || url.pathname.startsWith(`/p/${id}-`))) return null;
+      return {
+        id, title: j.name, url: j.url,
+        locations: [[location.city, location.state.id].filter(Boolean).join(', ')],
+        posted: j.published_date, workplace: location.is_remote === true ? 'remote' : '',
+        employment: j.type?.name || null, description: null,
+      };
     }
   }
   return null;
