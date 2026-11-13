@@ -1,0 +1,9 @@
+{
+  "note": "Running count of Jooble API requests (POST calls to the jooble-search edge function). Default Jooble limit: 500. At 400, reply in the Jooble API email thread (from subscribe@jooble.org, 'Thank you for registering for Jooble REST API.') asking for a higher limit; Franklin pre-approved sending it (Nov 13 2026).",
+  "limit": 500,
+  "alert_at": 400,
+  "total": 11,
+  "counted_through": "2026-11-13T21:00:00Z",
+  "baseline_note": "11 = ~10 test calls Nov 11-13 (logs older than 24h unavailable, estimated high) + 1 counted Nov 13.",
+  "increase_requested_at": null
+}
