@@ -6,6 +6,8 @@ const pub = path.join(app, 'public');
 fs.mkdirSync(pub, { recursive: true });
 for (const file of [
   'resume-extraction.mjs', 'resume-matching.js', 'job-titles.js', 'favicon.svg',
+  'favicon.ico', 'favicon-96x96.png', 'apple-touch-icon.png', 'site.webmanifest',
+  'icon-192.png', 'icon-512.png',
   'config.js', 'auth.js', 'account.css', 'newsletter-preferences.js',
   'guest-resume-page.js', 'guest-resume.js',
   'resume-builder.js', 'resume-builder-page.js', 'data-safety.js', 'search-accuracy.js',
