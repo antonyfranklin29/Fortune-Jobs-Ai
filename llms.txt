@@ -1,0 +1,22 @@
+# Fortune Jobs AI
+
+> Free U.S. job search for college students, new graduates and job seekers: 16,000+ open jobs refreshed daily, AI résumé matching, a free ATS résumé score, a work-authorization filter, and an application tracker.
+
+Fortune Jobs AI lists open U.S. jobs gathered from employer career boards (Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Breezy), USAJOBS and job-search partners (Adzuna, Jooble, WhatJobs). Each listing links to the original posting. Creating an account and the core tools are free; Fortune Jobs AI Pro is $9.99/month for more results per search and extra AI features.
+
+## Main pages
+- [Home and job search](https://fortunejobsai.com/): search by role, city or state, or describe the job in plain English
+- [Find jobs](https://fortunejobsai.com/find-jobs.html): search U.S. jobs by title and location
+- [Jobs by state and city](https://fortunejobsai.com/jobs/): live job counts for each role, state and major city
+- [Résumé match](https://fortunejobsai.com/resume-search.html): upload a résumé for a free ATS score and matching jobs
+- [Résumé builder](https://fortunejobsai.com/resume-builder.html): build an ATS-friendly résumé and download a PDF
+- [About](https://fortunejobsai.com/about.html)
+- [Contact](https://fortunejobsai.com/contact.html): info@fortunejobsai.com
+
+## Example job pages
+- [Software Engineer jobs in Texas](https://fortunejobsai.com/jobs/software-engineer/texas/)
+- [Data Analyst jobs in Virginia](https://fortunejobsai.com/jobs/data-analyst/virginia/)
+
+## Policies
+- [Privacy policy](https://fortunejobsai.com/privacy.html)
+- [Terms of use and refund policy](https://fortunejobsai.com/terms.html)

@@ -7,11 +7,11 @@ const SITE = 'https://fortunejobsai.com';
 const IMAGE = `${SITE}/og-image.jpg`;
 
 const PAGES = {
-  'index.html': { url: '/', title: 'Fortune Jobs AI: AI Job Search, Free ATS Résumé Score & Direct Employer Jobs',
+  'index.html': { url: '/', title: 'Fortune Jobs AI: AI Job Search & Free ATS Résumé Score',
     description: 'Search thousands of U.S. jobs straight from employer career sites. Get a free ATS résumé score, AI job matching and AI interview coaching. Free to use.' },
-  'find-jobs.html': { url: '/find-jobs.html', title: 'Find Jobs Near You: Search U.S. Jobs by Title and City | Fortune Jobs AI',
-    description: 'Search U.S. jobs by title, city or state, including remote jobs. Apply directly on the employer’s own careers page. Free job search with AI matching.' },
-  'resume-search.html': { url: '/resume-search.html', title: 'Upload Your Résumé: Free ATS Score and Job Matches | Fortune Jobs AI',
+  'find-jobs.html': { url: '/find-jobs.html', title: 'Find U.S. Jobs by Title and City | Fortune Jobs AI',
+    description: 'Search U.S. jobs by title, city or state, including remote jobs. Each listing links to the original posting. Free job search with AI matching.' },
+  'resume-search.html': { url: '/resume-search.html', title: 'Free ATS Résumé Score and Job Matches | Fortune Jobs AI',
     description: 'Upload your résumé (PDF or DOCX) to get a free ATS readiness score, see missing keywords and find matching jobs. Your file stays in your browser.' },
   'resume-builder.html': { url: '/resume-builder.html', title: 'Free Résumé Builder with ATS Score Checker | Fortune Jobs AI',
     description: 'Build an ATS-friendly résumé for free. See your ATS readiness score as you type, check a job description’s keywords and download a clean PDF.' },

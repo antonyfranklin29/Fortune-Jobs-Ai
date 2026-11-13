@@ -41,9 +41,10 @@ function page({ path, title, description, body, noindex = false, live = false, t
     index === trail.length - 1 ? '<span aria-current="page">' + escape(name) + '</span>' : link(path, name)).join(' / ') + '</nav>';
   return '<!doctype html>\n' + GENERATED + '\n' +
     '<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">\n' +
-    '<title>' + escape(title) + ' | Fortune Jobs AI</title>\n' +
+    '<title>' + escape(fullTitle(title)) + '</title>\n' +
     '<meta name="description" content="' + escape(description) + '">\n' +
     '<link rel="canonical" href="' + SITE + path + '">\n' +
+    socialTags(fullTitle(title), description, SITE + path) +
     (noindex ? '<meta name="robots" content="noindex,follow">\n' : '') +
     '<link rel="icon" href="/favicon.ico?v=2" sizes="48x48"><link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2"><link rel="stylesheet" href="/jobs/jobs.css">\n' +
     (live ? '<script src="/config.js"></script><script type="module" src="/jobs/live.mjs"></script>\n' : '') +
@@ -54,6 +55,20 @@ function page({ path, title, description, body, noindex = false, live = false, t
     nav + '\n' + body + '\n</main><footer><a href="/jobs/">Jobs by state and city</a> · ' +
     '<a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></footer>' +
     "<script type=\"module\" src=\"https://static.cloudflareinsights.com/beacon.min.js\" data-cf-beacon='{\"token\":\"5e0de46ee5d94ffa87d7f7d4363a4b3d\"}'></script>" + '</body></html>\n';
+}
+
+// Google shows about 60 characters of a title; keep the brand only when it fits.
+export function fullTitle(title) {
+  const branded = title + ' | Fortune Jobs AI';
+  return branded.length <= 60 ? branded : title;
+}
+
+// Preview card for links shared on social media and messaging apps.
+export function socialTags(title, description, url) {
+  return '<meta property="og:type" content="website"><meta property="og:site_name" content="Fortune Jobs AI">' +
+    '<meta property="og:title" content="' + escape(title) + '"><meta property="og:description" content="' + escape(description) + '">' +
+    '<meta property="og:url" content="' + url + '"><meta property="og:image" content="' + SITE + '/og-image.jpg">' +
+    '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="' + SITE + '/og-image.jpg">\n';
 }
 
 export function renderCity(target, rows, details, date, related = []) {
