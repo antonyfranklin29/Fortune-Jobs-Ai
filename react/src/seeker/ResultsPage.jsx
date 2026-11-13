@@ -83,15 +83,18 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
   const [subscription, setSubscription] = useState(null);
   useEffect(() => {
     let active = true;
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!active || !data.user) return;
-      setAccount(data.user);
-      if (!profile && initial.resume !== '0' && initial.resume !== '1') {
-        const personal = await supabase.from('profiles').select('current_title,years_experience,skills,preferred_locations').eq('id', data.user.id).maybeSingle();
-        if (active && !personal.error && personal.data) setProfile(personal.data);
-      }
-      rememberSearch(data.user.id);
-      const saved = await supabase.from('saved_jobs').select('job_key');
+    supabase.auth.getSession().then(async ({ data }) => {
+      const user = data?.session?.user;
+      if (!active || !user) return;
+      setAccount(user);
+      rememberSearch(user.id);
+      // Profile and saved jobs don't depend on each other, so load them together.
+      const wantProfile = !profile && initial.resume !== '0' && initial.resume !== '1';
+      const [personal, saved] = await Promise.all([
+        wantProfile ? supabase.from('profiles').select('current_title,years_experience,skills,preferred_locations').eq('id', user.id).maybeSingle() : null,
+        supabase.from('saved_jobs').select('job_key'),
+      ]);
+      if (active && personal && !personal.error && personal.data) setProfile(personal.data);
       if (active && !saved.error) setSavedKeys(new Set((saved.data || []).map(row => row.job_key)));
     });
     return () => { active = false; };
@@ -116,12 +119,15 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
       experience: initial.experience || '', job_type: initial.job_type || '', work_mode: initial.work_mode || '', company: initial.company || '', salary: initial.salary || '', salary_min: /^\d{4,7}$/.test(initial.salary_min || '') ? initial.salary_min : '', category: initial.category || ''
     };
     // Pro members see more results: check the subscription first (signed-out visitors skip this quickly).
-    const request = mySubscription().then((sub) => {
+    const searching = initial.q || initial.mode === 'quick' || Object.values(filters).some(Boolean);
+    const subscriptionRequest = mySubscription().then((sub) => {
       if (!controller.signal.aborted) setSubscription(sub);
-      return initial.q || initial.mode === 'quick' || Object.values(filters).some(Boolean)
-        ? quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10)
-        : recentJobs(controller.signal);
+      return sub;
     });
+    // Recent jobs are the same for everyone, so fetch them alongside the subscription check instead of after it.
+    const request = searching
+      ? subscriptionRequest.then(sub => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10))
+      : recentJobs(controller.signal);
     request
       .then(rows => { if (!controller.signal.aborted) { setJobs(rows); setLoading(false); } })
       .catch(() => { if (!controller.signal.aborted) { setError('We could not load jobs right now. Please try your search again.'); setLoading(false); } });

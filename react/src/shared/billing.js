@@ -23,9 +23,11 @@ export function isActive(row, now = Date.now()) {
 export async function mySubscription() {
   try {
     const { supabase } = await import('./supabase.js');
-    const { data } = await supabase.auth.getUser();
-    if (!data?.user) return null;
-    const res = await supabase.from('subscriptions').select('status,current_period_end,cancel_at_period_end').eq('user_id', data.user.id).maybeSingle();
+    // The stored session is enough to pick the row; row-level security still checks the token on the server.
+    const { data } = await supabase.auth.getSession();
+    const user = data?.session?.user;
+    if (!user) return null;
+    const res = await supabase.from('subscriptions').select('status,current_period_end,cancel_at_period_end').eq('user_id', user.id).maybeSingle();
     return res.error ? null : res.data;
   } catch { return null; }
 }

@@ -6,7 +6,7 @@ export function Header() {
   const [account, setAccount] = useState(null);
   useEffect(() => {
     let active = true;
-    supabase.auth.getUser().then(({ data }) => { if (active) setAccount(data.user || null); });
+    supabase.auth.getSession().then(({ data }) => { if (active) setAccount(data.session?.user || null); });
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => { if (active) setAccount(session?.user || null); });
     return () => { active = false; listener.subscription.unsubscribe(); };
   }, []);
