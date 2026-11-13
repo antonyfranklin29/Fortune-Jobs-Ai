@@ -38,7 +38,6 @@ export async function loadHiringCompanies(config, signal) {
 export function HiringNow() {
   const [rows, setRows] = useState([]);
   const [moving, setMoving] = useState(false);
-  const [paused, setPaused] = useState(false);
   const viewport = useRef(null);
   const group = useRef(null);
 
@@ -74,9 +73,8 @@ export function HiringNow() {
     {rows.length > 0 && <section aria-labelledby="hiring-now-heading" className="hiring-now">
       <div className="hiring-header">
         <h2 id="hiring-now-heading">Companies hiring now on Fortune Jobs AI</h2>
-        {moving && <button type="button" aria-pressed={paused} onClick={() => setPaused(value => !value)}>Pause scrolling</button>}
       </div>
-      <div className={`hiring-viewport${moving ? ' is-moving' : ''}${paused ? ' is-paused' : ''}`} ref={viewport}>
+      <div className={`hiring-viewport${moving ? ' is-moving' : ''}`} ref={viewport}>
         <div className="hiring-track">
           <ul className="hiring-group" ref={group}>{chips(false)}</ul>
           {moving && <ul className="hiring-group hiring-copy" aria-hidden="true">{chips(true)}</ul>}

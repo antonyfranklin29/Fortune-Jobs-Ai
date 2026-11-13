@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { HiringNow, loadHiringCompanies } from './HiringNow.jsx';
 
@@ -43,16 +43,14 @@ it('reuses the cache for an hour and hides the strip on a failed refresh', async
   expect(request).toHaveBeenCalledTimes(3);
 });
 
-it('offers a pause control and keeps repeat chips out of keyboard navigation', async () => {
+it('has no pause button and keeps repeat chips out of keyboard navigation', async () => {
   vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} });
   vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(600);
   vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(300);
   vi.stubGlobal('fetch', vi.fn(async () => Response.json(rows)));
   const { container } = render(<HiringNow />);
-  const pause = await screen.findByRole('button', { name: 'Pause scrolling' });
+  await waitFor(() => expect(container.querySelector('.hiring-viewport.is-moving')).toBeTruthy());
+  expect(screen.queryByRole('button')).toBeNull();
   expect(screen.getAllByRole('link')).toHaveLength(2);
   expect(container.querySelectorAll('.hiring-copy a[tabindex="-1"]')).toHaveLength(2);
-  fireEvent.click(pause);
-  expect(pause.getAttribute('aria-pressed')).toBe('true');
-  expect(container.querySelector('.hiring-viewport.is-paused')).toBeTruthy();
 });

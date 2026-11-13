@@ -2,19 +2,17 @@
 .hiring-now { padding: 12px clamp(16px, 2.3vw, 36px); color: #10243b; font-family: Inter, sans-serif; }
 .hiring-header { display: flex; align-items: center; gap: 12px; min-block-size: 30px; }
 .hiring-header h2 { font-size: 1rem; line-height: 1.2; margin: 0; }
-.hiring-header button { margin-inline-start: auto; flex-shrink: 0; border: 1px solid #d7b96d; border-radius: 18px; background: #fff9eb; color: inherit; font: inherit; font-size: .75rem; padding: 4px 8px; }
-.hiring-header button[aria-pressed="true"] { background: #f4e2ac; }
 .hiring-viewport { overflow: hidden; block-size: 54px; scrollbar-width: thin; }
 .hiring-track { display: flex; width: max-content; }
 .hiring-group { display: flex; flex: none; width: max-content; gap: 8px; margin: 0; padding: 4px 8px 4px 2px; list-style: none; }
 .hiring-chip { display: flex; align-items: center; gap: 7px; border: 1px solid #d7b96d; border-radius: 20px; background: #fff9eb; padding: 3px 9px 3px 4px; color: #10243b; font-weight: 600; font-size: .8rem; text-decoration: none; white-space: nowrap; }
 .dashboard .hiring-chip .featured-logo { width: 26px; height: 26px; flex-basis: 26px; font-size: .8rem; border-radius: 50%; box-shadow: none; }
 .hiring-chip .react-logo-image { padding: 2px; }
-.hiring-chip:focus-visible, .hiring-header button:focus-visible { outline: 2px solid #174c78; outline-offset: 1px; }
+.hiring-chip:focus-visible { outline: 2px solid #174c78; outline-offset: 1px; }
 .hiring-copy { display: none; }
 .is-moving .hiring-copy { display: flex; }
 .is-moving .hiring-track { animation: hiring-scroll 100s linear infinite; }
-.hiring-now:hover .hiring-track, .hiring-now:focus-within .hiring-track { animation-play-state: paused; }
+.hiring-now:hover .hiring-track, .hiring-now:focus-within .hiring-track, .hiring-viewport:active .hiring-track { animation-play-state: paused; }
 .hiring-viewport.is-paused, .hiring-viewport:has(:focus-visible) { overflow-x: auto; }
 .hiring-viewport.is-paused .hiring-track, .hiring-viewport:has(:focus-visible) .hiring-track { animation: none; }
 .hiring-viewport.is-paused .hiring-copy, .hiring-viewport:has(:focus-visible) .hiring-copy { display: none; }
@@ -22,7 +20,7 @@
 @keyframes hiring-scroll { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) {
   .hiring-slot { block-size: 198px; }
-  .hiring-header button, .hiring-viewport .hiring-copy { display: none; }
+  .hiring-viewport .hiring-copy { display: none; }
   .hiring-viewport { block-size: 90px; overflow: auto; }
   .hiring-viewport .hiring-track { width: 100%; animation: none; }
   .hiring-viewport .hiring-group { width: 100%; flex-wrap: wrap; }
