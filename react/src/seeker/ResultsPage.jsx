@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Footer, Header, MobileTabs } from '../shared/Shell.jsx';
 import { SearchForm } from './SearchForm.jsx';
 import { PartnerJobs, partnerQuery } from './PartnerJobs.jsx';
+import { liveSearch } from './liveSearch.js';
 import { JobDetail, JobList } from './JobViews.jsx';
 import { guestMatchProfile, quickMatches, recentJobs } from './catalogue.js';
 import { workAuthorizationFilter } from './workAuthorization.js';
@@ -74,8 +75,8 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
     const rows = document.querySelectorAll('.featured-list .featured-card');
     (rows[selected] || document.querySelector('.dashboard-list'))?.scrollIntoView({ block: 'center' });
   }
-  const [loading, setLoading] = useState(initial.mode !== 'live');
-  const [error, setError] = useState(initial.mode === 'live' ? 'Live Search is temporarily unavailable. Quick Match is available.' : '');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [profile, setProfile] = useState(guestMatchProfile);
   const [account, setAccount] = useState(null);
   const [savedKeys, setSavedKeys] = useState(new Set());
@@ -112,7 +113,6 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
     setSaveMessage(exists ? 'Removed from saved jobs.' : 'Job saved to your profile.');
   }
   useEffect(() => {
-    if (initial.mode === 'live') return;
     const controller = new AbortController();
     const filters = {
       country: initial.country || '', location: initial.location || '', date_posted: initial.date_posted || '', sponsorship: workAuthorizationFilter(initial.sponsorship),
@@ -125,7 +125,10 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
       return sub;
     });
     // Recent jobs are the same for everyone, so fetch them alongside the subscription check instead of after it.
-    const request = searching
+    const request = initial.mode === 'live'
+      ? subscriptionRequest.then(sub => liveSearch({ q: initial.q, location: initial.location },
+          () => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10), controller.signal))
+      : searching
       ? subscriptionRequest.then(sub => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10))
       : recentJobs(controller.signal);
     request

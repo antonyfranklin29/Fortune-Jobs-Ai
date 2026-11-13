@@ -27,8 +27,14 @@ export function SearchForm({ initial = {}, sort, onSort }) {
   const [error, setError] = useState('');
   function submit(event) {
     event.preventDefault();
-    if (mode === 'live') { setError('Live Search is temporarily unavailable. Choose Quick Match to browse saved jobs.'); return; }
     const clean = query.trim();
+    if (mode === 'live') {
+      if (!clean) { setError('Type a job title or skill for Live Search.'); return; }
+      const live = new URLSearchParams({ mode: 'live', q: clean });
+      if (location.trim()) live.set('location', location.trim());
+      window.location.href = `./results.html?${live}`;
+      return;
+    }
     // A country typed or picked in the location box searches with the Country filter.
     const typedCountry = exactCountry(location);
     const params = new URLSearchParams({ mode: 'quick', q: clean });
