@@ -79875,5 +79875,1015 @@
         "domain": "zelis.com.br"
       }
     ]
+  },
+  "air force office of special investigations": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:24.702Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Air Force",
+        "domain": "airforce.com"
+      },
+      {
+        "name": "Special Investigations",
+        "domain": "specialinvestigations.us"
+      },
+      {
+        "name": "Special Investigations Group",
+        "domain": "specialinvestigationsgrp.com"
+      },
+      {
+        "name": "Special Office",
+        "domain": "specialoffice.com.br"
+      },
+      {
+        "name": "Special Investigations Unit",
+        "domain": "siu.on.ca"
+      }
+    ]
+  },
+  "air mobility command": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:24.982Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Air Mobility Command",
+        "domain": "ipsinnovate.com"
+      },
+      {
+        "name": "Air Command",
+        "domain": "aircommandsc.net"
+      },
+      {
+        "name": "Eve Air Mobility",
+        "domain": "eveairmobility.com"
+      },
+      {
+        "name": "Air Command Inc",
+        "domain": "aircommandinc.com"
+      },
+      {
+        "name": "Air Command International",
+        "domain": "aircommand.com"
+      }
+    ]
+  },
+  "arch capital group": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:25.277Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Arch Capital Group",
+        "domain": "archgroup.com"
+      },
+      {
+        "name": "Arch Capital",
+        "domain": "archcapital.com.br"
+      },
+      {
+        "name": "Arch Capital",
+        "domain": "archcapitalgrp.com"
+      },
+      {
+        "name": "Arch Capital",
+        "domain": "archcapital.com.au"
+      },
+      {
+        "name": "Arch Capital",
+        "domain": "archcapitalinc.com"
+      }
+    ]
+  },
+  "arcticom llc": {
+    "status": "matched",
+    "domain": "arcticom.com",
+    "checked_at": "2026-11-13T16:34:25.555Z",
+    "resolver_version": 2
+  },
+  "auto-owners insurance company": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:25.833Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Auto-Owners Insurance",
+        "domain": "aoins.com"
+      },
+      {
+        "name": "Auto-Owners",
+        "domain": "auto-owners.com"
+      },
+      {
+        "name": "Direct Auto Insurance",
+        "domain": "directauto.com"
+      },
+      {
+        "name": "Boat Owners Insurance",
+        "domain": "everbroker.io"
+      },
+      {
+        "name": "Owners",
+        "domain": "joinowners.com"
+      }
+    ]
+  },
+  "bering straits native corporation": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:26.104Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Bering Straits Native Corporation",
+        "domain": "beringstraits.com"
+      },
+      {
+        "name": "Bering Straits Regional Housing Authority",
+        "domain": "bsrha.org"
+      },
+      {
+        "name": "Bering",
+        "domain": "beringalakaina.com"
+      },
+      {
+        "name": "Straits",
+        "domain": "straitstimes.com"
+      },
+      {
+        "name": "bering",
+        "domain": "bering-kopal.de"
+      }
+    ]
+  },
+  "caris life sciences": {
+    "status": "matched",
+    "domain": "carislifesciences.com",
+    "checked_at": "2026-11-13T16:34:26.370Z",
+    "resolver_version": 2
+  },
+  "cascade maverik lacrosse": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:26.659Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Cascade Maverik Lacrosse",
+        "domain": "cascademaverik.com"
+      },
+      {
+        "name": "Maverik",
+        "domain": "maverik.com"
+      },
+      {
+        "name": "Maverik",
+        "domain": "maverik.ge"
+      },
+      {
+        "name": "maverik",
+        "domain": "maverik.hr"
+      },
+      {
+        "name": "Maverik",
+        "domain": "maverik.gg"
+      }
+    ]
+  },
+  "centers for medicare & medicaid services": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:26.967Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Centers for Medicare & Medicaid Services",
+        "domain": "cms.gov"
+      },
+      {
+        "name": "Centers for Medicare & Medicaid Services",
+        "domain": "velatura.org"
+      },
+      {
+        "name": "Medicaid",
+        "domain": "medicaiddirectors.org"
+      },
+      {
+        "name": "MEDICAID",
+        "domain": "medicaidforeducation.org"
+      },
+      {
+        "name": "Medicaid",
+        "domain": "medicaiddental.org"
+      }
+    ]
+  },
+  "computer guidance corporation": {
+    "status": "matched",
+    "domain": "computerguidance.com",
+    "checked_at": "2026-11-13T16:34:27.233Z",
+    "resolver_version": 2
+  },
+  "crown equipment corporation": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:27.500Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Crown Equipment Corporation",
+        "domain": "crown.com"
+      },
+      {
+        "name": "Crown Equipment",
+        "domain": "crownequipment.com"
+      },
+      {
+        "name": "Triple Crown Corporation",
+        "domain": "triplecrowncorp.com"
+      },
+      {
+        "name": "Crown Food Equipment",
+        "domain": "crownfoodequipment.com"
+      },
+      {
+        "name": "Crown Packaging Corporation",
+        "domain": "crownpkg.com"
+      }
+    ]
+  },
+  "dentive hq": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:27.760Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Dentive",
+        "domain": "dentive.com"
+      },
+      {
+        "name": "HQ",
+        "domain": "builtbyhq.com"
+      },
+      {
+        "name": "Hq",
+        "domain": "hq.com"
+      },
+      {
+        "name": "HQ",
+        "domain": "hq.se"
+      },
+      {
+        "name": "HQ",
+        "domain": "hqtravel.com"
+      }
+    ]
+  },
+  "echodyne corp": {
+    "status": "matched",
+    "domain": "echodyne.com",
+    "checked_at": "2026-11-13T16:34:28.029Z",
+    "resolver_version": 2
+  },
+  "edis group": {
+    "status": "matched",
+    "domain": "edis-group.com",
+    "checked_at": "2026-11-13T16:34:28.304Z",
+    "resolver_version": 2
+  },
+  "elevated hires": {
+    "status": "matched",
+    "domain": "elevatedhires.com",
+    "checked_at": "2026-11-13T16:34:28.564Z",
+    "resolver_version": 2
+  },
+  "entergy": {
+    "status": "matched",
+    "domain": "entergy.com",
+    "checked_at": "2026-11-13T16:34:28.830Z",
+    "resolver_version": 2
+  },
+  "equal employment opportunity commission": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:29.094Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Equal Opportunity",
+        "domain": "ihs-uk.com"
+      },
+      {
+        "name": "Equal Opportunity Careers",
+        "domain": "equalopportunitycareers.co.uk"
+      },
+      {
+        "name": "Equal Opportunities Commission",
+        "domain": "eoc.org.hk"
+      },
+      {
+        "name": "CENTER FOR EQUAL OPPORTUNITY",
+        "domain": "ceousa.org"
+      },
+      {
+        "name": "Education Equal Opportunity Group,",
+        "domain": "eeog.org"
+      }
+    ]
+  },
+  "estaffing inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:29.408Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "eStaffing Inc",
+        "domain": "estaffinginc.com"
+      },
+      {
+        "name": "estaffing",
+        "domain": "estaffing.com"
+      },
+      {
+        "name": "inc",
+        "domain": "inc-sys.com"
+      },
+      {
+        "name": "8020",
+        "domain": "8020.inc"
+      },
+      {
+        "name": "Inc Management BV",
+        "domain": "inc-management.com"
+      }
+    ]
+  },
+  "federal home loan bank of des moines": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:29.703Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Federal Home Loan Bank of Des Moines",
+        "domain": "fhlbdm.com"
+      },
+      {
+        "name": "Federal Home Loan Bank of Chicago",
+        "domain": "fhlbc.com"
+      },
+      {
+        "name": "Federal Home Loan Bank of Atlanta",
+        "domain": "fhlbatl.com"
+      },
+      {
+        "name": "Federal Home Loan Bank of Dallas",
+        "domain": "fhlb.com"
+      },
+      {
+        "name": "Federal Home Loan Bank of Pittsburgh",
+        "domain": "fhlb-pgh.com"
+      }
+    ]
+  },
+  "gulf coast bank & trust company": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:29.983Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Gulf Coast Bank and Trust Company",
+        "domain": "gulfbank.com"
+      },
+      {
+        "name": "Gulf Coast Bank",
+        "domain": "gulfcoastsbaloans.com"
+      },
+      {
+        "name": "Gulf Coast Business Bank",
+        "domain": "gcbbswfl.com"
+      },
+      {
+        "name": "Gulf Bank",
+        "domain": "e-gulfbank.com"
+      },
+      {
+        "name": "Gulf Coast",
+        "domain": "gc-texas.com"
+      }
+    ]
+  },
+  "henry ford health": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:30.265Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Henry Ford Health",
+        "domain": "henryford.com"
+      },
+      {
+        "name": "Henry Ford Health",
+        "domain": "henryfordhealthdatasettlement.com"
+      },
+      {
+        "name": "Henry Ford",
+        "domain": "henryfordfairlane.org"
+      },
+      {
+        "name": "Henry Ford College",
+        "domain": "hfcc.edu"
+      },
+      {
+        "name": "Henry Ford Health System",
+        "domain": "henryfordmacomb.com"
+      }
+    ]
+  },
+  "hireitpeople": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:30.519Z",
+    "resolver_version": 2,
+    "candidates": []
+  },
+  "hive solutions group": {
+    "status": "matched",
+    "domain": "hivesolutionsgroup.com",
+    "checked_at": "2026-11-13T16:34:30.810Z",
+    "resolver_version": 2
+  },
+  "innovative consulting & management services, llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:31.106Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "INNOVATIVE Consulting Services",
+        "domain": "innovativeconsultingservices.com"
+      },
+      {
+        "name": "Innovative Consulting Services,",
+        "domain": "icshumancapital.com"
+      },
+      {
+        "name": "Innovative Cost Management Services",
+        "domain": "icmsbenefits.com"
+      },
+      {
+        "name": "Innovative Ag Services LLC",
+        "domain": "innovativeag.net"
+      },
+      {
+        "name": "Innovative Management",
+        "domain": "innovative-mgmt.com"
+      }
+    ]
+  },
+  "ipeople infosystems llc": {
+    "status": "matched",
+    "domain": "ipeopleinfosystems.com",
+    "checked_at": "2026-11-13T16:34:31.386Z",
+    "resolver_version": 2
+  },
+  "itc infotech": {
+    "status": "matched",
+    "domain": "itcinfotech.com",
+    "checked_at": "2026-11-13T16:34:31.651Z",
+    "resolver_version": 2
+  },
+  "kentucky farm bureau mutual ins co": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:31.920Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Flathead Farm Mutual Ins Co",
+        "domain": "flatheadfarmmutual.com"
+      },
+      {
+        "name": "Kentucky Farm Bureau Insurance",
+        "domain": "kyfb.com"
+      },
+      {
+        "name": "Farmers Mutual Ins Co",
+        "domain": "farmmutualins.com"
+      },
+      {
+        "name": "Texas Pioneer Farm Mutual Ins",
+        "domain": "tpfm.org"
+      },
+      {
+        "name": "Midwest Family Mutual Ins",
+        "domain": "midwestfamily.com"
+      }
+    ]
+  },
+  "louisiana organ procurement agency": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:32.185Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Carolina Organ Procurement",
+        "domain": "carolinadonorservices.org"
+      },
+      {
+        "name": "ORGAN PROCUREMENT AGENCY OF MICHIGAN",
+        "domain": "giftoflifemichigan.org"
+      },
+      {
+        "name": "Organ",
+        "domain": "organdonor.gov"
+      },
+      {
+        "name": "Organ",
+        "domain": "organandsons.com"
+      },
+      {
+        "name": "Organ",
+        "domain": "organ.es"
+      }
+    ]
+  },
+  "markel": {
+    "status": "matched",
+    "domain": "markel.com",
+    "checked_at": "2026-11-13T16:34:32.448Z",
+    "resolver_version": 2
+  },
+  "metropolitan community college": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:32.715Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Metropolitan Community College",
+        "domain": "mccneb.edu"
+      },
+      {
+        "name": "Metropolitan Community College - Canada",
+        "domain": "metropolitancollege.ca"
+      },
+      {
+        "name": "Metropolitan Community College-Kansas City",
+        "domain": "mcckc.edu"
+      },
+      {
+        "name": "Metropolitan Community College Athletics",
+        "domain": "mcckcathletics.com"
+      },
+      {
+        "name": "Metropolitan College",
+        "domain": "metropolitancollege.lk"
+      }
+    ]
+  },
+  "mfinite consulting llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:32.999Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Mfinite Consulting LLC",
+        "domain": "mfiniteconsult.com"
+      },
+      {
+        "name": "LLC",
+        "domain": "llc-avocats.com"
+      },
+      {
+        "name": "w00w00",
+        "domain": "w00w00.llc"
+      },
+      {
+        "name": "VTekis Consulting LLC",
+        "domain": "vtekis.com"
+      },
+      {
+        "name": "Taipei101 Network",
+        "domain": "taipei101.llc"
+      }
+    ]
+  },
+  "mindful support services": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:33.275Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Mindful",
+        "domain": "mindful.org"
+      },
+      {
+        "name": "Mindful",
+        "domain": "getmindful.com"
+      },
+      {
+        "name": "Mindful",
+        "domain": "mindful.com"
+      },
+      {
+        "name": "Mindful",
+        "domain": "mindfulcenter.org"
+      },
+      {
+        "name": "Mindful",
+        "domain": "getmindfulhealth.com"
+      }
+    ]
+  },
+  "national indemnity company": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:33.550Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "National Indemnity Company",
+        "domain": "nationalindemnity.com"
+      },
+      {
+        "name": "Evergreen National Indemnity Company",
+        "domain": "evergreen-national.com"
+      },
+      {
+        "name": "Indemnity National Insurance Company",
+        "domain": "indemnitynational.com"
+      },
+      {
+        "name": "Granada Indemnity Company",
+        "domain": "granadaindemnity.com"
+      },
+      {
+        "name": "Indemnity",
+        "domain": "indemnity.claims"
+      }
+    ]
+  },
+  "newvison": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:33.806Z",
+    "resolver_version": 2,
+    "candidates": []
+  },
+  "puget sound energy": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:34.073Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Puget Sound Energy",
+        "domain": "pse.com"
+      },
+      {
+        "name": "Puget Sound ESD",
+        "domain": "psesd.org"
+      },
+      {
+        "name": "Puget Energy",
+        "domain": "pugetenergy.com"
+      },
+      {
+        "name": "Puget Sound Care",
+        "domain": "pugetsound.care"
+      },
+      {
+        "name": "Puget Sound Coatings",
+        "domain": "pugetsoundcoatings.com"
+      }
+    ]
+  },
+  "riverbank": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:34.337Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "RiverBank",
+        "domain": "riverbankonline.com"
+      },
+      {
+        "name": "Riverbank",
+        "domain": "riverbank.ee"
+      },
+      {
+        "name": "RiverBank SA",
+        "domain": "riverbank.eu"
+      },
+      {
+        "name": "Riverbank Finance",
+        "domain": "riverbankfinance.com"
+      },
+      {
+        "name": "Riverbank Marina",
+        "domain": "riverbank.com"
+      }
+    ]
+  },
+  "ruffin": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:34.599Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Ruffin",
+        "domain": "ruffin-payne.com"
+      },
+      {
+        "name": "Chad Ruffin",
+        "domain": "chadruffinmd.com"
+      },
+      {
+        "name": "Ruffin Consulting",
+        "domain": "ruffinpc.com"
+      },
+      {
+        "name": "Ruffin Roofing",
+        "domain": "ruffinroofing.com"
+      },
+      {
+        "name": "Ruffin Companies",
+        "domain": "ruffincompanies.com"
+      }
+    ]
+  },
+  "smadex slu": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:34.858Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Smadex",
+        "domain": "smadex.com"
+      },
+      {
+        "name": "SLU",
+        "domain": "slunicorns.com"
+      },
+      {
+        "name": "E.S.T.I.S.A., SLU",
+        "domain": "movistar.es"
+      },
+      {
+        "name": "Eurofragance SLU",
+        "domain": "eurofragance.com"
+      },
+      {
+        "name": "TWOTHIRDS SLU",
+        "domain": "twothirds.com"
+      }
+    ]
+  },
+  "southern farm bureau life insurance company": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:35.134Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Southern Farm Bureau Life Insurance Company",
+        "domain": "sfbli.com"
+      },
+      {
+        "name": "Southern Farm Bureau Casualty Insurance Company",
+        "domain": "sfbcic.com"
+      },
+      {
+        "name": "Indiana Farm Bureau Insurance",
+        "domain": "infarmbureau.com"
+      },
+      {
+        "name": "Kentucky Farm Bureau Insurance",
+        "domain": "kyfb.com"
+      },
+      {
+        "name": "American Farm Life Insurance Company",
+        "domain": "americanfarmlife.com"
+      }
+    ]
+  },
+  "spear staffing": {
+    "status": "matched",
+    "domain": "spearstaffing.com",
+    "checked_at": "2026-11-13T16:34:35.405Z",
+    "resolver_version": 2
+  },
+  "st. charles health system": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:35.721Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "St. Charles Health System",
+        "domain": "stcharleshealthcare.org"
+      },
+      {
+        "name": "St. Luke's Health System",
+        "domain": "stlukesonline.org"
+      },
+      {
+        "name": "St-Charles",
+        "domain": "st-charlespodiatrie.com"
+      },
+      {
+        "name": "St. Tammany Health System",
+        "domain": "sttammany.health"
+      },
+      {
+        "name": "Lake Charles Memorial Health System",
+        "domain": "lcmh.com"
+      }
+    ]
+  },
+  "systems integration solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:36.003Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Systems Integration Solutions",
+        "domain": "sisinc.com"
+      },
+      {
+        "name": "Systems integration solutions",
+        "domain": "sis.lt"
+      },
+      {
+        "name": "Systems Integration",
+        "domain": "sysintegration.com"
+      },
+      {
+        "name": "Systems Integration,",
+        "domain": "sitexas.com"
+      },
+      {
+        "name": "Systems Integration",
+        "domain": "sys-int.com"
+      }
+    ]
+  },
+  "t. parker host": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:36.262Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Parker Host",
+        "domain": "tparkerhost.com"
+      },
+      {
+        "name": "T. White Parker Associates,",
+        "domain": "twhiteparker.com"
+      },
+      {
+        "name": "Parker",
+        "domain": "getparker.com"
+      },
+      {
+        "name": "Host",
+        "domain": "host-students.com"
+      },
+      {
+        "name": "Host",
+        "domain": "hostandstay.co.uk"
+      }
+    ]
+  },
+  "toast": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:36.526Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Toast",
+        "domain": "toasttab.com"
+      },
+      {
+        "name": "Toast",
+        "domain": "toa.st"
+      },
+      {
+        "name": "TOAST",
+        "domain": "toast.net"
+      },
+      {
+        "name": "TOAST",
+        "domain": "lovetoast.co.uk"
+      },
+      {
+        "name": "Toast",
+        "domain": "trytoast.ca"
+      }
+    ]
+  },
+  "tulane university": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:36.791Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Tulane University",
+        "domain": "tulane.edu"
+      },
+      {
+        "name": "Tulane",
+        "domain": "tulane-loyolafcu.net"
+      },
+      {
+        "name": "Tulane AKPsi",
+        "domain": "tulaneakpsi.org"
+      },
+      {
+        "name": "Tulane Hillel",
+        "domain": "tulanehillel.org"
+      },
+      {
+        "name": "Tulane Ventures",
+        "domain": "tulaneventures.com"
+      }
+    ]
+  },
+  "turner industries": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:37.056Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Turner Industries",
+        "domain": "turner-industries.com"
+      },
+      {
+        "name": "Turner Industries Inc",
+        "domain": "turnerindustries.com"
+      },
+      {
+        "name": "Turner",
+        "domain": "turner.com"
+      },
+      {
+        "name": "TURNER FOREST INDUSTRIES",
+        "domain": "turnerforestindustries.com"
+      },
+      {
+        "name": "Turner Industries Inc",
+        "domain": "turnerindustriesinc.com"
+      }
+    ]
+  },
+  "u.s. army corps of engineers": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-13T16:34:37.333Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "U.S. Army Corps of Engineers, Little Rock District",
+        "domain": "lrcorpscareers.com"
+      },
+      {
+        "name": "U.S. Army Reserve Medical Corps",
+        "domain": "goarmyreservedocs.com"
+      },
+      {
+        "name": "U.S. Army Recruiting",
+        "domain": "goarmytampa.com"
+      },
+      {
+        "name": "Army Air Corps",
+        "domain": "armyaircorps.co.uk"
+      },
+      {
+        "name": "U.S. Army North (5th Army)",
+        "domain": "afpims.mil"
+      }
+    ]
   }
 }
