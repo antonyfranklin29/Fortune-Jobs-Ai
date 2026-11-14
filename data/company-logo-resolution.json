@@ -80885,5 +80885,698 @@
         "domain": "afpims.mil"
       }
     ]
+  },
+  "another source": {
+    "status": "matched",
+    "domain": "anothersource.com",
+    "checked_at": "2026-11-14T15:13:02.014Z",
+    "resolver_version": 2
+  },
+  "b2b technology": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:02.280Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "B2B Technology",
+        "domain": "b2b-technology.com"
+      },
+      {
+        "name": "B2B Technology",
+        "domain": "b2btechnology.com.br"
+      },
+      {
+        "name": "B2B Technology solutions",
+        "domain": "b2btechnologysolution.com"
+      },
+      {
+        "name": "B2B Technology Sales",
+        "domain": "b2btechnologysales.com"
+      },
+      {
+        "name": "B2B Technology Zone",
+        "domain": "b2btechnologyzone.com"
+      }
+    ]
+  },
+  "caesers entertainment": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:02.570Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Entertainment",
+        "domain": "msgentertainment.com"
+      },
+      {
+        "name": "Blizzard Entertainment",
+        "domain": "blizzard.com"
+      },
+      {
+        "name": "Caesars Entertainment",
+        "domain": "caesars.com"
+      },
+      {
+        "name": "Marvel Entertainment",
+        "domain": "marvel.com"
+      },
+      {
+        "name": "Flutter Entertainment",
+        "domain": "flutter.com"
+      }
+    ]
+  },
+  "centstone": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:02.829Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "CENTSTONE SERVICES LLC",
+        "domain": "centstone.com"
+      }
+    ]
+  },
+  "citizens": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:03.099Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Citizens",
+        "domain": "citizensinc.com"
+      },
+      {
+        "name": "Citizens Bank",
+        "domain": "citizensbank.com"
+      },
+      {
+        "name": "Citizens",
+        "domain": "lacitizens.com"
+      },
+      {
+        "name": "Citizens",
+        "domain": "mycitizens.bank"
+      },
+      {
+        "name": "Citizens",
+        "domain": "citizenspet.com"
+      }
+    ]
+  },
+  "datawiz": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:03.363Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "DataWiz",
+        "domain": "datawz.com"
+      },
+      {
+        "name": "DataWiz",
+        "domain": "datawizanalytics.com"
+      },
+      {
+        "name": "DATAWIZ BES",
+        "domain": "datawiz.io"
+      },
+      {
+        "name": "Datawiz Corporation",
+        "domain": "datawiz.net"
+      },
+      {
+        "name": "Datawiz Consultancy Services Sdn",
+        "domain": "datawiz.com.my"
+      }
+    ]
+  },
+  "defense microelectronics activity": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:03.614Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "MICROELECTRONICS",
+        "domain": "micro-rdc.com"
+      },
+      {
+        "name": "Defense Human Resources Activity",
+        "domain": "dhra.mil"
+      },
+      {
+        "name": "Activity",
+        "domain": "activityparkcanarias.com"
+      },
+      {
+        "name": "Microelectronics",
+        "domain": "abac.fr"
+      },
+      {
+        "name": "Defense",
+        "domain": "defense.gov"
+      }
+    ]
+  },
+  "digital mass": {
+    "status": "matched",
+    "domain": "digitalmass.com",
+    "checked_at": "2026-11-14T15:13:03.874Z",
+    "resolver_version": 2
+  },
+  "dirac": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:04.140Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Dirac",
+        "domain": "diracinc.com"
+      },
+      {
+        "name": "Dirac",
+        "domain": "dirac.com"
+      },
+      {
+        "name": "Dirac",
+        "domain": "dirac.app"
+      },
+      {
+        "name": "DiRAC",
+        "domain": "dirac.ac.uk"
+      },
+      {
+        "name": "DIRAC",
+        "domain": "dirac.ro"
+      }
+    ]
+  },
+  "ediphai": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:04.383Z",
+    "resolver_version": 2,
+    "candidates": []
+  },
+  "emtak llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:04.648Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "EMTAK LLC",
+        "domain": "emtakllc.com"
+      },
+      {
+        "name": "LLC",
+        "domain": "llc-avocats.com"
+      },
+      {
+        "name": "w00w00",
+        "domain": "w00w00.llc"
+      },
+      {
+        "name": "Taipei101 Network",
+        "domain": "taipei101.llc"
+      },
+      {
+        "name": "CF119 Capital LLC",
+        "domain": "cf119.llc"
+      }
+    ]
+  },
+  "executive office for u.s. attorneys and the office of the u.s. attorneys": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:04.956Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Office of the U.S. Trade Representative",
+        "domain": "ustr.gov"
+      },
+      {
+        "name": "U.S. Government Publishing Office",
+        "domain": "gpo.gov"
+      },
+      {
+        "name": "States Attorneys Office",
+        "domain": "statesattorney.org"
+      },
+      {
+        "name": "U.S. Office of Special Counsel",
+        "domain": "osc.gov"
+      },
+      {
+        "name": "EXECUTIVE OFFICE OF US ATTORNEYS (EOUSA)",
+        "domain": "immigrationappealworks.org"
+      }
+    ]
+  },
+  "gtsc-talent solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:05.231Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "GTSC Talent Solutions",
+        "domain": "gtscts.com"
+      },
+      {
+        "name": "gtsc",
+        "domain": "gtsc.biz"
+      },
+      {
+        "name": "GTSC",
+        "domain": "gtsc.au"
+      },
+      {
+        "name": "GTSC",
+        "domain": "gtsc.co.uk"
+      },
+      {
+        "name": "Talent Solutions",
+        "domain": "talentsolutions.com"
+      }
+    ]
+  },
+  "hallmark health care solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:05.506Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Hallmark Health Care Solutions",
+        "domain": "hallmarkhcs.com"
+      },
+      {
+        "name": "Hallmark",
+        "domain": "hllmark.com"
+      },
+      {
+        "name": "Hallmark",
+        "domain": "hibbshallmark.com"
+      },
+      {
+        "name": "Hallmark Care Center",
+        "domain": "hallmarkcarecenter.com"
+      },
+      {
+        "name": "Hallmark Cards",
+        "domain": "hallmark.com"
+      }
+    ]
+  },
+  "headquarters, nasa": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:05.770Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "NASA",
+        "domain": "nasa.gov"
+      },
+      {
+        "name": "nasa",
+        "domain": "nasa.com"
+      },
+      {
+        "name": "HeadQuarters",
+        "domain": "tryheadquarters.com"
+      },
+      {
+        "name": "Nasa",
+        "domain": "nasa.in"
+      },
+      {
+        "name": "NASA",
+        "domain": "nasasoft.com"
+      }
+    ]
+  },
+  "helmerich & payne": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:06.024Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Helmerich & Payne",
+        "domain": "hpinc.com"
+      },
+      {
+        "name": "Helmerich & Payne Properties",
+        "domain": "hpidc.com"
+      },
+      {
+        "name": "helmerich",
+        "domain": "helmerich-payne.com"
+      },
+      {
+        "name": "HELMERICH",
+        "domain": "helmerich-immo.com"
+      },
+      {
+        "name": "Payne",
+        "domain": "paynefears.com"
+      }
+    ]
+  },
+  "idaho national laboratory": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:06.281Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Argonne National Laboratory",
+        "domain": "anl.gov"
+      },
+      {
+        "name": "Brookhaven National Laboratory",
+        "domain": "bnl.gov"
+      },
+      {
+        "name": "Ames National Laboratory",
+        "domain": "ameslab.gov"
+      },
+      {
+        "name": "Lawrence Livermore National Laboratory",
+        "domain": "llnl.gov"
+      },
+      {
+        "name": "Oak Ridge National Laboratory",
+        "domain": "ornl.gov"
+      }
+    ]
+  },
+  "instant serve llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:06.557Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Instant",
+        "domain": "instant.one"
+      },
+      {
+        "name": "Serve",
+        "domain": "tryserve.ai"
+      },
+      {
+        "name": "Instant",
+        "domain": "instantdb.com"
+      },
+      {
+        "name": "Serve",
+        "domain": "jauserve.com.br"
+      },
+      {
+        "name": "Serve Robotics",
+        "domain": "serverobotics.com"
+      }
+    ]
+  },
+  "integration architects": {
+    "status": "matched",
+    "domain": "integrationarchitects.com",
+    "checked_at": "2026-11-14T15:13:06.811Z",
+    "resolver_version": 2
+  },
+  "lightcast": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:07.068Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Lightcast",
+        "domain": "lightcast.io"
+      },
+      {
+        "name": "Lightcast",
+        "domain": "lightcast.com"
+      },
+      {
+        "name": "Lightcast",
+        "domain": "lightcast.bio"
+      },
+      {
+        "name": "Lightcast® Inc",
+        "domain": "lightcast-store.com"
+      },
+      {
+        "name": "lightcast-public-safety.com",
+        "domain": "lightcast-public-safety.com"
+      }
+    ]
+  },
+  "localcoin": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:07.332Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Localcoin",
+        "domain": "localcoinatm.com"
+      },
+      {
+        "name": "LocalCoin LTD",
+        "domain": "localcoin.com"
+      }
+    ]
+  },
+  "pec": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:07.581Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "PEC - PEC",
+        "domain": "peakecochallenge.org"
+      },
+      {
+        "name": "PEC",
+        "domain": "pecnw.com"
+      },
+      {
+        "name": "PEC",
+        "domain": "pro-ec.de"
+      },
+      {
+        "name": "PEC",
+        "domain": "pecpa.org"
+      },
+      {
+        "name": "PEC",
+        "domain": "peccorp.com"
+      }
+    ]
+  },
+  "performance software": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:07.841Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Performance Software Solutions,",
+        "domain": "pssiusa.com"
+      },
+      {
+        "name": "Performance Software Associates",
+        "domain": "performancesw.com"
+      },
+      {
+        "name": "AssessTEAM Performance Management Software",
+        "domain": "assessteam.com"
+      },
+      {
+        "name": "Discovered Performance Hiring Software",
+        "domain": "discovered.ai"
+      },
+      {
+        "name": "performance",
+        "domain": "performance-io.com"
+      }
+    ]
+  },
+  "recharge": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:08.095Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Recharge",
+        "domain": "recharge.com"
+      },
+      {
+        "name": "Recharge",
+        "domain": "rechargeinfra.com"
+      },
+      {
+        "name": "Recharge",
+        "domain": "rechargenews.com"
+      },
+      {
+        "name": "RECHARGE",
+        "domain": "rechargexfit.com"
+      },
+      {
+        "name": "Recharge",
+        "domain": "rechargeplus.fr"
+      }
+    ]
+  },
+  "regent bank": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:08.353Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Regent Bank",
+        "domain": "regent.bank"
+      },
+      {
+        "name": "REGENT",
+        "domain": "regentcraft.com"
+      },
+      {
+        "name": "Regent",
+        "domain": "regentdtla.com"
+      },
+      {
+        "name": "REGENT",
+        "domain": "regent-feinbau.de"
+      },
+      {
+        "name": "Regent",
+        "domain": "flyregent.com"
+      }
+    ]
+  },
+  "scylla": {
+    "status": "matched",
+    "domain": "scylla.ai",
+    "checked_at": "2026-11-14T15:13:08.608Z",
+    "resolver_version": 2
+  },
+  "skydweller us": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:08.868Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Skydweller",
+        "domain": "skydweller.ca"
+      },
+      {
+        "name": "skydweller",
+        "domain": "skydweller.com"
+      },
+      {
+        "name": "Skydweller Aero",
+        "domain": "skydweller.aero"
+      },
+      {
+        "name": "US",
+        "domain": "uscg.mil"
+      },
+      {
+        "name": "US",
+        "domain": "us.com"
+      }
+    ]
+  },
+  "staffxpert llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:09.148Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "LLC",
+        "domain": "llc-avocats.com"
+      },
+      {
+        "name": "w00w00",
+        "domain": "w00w00.llc"
+      },
+      {
+        "name": "Taipei101 Network",
+        "domain": "taipei101.llc"
+      },
+      {
+        "name": "CF119 Capital LLC",
+        "domain": "cf119.llc"
+      },
+      {
+        "name": "ace2.llc",
+        "domain": "ace2.llc"
+      }
+    ]
+  },
+  "techchain talent": {
+    "status": "matched",
+    "domain": "techchaintalent.xyz",
+    "checked_at": "2026-11-14T15:13:09.404Z",
+    "resolver_version": 2
+  },
+  "the hartford": {
+    "status": "matched",
+    "domain": "thehartford.com",
+    "checked_at": "2026-11-14T15:13:09.671Z",
+    "resolver_version": 2
+  },
+  "true north consultants": {
+    "status": "matched",
+    "domain": "truenorthconsultants.com",
+    "checked_at": "2026-11-14T15:13:09.930Z",
+    "resolver_version": 2
+  },
+  "vurvey labs": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-14T15:13:10.189Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Vurvey Labs",
+        "domain": "vurvey.com"
+      },
+      {
+        "name": "Vurvey",
+        "domain": "vurvey.app"
+      },
+      {
+        "name": "Labs:",
+        "domain": "labs.google"
+      },
+      {
+        "name": "Modal Labs",
+        "domain": "modal.com"
+      },
+      {
+        "name": "Planet Labs",
+        "domain": "planet.com"
+      }
+    ]
   }
 }
