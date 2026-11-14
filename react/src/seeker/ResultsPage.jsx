@@ -9,6 +9,7 @@ import { workAuthorizationFilter } from './workAuthorization.js';
 import { jobKey, supabase } from '../shared/supabase.js';
 
 import { MatchPanel } from './MatchPanel.jsx';
+import { SignupNudge } from './SignupNudge.jsx';
 import { ProCard } from '../shared/ProCard.jsx';
 import { PRO, isActive, mySubscription } from '../shared/billing.js';
 import '../styles/dashboard.css';
@@ -79,6 +80,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
   const [error, setError] = useState('');
   const [profile, setProfile] = useState(guestMatchProfile);
   const [account, setAccount] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [savedKeys, setSavedKeys] = useState(new Set());
   const [saveMessage, setSaveMessage] = useState('');
   const [subscription, setSubscription] = useState(null);
@@ -86,6 +88,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
     let active = true;
     supabase.auth.getSession().then(async ({ data }) => {
       const user = data?.session?.user;
+      if (active) setAuthChecked(true);
       if (!active || !user) return;
       setAccount(user);
       rememberSearch(user.id);
@@ -160,6 +163,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
           <section className="dashboard-card dashboard-list" aria-label="Job results">
             <h2>{visible.length} {visible.length === 1 ? 'job' : 'jobs'} found</h2>
             {Number(initial.salary_min) > 0 && <p className="dashboard-salary-note">Only jobs whose listed US-dollar pay reaches ${Number(initial.salary_min).toLocaleString('en-US')} a year. Listings without a clear salary are left out.</p>}
+            {authChecked && !account && <SignupNudge href={signInToSaveUrl(window.location)} />}
             <JobList jobs={visible} selected={selected} onSelect={selectJob} profile={profile} />
             <ProCard subscription={subscription} />
           </section>

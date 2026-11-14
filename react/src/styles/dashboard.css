@@ -252,3 +252,13 @@
 .partner-jobs ul { list-style: none; padding: 0; margin: 12px 0 0; }
 .partner-jobs li { padding: 12px 0; border-top: 1px solid #dce5ef; }
 .partner-jobs li p { margin: 4px 0 0; overflow-wrap: anywhere; }
+
+/* Signed-out visitors: soft invitation to create a free account after the first results. */
+.signup-nudge { position: relative; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 10px 0 14px; padding: 14px 44px 14px 16px; border-radius: 14px; background: #10243b; color: #fff; }
+.signup-nudge div { flex: 1 1 220px; display: grid; gap: 4px; font-size: .92rem; line-height: 1.4; }
+.signup-nudge strong { color: #d4a843; font-size: 1rem; }
+.signup-nudge span { color: #e1edf7; }
+.signup-nudge-cta { padding: 10px 16px; border-radius: 999px; background: #d4a843; color: #10243b; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.signup-nudge-cta:hover, .signup-nudge-cta:focus-visible { background: #e2bb5c; }
+.signup-nudge-close { position: absolute; top: 6px; right: 8px; width: 32px; height: 32px; border: 0; background: transparent; color: #c9d6e2; font-size: 1.3rem; cursor: pointer; border-radius: 8px; }
+.signup-nudge-close:hover, .signup-nudge-close:focus-visible { background: rgba(255,255,255,.1); color: #fff; }
