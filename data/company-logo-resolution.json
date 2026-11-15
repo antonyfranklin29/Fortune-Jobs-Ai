@@ -81578,5 +81578,303 @@
         "domain": "planet.com"
       }
     ]
+  },
+  "aspireit solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-15T15:44:21.163Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Solutions",
+        "domain": "solutions-ii.com"
+      },
+      {
+        "name": "RW Solutions",
+        "domain": "solutions-rw.com"
+      },
+      {
+        "name": "1728 Solutions",
+        "domain": "1728.solutions"
+      },
+      {
+        "name": "Not Found",
+        "domain": "yg1.solutions"
+      },
+      {
+        "name": "Solutions,",
+        "domain": "solutions-nys.com"
+      }
+    ]
+  },
+  "atlas technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-15T15:44:21.350Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Atlas Technologies",
+        "domain": "recruitwithatlas.com"
+      },
+      {
+        "name": "Atlas Technologies",
+        "domain": "atlastechnologies.com"
+      },
+      {
+        "name": "Atlas Technologies",
+        "domain": "atlas-technologies.com"
+      },
+      {
+        "name": "Atlas Technologies",
+        "domain": "atlasuhv.com"
+      },
+      {
+        "name": "Atlas Technologies",
+        "domain": "atlastech.com.au"
+      }
+    ]
+  },
+  "cloudflare": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-15T15:44:21.536Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Cloudflare",
+        "domain": "cloudflare.com"
+      },
+      {
+        "name": "Cloudflare",
+        "domain": "cloudflare-cn.com"
+      },
+      {
+        "name": "Web3",
+        "domain": "cloudflare-ipfs.com"
+      },
+      {
+        "name": "Cloudflare",
+        "domain": "cloudflare.net"
+      },
+      {
+        "name": "403 Forbidden",
+        "domain": "cloudflare-quic.com"
+      }
+    ]
+  },
+  "integrated home": {
+    "status": "matched",
+    "domain": "integratedhome.us",
+    "checked_at": "2026-11-15T15:44:21.734Z",
+    "resolver_version": 2
+  },
+  "kidde-fenwal": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-15T15:44:21.916Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Fenwal",
+        "domain": "fenwalinc.com"
+      },
+      {
+        "name": "KIDDE",
+        "domain": "kidde-deugra.com"
+      },
+      {
+        "name": "Kidde Commercial",
+        "domain": "kidde.com"
+      },
+      {
+        "name": "Kidde Elektronik",
+        "domain": "kidde.dk"
+      },
+      {
+        "name": "Shop Kidde",
+        "domain": "shopkidde.com"
+      }
+    ]
+  },
+  "mizuho": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-15T15:44:22.100Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Mizuho",
+        "domain": "mizuho-ls.co.id"
+      },
+      {
+        "name": "mizuho",
+        "domain": "mizuho.lu"
+      },
+      {
+        "name": "Mizuho Financial",
+        "domain": "mizuhogroup.com"
+      },
+      {
+        "name": "mizuho",
+        "domain": "mizuho-gs.com"
+      },
+      {
+        "name": "Mizuho OSI",
+        "domain": "mizuhosi.com"
+      }
+    ]
+  },
+  "nooksack indian tribe": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-15T15:44:22.283Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Nooksack Indian Tribe",
+        "domain": "nooksack-tribe.org"
+      },
+      {
+        "name": "Nooksack Tribe",
+        "domain": "nooksacktribe.org"
+      },
+      {
+        "name": "Cowlitz Indian Tribe",
+        "domain": "cowlitz.org"
+      },
+      {
+        "name": "Muckleshoot Indian Tribe",
+        "domain": "muckleshoot.nsn.us"
+      },
+      {
+        "name": "Kenaitze Indian Tribe",
+        "domain": "kenaitze.org"
+      }
+    ]
+  },
+  "recycleye": {
+    "status": "matched",
+    "domain": "recycleye.com",
+    "checked_at": "2026-11-15T15:44:22.458Z",
+    "resolver_version": 2
+  },
+  "tanaq management services": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-15T15:44:22.658Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Tanaq Technical Services",
+        "domain": "tanaqtechnicalservs.com"
+      },
+      {
+        "name": "St. George Tanaq",
+        "domain": "tanaq.com"
+      },
+      {
+        "name": "St. George Tanaq",
+        "domain": "tanaqenvironmental.com"
+      },
+      {
+        "name": "Management Services",
+        "domain": "msc-rents.com"
+      },
+      {
+        "name": "CHICKASAW MANAGEMENT SERVICES",
+        "domain": "chickasawfederal.com"
+      }
+    ]
+  },
+  "triumph": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-15T15:44:22.842Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "TRIUMPH",
+        "domain": "triumphgroup.com"
+      },
+      {
+        "name": "Triumph",
+        "domain": "triumpharcade.com"
+      },
+      {
+        "name": "Triumph",
+        "domain": "triumph.io"
+      },
+      {
+        "name": "Triumph",
+        "domain": "invoicefactoring.com"
+      },
+      {
+        "name": "Triumph",
+        "domain": "triumphnd.com"
+      }
+    ]
+  },
+  "varda space industries": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-15T15:44:23.030Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Varda Space Industries",
+        "domain": "varda.com"
+      },
+      {
+        "name": "Varda",
+        "domain": "varda.ag"
+      },
+      {
+        "name": "Varda",
+        "domain": "varda.vc"
+      },
+      {
+        "name": "Varda",
+        "domain": "varda.in"
+      },
+      {
+        "name": "Agile Space Industries",
+        "domain": "agilespaceindustries.com"
+      }
+    ]
+  },
+  "worldcoin": {
+    "status": "matched",
+    "domain": "worldcoin.global",
+    "checked_at": "2026-11-15T15:44:23.208Z",
+    "resolver_version": 2
+  },
+  "wtw": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-15T15:44:23.395Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "WTW",
+        "domain": "wtw-muc.de"
+      },
+      {
+        "name": "WTW",
+        "domain": "wtw.de"
+      },
+      {
+        "name": "WTW",
+        "domain": "wtw-filtersonline.nl"
+      },
+      {
+        "name": "WTW",
+        "domain": "wtw-anlagenbau.com"
+      },
+      {
+        "name": "WTW",
+        "domain": "wtw.hr"
+      }
+    ]
   }
 }
