@@ -6,7 +6,7 @@ export const MIN_CITY_JOBS = 5;
 export const MIN_STATE_JOBS = 40;
 export const DISPLAY_LIMIT = 20;
 const PAGE_SIZE = 1000;
-const summaryFields = 'id,job_title,company,location,state_code,canonical_role,country,posted_at,expires_at,closed_at,source,apply_url';
+const summaryFields = 'id,job_title,company,location,state_code,canonical_role,country,posted_at,expires_at,closed_at,source,apply_url,salary,is_remote';
 const postingFields = summaryFields + ',job_description,is_remote,work_mode';
 
 export function applicationUrl(value) {

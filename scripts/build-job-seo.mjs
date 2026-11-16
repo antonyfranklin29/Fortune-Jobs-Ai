@@ -71,11 +71,66 @@ export function socialTags(title, description, url) {
     '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="' + SITE + '/og-image.jpg">\n';
 }
 
+const DAY = 86400000;
+const money = n => '$' + Math.round(n / 1000) + 'K';
+
+// Yearly pay from text like "$62,000 - $141,000 per year" or "$102,400–$179,000"; hourly or monthly figures are skipped.
+export function annualPay(text) {
+  const value = String(text || '');
+  if (/hour|hr\b|month|week|day/i.test(value)) return null;
+  const nums = (value.match(/\$\s?\d[\d,]*(?:\.\d+)?\s?[kK]?/g) || []).map(raw => {
+    const n = Number(raw.replace(/[$,\s]/g, '').replace(/k$/i, ''));
+    return /k$/i.test(raw.trim()) ? n * 1000 : n;
+  }).filter(n => n >= 20000 && n <= 1000000);
+  if (!nums.length) return null;
+  return (Math.min(...nums) + Math.max(...nums)) / 2;
+}
+
+// Linear-interpolated percentile (0–1) of a list of numbers.
+const percentile = (values, q) => {
+  const sorted = [...values].sort((a, b) => a - b);
+  const at = (sorted.length - 1) * q, lo = Math.floor(at);
+  return sorted[lo] + (sorted[Math.min(lo + 1, sorted.length - 1)] - sorted[lo]) * (at - lo);
+};
+
+// Facts computed from this page's own listings, so every page carries data no other page has.
+export function areaInsights(rows, now = Date.now()) {
+  const pay = rows.map(job => annualPay(job.salary)).filter(Boolean);
+  const companies = new Map();
+  for (const job of rows) if (job.company) companies.set(job.company, (companies.get(job.company) || 0) + 1);
+  const top = [...companies].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 5);
+  return {
+    pay: pay.length >= 3 ? { low: percentile(pay, 0.25), median: percentile(pay, 0.5), high: percentile(pay, 0.75), count: pay.length } : null,
+    companies: top.length >= 2 ? top : [],
+    companyCount: companies.size,
+    remote: rows.filter(job => job.is_remote).length,
+    recent: rows.filter(job => now - (Date.parse(job.posted_at) || 0) <= 7 * DAY).length,
+  };
+}
+
+function renderInsights(target, rows, now) {
+  if (rows.length < 3) return '';
+  const { pay, companies, companyCount, remote, recent } = areaInsights(rows, now);
+  const place = areaName(target);
+  const facts = [
+    recent ? recent + ' posted in the last 7 days' : '',
+    companyCount + (companyCount === 1 ? ' employer hiring' : ' employers hiring'),
+    remote ? remote + ' remote' : '',
+  ].filter(Boolean).join(' · ');
+  return '<section class="market" aria-label="Market snapshot"><h2>' + escape(target.title + ' job market in ' + place) + '</h2>' +
+    '<p>' + escape(facts) + '.</p>' +
+    (pay ? '<p>Typical listed pay: <strong>' + money(pay.low) + '–' + money(pay.high) + '</strong> a year, median <strong>' + money(pay.median) +
+      '</strong> (middle half of ' + pay.count + ' listings that show yearly pay).</p>' : '') +
+    (companies.length ? '<h3>Top hiring companies</h3><ul>' + companies.map(([name, n]) =>
+      '<li>' + escape(name) + ' (' + n + ')</li>').join('') + '</ul>' : '') +
+    '<p>' + link('/resume-search.html', 'Check how your résumé matches ' + target.title + ' jobs — free ATS score') + '</p></section>';
+}
+
 export function renderCity(target, rows, details, date, related = []) {
   return renderArea(target, rows, details, date, related);
 }
 
-export function renderArea(target, rows, details, date, related = []) {
+export function renderArea(target, rows, details, date, related = [], now = Date.parse(date + 'T12:00:00Z')) {
   const { role, city, state, stateName } = target;
   const place = areaName(target);
   const count = rows.length;
@@ -102,7 +157,7 @@ export function renderArea(target, rows, details, date, related = []) {
     '</p><p>' + link(siteSearch(target), city ? 'Search this city in Quick Match' : 'Search this role nationwide') + '</p>' +
     '<section aria-label="Open listings" data-job-page="area" data-city="' + escape(city || '') +
     '" data-state="' + state + '" data-role="' + role + '" data-detail-ids="' + detailIds.join(',') +
-    '"><p role="status">' + status + '</p><ul class="listings">' + items + '</ul></section>' + relatedLinks;
+    '"><p role="status">' + status + '</p><ul class="listings">' + items + '</ul></section>' + renderInsights(target, rows, now) + relatedLinks;
   const stateTrail = stateName ? [[stateName, directoryState(state)]] : [];
   return page({ path, title: heading, description: heading + ' as of ' + date + '. Browse listings and check the original posting before applying.',
     body, noindex: count < (city ? MIN_CITY_JOBS : MIN_STATE_JOBS), live: true,
@@ -198,8 +253,12 @@ async function build() {
   const { cityPages, statePages } = planPages(catalogue, roles, regions, now);
   const indexed = [...statePages, ...cityPages.filter(({ rows }) => rows.length >= MIN_CITY_JOBS)];
   for (const { target, rows } of [...statePages, ...cityPages]) {
-    const related = indexed.filter(page => page.target !== target &&
-      page.target.state === target.state && page.target.role === target.role);
+    const others = indexed.filter(page => page.target !== target);
+    const sameRole = others.filter(page => page.target.role === target.role)
+      .sort((a, b) => (b.target.state === target.state) - (a.target.state === target.state) || b.rows.length - a.rows.length).slice(0, 6);
+    const samePlace = others.filter(page => page.target.role !== target.role && page.target.state === target.state &&
+      (page.target.city || '') === (target.city || '')).sort((a, b) => b.rows.length - a.rows.length).slice(0, 6);
+    const related = [...sameRole, ...samePlace];
     await writePage(areaPath(target), renderArea(target, rows, details, date, related));
   }
   for (const job of postings) await writePage(postingPath(job.id), renderPosting(job));

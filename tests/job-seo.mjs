@@ -113,3 +113,33 @@ test('state pages require 40 distinct open listings and cities use the full taxo
   assert.equal(schema['@type'], 'BreadcrumbList');
   assert.equal(schema.itemListElement.at(-1).item, 'https://fortunejobsai.com/jobs/data-analyst/north-carolina/');
 });
+
+test('annualPay reads yearly ranges and skips hourly pay', async () => {
+  const { annualPay } = await import('../scripts/build-job-seo.mjs');
+  assert.equal(annualPay('$62,000 - $141,000 per year'), 101500);
+  assert.equal(annualPay('$102,400–$179,000'), 140700);
+  assert.equal(annualPay('$90K'), 90000);
+  assert.equal(annualPay('$45 per hour'), null);
+  assert.equal(annualPay('$4,160'), null);
+  assert.equal(annualPay(''), null);
+});
+
+test('area pages show a market snapshot built from their own listings', async () => {
+  const { areaInsights, renderArea } = await import('../scripts/build-job-seo.mjs');
+  const now = Date.parse('2026-11-15T12:00:00Z');
+  const rows = [
+    { id: 1, job_title: 'Data Analyst', company: 'Acme', location: 'Raleigh, NC', posted_at: '2026-11-14', salary: '$60,000–$80,000', is_remote: true, apply_url: 'https://acme.com/1' },
+    { id: 2, job_title: 'Data Analyst II', company: 'Acme', location: 'Raleigh, NC', posted_at: '2026-11-01', salary: '$80,000–$100,000', apply_url: 'https://acme.com/2' },
+    { id: 3, job_title: 'BI Analyst', company: 'Beta', location: 'Raleigh, NC', posted_at: '2026-11-13', salary: '$100,000–$120,000', apply_url: 'https://beta.com/3' },
+  ];
+  const facts = areaInsights(rows, now);
+  assert.deepEqual(facts.pay, { low: 80000, median: 90000, high: 100000, count: 3 });
+  assert.deepEqual(facts.companies, [['Acme', 2], ['Beta', 1]]);
+  assert.equal(facts.recent, 2);
+  assert.equal(facts.remote, 1);
+  const html = renderArea({ role: 'data-analyst', title: 'Data Analyst', city: 'Raleigh', state: 'NC', stateName: 'North Carolina' }, rows, new Set(), '2026-11-15');
+  assert.match(html, /Data Analyst job market in Raleigh, NC/);
+  assert.match(html, /\$80K–\$100K/);
+  assert.match(html, /Top hiring companies/);
+  assert.match(html, /resume-search\.html/);
+});

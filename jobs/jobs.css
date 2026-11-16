@@ -19,3 +19,7 @@ p { line-height: 1.55; }
 .listings a { display: inline-block; margin-top: 8px; font-weight: 650; }
 .description { white-space: pre-wrap; line-height: 1.6; margin-block: 24px; }
 footer { border-top: 1px solid #ded9cb; padding-block: 18px; }
+.market { background: white; border: 1px solid #dbe3e8; border-radius: 12px; padding: 18px; margin: 18px 0; }
+.market h2 { margin-top: 0; }
+.market ul { margin: 6px 0 10px; padding-left: 20px; }
+.market a { font-weight: 650; }
