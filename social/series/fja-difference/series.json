@@ -1,0 +1,177 @@
+{
+ "_about": "FJA-difference series. Not in the live queue. Planned start: first week of January 2027 (approved by Franklin Nov 16 2026: 'post this series from jan 2027'). Insert posts at the next upcoming slots of social/posts.json, reels into social/reels-feed.json, and linkedin_text into posts.json linkedin_text, at deploy time.",
+ "posts": [
+  {
+   "id": "fd01",
+   "kicker": "WHAT MAKES FJA DIFFERENT",
+   "title": "Know what a job needs from you",
+   "points": [
+    "See which skills you match",
+    "See what’s missing",
+    "Fix it before you apply"
+   ],
+   "caption": "Most job sites say \"recommended for you\" and stop there.\nFortune Jobs AI shows what each job asks for, what your résumé already covers and what's missing, before you spend an hour applying.",
+   "tags": "#resumetips #ats #jobsearch #newgrad #careeradvice",
+   "image": "https://fortunejobsai.com/social/series/fja-difference/fja-diff-01.jpg",
+   "post_caption": "Most job sites say \"recommended for you\" and stop there.\nFortune Jobs AI shows what each job asks for, what your résumé already covers and what's missing, before you spend an hour applying.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumetips #ats #jobsearch #newgrad #careeradvice",
+   "fb_caption": "Most job sites say \"recommended for you\" and stop there.\nFortune Jobs AI shows what each job asks for, what your résumé already covers and what's missing, before you spend an hour applying.\n\n👉 Start free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#resumetips #ats #jobsearch #newgrad #careeradvice",
+   "li_caption": "Know what a job needs from you\n\nMost job sites say \"recommended for you\" and stop there.\nFortune Jobs AI shows what each job asks for, what your résumé already covers and what's missing, before you spend an hour applying.\n\nIn short:\n→ See which skills you match\n→ See what’s missing\n→ Fix it before you apply\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#resumetips \\#ats \\#jobsearch \\#newgrad \\#careeradvice"
+  },
+  {
+   "id": "fd02",
+   "kicker": "WHAT MAKES FJA DIFFERENT",
+   "title": "A free ATS score. Really free.",
+   "points": [
+    "Score out of 100",
+    "Line-by-line fixes",
+    "No paywall, no credit card"
+   ],
+   "caption": "Résumé checkers usually lock the useful part behind a paywall.\nOn Fortune Jobs AI, the ATS readiness score and every line-by-line fix are free.",
+   "tags": "#resumetips #ats #jobsearch #newgrad #careeradvice",
+   "image": "https://fortunejobsai.com/social/series/fja-difference/fja-diff-02.jpg",
+   "post_caption": "Résumé checkers usually lock the useful part behind a paywall.\nOn Fortune Jobs AI, the ATS readiness score and every line-by-line fix are free.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumetips #ats #jobsearch #newgrad #careeradvice",
+   "fb_caption": "Résumé checkers usually lock the useful part behind a paywall.\nOn Fortune Jobs AI, the ATS readiness score and every line-by-line fix are free.\n\n👉 Start free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#resumetips #ats #jobsearch #newgrad #careeradvice",
+   "li_caption": "A free ATS score. Really free.\n\nRésumé checkers usually lock the useful part behind a paywall.\nOn Fortune Jobs AI, the ATS readiness score and every line-by-line fix are free.\n\nIn short:\n→ Score out of 100\n→ Line-by-line fixes\n→ No paywall, no credit card\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#resumetips \\#ats \\#jobsearch \\#newgrad \\#careeradvice"
+  },
+  {
+   "id": "fd03",
+   "kicker": "WHAT MAKES FJA DIFFERENT",
+   "title": "Search the way you talk",
+   "points": [
+    "“entry-level analyst, Raleigh”",
+    "AI turns it into filters",
+    "No keyword guessing"
+   ],
+   "caption": "Job search shouldn't need perfect keywords.\nDescribe the job in plain English and Fortune Jobs AI sets the role, location and work mode for you.",
+   "tags": "#jobsearchtips #aitools #jobsearch #newgrad #careeradvice",
+   "image": "https://fortunejobsai.com/social/series/fja-difference/fja-diff-03.jpg",
+   "post_caption": "Job search shouldn't need perfect keywords.\nDescribe the job in plain English and Fortune Jobs AI sets the role, location and work mode for you.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobsearchtips #aitools #jobsearch #newgrad #careeradvice",
+   "fb_caption": "Job search shouldn't need perfect keywords.\nDescribe the job in plain English and Fortune Jobs AI sets the role, location and work mode for you.\n\n👉 Start free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#jobsearchtips #aitools #jobsearch #newgrad #careeradvice",
+   "li_caption": "Search the way you talk\n\nJob search shouldn't need perfect keywords.\nDescribe the job in plain English and Fortune Jobs AI sets the role, location and work mode for you.\n\nIn short:\n→ “entry-level analyst, Raleigh”\n→ AI turns it into filters\n→ No keyword guessing\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#jobsearchtips \\#aitools \\#jobsearch \\#newgrad \\#careeradvice"
+  },
+  {
+   "id": "fd04",
+   "kicker": "WHAT MAKES FJA DIFFERENT",
+   "title": "A filter built for international students",
+   "points": [
+    "Finds postings that mention it",
+    "Spot OPT-friendly wording",
+    "Always confirm with the employer"
+   ],
+   "caption": "Finding jobs that mention visa sponsorship usually means reading every posting.\nFortune Jobs AI finds postings that mention sponsorship or OPT. It can't promise sponsorship, so always confirm with the employer, but it saves hours of reading.",
+   "tags": "#internationalstudents #opt #jobsearch #newgrad #careeradvice",
+   "image": "https://fortunejobsai.com/social/series/fja-difference/fja-diff-04.jpg",
+   "post_caption": "Finding jobs that mention visa sponsorship usually means reading every posting.\nFortune Jobs AI finds postings that mention sponsorship or OPT. It can't promise sponsorship, so always confirm with the employer, but it saves hours of reading.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#internationalstudents #opt #jobsearch #newgrad #careeradvice",
+   "fb_caption": "Finding jobs that mention visa sponsorship usually means reading every posting.\nFortune Jobs AI finds postings that mention sponsorship or OPT. It can't promise sponsorship, so always confirm with the employer, but it saves hours of reading.\n\n👉 Start free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#internationalstudents #opt #jobsearch #newgrad #careeradvice",
+   "li_caption": "A filter built for international students\n\nFinding jobs that mention visa sponsorship usually means reading every posting.\nFortune Jobs AI finds postings that mention sponsorship or OPT. It can't promise sponsorship, so always confirm with the employer, but it saves hours of reading.\n\nIn short:\n→ Finds postings that mention it\n→ Spot OPT-friendly wording\n→ Always confirm with the employer\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#internationalstudents \\#opt \\#jobsearch \\#newgrad \\#careeradvice"
+  },
+  {
+   "id": "fd05",
+   "kicker": "WHAT MAKES FJA DIFFERENT",
+   "title": "One search, many job networks",
+   "points": [
+    "Searches partner networks live",
+    "Merged with our catalogue",
+    "Duplicates removed"
+   ],
+   "caption": "Ten tabs, the same job five times.\nLive Search checks partner job networks in real time, merges them with our catalogue and removes duplicates, so you see each job once.",
+   "tags": "#jobsearch #hiringnow #jobsearch #newgrad #careeradvice",
+   "image": "https://fortunejobsai.com/social/series/fja-difference/fja-diff-05.jpg",
+   "post_caption": "Ten tabs, the same job five times.\nLive Search checks partner job networks in real time, merges them with our catalogue and removes duplicates, so you see each job once.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobsearch #hiringnow #jobsearch #newgrad #careeradvice",
+   "fb_caption": "Ten tabs, the same job five times.\nLive Search checks partner job networks in real time, merges them with our catalogue and removes duplicates, so you see each job once.\n\n👉 Start free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#jobsearch #hiringnow #jobsearch #newgrad #careeradvice",
+   "li_caption": "One search, many job networks\n\nTen tabs, the same job five times.\nLive Search checks partner job networks in real time, merges them with our catalogue and removes duplicates, so you see each job once.\n\nIn short:\n→ Searches partner networks live\n→ Merged with our catalogue\n→ Duplicates removed\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#jobsearch \\#hiringnow \\#jobsearch \\#newgrad \\#careeradvice"
+  },
+  {
+   "id": "fd06",
+   "kicker": "WHAT MAKES FJA DIFFERENT",
+   "title": "Real pay. Real employers.",
+   "points": [
+    "Typical listed pay by city",
+    "Top hiring companies",
+    "Updated from live listings"
+   ],
+   "caption": "Before you apply, know the market.\nEvery Fortune Jobs AI role-and-city page shows typical listed pay and the companies hiring most, calculated from live listings.",
+   "tags": "#salary #careeradvice #jobsearch #newgrad #careeradvice",
+   "image": "https://fortunejobsai.com/social/series/fja-difference/fja-diff-06.jpg",
+   "post_caption": "Before you apply, know the market.\nEvery Fortune Jobs AI role-and-city page shows typical listed pay and the companies hiring most, calculated from live listings.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#salary #careeradvice #jobsearch #newgrad #careeradvice",
+   "fb_caption": "Before you apply, know the market.\nEvery Fortune Jobs AI role-and-city page shows typical listed pay and the companies hiring most, calculated from live listings.\n\n👉 Start free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#salary #careeradvice #jobsearch #newgrad #careeradvice",
+   "li_caption": "Real pay. Real employers.\n\nBefore you apply, know the market.\nEvery Fortune Jobs AI role-and-city page shows typical listed pay and the companies hiring most, calculated from live listings.\n\nIn short:\n→ Typical listed pay by city\n→ Top hiring companies\n→ Updated from live listings\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#salary \\#careeradvice \\#jobsearch \\#newgrad \\#careeradvice"
+  },
+  {
+   "id": "fd07",
+   "kicker": "WHAT MAKES FJA DIFFERENT",
+   "title": "Know where every job comes from",
+   "points": [
+    "Source shown on every listing",
+    "Posting date on every card",
+    "Closed jobs removed daily"
+   ],
+   "caption": "Nothing is more frustrating than applying to a job that's already gone.\nEvery listing on Fortune Jobs AI shows its source and posting date, links to the original posting, and closed jobs are removed daily.",
+   "tags": "#jobsearch #transparency #jobsearch #newgrad #careeradvice",
+   "image": "https://fortunejobsai.com/social/series/fja-difference/fja-diff-07.jpg",
+   "post_caption": "Nothing is more frustrating than applying to a job that's already gone.\nEvery listing on Fortune Jobs AI shows its source and posting date, links to the original posting, and closed jobs are removed daily.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobsearch #transparency #jobsearch #newgrad #careeradvice",
+   "fb_caption": "Nothing is more frustrating than applying to a job that's already gone.\nEvery listing on Fortune Jobs AI shows its source and posting date, links to the original posting, and closed jobs are removed daily.\n\n👉 Start free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#jobsearch #transparency #jobsearch #newgrad #careeradvice",
+   "li_caption": "Know where every job comes from\n\nNothing is more frustrating than applying to a job that's already gone.\nEvery listing on Fortune Jobs AI shows its source and posting date, links to the original posting, and closed jobs are removed daily.\n\nIn short:\n→ Source shown on every listing\n→ Posting date on every card\n→ Closed jobs removed daily\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#jobsearch \\#transparency \\#jobsearch \\#newgrad \\#careeradvice"
+  },
+  {
+   "id": "fd08",
+   "kicker": "WHAT MAKES FJA DIFFERENT",
+   "title": "Search, save and track in one place",
+   "points": [
+    "Save jobs worth revisiting",
+    "Track every application",
+    "Free account, no credit card"
+   ],
+   "caption": "Job hunting usually lives in five tabs and a spreadsheet.\nOn Fortune Jobs AI you search, save and track every application in one free account.",
+   "tags": "#jobhunting #newgrad #jobsearch #newgrad #careeradvice",
+   "image": "https://fortunejobsai.com/social/series/fja-difference/fja-diff-08.jpg",
+   "post_caption": "Job hunting usually lives in five tabs and a spreadsheet.\nOn Fortune Jobs AI you search, save and track every application in one free account.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobhunting #newgrad #jobsearch #newgrad #careeradvice",
+   "fb_caption": "Job hunting usually lives in five tabs and a spreadsheet.\nOn Fortune Jobs AI you search, save and track every application in one free account.\n\n👉 Start free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#jobhunting #newgrad #jobsearch #newgrad #careeradvice",
+   "li_caption": "Search, save and track in one place\n\nJob hunting usually lives in five tabs and a spreadsheet.\nOn Fortune Jobs AI you search, save and track every application in one free account.\n\nIn short:\n→ Save jobs worth revisiting\n→ Track every application\n→ Free account, no credit card\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#jobhunting \\#newgrad \\#jobsearch \\#newgrad \\#careeradvice"
+  }
+ ],
+ "reels": [
+  {
+   "id": "fd-reel01",
+   "image": "https://fortunejobsai.com/social/series/fja-difference/reels/reel-fd01.mp4",
+   "cover": "https://fortunejobsai.com/social/series/fja-difference/reels/reel-fd01-cover.jpg",
+   "post_caption": "Know what a job needs from you\n\nMost job sites say \"recommended for you\" and stop there.\nFortune Jobs AI shows what each job asks for, what your résumé already covers and what's missing, before you spend an hour applying.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumetips #ats #jobsearch #newgrad #careeradvice",
+   "fb_caption": "Know what a job needs from you\n\nMost job sites say \"recommended for you\" and stop there.\nFortune Jobs AI shows what each job asks for, what your résumé already covers and what's missing, before you spend an hour applying.\n\n👉 Start free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#resumetips #ats #jobsearch #newgrad #careeradvice",
+   "li_caption": "Know what a job needs from you\n\nMost job sites say \"recommended for you\" and stop there.\nFortune Jobs AI shows what each job asks for, what your résumé already covers and what's missing, before you spend an hour applying.\n\nIn short:\n→ See which skills you match\n→ See what’s missing\n→ Fix it before you apply\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#resumetips \\#ats \\#jobsearch \\#newgrad \\#careeradvice"
+  },
+  {
+   "id": "fd-reel02",
+   "image": "https://fortunejobsai.com/social/series/fja-difference/reels/reel-fd02.mp4",
+   "cover": "https://fortunejobsai.com/social/series/fja-difference/reels/reel-fd02-cover.jpg",
+   "post_caption": "A free ATS score. Really free.\n\nRésumé checkers usually lock the useful part behind a paywall.\nOn Fortune Jobs AI, the ATS readiness score and every line-by-line fix are free.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#resumetips #ats #jobsearch #newgrad #careeradvice",
+   "fb_caption": "A free ATS score. Really free.\n\nRésumé checkers usually lock the useful part behind a paywall.\nOn Fortune Jobs AI, the ATS readiness score and every line-by-line fix are free.\n\n👉 Start free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#resumetips #ats #jobsearch #newgrad #careeradvice",
+   "li_caption": "A free ATS score. Really free.\n\nRésumé checkers usually lock the useful part behind a paywall.\nOn Fortune Jobs AI, the ATS readiness score and every line-by-line fix are free.\n\nIn short:\n→ Score out of 100\n→ Line-by-line fixes\n→ No paywall, no credit card\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#resumetips \\#ats \\#jobsearch \\#newgrad \\#careeradvice"
+  },
+  {
+   "id": "fd-reel03",
+   "image": "https://fortunejobsai.com/social/series/fja-difference/reels/reel-fd03.mp4",
+   "cover": "https://fortunejobsai.com/social/series/fja-difference/reels/reel-fd03-cover.jpg",
+   "post_caption": "Search the way you talk\n\nJob search shouldn't need perfect keywords.\nDescribe the job in plain English and Fortune Jobs AI sets the role, location and work mode for you.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#jobsearchtips #aitools #jobsearch #newgrad #careeradvice",
+   "fb_caption": "Search the way you talk\n\nJob search shouldn't need perfect keywords.\nDescribe the job in plain English and Fortune Jobs AI sets the role, location and work mode for you.\n\n👉 Start free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#jobsearchtips #aitools #jobsearch #newgrad #careeradvice",
+   "li_caption": "Search the way you talk\n\nJob search shouldn't need perfect keywords.\nDescribe the job in plain English and Fortune Jobs AI sets the role, location and work mode for you.\n\nIn short:\n→ “entry-level analyst, Raleigh”\n→ AI turns it into filters\n→ No keyword guessing\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#jobsearchtips \\#aitools \\#jobsearch \\#newgrad \\#careeradvice"
+  },
+  {
+   "id": "fd-reel04",
+   "image": "https://fortunejobsai.com/social/series/fja-difference/reels/reel-fd04.mp4",
+   "cover": "https://fortunejobsai.com/social/series/fja-difference/reels/reel-fd04-cover.jpg",
+   "post_caption": "A filter built for international students\n\nFinding jobs that mention visa sponsorship usually means reading every posting.\nFortune Jobs AI finds postings that mention sponsorship or OPT. It can't promise sponsorship, so always confirm with the employer, but it saves hours of reading.\n\n👉 Free at fortunejobsai.com (link in bio)\n\n#internationalstudents #opt #jobsearch #newgrad #careeradvice",
+   "fb_caption": "A filter built for international students\n\nFinding jobs that mention visa sponsorship usually means reading every posting.\nFortune Jobs AI finds postings that mention sponsorship or OPT. It can't promise sponsorship, so always confirm with the employer, but it saves hours of reading.\n\n👉 Start free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#internationalstudents #opt #jobsearch #newgrad #careeradvice",
+   "li_caption": "A filter built for international students\n\nFinding jobs that mention visa sponsorship usually means reading every posting.\nFortune Jobs AI finds postings that mention sponsorship or OPT. It can't promise sponsorship, so always confirm with the employer, but it saves hours of reading.\n\nIn short:\n→ Finds postings that mention it\n→ Spot OPT-friendly wording\n→ Always confirm with the employer\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#internationalstudents \\#opt \\#jobsearch \\#newgrad \\#careeradvice"
+  }
+ ],
+ "linkedin_text": [
+  {
+   "title": "Why we built FJA differently",
+   "text": "Most job sites are built around the people posting jobs. We wanted one built around the person looking.\n\nA few rules shaped Fortune Jobs AI:\n\n1. Show what a job needs and what your résumé already covers, before you apply.\n2. Keep the ATS score and its fixes free. No paywall on the useful part.\n3. Let people search in plain English instead of guessing keywords.\n4. Show where every listing comes from and when it was posted, and remove closed jobs daily.\n\nOver the next few weeks we'll share these differences one at a time.\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#jobsearch \\#careeradvice"
+  },
+  {
+   "title": "What's broken about job searching",
+   "text": "Job searching has a few problems almost everyone recognizes:\n\n→ The same job shows up five times on five sites.\n→ Postings that closed weeks ago still look open.\n→ Résumé feedback costs money before it tells you anything.\n→ International students read every posting hunting for one line about sponsorship.\n\nWhat Fortune Jobs AI does about each:\n\n→ Live Search merges partner job networks with our catalogue and removes duplicates.\n→ Every listing shows its source and posting date, and closed jobs are removed daily.\n→ The ATS readiness score and line-by-line fixes are free.\n→ A work-authorization filter finds postings that mention sponsorship or OPT. Always confirm with the employer.\n\nTry it free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#jobsearch \\#internationalstudents"
+  }
+ ]
+}
