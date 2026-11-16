@@ -81876,5 +81876,377 @@
         "domain": "wtw.hr"
       }
     ]
+  },
+  "accroid inc": {
+    "status": "matched",
+    "domain": "accroid.com",
+    "checked_at": "2026-11-16T18:42:15.056Z",
+    "resolver_version": 2
+  },
+  "acetech group corporation": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:15.370Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Acetech Group Corporation",
+        "domain": "acetech.group"
+      },
+      {
+        "name": "Acetech Group",
+        "domain": "acetechindia.net"
+      },
+      {
+        "name": "Acetech",
+        "domain": "acetechecommerce.com"
+      },
+      {
+        "name": "Acetech",
+        "domain": "acetechleadership.com"
+      },
+      {
+        "name": "ACETECH",
+        "domain": "acetech-india.com"
+      }
+    ]
+  },
+  "balin technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:15.671Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Balin",
+        "domain": "balin.com"
+      },
+      {
+        "name": "Balin",
+        "domain": "balin.org"
+      },
+      {
+        "name": "Balin Technologies LLC",
+        "domain": "balintek.com"
+      },
+      {
+        "name": "Balin",
+        "domain": "balinrist.it"
+      },
+      {
+        "name": "Balin Law",
+        "domain": "balinlaw.com"
+      }
+    ]
+  },
+  "bluemont technology & research": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:16.024Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Bluemont Technology",
+        "domain": "bluemonttechnology.com"
+      },
+      {
+        "name": "Bluemont",
+        "domain": "bluemontintl.com"
+      },
+      {
+        "name": "Bluemont Group",
+        "domain": "bluemontgroup.net"
+      },
+      {
+        "name": "Bluemont Hotel",
+        "domain": "bluemonthotel.com"
+      },
+      {
+        "name": "Bluemont Associates",
+        "domain": "bluemontassoc.com"
+      }
+    ]
+  },
+  "careerflow.ai": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:16.298Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Careerflow",
+        "domain": "careerflow.ai"
+      }
+    ]
+  },
+  "dod cyber crime center": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:16.636Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "dod",
+        "domain": "dodvision.com"
+      },
+      {
+        "name": "Cyber Crime Cell",
+        "domain": "cybercellraj.com"
+      },
+      {
+        "name": "Cyber Crime Forensics",
+        "domain": "ccftc.net"
+      },
+      {
+        "name": "Cyber Crime Experts",
+        "domain": "cybercrimeexperts.org"
+      },
+      {
+        "name": "DOD",
+        "domain": "dod.fr"
+      }
+    ]
+  },
+  "found": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:16.916Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Found",
+        "domain": "found-studio.com"
+      },
+      {
+        "name": "Found Industries",
+        "domain": "found-industries.com"
+      },
+      {
+        "name": "Found",
+        "domain": "found.com"
+      },
+      {
+        "name": "Found RG",
+        "domain": "found-rg.com"
+      },
+      {
+        "name": "Found U",
+        "domain": "found-u.co.uk"
+      }
+    ]
+  },
+  "jway group philippines": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:17.217Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "JWay Group",
+        "domain": "jway.com"
+      },
+      {
+        "name": "Jway Services",
+        "domain": "jway.ma"
+      },
+      {
+        "name": "philippines",
+        "domain": "philippines.com"
+      },
+      {
+        "name": "Philippines,",
+        "domain": "amchamphilippines.com"
+      },
+      {
+        "name": "PHILIPPINES,",
+        "domain": "philiphone.com"
+      }
+    ]
+  },
+  "karmak, inc.": {
+    "status": "matched",
+    "domain": "karmak.com",
+    "checked_at": "2026-11-16T18:42:17.541Z",
+    "resolver_version": 2
+  },
+  "mastercard technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:17.892Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Mastercard",
+        "domain": "mastercard.com"
+      },
+      {
+        "name": "Mastercard",
+        "domain": "vocalink.com"
+      },
+      {
+        "name": "Mastercard",
+        "domain": "mastercard.ie"
+      },
+      {
+        "name": "Mastercard",
+        "domain": "mastercard.com.sg"
+      },
+      {
+        "name": "Mastercard",
+        "domain": "mastercard.ca"
+      }
+    ]
+  },
+  "micro1": {
+    "status": "matched",
+    "domain": "micro1.ai",
+    "checked_at": "2026-11-16T18:42:18.174Z",
+    "resolver_version": 2
+  },
+  "national agricultural statistics service": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:18.466Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Office for National Statistics",
+        "domain": "ons.gov.uk"
+      },
+      {
+        "name": "National Statistics Office",
+        "domain": "nsonepal.gov.np"
+      },
+      {
+        "name": "Statistics",
+        "domain": "stats.gov.sa"
+      },
+      {
+        "name": "National Agricultural Institute",
+        "domain": "national-ag-institute.org"
+      },
+      {
+        "name": "Statistics",
+        "domain": "stat.go.jp"
+      }
+    ]
+  },
+  "sgs consulting": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:18.840Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "SGS Consulting",
+        "domain": "sgsconsulting.com"
+      },
+      {
+        "name": "SGS",
+        "domain": "sgs.com"
+      },
+      {
+        "name": "SGS Consulting",
+        "domain": "sgsconsulting.co.za"
+      },
+      {
+        "name": "SGS",
+        "domain": "sgsco.com"
+      },
+      {
+        "name": "SGS",
+        "domain": "sgs-pro.com"
+      }
+    ]
+  },
+  "telesat": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:19.116Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Telesat",
+        "domain": "telesat.com"
+      },
+      {
+        "name": "telesat",
+        "domain": "telesat.com.co"
+      },
+      {
+        "name": "Global Telesat Communications",
+        "domain": "gtc.co.uk"
+      },
+      {
+        "name": "Global Telesat SL",
+        "domain": "globaltelesat.com"
+      },
+      {
+        "name": "Everlink Telesat Network Limited",
+        "domain": "everlinktelesat.com"
+      }
+    ]
+  },
+  "truckstop": {
+    "status": "matched",
+    "domain": "truckstop.com",
+    "checked_at": "2026-11-16T18:42:19.393Z",
+    "resolver_version": 2
+  },
+  "tti consumer power tools": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:19.714Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "TTI",
+        "domain": "ttigroup.com"
+      },
+      {
+        "name": "TTI",
+        "domain": "tti.com"
+      },
+      {
+        "name": "TTI",
+        "domain": "tti.co.th"
+      },
+      {
+        "name": "TTI",
+        "domain": "toddtechinc.com"
+      },
+      {
+        "name": "TTI",
+        "domain": "tticanada.com"
+      }
+    ]
+  },
+  "united states space force": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-16T18:42:20.002Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "United States Air Force",
+        "domain": "af.mil"
+      },
+      {
+        "name": "United States Air Force",
+        "domain": "united-states-air-force.org"
+      },
+      {
+        "name": "United States Air Force Academy",
+        "domain": "usafa.edu"
+      },
+      {
+        "name": "United States Entertainment Force",
+        "domain": "theusef.org"
+      },
+      {
+        "name": "Space Force",
+        "domain": "spaceforce.com"
+      }
+    ]
   }
 }
