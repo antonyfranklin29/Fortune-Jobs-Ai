@@ -28,7 +28,7 @@ const PAGES = {
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 const ORG = { '@context': 'https://schema.org', '@graph': [
   { '@type': 'Organization', '@id': `${SITE}/#org`, name: 'Fortune Jobs AI', url: `${SITE}/`, logo: `${SITE}/newsletter-logo.png`,
-    email: 'info@fortunejobsai.com', sameAs: ['https://www.instagram.com/fortunejobsai/'] },
+    email: 'info@fortunejobsai.com', sameAs: ['https://www.instagram.com/fortunejobsai/', 'https://www.facebook.com/profile.php?id=61596142272586', 'https://www.linkedin.com/company/fortunejobsai/'] },
   { '@type': 'WebSite', '@id': `${SITE}/#site`, name: 'Fortune Jobs AI', url: `${SITE}/`, publisher: { '@id': `${SITE}/#org` },
     potentialAction: { '@type': 'SearchAction', target: { '@type': 'EntryPoint', urlTemplate: `${SITE}/results.html?mode=quick&q={search_term_string}` }, 'query-input': 'required name=search_term_string' } },
 ] };

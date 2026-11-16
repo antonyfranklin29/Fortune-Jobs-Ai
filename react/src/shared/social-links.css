@@ -1,0 +1,5 @@
+/* Footer social links */
+footer ul.social-links{list-style:none;display:flex;flex-direction:row;flex-wrap:wrap;gap:10px;margin:16px 0 0;padding:0}
+footer ul.social-links li{margin:0}
+.social-links a{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);color:#c9d6e2;transition:background .15s,color .15s}
+.social-links a:hover,.social-links a:focus-visible{background:#d4a843;color:#10243b}
