@@ -28,29 +28,28 @@ Data-heavy and analyst roles in mid-size states are the biggest gaps.
 5. **Tests:** `npm test` and the deno tests for ats-ingest must pass. Add tests for Recruitee and the rotation.
 6. In the PR description, report the expected added U.S. jobs per role from the check script.
 
-## Part 2 — Remote-only jobs (Franklin asked Nov 17: "pull remote only jobs we need to fill that section too")
-We have **632 open remote jobs** today. Add remote-job feeds as a separate ingest (or new providers),
-keeping each source's terms. Claude read them on Nov 17 2026:
+## Part 2 — Remote jobs from Remotive and Himalayas (Franklin, Nov 17: "add remote jobs too, to our database from remotive and himalayas")
+Add **all remote jobs** from these two sources to `pre_scraped_jobs`. This is NOT a U.S.-only remote section.
+Store every remote job, but show its real eligibility on the card so students aren't misled
+(e.g. "Remote · Worldwide", "Remote · USA only", "Remote · Europe only"), using the source's own text. Never guess.
 
-| Source | Endpoint | Key | Terms we must follow |
+| Source | Endpoint | Key | Terms (read by Claude Nov 17 2026) |
 |---|---|---|---|
-| **Jobicy** | `https://jobicy.com/api/jobs` (7-day window, 100/page) | none | Aggregators are allowed. Credit "Jobicy" on every listing and keep apply links to the Jobicy job page. Poll at most hourly, a few times a day, at a random minute (not :00). Mark jobs closed only on an explicit closed status (`/api/jobs/status?ids=`). |
-| **Remote OK** | `https://remoteok.com/api` (skip the first element, which is the legal notice) | none | Credit "Remote OK" with a normal **followed** link (no nofollow) to the Remote OK job URL. Don't use their logo. A few polls a day. |
-| **Himalayas** | `https://himalayas.app/jobs/api/search` (limit 20, cursor) | free key (Franklin to sign up; Claude can't create accounts) | Use `applicationLink` unchanged and credit Himalayas visibly. Show jobs only on our site. **Never put these jobs in JobPosting JSON-LD, the sitemap, feeds or Google Jobs.** Remove jobs when expired. Data refreshes daily, so poll once a day. |
-| ~~Remotive~~ | — | — | **Skip.** Its terms forbid showing jobs to collect signups (our site has a signup prompt) and require a 24-hour delay. |
+| **Remotive** | `https://remotive.com/api/remote-jobs` | none | Link back to the Remotive job URL and name "Remotive" as the source. **Show jobs only after a 24-hour delay.** At most 4 fetches a day; over 2 requests/minute gets blocked. Never pass them to other job sites, Google Jobs or LinkedIn (so no JobPosting JSON-LD, sitemap or feeds). Their terms say displaying jobs "to collect signups or email addresses" breaks them, so Remotive jobs must **never be gated behind sign-up**, and Franklin should get written OK from hello@remotive.com (Claude will draft the email). Until that OK arrives, build it behind a config flag that is **off**. |
+| **Himalayas** | `https://himalayas.app/jobs/api` (full feed, cursor, limit 20) or `/jobs/api/search` | free key optional (60 req/min); keyless works on a shared allowance | Use `applicationLink` unchanged and show a visible "via Himalayas" link. Show jobs only on our own site. **No JobPosting JSON-LD, sitemap, feeds or Google Jobs.** Remove jobs when expired. Poll once a day (data refreshes daily). Call from the backend only (no CORS). |
 
-Rules for remote jobs:
-1. Keep only jobs **open to U.S. applicants**: location/eligibility says USA, United States, US-only, North America
-   or Worldwide/Anywhere. Reject EU-only, LATAM-only and other regions. Never guess.
-2. Set `is_remote=true`, `work_mode='remote'`, `state_code=null` (the column is nullable), and `location='Remote (US)'`
-   or the source's own text. Don't invent a state.
-3. The same title → role rules apply (`config/job-roles.json`). Reject titles with no role.
-4. Add a per-source `attribution` value and make sure the job card shows "via Jobicy / Remote OK / Himalayas"
-   with the required link type. Exclude Himalayas rows from JobPosting markup, sitemaps and any outbound feed.
-5. Dedupe against existing rows (the same job often appears on several boards).
-6. Check that the site's Remote filter / "remote" searches return these jobs. Consider a `/jobs/remote/<role>/`
-   page per role with ≥ 5 jobs, but **exclude Himalayas jobs from those indexable pages**.
-7. Tests for the eligibility filter, attribution and exclusions. Report expected U.S.-eligible remote jobs per role per source.
+Rules:
+1. `is_remote=true`, `work_mode='remote'`. Set `state_code` only if the job names one U.S. state; otherwise `null`.
+   `location` = the source's eligibility text (e.g. "Remote · Worldwide").
+2. The same title → role rules apply (`config/job-roles.json`). Store jobs with no role match with `canonical_role=null`, so
+   they're searchable but don't count toward role pages.
+3. `attribution` = 'Remotive' / 'Himalayas'. The job card shows "via Remotive" / "via Himalayas" with a normal followed
+   link to the source job page.
+4. Exclude both sources from JobPosting markup, sitemap.xml, IndexNow pings and any outbound feed or partner export.
+   Generated /jobs/ pages may count them only if they are not shown in indexable markup; simplest is to exclude them there too.
+5. Close jobs that disappear from the feed or have expired (the Himalayas status endpoint returns 410 for closed jobs).
+6. Dedupe against existing rows and across the two sources.
+7. Tests for the 24-hour delay, the Remotive flag, attribution, exclusions and dedupe. Report expected jobs per role per source.
 
 ## Rules
 - Free public feeds only (they exist so companies can show their jobs elsewhere). Respect robots/terms.
@@ -60,4 +59,4 @@ Rules for remote jobs:
 
 ## Log
 - 2026-11-17 Claude: created this handoff.
-- 2026-11-17 Claude: added Part 2 (remote-only feeds; Remotive skipped for its terms).
+- 2026-11-17 Claude: Part 2 rewritten per Franklin: all remote jobs from Remotive + Himalayas (not U.S.-only). Remotive stays behind a flag until they confirm in writing.
