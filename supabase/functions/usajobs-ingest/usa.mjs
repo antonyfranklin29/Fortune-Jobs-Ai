@@ -2,9 +2,10 @@
 // Every kept job links to its usajobs.gov posting, where the person applies.
 import { classifyRole, parsePostedAt } from './core.mjs';
 
-// Occupational series for IT and data work: 2210 IT Management, 1550 Computer Science,
-// 1560 Data Science, 0854 Computer Engineering, 1530 Statistics.
-export const SERIES = ['2210', '1550', '1560', '0854', '1530'];
+// Occupational series: 2210 IT Management, 1550 Computer Science, 1560 Data Science,
+// 0854 Computer Engineering, 1530 Statistics, 0610 Nurse, 0510 Accounting (Nov 17 2026: fills
+// the registered-nurse and accountant roles, which had no state with 50+ jobs).
+export const SERIES = ['2210', '1550', '1560', '0854', '1530', '0610', '0510'];
 export const PAGE_SIZE = 500; // the API's maximum
 
 export function searchUrl(series, page) {
