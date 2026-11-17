@@ -37,7 +37,7 @@ no "skip the middleman", no fake testimonials or reviews, and no fabricated numb
 ### B. Reach (free first, then cheap)
 1. **Google:** what keeps more of the 627 pages from being indexed? Look at content uniqueness, internal linking,
    thin pages, canonical tags and sitemap hygiene. Should we add more roles/cities, or improve the existing ones first?
-   Check Google for Jobs eligibility of our JobPosting markup.
+   Do NOT propose adding Google for Jobs (JobPosting) markup: Franklin decided against it.
 2. **New free page types** with real search demand that we can fill honestly: e.g. "entry-level <role> jobs in <state>",
    "remote <role> jobs", company pages ("<company> jobs" for top hiring companies), a salary page per role.
    Only where the data supports ≥ 5 real listings.

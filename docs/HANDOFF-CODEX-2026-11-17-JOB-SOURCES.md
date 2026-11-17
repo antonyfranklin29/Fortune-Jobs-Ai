@@ -52,6 +52,7 @@ Rules:
 7. Tests for the 24-hour delay, the Remotive flag, attribution, exclusions and dedupe. Report expected jobs per role per source.
 
 ## Rules
+- Franklin decided (Nov 17): do NOT add Google for Jobs / JobPosting markup for any job from any source.
 - Free public feeds only (they exist so companies can show their jobs elsewhere). Respect robots/terms.
 - Every kept job links to the employer's own posting. Honest data only: no padding and no invented locations.
 - Don't touch Stripe, auth, migrations or Make.com. Claude reviews, Franklin approves, then Claude deploys
