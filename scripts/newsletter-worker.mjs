@@ -31,7 +31,7 @@ export async function run(env=process.env,fetcher=fetch){
   const profile=(await db('profiles?id=eq.'+pref.user_id+'&select=full_name,current_title,saved_filters'))[0];
   if(!profile)continue;
   // Bounded fresh corpus only. A sparse or stale corpus causes a skipped email.
-  const rows=await db('pre_scraped_jobs?posted_at=gte.'+encodeURIComponent(new Date(now-7*86400000).toISOString())+'&order=posted_at.desc&limit=1000');
+  const rows=await db('pre_scraped_jobs?source=not.in.(remotive,himalayas)&posted_at=gte.'+encodeURIComponent(new Date(now-7*86400000).toISOString())+'&order=posted_at.desc&limit=1000');
   const jobs=selectJobs(rows,profile,now);if(!jobs.length)continue;eligible++;
   if(!live)continue;
   const auth=await fetcher(url+'/auth/v1/admin/users/'+pref.user_id,{headers:{apikey:key,Authorization:'Bearer '+key},signal:AbortSignal.timeout(10000)});

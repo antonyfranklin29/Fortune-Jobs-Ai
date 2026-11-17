@@ -20,7 +20,7 @@ export function applicationUrl(value) {
 export function openListing(job, now = Date.now()) {
   const posted = Date.parse(job?.posted_at);
   const expiry = job?.expires_at == null ? Infinity : Date.parse(job.expires_at);
-  return /^\d+$/.test(String(job?.id)) && job.country === 'us' && job.closed_at == null &&
+  return !['remotive', 'himalayas'].includes(job?.source) && /^\d+$/.test(String(job?.id)) && job.country === 'us' && job.closed_at == null &&
     (job.posted_at == null || posted <= now) && expiry > now &&
     Boolean(job.job_title?.trim() && job.company?.trim() && job.location?.trim() && applicationUrl(job.apply_url)) &&
     !/\b(?:please ignore|do not apply|test listing|test posting|fortune jobs ai test)\b/i.test(job.job_title);
@@ -112,14 +112,14 @@ async function readPages(config, filters, select = summaryFields) {
   throw new Error('Catalogue page limit reached');
 }
 
-export const readOpenCatalogue = config => readPages(config, {});
+export const readOpenCatalogue = config => readPages(config, { source: 'not.in.(remotive,himalayas)' });
 
 export function newestFirst(a, b) {
   return (Date.parse(b.posted_at) || 0) - (Date.parse(a.posted_at) || 0) || Number(b.id) - Number(a.id);
 }
 
 export async function getAreaListings(config, target, now = Date.now()) {
-  const rows = await readPages(config, { canonical_role: 'eq.' + target.role, state_code: 'eq.' + target.state });
+  const rows = await readPages(config, { source: 'not.in.(remotive,himalayas)', canonical_role: 'eq.' + target.role, state_code: 'eq.' + target.state });
   return areaListings(rows.sort(newestFirst), target, now);
 }
 

@@ -4,7 +4,7 @@
 //
 // Callable only with the INGEST_SECRET header (the database scheduler). Deploy with --no-verify-jwt.
 // Body: {"dry_run":true} counts and samples without writing; {"part":n,"parts":m} reads one slice
-// of the board list (default: the slice for the current 6-hour window, 4 slices a day).
+// of the board list (default: a rotating slice for the current UTC six-hour window).
 // Politeness: at most 4 boards fetched at a time, one request per board per run.
 // A board that fails is skipped and reported; a failure never closes that board's jobs. Jobs a
 // board no longer lists are closed only after that board's full list was read and stored.
@@ -12,7 +12,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import * as L from "./core.mjs";
 import { ROLES, REGIONS } from "./config.mjs";
 import { BOARDS } from "./boards.mjs";
-import { boardUrl, listOf, normalize, sliceFor } from "./ats.mjs";
+import { boardUrl, listOf, normalize, rotationFor, sliceFor } from "./ats.mjs";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -35,15 +35,17 @@ const db = (path: string, init: RequestInit = {}) => fetch(`${SUPABASE_URL}${pat
 });
 
 type Board = { provider: string; slug: string; name: string };
-type Result = { board: string; status: number | string; listed: number; kept: number; rows: Record<string, unknown>[]; rejected: Record<string, number> };
+type Result = { board: string; status: number | string; listed: number; kept: number; rows: Record<string, unknown>[]; rejected: Record<string, number>; complete: boolean };
 
 async function readBoard(b: Board, fetchedAt: string): Promise<Result> {
-  const out: Result = { board: `${b.provider}:${b.slug}`, status: 0, listed: 0, kept: 0, rows: [], rejected: {} };
+  const out: Result = { board: `${b.provider}:${b.slug}`, status: 0, listed: 0, kept: 0, rows: [], rejected: {}, complete: false };
   try {
     const r = await fetch(boardUrl(b.provider, b.slug), { headers: { accept: "application/json", "user-agent": "FortuneJobsAI/1.0 (+https://fortunejobsai.com; info@fortunejobsai.com)" }, signal: AbortSignal.timeout(20_000) });
     out.status = r.status;
     if (!r.ok) { await r.body?.cancel(); return out; }
-    const list = listOf(b.provider, await r.json());
+    const payload = await r.json();
+    const list = listOf(b.provider, payload);
+    out.complete = b.provider !== "smartrecruiters" || (typeof payload.totalFound === "number" && payload.totalFound <= list.length);
     out.listed = list.length;
     for (const raw of list) {
       const n = normalize(b.provider, raw, b, { roles, idx, fetchedAt }) as { reject?: string; row?: Record<string, unknown> };
@@ -60,8 +62,9 @@ Deno.serve(async (req: Request) => {
   let body: Record<string, unknown> = {};
   try { body = await req.json(); } catch { /* empty body */ }
   const dryRun = body.dry_run === true;
-  const parts = Math.max(1, Math.min(12, Number(body.parts) || 4));
-  const part = Number.isFinite(Number(body.part)) ? Number(body.part) : Math.floor(new Date().getUTCHours() / 6);
+  const rotation = rotationFor(BOARDS);
+  const parts = Math.max(rotation.parts, Math.min(BOARDS.length, Math.floor(Number(body.parts) || rotation.parts)));
+  const part = Number.isInteger(body.part) ? Number(body.part) : rotation.part % parts;
   const only = typeof body.board === "string" ? body.board : null; // "provider:slug" for a one-board check
   const boards = (only ? BOARDS.filter((b: Board) => `${b.provider}:${b.slug}` === only) : sliceFor(BOARDS, part, parts)) as Board[];
 
@@ -82,7 +85,7 @@ Deno.serve(async (req: Request) => {
         written = { inserted: written.inserted + w.inserted, updated: written.updated + w.updated, rejected: written.rejected + w.rejected, conflicts: written.conflicts + w.conflicts };
       }
       // The whole board was read and stored: anything of this board not seen in this run is gone.
-      if (!writeFailed.has(res.board)) {
+      if (res.complete && !writeFailed.has(res.board)) {
         const [provider, slug] = res.board.split(/:(.*)/s);
         const q = `source=eq.${provider}&source_listing_id=like.${encodeURIComponent(slug.replace(/[%_\\]/g, "\\$&") + ":*")}&closed_at=is.null&last_seen_at=lt.${encodeURIComponent(fetchedAt)}`;
         const c = await db(`/rest/v1/pre_scraped_jobs?${q}`, { method: "PATCH", headers: { prefer: "return=representation,count=exact" }, body: JSON.stringify({ closed_at: new Date().toISOString() }) }).catch(() => null);

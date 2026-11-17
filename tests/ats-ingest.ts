@@ -3,7 +3,7 @@ import { assert, assertEquals } from "./deno/assert.ts";
 import * as L from "../supabase/functions/ats-ingest/core.mjs";
 import { ROLES, REGIONS } from "../supabase/functions/ats-ingest/config.mjs";
 import { BOARDS } from "../supabase/functions/ats-ingest/boards.mjs";
-import { boardUrl, employerUrl, listOf, normalize, sliceFor, stateOf } from "../supabase/functions/ats-ingest/ats.mjs";
+import { boardUrl, employerUrl, listOf, normalize, rotationFor, sliceFor, stateOf } from "../supabase/functions/ats-ingest/ats.mjs";
 
 const roles = L.compileRoles(ROLES), idx = L.regionIndex(REGIONS);
 const now = new Date("2026-11-07T12:00:00Z"), ctx = { roles, idx, fetchedAt: now.toISOString(), now };
@@ -110,4 +110,26 @@ Deno.test("workable: US locations only, link to the Workable posting", () => {
   assertEquals(r.row?.employment_type, "Full-time");
   assertEquals(normalize("workable", { ...job, locations: [{ countryCode: "FR", city: "Paris", region: "Île-de-France" }] }, board("workable"), ctx).reject, "malformed_or_non_us");
   assertEquals(normalize("workable", { ...job, url: "https://www.linkedin.com/jobs/1" }, board("workable"), ctx).reject, "not_employer_link");
+});
+
+Deno.test("Recruitee uses US location evidence and the employer listing", () => {
+  const job = { id: 12, title: "Data Analyst", careers_url: "https://acme.recruitee.com/o/analyst",
+    locations: [{ city: "London", country_code: "GB" }, { city: "Austin", state_code: "TX", country_code: "US" }] };
+  assertEquals(boardUrl("recruitee", "acme"), "https://acme.recruitee.com/api/offers/");
+  assertEquals(listOf("recruitee", { offers: [job] }), [job]);
+  const result = normalize("recruitee", job, board("recruitee"), ctx);
+  assertEquals(result.row?.state_code, "TX");
+  assertEquals(result.row?.apply_url, job.careers_url);
+});
+
+Deno.test("six-hour rotation covers a large board list without exceeding 48 requests per slot", () => {
+  const boards = Array.from({ length: 607 }, (_, i) => i);
+  const covered = new Set();
+  for (let slot = 0; slot < 13; slot++) {
+    const { part, parts } = rotationFor(boards, new Date(slot * 21_600_000));
+    const slice = sliceFor(boards, part, parts);
+    assert(slice.length <= 48);
+    for (const i of slice) covered.add(i);
+  }
+  assertEquals(covered.size, boards.length);
 });

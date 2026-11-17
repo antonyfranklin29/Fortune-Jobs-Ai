@@ -1,0 +1,31 @@
+name: Refresh remote job catalogue
+
+on:
+  schedule:
+    - cron: '24 5 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: remote-catalogue
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    if: github.ref == 'refs/heads/main' && vars.ENABLE_REMOTE_CATALOGUE == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node scripts/ingest-remote-jobs.mjs --write
+        env:
+          REMOTE_INGEST_DATABASE_URL: ${{ secrets.REMOTE_INGEST_DATABASE_URL }}
+          HIMALAYAS_API_KEY: ${{ secrets.HIMALAYAS_API_KEY }}
+          ENABLE_REMOTIVE: ${{ vars.ENABLE_REMOTIVE }}

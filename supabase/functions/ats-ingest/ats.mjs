@@ -3,7 +3,7 @@
 // Apply button never sends a person through another job site.
 import { canonicalUrl, classifyRole, parsePostedAt, stateFromEvidence } from './core.mjs';
 
-export const PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workable', 'breezy'];
+export const PROVIDERS = ['greenhouse', 'lever', 'ashby', 'smartrecruiters', 'workable', 'breezy', 'recruitee'];
 
 // Public, keyless job-list feeds that each provider publishes for a company's own career page.
 export function boardUrl(provider, slug) {
@@ -14,6 +14,9 @@ export function boardUrl(provider, slug) {
     case 'ashby': return `https://api.ashbyhq.com/posting-api/job-board/${s}`;
     case 'smartrecruiters': return `https://api.smartrecruiters.com/v1/companies/${s}/postings?country=us&limit=100`;
     case 'workable': return `https://apply.workable.com/api/v1/widget/accounts/${s}`;
+    case 'recruitee':
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error('Invalid Recruitee board slug');
+      return `https://${slug}.recruitee.com/api/offers/`;
     case 'breezy':
       if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error('Invalid Breezy board slug');
       return `https://${slug}.breezy.hr/json`;
@@ -29,6 +32,10 @@ export function listOf(provider, body) {
     }
     return body;
   }
+  if (provider === 'recruitee') {
+    if (!Array.isArray(body?.offers)) throw new Error('Unexpected Recruitee feed format');
+    return body.offers;
+  }
   if (provider === 'lever') return Array.isArray(body) ? body : [];
   if (provider === 'smartrecruiters') return Array.isArray(body?.content) ? body.content : [];
   return Array.isArray(body?.jobs) ? body.jobs : [];
@@ -42,6 +49,7 @@ const HOSTED = {
   ashby: /(^|\.)ashbyhq\.com$/i,
   smartrecruiters: /(^|\.)smartrecruiters\.com$/i,
   workable: /(^|\.)workable\.com$/i,
+  recruitee: /^[a-z0-9-]+\.recruitee\.com$/i,
   breezy: /^[a-z0-9-]+\.breezy\.hr$/i,
 };
 const AGGREGATORS = /(^|\.)(indeed|linkedin|ziprecruiter|glassdoor|careerjet|jobviewtrack|jooble|haystackapp|adzuna|monster|simplyhired|talent)\.(com|io|org|net)$/i;
@@ -113,6 +121,16 @@ export function extract(provider, j, board) {
         locations: us.map((l) => (l.city && l.region ? `${l.city}, ${l.region}` : l.region || l.city)),
         posted: j.published_on || j.created_at, workplace: j.telecommuting ? 'remote' : '', employment: j.employment_type || null,
         description: null };
+    }
+    case 'recruitee': {
+      const locations = Array.isArray(j.locations) && j.locations.length ? j.locations : [j];
+      const us = locations.filter(location => /^(us|usa|united states)$/i.test(location?.country_code || location?.country || ''));
+      if (!us.length) return null;
+      return {
+        id: j.id, title: j.title, url: j.careers_url,
+        locations: us.map(location => [location.city, location.state_code || location.state || location.region].filter(Boolean).join(', ') || 'United States'),
+        posted: j.published_at, workplace: j.remote ? 'remote' : j.hybrid ? 'hybrid' : '', employment: j.employment_type_code, description: null,
+      };
     }
     case 'breezy': {
       const us = [j.location, ...(Array.isArray(j.locations) ? j.locations : [])]
@@ -191,4 +209,11 @@ export function normalize(provider, raw, board, { roles, idx, fetchedAt, maxAgeD
 // Which boards a run covers: the list is split into `parts` slices, one slice per run.
 export function sliceFor(boards, part, parts) {
   return boards.filter((_, i) => i % parts === ((part % parts) + parts) % parts);
+}
+
+// The existing scheduler runs four times a day. Cycle through a bounded slice at each UTC slot.
+export function rotationFor(boards, now = new Date()) {
+  const parts = Math.max(4, Math.ceil(boards.length / 48));
+  const part = Math.floor(now.getTime() / 21_600_000) % parts;
+  return { part, parts };
 }

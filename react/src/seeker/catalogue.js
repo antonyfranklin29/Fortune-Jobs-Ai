@@ -5,7 +5,7 @@ import * as Matching from '../resume/lib/resumeMatching.js';
 
 import { workAuthorizationFilter } from './workAuthorization.js';
 
-const fields = 'job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,closed_at,sponsorship';
+const fields = 'job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,source_url,attribution,closed_at,sponsorship';
 const DAY = 86400000;
 
 async function read(params, signal) {
@@ -79,6 +79,7 @@ function candidateParams(tokens, filters, excludeSource) {
   if (['1', '3', '7', '30'].includes(filters.date_posted)) params.set('posted_at', `gte.${new Date(Date.now() - Number(filters.date_posted) * DAY).toISOString()}`);
   if (filters.salary === 'listed' || Number(filters.salary_min) > 0) params.set('salary', 'not.is.null');
   if (filters.category) params.set('category', `eq.${filters.category}`);
+  if (filters.work_mode === 'remote') params.set('work_mode', 'eq.remote');
   if (filters.company) params.set('company', `ilike.*${filters.company}*`);
   return params;
 }
@@ -142,7 +143,7 @@ export async function quickMatches(query, filters = {}, signal, limit = 10) {
     try { rows = rows.concat(await read(candidateParams(tokens, filters, first[0].source), signal)); }
     catch (error) { if (signal?.aborted) throw error; }
   }
-  const recent = rows.filter(job => ['employer_direct','employer_feed'].includes(job.source) || Date.parse(job.posted_at) >= Date.now() - 30 * DAY);
+  const recent = rows.filter(job => ['employer_direct','employer_feed','himalayas','remotive'].includes(job.source) || Date.parse(job.posted_at) >= Date.now() - 30 * DAY);
   const accuracy = FJAccuracy;
   const filtered = accuracy.filterJobs(recent, query, filters).filter((job) => meetsSalary(job, filters.salary_min));
   const ranked = filtered.map(job => ({ ...job, search_reason: accuracy.matchReason(job, query, filters), search_score: score(job, tokens, query.toLowerCase().trim(), filters) }));
