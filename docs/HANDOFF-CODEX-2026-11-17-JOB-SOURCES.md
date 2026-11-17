@@ -11,6 +11,12 @@ Data-heavy and analyst roles in mid-size states are the biggest gaps.
 - Jobs are kept only when the title matches a role in `config/job-roles.json` and the location gives a U.S. state.
 - Claude is separately adding USAJOBS Nurse (0610) and Accounting (0510) series (branch `job-sources`).
 
+## Priority (Franklin, Nov 17): TECH-FOCUSED sourcing
+Pull mostly tech, data and analyst jobs: software, data analyst/engineer/scientist, BI/Power BI/Tableau, cloud,
+DevOps, QA, cybersecurity, Salesforce/ServiceNow, product/project managers. Choose boards by how many of
+these roles they post across U.S. states. Non-tech roles are a bonus, not a target. The site keeps presenting itself as
+an all-jobs search (Live Search covers every field), so don't remove other roles.
+
 ## Your tasks (one PR)
 1. **Grow `boards.mjs` to 600+ boards.** Prioritise U.S. companies that hire analysts, data, BI, QA,
    cloud, cybersecurity and project/product roles across many states: banks, insurers, consulting,
