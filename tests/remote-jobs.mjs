@@ -76,4 +76,3 @@ test('A complete snapshot preserves existing catalogue duplicates and closes mis
     await db.close();
   }
 });
-
