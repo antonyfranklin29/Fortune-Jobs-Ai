@@ -155,9 +155,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
       <div className="dashboard-body">
         {error && <p className="dashboard-status" role="alert">{error}</p>}
         {loading && <p className="dashboard-status" role="status">Loading jobs…</p>}
-        {!loading && !error && !jobs.length && <p className="dashboard-status">{initial.country && initial.country !== 'us'
-          ? 'Quick Match currently has United States listings only. Choose United States or Any country to see jobs.'
-          : 'No recent listings match these filters. Try a broader role or location.'}</p>}
+        {!loading && !error && !jobs.length && <p className="dashboard-status">No recent listings match these filters. Try a broader role or location.</p>}
         {saveMessage && <p className="dashboard-status" role="status">{saveMessage}</p>}
         {!!job && <div className="dashboard-grid">
           <section className="dashboard-card dashboard-list" aria-label="Job results">

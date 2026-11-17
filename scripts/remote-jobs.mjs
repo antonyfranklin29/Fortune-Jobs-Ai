@@ -5,6 +5,8 @@ const roles = compileRoles(ROLES);
 const states = regionIndex(REGIONS);
 const day = 86_400_000;
 const labels = { remotive: 'Remotive', himalayas: 'Himalayas' };
+const searchCountries = new Map([['us', 'us'], ['usa', 'us'], ['united states', 'us'],
+  ['ca', 'ca'], ['canada', 'ca'], ['gb', 'gb'], ['uk', 'gb'], ['united kingdom', 'gb'], ['in', 'in'], ['india', 'in']]);
 
 export function enabledSources(env) {
   return ['himalayas', ...(env.ENABLE_REMOTIVE === 'true' ? ['remotive'] : [])];
@@ -36,13 +38,15 @@ export function normalizeRemote(source, job, now) {
   const state = !himalayas && /(?:,|\()\s*(?:US|USA|United States)\)?$/i.test(eligibility || '')
     ? states.byName?.get(eligibility.replace(/(?:,|\()\s*(?:US|USA|United States)\)?$/i, '').trim().toLowerCase())?.code ?? null
     : null;
+  const singleCountry = himalayas && countries?.length === 1 ? countries[0] : job.candidate_required_location;
+  const country = state ? 'us' : searchCountries.get(singleCountry?.toLowerCase().trim().replace(/ only$/, '')) ?? null;
   const role = roles.find(role => role.id === classifyRole(title, roles));
   const location = `Remote · ${eligibility || 'Eligibility unspecified'}`;
   return {
     source, source_listing_id: String(id), source_url: link, apply_url: apply,
     job_title: title.slice(0, 300), company, location, canonical_role: role?.id ?? null,
     category: role?.name ?? 'Remote', state_code: state,
-    country: state || /^(?:US|USA|United States)(?: only)?$/i.test(eligibility || '') ? 'us' : null,
+    country,
     is_remote: true, work_mode: 'remote', attribution: labels[source],
     posted_at: Number.isFinite(posted) && posted > 0 ? new Date(posted).toISOString() : null,
     expires_at: expiry ? new Date(expiry).toISOString() : null,
