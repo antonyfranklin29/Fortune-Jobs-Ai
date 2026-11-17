@@ -17,6 +17,10 @@ export function CompanyMark({ job }) {
 }
 
 function SourceCredit({ job }) {
+  if (job.source === 'remotive' || job.source === 'himalayas') {
+    const href = safeApplyUrl(job.source_url);
+    return href && <a className="react-source" href={href} target="_blank" rel="noopener noreferrer">via {job.attribution}</a>;
+  }
   if (job.source === 'adzuna') return <span className="react-source">Job source: Adzuna</span>;
   if (job.live_partner) return <span className="react-source">Live result · Jobs by {job.live_partner}</span>;
   if (job.source === 'employer_direct' || job.source === 'employer_feed') return <span className="react-source">Direct employer listing</span>;
@@ -45,7 +49,7 @@ export function JobDetail({ job, profile, compact = false, saved = false, onSave
   const url = safeApplyUrl(job.apply_url);
   const fit = dashboard ? null : fitFor(job, profile);
   const description = cleanDescription(job.job_description);
-  const actions = (where) => <div className={`react-detail-actions react-actions-${where}`}>{url && <a className="react-apply dashboard-gold" href={url} target="_blank" rel={job.live_partner ? 'nofollow sponsored noopener noreferrer' : 'noopener noreferrer'}>{dashboard ? 'Apply Now' : `Apply on ${job.source === 'adzuna' ? 'Adzuna' : job.live_partner || 'the employer site'}`} ↗</a>}{onSave && <button type="button" className="react-save" aria-pressed={saved} onClick={() => onSave(job)}>{saved ? 'Saved' : 'Save job'}</button>}</div>;
+  const actions = (where) => <div className={`react-detail-actions react-actions-${where}`}>{url && <a className="react-apply dashboard-gold" href={url} target="_blank" rel={job.live_partner ? 'nofollow sponsored noopener noreferrer' : 'noopener noreferrer'}>{dashboard ? 'Apply Now' : `Apply on ${job.source === 'adzuna' ? 'Adzuna' : job.live_partner || (['remotive', 'himalayas'].includes(job.source) ? job.attribution : 'the employer site')}`} ↗</a>}{onSave && <button type="button" className="react-save" aria-pressed={saved} onClick={() => onSave(job)}>{saved ? 'Saved' : 'Save job'}</button>}</div>;
   return <article className={`featured-detail ${compact ? 'react-detail-compact' : ''}`}>
     <div className="react-detail-head"><CompanyMark job={job} /><div><p className="react-company">{job.company}</p><h3>{job.job_title}</h3><p>{job.location || 'Location not specified'}</p></div></div>
     <div className="react-badges">{job.salary && <span>{job.salary}</span>}{job.employment_type && <span>{job.employment_type}</span>}{job.work_mode && <span>{job.work_mode}</span>}{jobAge(job) && <span>{jobAge(job)}</span>}<WorkAuthorizationBadge job={job} /></div>

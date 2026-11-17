@@ -62,7 +62,7 @@
   if (!list || !detail || !count || !config || !safety) return;
 
   const cutoff = new Date(Date.now() - 30 * DAY).toISOString();
-  const fields = 'job_title,company,location,job_description,apply_url,source,posted_at,salary,employment_type,work_mode,is_remote';
+  const fields = 'job_title,company,location,job_description,apply_url,source,source_url,attribution,posted_at,salary,employment_type,work_mode,is_remote';
   const headers = { apikey: config.key, Authorization: `Bearer ${config.key}` };
   async function recent(sourceFilter) {
     const params = new URLSearchParams({
@@ -82,6 +82,12 @@
   }
 
   function sourceCredit(row) {
+    if (row.source === 'remotive' || row.source === 'himalayas') {
+      const href = safety.httpUrl(row.source_url);
+      const credit = el(href ? 'a' : 'span', 'featured-source', 'via ' + row.attribution);
+      if (href) credit.href = href;
+      return credit;
+    }
     if (row.source !== 'adzuna') {
       const labels = { indeed: 'Indeed', dice: 'Dice', employer_direct: 'Employer', employer_feed: 'Employer career feed' };
       return el('span', 'featured-source', `Source: ${labels[row.source] || row.source || 'original listing'}`);

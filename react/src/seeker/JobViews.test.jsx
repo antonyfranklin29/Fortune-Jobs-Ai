@@ -24,3 +24,14 @@ it('invites a direct-search visitor to add optional experience', () => {
   render(<JobDetail job={job} profile={null} />);
   expect(screen.getByText('See how well it fits you')).toBeTruthy();
 });
+it('shows feed eligibility and links directly to the credited remote listing', () => {
+  const sourceUrl = 'https://himalayas.app/companies/example/jobs/data-analyst';
+  const applyUrl = sourceUrl + '?utm_source=api';
+  render(<JobDetail job={{ ...job, source: 'himalayas', attribution: 'Himalayas', source_url: sourceUrl,
+    apply_url: applyUrl, location: 'Remote · Poland' }} />);
+  expect(screen.getByText('Remote · Poland')).toBeTruthy();
+  const credit = screen.getByRole('link', { name: 'via Himalayas' });
+  expect(credit.getAttribute('href')).toBe(sourceUrl);
+  expect(credit.getAttribute('rel')).not.toContain('nofollow');
+  expect(screen.getByRole('link', { name: /Apply on Himalayas/ }).getAttribute('href')).toBe(applyUrl);
+});

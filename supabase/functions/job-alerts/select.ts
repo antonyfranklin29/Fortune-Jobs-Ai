@@ -25,7 +25,7 @@ export function alertQuery(p: Profile, frequency: "daily" | "weekly", now = Date
   if (!places.length) return null;
   const since = now - (frequency === "daily" ? 1.5 * DAY : 7 * DAY);
   const or = `(${tokens.map((t) => `search_text.ilike.*${t.replace(/[*,()]/g, "")}*`).join(",")})`;
-  const path = `pre_scraped_jobs?select=job_title,company,location,work_mode,apply_url,posted_at&closed_at=is.null&country=eq.${encodeURIComponent((f.country || "us").toLowerCase())}&posted_at=gte.${encodeURIComponent(new Date(since).toISOString())}&or=${encodeURIComponent(or)}&order=posted_at.desc&limit=200`;
+  const path = `pre_scraped_jobs?source=not.in.(remotive,himalayas)&select=job_title,company,location,work_mode,apply_url,posted_at&closed_at=is.null&country=eq.${encodeURIComponent((f.country || "us").toLowerCase())}&posted_at=gte.${encodeURIComponent(new Date(since).toISOString())}&or=${encodeURIComponent(or)}&order=posted_at.desc&limit=200`;
   return { path, tokens, places, since };
 }
 
