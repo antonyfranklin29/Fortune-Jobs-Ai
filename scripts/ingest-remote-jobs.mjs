@@ -52,7 +52,9 @@ for (const source of sources) {
     if (page < pageLimit) await delay(1100);
   }
 }
-const unique = dedupeRemote(rows);
+// Franklin (Nov 17 2026): store only remote jobs that match one of our roles; the rest of the
+// feeds (mostly unrelated roles worldwide) would bloat the catalogue without helping searches.
+const unique = dedupeRemote(rows.filter(row => row.canonical_role));
 const counts = {};
 for (const row of unique) {
   const roles = counts[row.source] ??= {};
