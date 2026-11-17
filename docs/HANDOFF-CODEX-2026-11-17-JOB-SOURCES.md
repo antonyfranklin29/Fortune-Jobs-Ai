@@ -17,6 +17,19 @@ DevOps, QA, cybersecurity, Salesforce/ServiceNow, product/project managers. Choo
 these roles they post across U.S. states. Non-tech roles are a bonus, not a target. The site keeps presenting itself as
 an all-jobs search (Live Search covers every field), so don't remove other roles.
 
+## Part 0 — More tech roles (Franklin, Nov 17: "tech, data, cybersecurity and everything related to tech")
+Our taxonomy (`config/job-roles.json`, 26 roles) misses common tech jobs, so those titles are rejected today. Add
+reviewed roles with careful include/exclude patterns. Suggested set; adjust if the data says otherwise:
+network engineer, systems administrator, IT support / help desk, database administrator, data architect /
+solutions architect, security engineer / penetration tester (keep cybersecurity-analyst separate), SAP / ERP
+consultant, embedded / firmware engineer, UX / UI designer, Site reliability (already in devops, so leave it),
+mobile developer (already in software-engineer, so leave it), technical program manager, IT auditor / GRC analyst.
+- Regenerate every generated copy (`scripts/build-ingest-sql.cjs` → function config.mjs files and SQL). If the
+  database role list needs a migration, put it in the PR as a separate file and **do not apply it**. Claude applies it after review.
+- Add tests with real-looking titles for each new role, including false positives that must NOT match
+  (e.g. "Network Marketing", "Sales Engineer" in software-engineer).
+- Show the expected open-job counts per new role from the check script.
+
 ## Your tasks (one PR)
 1. **Grow `boards.mjs` to 600+ boards.** Prioritise U.S. companies that hire analysts, data, BI, QA,
    cloud, cybersecurity and project/product roles across many states: banks, insurers, consulting,
