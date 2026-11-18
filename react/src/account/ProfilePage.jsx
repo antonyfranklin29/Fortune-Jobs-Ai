@@ -11,6 +11,7 @@ import { useAccountServices } from './services.jsx';
 import { AccountNav, AdzunaCredit, Avatar, StatusMessage, Spinner, useDocumentTitle, useToast } from './components.jsx';
 import { avatarPath, exportAccount, httpUrl, isAdzunaJob, removeResume } from './lib/dataSafety.js';
 import * as Deletion from './lib/accountDeletion.js';
+import { SavedMaterials } from './SavedMaterials.jsx';
 import { SkillGap } from '../seeker/AiTools.jsx';
 import { fixApplyUrl } from '../shared/applyUrl.js';
 import './account-base.css';
@@ -365,6 +366,8 @@ function ResumeSection({ user, profile, setProfile, toast, onReviewSaved }) {
   const [saving, setSaving] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [over, setOver] = useState(false);
+  const [pastedText, setPastedText] = useState(profile.resume_text || '');
+  useEffect(() => { setPastedText(profile.resume_text || ''); }, [profile.resume_text]);
   const generation = useRef(0);
   const fileInput = useRef(null);
   const reviewRef = useRef(null);
@@ -449,12 +452,25 @@ function ResumeSection({ user, profile, setProfile, toast, onReviewSaved }) {
     finally { setRemoving(false); }
   }
 
+  async function savePastedText() {
+    const text = pastedText.trim();
+    if (text.length < 30 || text.length > 60000) { setMessage('Paste between 30 and 60,000 characters of your own experience.'); return; }
+    setSaving(true); setMessage('');
+    const { data, error } = await fj.sb.from('profiles').update({ resume_text: text, resume_updated_at: new Date().toISOString() }).eq('id', user.id).select().single();
+    setSaving(false);
+    if (error) { setMessage('Could not save your experience. Please try again.'); return; }
+    setProfile(data); toast('Experience text saved for AI tools.');
+  }
   const words = profile.resume_text ? profile.resume_text.split(/\s+/).filter(Boolean).length : 0;
   const editDraft = (k) => (e) => setDraft((d) => ({ ...d, [k]: e.target.value }));
   return (
     <section className="card" id="resume">
       <div className="card-head"><div><h2>Resume</h2><p className="sub">Upload a text-based PDF or DOCX, review the extracted details, then save them for matching. Your document is read in your browser.</p><p><a href="resume-builder.html">Build a clean résumé from your own facts →</a></p></div></div>
       <StatusMessage text={message} />
+      <label htmlFor="pastedResume">Résumé or experience text</label>
+      <p className="hint">No résumé file? Paste your LinkedIn 'About' and 'Experience' text here.</p>
+      <textarea className="input" id="pastedResume" rows={6} maxLength={60000} value={pastedText} onChange={event => setPastedText(event.target.value)} />
+      <button className="btn btn-outline btn-sm" type="button" disabled={saving || reading} onClick={savePastedText}>Save experience text</button>
       <div>
         {reading ? <div className="empty"><Spinner /> Reading your resume…</div>
           : !profile.resume_path ? (
@@ -606,6 +622,7 @@ function SavedJobs({ toast, onCount }) {
                       <div className="meta">📍 {j.location || 'Location not listed'}</div>
                       <div className="meta">{j.salary || 'Salary not listed'} · saved {timeAgo(j.created_at)}</div>
                       <ApplicationProgress key={JSON.stringify([j.stage, j.application_note])} job={j} onSave={saveProgress} />
+                      <SavedMaterials job={j} />
                       <div className="acts"><button className="btn btn-danger btn-sm" type="button" onClick={() => unsave(j.id)}>Remove</button>
                         {url ? <a className="btn btn-dark btn-sm" href={url} target="_blank" rel="noopener">Apply →</a> : null}</div>
                       {isAdzunaJob(j) ? <AdzunaCredit /> : null}

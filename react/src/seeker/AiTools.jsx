@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { callAi, jobForAi } from '../shared/ai.js';
 import { cleanDescription } from './catalogue.js';
 import '../styles/ai.css';
+import { MaterialActions } from '../shared/MaterialActions.jsx';
+import * as Materials from '../shared/applicationMaterials.js';
 
 const List = ({ items, className }) => (Array.isArray(items) && items.length ? <ul className={className}>{items.map((x, i) => <li key={i}>{x}</li>)}</ul> : null);
 export const FIT_LABEL = { strong: 'Strong fit', good: 'Good fit', partial: 'Partial fit', weak: 'Weak fit' };
@@ -51,17 +53,26 @@ export function tailoredText(r) {
   return parts.join('\n').trim();
 }
 
-export function TailorView({ r }) {
-  const [copied, setCopied] = useState(false);
-  const copy = async () => { try { await navigator.clipboard.writeText(tailoredText(r)); setCopied(true); } catch { setCopied(false); } };
+export function TailorView({ r, identity, job }) {
   return <div className="ai-result">
+    <p><strong>{identity?.name || '[Add your full name]'}</strong><br />{identity?.email || '[Add your email]'}</p>
     <h5>Summary</h5><p>{r.summary}</p>
     {(r.experience || []).map((role, i) => <div key={i}><h5>{role.role}</h5><List items={role.bullets} /></div>)}
     {r.skills?.length > 0 && <p><strong>Skills, most relevant first:</strong> {r.skills.join(', ')}</p>}
     {r.keywords_added?.length > 0 && <p><strong>Job keywords now included:</strong> {r.keywords_added.join(', ')}</p>}
     {r.not_supported?.length > 0 && <div className="ai-note"><strong>Not on your résumé, so not added:</strong><List items={r.not_supported} /><span>If you do have this experience, add it to your résumé yourself.</span></div>}
-    <div className="ai-actions"><button type="button" onClick={copy}>{copied ? 'Copied' : 'Copy tailored résumé text'}</button><a href="./resume-builder.html">Open résumé builder →</a></div>
-    <p className="ai-disclaimer">Review every line before you use it. AI can make mistakes.</p>
+    <h5>Education</h5><p style={{ whiteSpace: 'pre-line' }}>{identity?.education || '[Add your education, or remove this section]'}</p>
+    <MaterialActions kind="tailor_resume" result={r} identity={identity} job={job} />
+    <div className="ai-actions"><a href="./resume-builder.html">Open résumé builder →</a></div>
+  </div>;
+}
+
+export function CoverLetterView({ r, identity, job }) {
+  return <div className="ai-result">
+    <p>{r.greeting}</p>{(r.paragraphs || []).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+    <p>{r.closing}<br />{identity?.name || '[Add your full name]'}</p>
+    {r.not_supported?.length > 0 && <div className="ai-note"><strong>Requirements not claimed:</strong><List items={r.not_supported} /></div>}
+    <MaterialActions kind="cover_letter" result={r} identity={identity} job={job} />
   </div>;
 }
 
@@ -80,26 +91,83 @@ export const SkillGapView = ({ r }) => <div className="ai-result">
 const JOB_TOOLS = [
   ['fit_explain', '✨ Why this fits me', FitView],
   ['tailor_resume', '✨ Tailor my résumé', TailorView],
+  ['cover_letter', '✉️ Write a cover letter', CoverLetterView],
   ['interview_prep', '✨ Interview prep', InterviewView],
 ];
 
 /** The AI buttons under a job. One answer per tool is kept while the job stays open. */
-export function AiJobTools({ job, call = callAi }) {
+export function AiJobTools({ job, call = callAi, materialServices = Materials }) {
   const [state, setState] = useState({ key: null, active: null, busy: false, error: null, results: {} });
+  const [context, setContext] = useState(null);
+  const [materials, setMaterials] = useState({});
+  const [saveNote, setSaveNote] = useState('');
+  const generation = useRef(0);
   const key = aiJobKey(job);
+  useEffect(() => {
+    let active = true, stop, loadVersion = 0;
+    generation.current++;
+    const load = async () => {
+      const version = ++loadVersion;
+      try {
+        const next = await materialServices.loadMaterialContext(job);
+        if (active && version === loadVersion) { setContext(next); setMaterials(next.materials || {}); }
+      } catch { /* Retry with a fresh profile when the person generates a document. */ }
+    };
+    setContext(null); setMaterials({}); setSaveNote(''); load();
+    materialServices.watchMaterialAccount(() => {
+      generation.current++; done.clear(); listeners.forEach(f => f());
+      if (active) { setState({ key: null, active: null, busy: false, error: null, results: {} }); setContext(null); setMaterials({}); load(); }
+    }).then(unsubscribe => { if (active) stop = unsubscribe; else unsubscribe(); }).catch(() => {});
+    return () => { active = false; stop?.(); };
+  }, [key, materialServices]);
   const progress = useJobProgress(job);
   const base = state.key === key ? state : { key, active: null, busy: false, error: null, results: {} };
   const shared = Object.fromEntries(JOB_TOOLS.map(([t]) => [t, progress[t]]).filter(([, v]) => v && typeof v === 'object'));
-  const s = { ...base, results: { ...shared, ...base.results } };
-  async function run(task) {
-    if (s.results[task]) { setState({ ...s, active: task, error: null }); return; }
+  const stored = Object.fromEntries(Object.entries(materials).filter(([, m]) => m?.result).map(([task, m]) => [task, m.result]));
+  const s = { ...base, results: { ...stored, ...shared, ...base.results } };
+  async function run(task, regenerate = false) {
+    if (!regenerate && s.results[task]) { setState({ ...s, active: task, error: null }); return; }
     setState({ ...s, active: task, busy: true, error: null });
-    const res = await call(task, { job: jobForAi(job, cleanDescription) });
-    if (res.ok) markStep(job, task, res.result);
-    // Stored under this job's key: if another job is open by now, it is simply not shown.
-    setState(res.ok
-      ? { ...s, active: task, busy: false, error: null, results: { ...s.results, [task]: res.result } }
-      : { ...s, active: task, busy: false, error: res });
+    const currentGeneration = generation.current;
+    const isDocument = ['tailor_resume', 'cover_letter'].includes(task);
+    let nextContext = context;
+    try {
+      if (isDocument) {
+        nextContext = await materialServices.loadMaterialContext(job);
+        if (currentGeneration !== generation.current) return;
+        setContext(nextContext);
+        const existing = nextContext?.materials?.[task];
+        if (!regenerate && existing?.result) {
+          setMaterials(previous => ({ ...previous, [task]: existing }));
+          setState({ ...s, active: task, busy: false, error: null, results: { ...s.results, [task]: existing.result } });
+          return;
+        }
+      }
+      const payload = { job: jobForAi(job, cleanDescription) };
+      // Bind a document to the session whose identity was read, even if another
+      // account signs in between the profile read and the AI request.
+      const res = isDocument ? await call(task, payload, { session: nextContext?.session || null }) : await call(task, payload);
+      if (currentGeneration !== generation.current) return;
+      if (res.ok) {
+        markStep(job, task, isDocument ? true : res.result);
+        if (isDocument) {
+          const material = { result: res.result, identity: nextContext?.identity || {}, generated_at: new Date().toISOString() };
+          setMaterials(previous => ({ ...previous, [task]: material }));
+          if (nextContext?.userId) {
+            try {
+              const note = await materialServices.keepMaterial(job, task, material, nextContext.userId);
+              if (currentGeneration === generation.current) setSaveNote(note);
+            } catch (error) { if (currentGeneration === generation.current) setSaveNote(error.message); }
+          }
+        }
+      }
+      if (currentGeneration !== generation.current) return;
+      setState(res.ok
+        ? { ...s, active: task, busy: false, error: null, results: { ...s.results, [task]: res.result } }
+        : { ...s, active: task, busy: false, error: res });
+    } catch (error) {
+      if (currentGeneration === generation.current) setState({ ...s, active: task, busy: false, error: { error: error.message || 'Could not prepare this draft. Try again.' } });
+    }
   }
   // Buttons elsewhere on the page ("Tailor my résumé with these", "Practice interview questions")
   // ask this panel to run a tool, so every answer appears in one place.
@@ -112,11 +180,18 @@ export function AiJobTools({ job, call = callAi }) {
   const Active = JOB_TOOLS.find(([t]) => t === s.active)?.[2];
   return <section className="ai-tools" aria-label="Fortune AI Coach for this job">
     <h4>Fortune AI Coach</h4>
+    <p className="ai-disclaimer">Drafts for saved jobs are kept privately in your application tracker.</p>
     <div className="ai-buttons" role="group">{JOB_TOOLS.map(([task, label]) => <button key={task} type="button" aria-pressed={s.active === task} disabled={s.busy} onClick={() => run(task)}>{label}</button>)}</div>
     <div aria-live="polite">
       {s.busy && <p className="ai-busy">Thinking… this takes about 10 seconds.</p>}
       <AiError error={s.error} />
-      {!s.busy && Active && s.results[s.active] && <Active r={s.results[s.active]} />}
+      <div className="ai-actions">{materials[s.active] && <button type="button" disabled={s.busy} onClick={() => run(s.active, true)}>Generate new draft</button>}
+      {materials[s.active] && context?.userId && <button className="ai-save-material" type="button" disabled={s.busy} onClick={async () => {
+        try { setSaveNote(await materialServices.keepMaterial(job, s.active, materials[s.active], context.userId)); }
+        catch (error) { setSaveNote(error.message); }
+      }}>Save draft to tracker</button>}</div>
+      {saveNote && <p className="ai-disclaimer" role="status">{saveNote}</p>}
+      {!s.busy && Active && s.results[s.active] && <Active r={s.results[s.active]} identity={materials[s.active]?.identity || context?.identity} job={job} />}
     </div>
   </section>;
 }

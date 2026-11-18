@@ -5,13 +5,13 @@ export type Job = { title: string; company?: string; location?: string; descript
 export type Candidate = { label: string; resume_text: string };
 
 export type TaskName =
-  | "tailor_resume" | "fit_explain" | "smart_search" | "interview_prep" | "skill_gap"
+  | "cover_letter" | "tailor_resume" | "fit_explain" | "smart_search" | "interview_prep" | "skill_gap"
   | "job_post_writer" | "candidate_shortlist";
 
 export const EMPLOYER_TASKS: TaskName[] = ["job_post_writer", "candidate_shortlist"];
 // Candidate ranking stays off at launch (needs candidate notice and a human-review process first).
 export const DISABLED_TASKS: TaskName[] = ["candidate_shortlist"];
-export const RESUME_TASKS: TaskName[] = ["tailor_resume", "fit_explain", "interview_prep", "skill_gap"];
+export const RESUME_TASKS: TaskName[] = ["cover_letter", "tailor_resume", "fit_explain", "interview_prep", "skill_gap"];
 
 // Launch limits while Pro billing is switched off. Each AI action costs about 1–2 cents.
 export const LIMITS = { perUserPerDay: 25, proPerUserPerDay: 50, globalPerDay: 1500 };
@@ -52,7 +52,7 @@ export function readResume(v: unknown): string { return str(v, "résumé", MAX.r
 /** Validates the request body for a task. Résumé text is attached later from the profile when not supplied. */
 export function readInput(task: TaskName, body: Record<string, unknown>) {
   switch (task) {
-    case "tailor_resume": case "fit_explain": case "interview_prep":
+    case "cover_letter": case "tailor_resume": case "fit_explain": case "interview_prep":
       return { job: readJob(body.job), resume_text: str(body.resume_text, "résumé", MAX.resume, false) };
     case "skill_gap":
       return { target_role: str(body.target_role, "target role", MAX.title), resume_text: str(body.resume_text, "résumé", MAX.resume, false) };
@@ -74,7 +74,7 @@ export function readInput(task: TaskName, body: Record<string, unknown>) {
 }
 
 export const isTask = (t: unknown): t is TaskName =>
-  typeof t === "string" && ["tailor_resume", "fit_explain", "smart_search", "interview_prep", "skill_gap", "job_post_writer", "candidate_shortlist"].includes(t);
+  typeof t === "string" && ["cover_letter", "tailor_resume", "fit_explain", "smart_search", "interview_prep", "skill_gap", "job_post_writer", "candidate_shortlist"].includes(t);
 
 // ── prompts ──────────────────────────────────────────────────────────────────
 const HONEST = "Never invent employers, job titles, dates, degrees, certifications, numbers or skills that are not in the résumé. If something is missing, say so instead of making it up.";
@@ -101,6 +101,16 @@ export function buildPrompt(task: TaskName, input: any, today = new Date().toISO
         keywords_added: arr("Job keywords now used because the résumé already supports them."),
         not_supported: arr("Important job requirements the résumé gives no evidence for. Do not add these to the résumé."),
       }) }, max_tokens: 2500,
+    };
+    case "cover_letter": return {
+      system: `You write a plain, specific cover letter for a job seeker. Use 3 to 4 short paragraphs and fewer than 300 words total, including greeting and closing. Draw only on evidence in the resume. Do not invent an address, recipient name or signature. Use "Dear Hiring Team," when no recipient is supplied and "Kind regards," for closing. ${HONEST} ${DATA}`,
+      user: `${jobXml(input.job)}\n\n${resumeXml(input.resume_text)}\n\nWrite a cover letter for this job. List requirements you chose not to claim separately.`,
+      tool: { name: "cover_letter", description: "A cover letter for the person to review and send.", input_schema: obj({
+        greeting: { type: "string" },
+        paragraphs: { ...arr("Three or four short, specific paragraphs based only on resume evidence.", { type: "string" }, 4), minItems: 3 },
+        closing: { type: "string" },
+        not_supported: arr("Requirements without resume evidence. Keep these out of the letter."),
+      }) }, max_tokens: 1500,
     };
     case "fit_explain": return {
       system: `You explain, in plain English, how well a person's résumé fits a job. Be specific and honest, and encouraging without overselling. ${HONEST} ${DATA}`,
@@ -207,6 +217,11 @@ export function usable(task: TaskName, r: any): boolean {
   const has = (x: unknown) => Array.isArray(x) && x.length > 0;
   switch (task) {
     case "tailor_resume": return !!r?.summary && (has(r.experience) || has(r.skills));
+    case "cover_letter": return typeof r?.greeting === "string" && !!r.greeting.trim()
+      && Array.isArray(r.paragraphs) && r.paragraphs.length >= 3 && r.paragraphs.length <= 4
+      && r.paragraphs.every((p: unknown) => typeof p === "string" && !!p.trim())
+      && typeof r.closing === "string" && !!r.closing.trim()
+      && [r.greeting, ...r.paragraphs, r.closing].join(" ").trim().split(/\s+/).length < 300;
     case "fit_explain": return !!r?.fit && !!r?.headline;
     case "smart_search": return !!(r?.q || r?.location || r?.work_mode || r?.job_type || r?.experience || r?.date_posted);
     case "interview_prep": return has(r?.questions);
