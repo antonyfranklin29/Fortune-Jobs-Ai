@@ -143,3 +143,32 @@ test('area pages show a market snapshot built from their own listings', async ()
   assert.match(html, /Top hiring companies/);
   assert.match(html, /resume-search\.html/);
 });
+
+
+test('catalogue retries transient failures once with the same page after two seconds', async t => {
+  for (const failure of [500, 503, 504, 'TimeoutError', 'AbortError']) {
+    const urls = [], waits = [];
+    t.mock.method(globalThis, 'setTimeout', (callback, ms) => { waits.push(ms); queueMicrotask(callback); return 0; });
+    t.mock.method(globalThis, 'fetch', async url => {
+      urls.push(url);
+      if (urls.length === 1) {
+        if (typeof failure === 'string') throw new DOMException('timed out', failure);
+        return new Response('{}', { status: failure });
+      }
+      return Response.json([{ id: 5 }]);
+    });
+    assert.deepEqual(await readOpenCatalogue({ url: 'https://fixture.test', key: 'public-fixture' }), [{ id: 5 }]);
+    assert.equal(urls.length, 2); assert.equal(urls[0], urls[1]); assert.deepEqual(waits, [2000]);
+    t.mock.restoreAll();
+  }
+});
+test('catalogue stops after a second 500 and does not retry permanent errors', async t => {
+  for (const status of [500, 401, 404]) {
+    let calls = 0;
+    t.mock.method(globalThis, 'setTimeout', callback => { queueMicrotask(callback); return 0; });
+    t.mock.method(globalThis, 'fetch', async () => { calls++; return new Response('{}', { status }); });
+    await assert.rejects(readOpenCatalogue({ url: 'https://fixture.test', key: 'public-fixture' }), new RegExp('HTTP ' + status));
+    assert.equal(calls, status === 500 ? 2 : 1);
+    t.mock.restoreAll();
+  }
+});
