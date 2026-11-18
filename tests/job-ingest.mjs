@@ -186,8 +186,8 @@ const ad = (id, title, area, display = '') => ({ id, title, created: '2026-10-14
   redirect_url: `https://www.adzuna.com/land/ad/${id}?se=x`, company: { display_name: 'Co' },
   location: { area, display_name: display } });
 
-test('the IT feed covers exactly the 18 IT roles, in config order', () => {
-  assert.equal(FEED.roles.length, 18);
+test('the IT feed covers the original and newly added IT roles, in config order', () => {
+  assert.equal(FEED.roles.length, 29);
   assert.ok(FEED.roles.every((id) => roles.some((r) => r.id === id)));
   assert.ok(!scope.has('project-manager') && !scope.has('registered-nurse'));
 });
@@ -212,8 +212,8 @@ test('feed rows get their role from the title and their state from the listing',
 });
 
 test('feed rejects instead of padding: unknown roles, non-IT roles, no state', () => {
-  assert.equal(feedNorm(ad('a', 'IT Support Specialist', ['US', 'Iowa'])).reject, 'no_role');
-  assert.equal(feedNorm(ad('b', 'Help Desk Technician', ['US', 'Iowa'])).reject, 'no_role');
+  assert.equal(feedNorm(ad('a', 'IT Support Specialist', ['US', 'Iowa'])).row.canonical_role, 'it-support');
+  assert.equal(feedNorm(ad('b', 'Help Desk Technician', ['US', 'Iowa'])).row.canonical_role, 'it-support');
   assert.equal(feedNorm(ad('c', 'Applications Engineer - Sales', ['US', 'Iowa'])).reject, 'no_role');
   assert.equal(feedNorm(ad('d', 'IT Project Manager', ['US', 'Iowa'])).reject, 'out_of_scope');
   assert.equal(feedNorm(ad('e', 'Data Analyst', ['US'], 'Remote, USA')).reject, 'no_state_evidence');
