@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Footer, Header, MobileTabs } from '../shared/Shell.jsx';
 import { SearchForm } from './SearchForm.jsx';
 import { PartnerJobs, partnerQuery } from './PartnerJobs.jsx';
+import { persistPendingMaterials } from '../shared/applicationMaterials.js';
 import { liveSearch } from './liveSearch.js';
 import { JobDetail, JobList } from './JobViews.jsx';
 import { guestMatchProfile, quickMatches, recentJobs } from './catalogue.js';
@@ -114,6 +115,10 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
     if (saveError && !duplicate) { setSaveMessage('Could not update saved jobs. Please try again.'); return; }
     setSavedKeys(previous => { const next = new Set(previous); exists ? next.delete(key) : next.add(key); return next; });
     setSaveMessage(exists ? 'Removed from saved jobs.' : 'Job saved to your profile.');
+    if (!exists) {
+      try { await persistPendingMaterials(job, supabase); }
+      catch { setSaveMessage('Job saved. Could not keep the application drafts. Reopen the AI tool and try saving again.'); }
+    }
   }
   useEffect(() => {
     const controller = new AbortController();

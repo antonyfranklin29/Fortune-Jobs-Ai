@@ -5,6 +5,8 @@ import { AiJobTools, SkillGap, SmartSearch, smartSearchParams, tailoredText } fr
 import { AiPostWriter, postText } from '../employer/EmployerAi.jsx';
 import { salaryTop } from './catalogue.js';
 
+vi.mock('../shared/applicationMaterials.js', () => ({ loadMaterialContext: vi.fn(async () => ({ userId: null, identity: {}, materials: {} })), watchMaterialAccount: vi.fn(async () => () => {}), keepMaterial: vi.fn() }));
+
 const job = { job_title: 'Power BI Developer', company: 'Fixture Co', apply_url: 'https://x.test/1', job_description: '<p>Build dashboards</p>' };
 
 describe('AI tools', () => {
@@ -89,5 +91,36 @@ describe('AI tools', () => {
   it('text helpers', () => {
     expect(tailoredText({ summary: 'S', experience: [{ role: 'Analyst', bullets: ['A'] }], skills: ['SQL'] })).toBe('S\n\nAnalyst\n• A\n\nSkills: SQL');
     expect(postText({ summary: 'S' })).toBe('S');
+  });
+});
+
+
+describe('ready-to-send materials', () => {
+  afterEach(cleanup);
+  const identity = { name: 'Test Student', email: 'student@example.com', education: 'Example University' };
+  const services = () => ({ loadMaterialContext: vi.fn(async () => ({ userId: 'u1', session: { access_token: 'fixture-token', user: { id: 'u1' } }, identity, materials: {} })),
+    watchMaterialAccount: vi.fn(async () => () => {}), keepMaterial: vi.fn(async () => 'Saved with this job.') });
+  it('shows both document tools and keeps generated letters with their identity', async () => {
+    const materialServices = services();
+    const result = { greeting: 'Dear Hiring Team,', paragraphs: ['One.', 'Two.', 'Three.'], closing: 'Kind regards,', not_supported: ['AWS'] };
+    const call = vi.fn(async () => ({ ok: true, result }));
+    render(<AiJobTools job={{ ...job, apply_url: 'https://example.test/material' }} call={call} materialServices={materialServices} />);
+    expect(screen.getByRole('button', { name: /Tailor my résumé/ })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: /Write a cover letter/ }));
+    expect(await screen.findByText('Dear Hiring Team,')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Copy' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Download .docx' })).toBeTruthy();
+    expect(materialServices.keepMaterial).toHaveBeenCalledWith(expect.any(Object), 'cover_letter', expect.objectContaining({ result, identity }), 'u1');
+    expect(call.mock.calls[0][2].session.access_token).toBe('fixture-token');
+    expect(JSON.stringify(materialServices.keepMaterial.mock.calls)).not.toContain('fixture-token');
+  });
+  it('reopens saved results without another AI action', async () => {
+    const materialServices = services(), call = vi.fn();
+    materialServices.loadMaterialContext.mockResolvedValue({ userId: 'u1', identity,
+      materials: { cover_letter: { result: { greeting: 'Stored letter', paragraphs: ['A', 'B', 'C'] }, identity } } });
+    render(<AiJobTools job={{ ...job, apply_url: 'https://example.test/stored' }} call={call} materialServices={materialServices} />);
+    await vi.waitFor(() => expect(materialServices.loadMaterialContext).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole('button', { name: /Write a cover letter/ }));
+    expect(await screen.findByText('Stored letter')).toBeTruthy(); expect(call).not.toHaveBeenCalled();
   });
 });
