@@ -27,7 +27,18 @@
         "cybersecurity-analyst",
         "servicenow-developer",
         "salesforce-developer",
-        "anaplan-model-builder"
+        "anaplan-model-builder",
+        "network-engineer",
+        "systems-administrator",
+        "it-support",
+        "database-administrator",
+        "solutions-architect",
+        "security-engineer",
+        "sap-consultant",
+        "embedded-engineer",
+        "ux-ui-designer",
+        "technical-program-manager",
+        "it-auditor"
       ],
       "_comment": "Every U.S. listing in Adzuna's IT category, newest first, classified into these roles by title and into a state by the listing's own location. Titles outside these roles are rejected, never padded in."
     }
@@ -321,6 +332,139 @@
       "review": "initial",
       "include": [
         "\\bcustomer\\s+service\\s+(?:representative|rep|associate)\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "id": "network-engineer",
+      "name": "Network Engineer",
+      "query": "network engineer",
+      "review": "reviewed-2026-11-17",
+      "include": [
+        "\\bnetwork\\s+(?:engineer|architect)\\b"
+      ],
+      "exclude": [
+        "\\b(?:sales|social|marketing)\\b"
+      ]
+    },
+    {
+      "id": "systems-administrator",
+      "name": "Systems Administrator",
+      "query": "systems administrator",
+      "review": "reviewed-2026-11-17",
+      "include": [
+        "\\b(?:systems?|linux|unix|windows)\\s+admin(?:istrator)?\\b",
+        "\\bsysadmin\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "id": "it-support",
+      "name": "IT Support / Help Desk",
+      "query": "IT support help desk",
+      "review": "reviewed-2026-11-17",
+      "include": [
+        "\\bhelp[\\s-]*desk\\b",
+        "\\b(?:it|information\\s+technology|desktop|technical)\\s+support\\s+(?:specialist|technician|analyst|engineer|associate)\\b",
+        "\\bit\\s+support\\b",
+        "\\bservice\\s+desk\\s+(?:analyst|technician|engineer)\\b"
+      ],
+      "exclude": [
+        "\\b(?:sales|customer\\s+service)\\b"
+      ]
+    },
+    {
+      "id": "database-administrator",
+      "name": "Database Administrator",
+      "query": "database administrator DBA",
+      "review": "reviewed-2026-11-17",
+      "include": [
+        "\\b(?:database|sql\\s+server|oracle)\\s+admin(?:istrator)?\\b",
+        "\\bdba\\b"
+      ],
+      "exclude": [
+        "\\b(?:business\\s+administration|doing\\s+business\\s+as)\\b"
+      ]
+    },
+    {
+      "id": "solutions-architect",
+      "name": "Solutions / Cloud Architect",
+      "query": "solutions architect cloud architect",
+      "review": "reviewed-2026-11-17",
+      "include": [
+        "\\b(?:solutions?|cloud|data|enterprise|aws|azure)\\s+architect\\b"
+      ],
+      "exclude": [
+        "\\b(?:landscape|interior|building)\\b"
+      ]
+    },
+    {
+      "id": "security-engineer",
+      "name": "Security Engineer",
+      "query": "security engineer penetration tester",
+      "review": "reviewed-2026-11-17",
+      "include": [
+        "\\b(?:cyber[\\s-]*security|information\\s+security|application\\s+security|network\\s+security|security)\\s+engineer\\b",
+        "\\bpenetration\\s+test(?:er|ing\\s+engineer)\\b",
+        "\\bpentester\\b"
+      ],
+      "exclude": [
+        "\\b(?:physical|fire|alarm|cctv|armed)\\b"
+      ]
+    },
+    {
+      "id": "sap-consultant",
+      "name": "SAP / ERP Consultant",
+      "query": "SAP ERP consultant",
+      "review": "reviewed-2026-11-17",
+      "include": [
+        "\\b(?:sap|erp)\\b.*\\b(?:consultant|developer|engineer|architect|analyst)\\b",
+        "\\b(?:consultant|developer|engineer|architect|analyst)\\b.*\\b(?:sap|erp)\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "id": "embedded-engineer",
+      "name": "Embedded / Firmware Engineer",
+      "query": "embedded firmware engineer",
+      "review": "reviewed-2026-11-17",
+      "include": [
+        "\\b(?:embedded|firmware)\\s+(?:software\\s+)?(?:engineer|developer)\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "id": "ux-ui-designer",
+      "name": "UX / UI Designer",
+      "query": "UX UI designer",
+      "review": "reviewed-2026-11-17",
+      "include": [
+        "\\b(?:ux|ui|ux\\s*/\\s*ui|ui\\s*/\\s*ux|user\\s+experience|user\\s+interface)\\s+(?:product\\s+)?designer\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "id": "technical-program-manager",
+      "name": "Technical Program Manager",
+      "query": "technical program manager TPM",
+      "review": "reviewed-2026-11-17",
+      "include": [
+        "\\btechnical\\s+program\\s+manager\\b",
+        "\\btpm\\b"
+      ],
+      "exclude": [
+        "\\b(?:total\\s+productive\\s+maintenance|maintenance\\s+manager)\\b"
+      ]
+    },
+    {
+      "id": "it-auditor",
+      "name": "IT Auditor / GRC Analyst",
+      "query": "IT auditor GRC analyst",
+      "review": "reviewed-2026-11-17",
+      "include": [
+        "\\b(?:it|information\\s+(?:technology|systems)|technology)\\s+(?:internal\\s+)?auditor\\b",
+        "\\bgrc\\s+analyst\\b",
+        "\\bgovernance[\\s,]+risk[\\s,]+(?:and\\s+)?compliance\\s+analyst\\b"
       ],
       "exclude": []
     }

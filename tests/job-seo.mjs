@@ -101,7 +101,7 @@ test('state pages require 40 distinct open listings and cities use the full taxo
   assert.equal(nearly.statePages.length, 0);
   const full = planPages(rows, roles, regions, now);
   assert.equal(full.statePages.length, 1);
-  assert.equal(full.cityPages.length, 19 * 26);
+  assert.equal(full.cityPages.length, 19 * roles.length);
   assert.equal(full.statePages[0].rows.length, 40);
   const html = renderArea(full.statePages[0].target, full.statePages[0].rows, new Set(), '2026-11-11',
     full.cityPages.filter(page => page.target.city === 'Raleigh' && page.rows.length));
