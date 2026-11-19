@@ -85,7 +85,21 @@ function candidateParams(tokens, filters, excludeSource) {
   if (filters.category) params.set('category', `eq.${filters.category}`);
   if (filters.work_mode === 'remote') params.set('work_mode', 'eq.remote');
   if (filters.company) params.set('company', `ilike.*${filters.company}*`);
+  if (filters.state_code) params.set('state_code', `eq.${filters.state_code}`);
   return params;
+}
+// A location that is just a U.S. state ("New Jersey", "NJ", "nj, usa") searches that whole state.
+// "New York" and "Washington" stay city searches: they are also city names.
+const stateNames = Object.fromEntries(Object.entries(Guest.states).map(([code, name]) => [name.toLowerCase(), code]));
+export function searchState(filters = {}) {
+  if (filters.city) return '';
+  const parts = String(filters.location_scope === 'region' ? (filters.region || filters.location || '') : (filters.location || ''))
+    .toLowerCase().split(',').map(part => part.trim()).filter(part => part && !['us', 'usa', 'united states'].includes(part));
+  if (parts.length !== 1) return '';
+  const value = parts[0];
+  if (filters.location_scope !== 'region' && ['new york', 'washington'].includes(value)) return '';
+  if (/^[a-z]{2}$/.test(value) && Guest.states[value.toUpperCase()]) return value.toUpperCase();
+  return stateNames[value] || '';
 }
 // The city a search asks for, as stored at the start of a job's location ("Chicago, IL").
 // A region-wide search has no city. Characters PostgREST treats specially are removed.
@@ -130,6 +144,8 @@ const meetsSalary = (job, min) => !(Number(min) > 0) || salaryTop(job.salary) >=
 export async function quickMatches(query, filters = {}, signal, limit = 10) {
   if (!query.trim() && !Object.values(filters).some(Boolean)) return recentJobs(signal);
   const tokens = tokensFor(query);
+  const state = searchState(filters);
+  if (state) filters = { ...filters, location_scope: 'region', region: Guest.states[state], state_code: state };
   const first = await read(candidateParams(tokens, filters), signal);
   let rows = first;
   // The broad query returns the newest CANDIDATE_LIMIT matches nationwide, so a city's jobs can all fall

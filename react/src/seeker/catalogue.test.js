@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { quickMatches, searchCity } from './catalogue.js';
+import { quickMatches, searchCity, searchState } from './catalogue.js';
 import { workAuthorizationLabel } from './workAuthorization.js';
 
 const now = new Date().toISOString();
@@ -48,6 +48,29 @@ describe('quickMatches with a city', () => {
     vi.stubGlobal('fetch', vi.fn(async (url) => { urls.push(String(url)); return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } }); }));
     await quickMatches('Data Analyst', {});
     expect(urls.some(u => u.includes('location='))).toBe(false);
+  });
+});
+
+describe('state searches', () => {
+  it('recognises a state by name or code, but not city names', () => {
+    expect(searchState({ location: 'New Jersey' })).toBe('NJ');
+    expect(searchState({ location: 'nj' })).toBe('NJ');
+    expect(searchState({ location: 'Texas, USA' })).toBe('TX');
+    expect(searchState({ location: 'Ohio', location_scope: 'region', region: 'Ohio' })).toBe('OH');
+    expect(searchState({ location: 'Chicago, IL' })).toBe('');
+    expect(searchState({ location: 'New York' })).toBe('');
+    expect(searchState({ location: 'Washington' })).toBe('');
+    expect(searchState({ location: 'Edison' })).toBe('');
+  });
+
+  it('asks the database for that state and keeps its jobs', async () => {
+    const urls = [];
+    const nj = [job('Data Analyst', 'Acme', 'Newark, NJ', 'a'), job('Senior Data Analyst', 'Beta', 'Edison, NJ', 'b')];
+    vi.stubGlobal('fetch', vi.fn(async (url) => { urls.push(new URL(url)); return Response.json(nj); }));
+    const top = await quickMatches('Data Analyst', { location: 'New Jersey' });
+    expect(urls[0].searchParams.get('state_code')).toBe('eq.NJ');
+    expect(urls.some(u => u.searchParams.get('location'))).toBe(false);
+    expect(top.map(j => j.company)).toEqual(expect.arrayContaining(['Acme', 'Beta']));
   });
 });
 
