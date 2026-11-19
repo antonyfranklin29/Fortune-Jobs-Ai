@@ -1,0 +1,11 @@
+{
+ "_about": "Milestone post. Franklin changed the goal from 20K to 25K on Nov 18 2026 ('its better to show 25,000+'). Post once open jobs (pre_scraped_jobs where closed_at is null) reach 25,000: insert at the next upcoming slot of social/posts.json (keep the rest of the order), deploy, and tell Franklin.",
+ "post": {
+  "id": "milestone-25k",
+  "title": "25,000+ open jobs",
+  "image": "https://fortunejobsai.com/social/milestones/milestone-25k.jpg",
+  "post_caption": "25,000+ open jobs 🎉\n\nWe just passed 25,000 open jobs on Fortune Jobs AI.\nEvery listing is refreshed daily, links to the original posting, and closed jobs are removed every day, so you spend your time on jobs that are still open.\n\n👉 Search free at fortunejobsai.com (link in bio)\n\n#jobsearch #hiringnow #newgrad #careeradvice",
+  "fb_caption": "25,000+ open jobs 🎉\n\nWe just passed 25,000 open jobs on Fortune Jobs AI.\nEvery listing is refreshed daily, links to the original posting, and closed jobs are removed every day, so you spend your time on jobs that are still open.\n\n👉 Search free: https://fortunejobsai.com/?utm_source=facebook&utm_medium=social\n\n#jobsearch #hiringnow #newgrad #careeradvice",
+  "li_caption": "25,000+ open jobs\n\nWe just passed 25,000 open jobs on Fortune Jobs AI.\nEvery listing is refreshed daily, links to the original posting, and closed jobs are removed every day, so you spend your time on jobs that are still open.\n\nSearch free: https://fortunejobsai.com/?utm\\_source=linkedin&utm\\_medium=social\n\n\\#jobsearch \\#hiringnow \\#newgrad \\#careeradvice"
+ }
+}
