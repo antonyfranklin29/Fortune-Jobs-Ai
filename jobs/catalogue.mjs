@@ -84,15 +84,26 @@ export function jobPosting(job, now = Date.now()) {
 }
 
 async function read(config, params) {
-  const response = await fetch(config.url + '/rest/v1/pre_scraped_jobs?' + new URLSearchParams(params), {
-    headers: { apikey: config.key, Authorization: 'Bearer ' + config.key },
-    signal: AbortSignal.timeout(8000),
-    redirect: 'error',
-  });
-  if (!response.ok) throw new Error('Public catalogue returned HTTP ' + response.status);
-  const rows = await response.json();
-  if (!Array.isArray(rows)) throw new Error('Expected a catalogue row array');
-  return rows;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const response = await fetch(config.url + '/rest/v1/pre_scraped_jobs?' + new URLSearchParams(params), {
+        headers: { apikey: config.key, Authorization: 'Bearer ' + config.key },
+        signal: AbortSignal.timeout(8000),
+        redirect: 'error',
+      });
+      if (!response.ok) {
+        await response.body?.cancel();
+        throw Object.assign(new Error('Public catalogue returned HTTP ' + response.status), { status: response.status });
+      }
+      const rows = await response.json();
+      if (!Array.isArray(rows)) throw new Error('Expected a catalogue row array');
+      return rows;
+    } catch (error) {
+      const transient = [500, 503, 504].includes(error.status) || ['TimeoutError', 'AbortError'].includes(error.name);
+      if (attempt === 1 || !transient) throw error;
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+  }
 }
 
 async function readPages(config, filters, select = summaryFields) {

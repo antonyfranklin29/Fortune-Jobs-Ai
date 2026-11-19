@@ -242,12 +242,12 @@ async function build() {
   const config = window.FJ_CONFIG;
   const now = Date.now();
   const date = new Date(now).toISOString().slice(0, 10);
-  const [{ roles }, { regions }, catalogue, candidates] = await Promise.all([
-    readFile(join(ROOT, 'config/job-roles.json'), 'utf8').then(JSON.parse),
-    readFile(join(ROOT, 'config/us-regions.json'), 'utf8').then(JSON.parse),
-    readOpenCatalogue(config),
-    getEmployerPostings(config),
-  ]);
+  const { roles } = JSON.parse(await readFile(join(ROOT, 'config/job-roles.json'), 'utf8'));
+  const { regions } = JSON.parse(await readFile(join(ROOT, 'config/us-regions.json'), 'utf8'));
+  // Finish each catalogue read before starting the next so they do not compete
+  // for the anonymous database connection's short statement timeout.
+  const catalogue = await readOpenCatalogue(config);
+  const candidates = await getEmployerPostings(config);
   const postings = candidates.filter(job => eligiblePosting(job, now));
   const details = new Set(postings.map(job => String(job.id)));
   const { cityPages, statePages } = planPages(catalogue, roles, regions, now);
