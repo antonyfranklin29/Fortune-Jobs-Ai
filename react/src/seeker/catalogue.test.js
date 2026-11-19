@@ -19,7 +19,7 @@ describe('searchCity', () => {
 });
 
 describe('quickMatches with a city', () => {
-  it('finds the city jobs that the nationwide top 300 leaves out', async () => {
+  it('finds the city jobs that the nationwide top candidates leave out', async () => {
     const national = Array.from({ length: 300 }, (_, i) => job('Software Engineer', `Co ${i}`, 'Austin, TX', i));
     national[0] = job('DevOps Engineer', 'Chi Ops', 'Chicago, IL', 'devops');
     const chicago = [job('Software Engineer', 'Acme', 'Chicago, IL', 'a'), job('Software Engineer II', 'Beta', 'Chicago, IL', 'b')];
@@ -33,6 +33,14 @@ describe('quickMatches with a city', () => {
     expect(urls.some(u => decodeURIComponent(u).includes('location=ilike.*chicago*'))).toBe(true);
     expect(top.map(j => j.company)).toEqual(expect.arrayContaining(['Acme', 'Beta']));
     expect(top.every(j => j.location.startsWith('Chicago'))).toBe(true);
+  });
+
+  it('asks for at most 100 candidates per query', async () => {
+    const urls = [];
+    vi.stubGlobal('fetch', vi.fn(async (url) => { urls.push(String(url)); return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } }); }));
+    await quickMatches('data analyst', {});
+    expect(urls.length).toBeGreaterThan(0);
+    expect(urls.every(u => new URL(u).searchParams.get('limit') === '100')).toBe(true);
   });
 
   it('does not add a city query when there is no city', async () => {

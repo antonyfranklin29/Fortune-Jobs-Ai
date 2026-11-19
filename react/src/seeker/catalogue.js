@@ -60,10 +60,14 @@ export async function recentJobs(signal) {
   return selected;
 }
 
+// Each search reads at most this many candidate rows (with descriptions). 300 overloaded the
+// database once the catalogue passed 20,000 jobs (Nov 19 2026); 100 still leaves plenty to rank.
+const CANDIDATE_LIMIT = '100';
+
 const stopwords = new Set(['a','an','and','the','of','for','to','in','on','at','with','or','jobs','job','role','roles','position','positions','senior','junior']);
 function tokensFor(text) { return String(text || '').toLowerCase().replace(/[^a-z0-9+#.\s-]/g, ' ').split(/\s+/).filter(token => token.length >= 2 && !stopwords.has(token)); }
 function candidateParams(tokens, filters, excludeSource) {
-  const params = new URLSearchParams({ select: fields, limit: '300', closed_at: 'is.null', order: 'posted_at.desc.nullslast' });
+  const params = new URLSearchParams({ select: fields, limit: CANDIDATE_LIMIT, closed_at: 'is.null', order: 'posted_at.desc.nullslast' });
   if (excludeSource) params.set('source', `neq.${excludeSource}`);
   const keywords = tokens.map(token => `search_text.ilike.*${token.replace(/\*/g, '')}*`).join(',');
   const sponsorship = workAuthorizationFilter(filters.sponsorship);
@@ -128,7 +132,7 @@ export async function quickMatches(query, filters = {}, signal, limit = 10) {
   const tokens = tokensFor(query);
   const first = await read(candidateParams(tokens, filters), signal);
   let rows = first;
-  // The broad query returns the newest 300 matches nationwide, so a city's jobs can all fall
+  // The broad query returns the newest CANDIDATE_LIMIT matches nationwide, so a city's jobs can all fall
   // outside it. A second query limited to the city keeps them in the pool.
   const city = searchCity(filters);
   if (city.length >= 2) {
