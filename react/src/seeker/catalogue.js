@@ -165,7 +165,10 @@ export async function quickMatches(query, filters = {}, signal, limit = 10) {
   }
   const recent = rows.filter(job => ['employer_direct','employer_feed','himalayas','remotive'].includes(job.source) || Date.parse(job.posted_at) >= Date.now() - 30 * DAY);
   const accuracy = FJAccuracy;
-  const filtered = accuracy.filterJobs(recent, query, filters).filter((job) => meetsSalary(job, filters.salary_min));
+  // The database already limited a state search to that state. Many listings name a county rather
+  // than the state ("Parsippany, Morris County"), so the location text can't be re-checked here.
+  const filterBy = state ? { ...filters, location: '', city: '', region: '', location_scope: '' } : filters;
+  const filtered = accuracy.filterJobs(recent, query, filterBy).filter((job) => meetsSalary(job, filters.salary_min));
   const ranked = filtered.map(job => ({ ...job, search_reason: accuracy.matchReason(job, query, filters), search_score: score(job, tokens, query.toLowerCase().trim(), filters) }));
   ranked.sort((a, b) => b.search_score - a.search_score);
   const top = [], seen = new Set(), companies = new Map();

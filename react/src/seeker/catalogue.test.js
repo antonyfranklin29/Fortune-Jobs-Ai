@@ -65,12 +65,12 @@ describe('state searches', () => {
 
   it('asks the database for that state and keeps its jobs', async () => {
     const urls = [];
-    const nj = [job('Data Analyst', 'Acme', 'Newark, NJ', 'a'), job('Senior Data Analyst', 'Beta', 'Edison, NJ', 'b')];
+    const nj = [job('Data Analyst', 'Acme', 'Newark, NJ', 'a'), job('Senior Data Analyst', 'Beta', 'Edison, NJ', 'b'), job('Data Analyst', 'Gamma', 'Parsippany, Morris County', 'c')];
     vi.stubGlobal('fetch', vi.fn(async (url) => { urls.push(new URL(url)); return Response.json(nj); }));
     const top = await quickMatches('Data Analyst', { location: 'New Jersey' });
     expect(urls[0].searchParams.get('state_code')).toBe('eq.NJ');
     expect(urls.some(u => u.searchParams.get('location'))).toBe(false);
-    expect(top.map(j => j.company)).toEqual(expect.arrayContaining(['Acme', 'Beta']));
+    expect(top.map(j => j.company)).toEqual(expect.arrayContaining(['Acme', 'Beta', 'Gamma']));
   });
 });
 
