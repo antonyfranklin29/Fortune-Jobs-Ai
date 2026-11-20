@@ -28,7 +28,9 @@
   <url><loc>https://fortunejobsai.com/jobs/devops-engineer/california/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/qa-engineer/california/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/product-manager/california/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/project-manager/california/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/marketing-manager/california/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/business-analyst/colorado/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/colorado/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/connecticut/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/delaware/</loc></url>
@@ -39,8 +41,11 @@
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/florida/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/devops-engineer/florida/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-analyst/georgia/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/data-engineer/georgia/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/georgia/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/full-stack-developer/georgia/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/devops-engineer/georgia/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/software-engineer/hawaii/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/idaho/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-analyst/illinois/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/business-analyst/illinois/</loc></url>
@@ -61,9 +66,9 @@
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/maryland/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/full-stack-developer/maryland/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/devops-engineer/maryland/</loc></url>
-  <url><loc>https://fortunejobsai.com/jobs/servicenow-developer/maryland/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-analyst/massachusetts/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/business-analyst/massachusetts/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/data-engineer/massachusetts/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-scientist/massachusetts/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/machine-learning-engineer/massachusetts/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/massachusetts/</loc></url>
@@ -71,6 +76,7 @@
   <url><loc>https://fortunejobsai.com/jobs/qa-engineer/massachusetts/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/registered-nurse/massachusetts/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/business-analyst/michigan/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/data-engineer/michigan/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/michigan/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/full-stack-developer/michigan/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/business-analyst/minnesota/</loc></url>
@@ -78,6 +84,7 @@
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/minnesota/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/business-analyst/missouri/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/missouri/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/registered-nurse/missouri/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/montana/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/nevada/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/new-hampshire/</loc></url>
@@ -104,13 +111,16 @@
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/north-carolina/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/full-stack-developer/north-carolina/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/devops-engineer/north-carolina/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/cloud-engineer/north-carolina/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/registered-nurse/north-carolina/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/north-dakota/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/business-analyst/ohio/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-scientist/ohio/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/ohio/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/devops-engineer/ohio/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/business-analyst/oklahoma/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/oklahoma/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/business-analyst/oregon/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-analyst/pennsylvania/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/business-analyst/pennsylvania/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-engineer/pennsylvania/</loc></url>
@@ -196,10 +206,12 @@
   <url><loc>https://fortunejobsai.com/jobs/full-stack-developer/austin-tx/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/devops-engineer/austin-tx/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/qa-engineer/austin-tx/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/project-manager/austin-tx/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/business-analyst/seattle-wa/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-engineer/seattle-wa/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-scientist/seattle-wa/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/seattle-wa/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/devops-engineer/seattle-wa/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/product-manager/seattle-wa/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/registered-nurse/seattle-wa/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-analyst/san-francisco-ca/</loc></url>
@@ -217,7 +229,6 @@
   <url><loc>https://fortunejobsai.com/jobs/data-analyst/dallas-tx/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-engineer/dallas-tx/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/dallas-tx/</loc></url>
-  <url><loc>https://fortunejobsai.com/jobs/salesforce-developer/dallas-tx/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/project-manager/dallas-tx/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/registered-nurse/dallas-tx/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/accountant/dallas-tx/</loc></url>
@@ -230,9 +241,9 @@
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/charlotte-nc/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/full-stack-developer/charlotte-nc/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/devops-engineer/charlotte-nc/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/cloud-engineer/charlotte-nc/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/qa-engineer/charlotte-nc/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/servicenow-developer/charlotte-nc/</loc></url>
-  <url><loc>https://fortunejobsai.com/jobs/salesforce-developer/charlotte-nc/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/registered-nurse/charlotte-nc/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-analyst/atlanta-ga/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-engineer/atlanta-ga/</loc></url>
@@ -251,6 +262,7 @@
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/boston-ma/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/full-stack-developer/boston-ma/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/devops-engineer/boston-ma/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/cloud-engineer/boston-ma/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/qa-engineer/boston-ma/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/product-manager/boston-ma/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-analyst/washington-dc/</loc></url>
@@ -286,6 +298,7 @@
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/los-angeles-ca/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/full-stack-developer/los-angeles-ca/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/product-manager/los-angeles-ca/</loc></url>
+  <url><loc>https://fortunejobsai.com/jobs/project-manager/los-angeles-ca/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-scientist/san-jose-ca/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/san-jose-ca/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/devops-engineer/san-jose-ca/</loc></url>
@@ -296,7 +309,6 @@
   <url><loc>https://fortunejobsai.com/jobs/business-analyst/phoenix-az/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-engineer/phoenix-az/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/data-scientist/phoenix-az/</loc></url>
-  <url><loc>https://fortunejobsai.com/jobs/machine-learning-engineer/phoenix-az/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/software-engineer/phoenix-az/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/full-stack-developer/phoenix-az/</loc></url>
   <url><loc>https://fortunejobsai.com/jobs/devops-engineer/phoenix-az/</loc></url>
