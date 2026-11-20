@@ -7,19 +7,31 @@ test('read-only catalogue fetch uses public fields and pages without sending dat
   const fetchImpl = async (url, options) => {
     requests.push({url: String(url), options});
     return {ok: true, json: async () => requests.length === 1
-      ? Array.from({length: 1000}, () => ({source: 'adzuna'}))
-      : [{source: 'indeed'}]};
+      ? Array.from({length: 1000}, (_, i) => ({id: i + 1, source: 'adzuna'}))
+      : [{id: 1001, source: 'indeed'}]};
   };
   const rows = await readCatalogue({fetchImpl, key: 'public-test-key'});
   assert.equal(rows.length, 1001);
   assert.equal(requests.length, 2);
-  assert.match(requests[0].url, /offset=0/);
-  assert.match(requests[1].url, /offset=1000/);
+  assert.doesNotMatch(requests[0].url, /[?&]id=/);
+  assert.match(requests[1].url, /[?&]id=gt\.1000(&|$)/);
   for (const request of requests) {
     assert.equal(request.options.method, undefined); // GET only
-    assert.match(request.url, /select=source%2Cstate_code%2Cposted_at%2Clast_seen_at/);
+    assert.match(request.url, /select=id%2Csource%2Cstate_code%2Cposted_at%2Clast_seen_at/);
     assert.doesNotMatch(request.url, /resume|profile|email/);
   }
+});
+
+test('catalogues over 20,000 jobs are read in full', async () => {
+  let calls = 0;
+  const fetchImpl = async () => {
+    calls++;
+    const start = (calls - 1) * 1000;
+    const size = calls <= 25 ? 1000 : 500;
+    return {ok: true, json: async () => Array.from({length: size}, (_, i) => ({id: start + i + 1, source: 'adzuna'}))};
+  };
+  const rows = await readCatalogue({fetchImpl, key: 'k'});
+  assert.equal(rows.length, 25500);
 });
 
 test('stalled refresh is reported even when old jobs remain open', () => {
