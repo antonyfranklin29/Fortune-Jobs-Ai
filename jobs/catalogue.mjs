@@ -83,6 +83,13 @@ export function jobPosting(job, now = Date.now()) {
   };
 }
 
+// Adzuna lists U.S. places as "City, Some County"; show "City, ST" (Franklin, Nov 19 2026).
+export function cityStateRow(job) {
+  const text = String(job.location || '');
+  if (!/^[A-Z]{2}$/.test(job.state_code || '') || !/,\s*[^,]*\bcounty\s*$/i.test(text)) return job;
+  return { ...job, location: text.split(',')[0].trim() + ', ' + job.state_code };
+}
+
 async function read(config, params) {
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
@@ -97,7 +104,7 @@ async function read(config, params) {
       }
       const rows = await response.json();
       if (!Array.isArray(rows)) throw new Error('Expected a catalogue row array');
-      return rows;
+      return rows.map(cityStateRow);
     } catch (error) {
       const transient = [500, 503, 504].includes(error.status) || ['TimeoutError', 'AbortError'].includes(error.name);
       if (attempt === 1 || !transient) throw error;

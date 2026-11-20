@@ -117,3 +117,12 @@ describe('work authorization', () => {
     expect(workAuthorizationLabel('unknown')).toBe('');
   });
 });
+
+describe('city and state locations', () => {
+  it('shows "City, ST" instead of a county', async () => {
+    const row = { ...job('Data Analyst', 'Acme', 'Parsippany Troy Hills, Morris County', 'p'), state_code: 'NJ' };
+    vi.stubGlobal('fetch', vi.fn(async () => Response.json([row])));
+    const top = await quickMatches('Data Analyst', { location: 'New Jersey' });
+    expect(top[0].location).toBe('Parsippany Troy Hills, NJ');
+  });
+});

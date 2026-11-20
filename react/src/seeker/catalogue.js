@@ -1,11 +1,12 @@
 import { FJAccuracy, FJCompanyLogos, FJDataSafety } from '../lib/sharedLibs.js';
 import { fixApplyUrl } from '../shared/applyUrl.js';
+import { cityState } from '../shared/location.js';
 import * as Guest from '../resume/lib/guestResume.js';
 import * as Matching from '../resume/lib/resumeMatching.js';
 
 import { workAuthorizationFilter } from './workAuthorization.js';
 
-const fields = 'job_title,company,location,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,source_url,attribution,closed_at,sponsorship';
+const fields = 'job_title,company,location,state_code,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,source_url,attribution,closed_at,sponsorship';
 const DAY = 86400000;
 
 async function read(params, signal) {
@@ -19,7 +20,8 @@ async function read(params, signal) {
     response = await fetch(`${config.url}/rest/v1/pre_scraped_jobs?${params}`, { headers, signal });
   }
   if (!response.ok) throw new Error('The job catalogue is temporarily unavailable. Please try again.');
-  return response.json();
+  const rows = await response.json();
+  return Array.isArray(rows) ? rows.map(job => ({ ...job, location: cityState(job.location, job.state_code) })) : rows;
 }
 
 export function safeApplyUrl(value) { return FJDataSafety.httpUrl(fixApplyUrl(value)); }
