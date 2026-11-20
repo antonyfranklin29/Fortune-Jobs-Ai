@@ -4,7 +4,8 @@ import {pathToFileURL} from 'node:url';
 
 const PROJECT_URL = 'https://hqgakkcxcyspqhnlnscv.supabase.co';
 const PAGE_SIZE = 1000;
-const MAX_PAGES = 20;
+// Keyset pages of 1,000 open jobs; 150 pages = room for 150,000 jobs (the catalogue passed 20,000 on Nov 18 2026).
+const MAX_PAGES = 150;
 const DAY_MS = 86400000;
 export const US_STATE_CODES = 'AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ');
 
@@ -17,13 +18,14 @@ function publicKey() {
 
 export async function readCatalogue({fetchImpl = fetch, key = publicKey(), url = PROJECT_URL} = {}) {
   const rows = [];
+  let after = null;
   for (let page = 0; page < MAX_PAGES; page++) {
     const endpoint = new URL('/rest/v1/pre_scraped_jobs', url);
-    endpoint.searchParams.set('select', 'source,state_code,posted_at,last_seen_at');
+    endpoint.searchParams.set('select', 'id,source,state_code,posted_at,last_seen_at');
     endpoint.searchParams.set('closed_at', 'is.null');
     endpoint.searchParams.set('order', 'id.asc');
     endpoint.searchParams.set('limit', String(PAGE_SIZE));
-    endpoint.searchParams.set('offset', String(page * PAGE_SIZE));
+    if (after !== null) endpoint.searchParams.set('id', `gt.${after}`);
     const response = await fetchImpl(endpoint, {
       headers: {apikey: key, authorization: `Bearer ${key}`},
       redirect: 'error',
@@ -34,6 +36,7 @@ export async function readCatalogue({fetchImpl = fetch, key = publicKey(), url =
     if (!Array.isArray(batch) || batch.length > PAGE_SIZE) throw Error('catalogue_invalid_response');
     rows.push(...batch);
     if (batch.length < PAGE_SIZE) return rows;
+    after = batch[batch.length - 1].id;
   }
   throw Error('catalogue_page_limit_reached');
 }
