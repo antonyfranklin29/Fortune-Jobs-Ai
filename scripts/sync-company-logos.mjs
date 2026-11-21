@@ -40,9 +40,12 @@ export function renderMap(state, publishableKey) {
 }
 
 async function catalogueCompanies(url, anonKey) {
+  // Keyset pages by id (indexed). Bound: 150 pages = 150,000 open jobs (the catalogue passed 20,000 on Nov 18 2026).
   const names = new Set();
-  for (let offset = 0; offset < 20_000; offset += 1000) {
-    const query = new URLSearchParams({ select: 'company', closed_at: 'is.null', limit: '1000', offset: String(offset), order: 'company.asc' });
+  let after = null;
+  for (let page = 0; page < 150; page++) {
+    const query = new URLSearchParams({ select: 'id,company', closed_at: 'is.null', limit: '1000', order: 'id.asc' });
+    if (after !== null) query.set('id', `gt.${after}`);
     const response = await fetch(`${url}/rest/v1/pre_scraped_jobs?${query}`, {
       headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` }
     });
@@ -51,8 +54,9 @@ async function catalogueCompanies(url, anonKey) {
     if (!Array.isArray(rows)) throw new Error('Invalid catalogue response');
     for (const row of rows) if (keyFor(row.company)) names.add(keyFor(row.company));
     if (rows.length < 1000) return [...names].sort();
+    after = rows[rows.length - 1].id;
   }
-  throw new Error('Catalogue exceeds 20,000 rows; raise the explicit safety bound');
+  throw new Error('Catalogue exceeds 150,000 rows; raise the explicit safety bound');
 }
 
 async function main() {
