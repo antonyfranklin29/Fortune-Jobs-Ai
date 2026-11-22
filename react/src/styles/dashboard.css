@@ -262,3 +262,4 @@
 .signup-nudge-cta:hover, .signup-nudge-cta:focus-visible { background: #e2bb5c; }
 .signup-nudge-close { position: absolute; top: 6px; right: 8px; width: 32px; height: 32px; border: 0; background: transparent; color: #c9d6e2; font-size: 1.3rem; cursor: pointer; border-radius: 8px; }
 .signup-nudge-close:hover, .signup-nudge-close:focus-visible { background: rgba(255,255,255,.1); color: #fff; }
+.featured-partner { display:block; margin:6px 0 0; font-size:12px; font-weight:600; color:#7A5A12; }

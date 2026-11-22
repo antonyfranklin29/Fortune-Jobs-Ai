@@ -26,7 +26,9 @@ export function partnerPostedAt(value, now = Date.now()) {
 
 export function partnerJob(row, source) {
   return {
-    job_title: row.title, company: row.company || '', location: row.location || '', salary: row.salary || '',
+    job_title: row.title, company: row.company || '', location: row.location || '',
+    // Partners send "0.000000 - 0.000000" when there is no pay range: show no salary then.
+    salary: /[1-9]/.test(String(row.salary || '')) ? row.salary : '',
     apply_url: row.url, job_description: row.description || '', source, posted_at: partnerPostedAt(row.date),
     live_partner: partnerName(source),
   };
@@ -67,4 +69,37 @@ export async function liveSearch({ q, location = '' }, catalogueSearch, signal, 
     ...LIVE_PARTNERS.map(p => askPartner(p, query, signal, fetchImpl)),
   ]);
   return mergeLive(catalogue || [], partners.flat());
+}
+
+// Normal searches: a few WhatJobs results mixed into our own list as regular cards, credited
+// "Jobs by WhatJobs" with their tracking links unchanged (WhatJobs pays per click). Jooble stays in
+// Live Search only, because its API key allows a limited number of requests.
+export const BLEND_PARTNER = LIVE_PARTNERS.find(p => p.source === 'whatjobs');
+export const BLEND_MAX = 5;
+export const BLEND_EVERY = 4;
+
+// Puts partner jobs after every BLEND_EVERY catalogue jobs (then at the end), skipping duplicates
+// of each other and of our own jobs.
+export function blendPartners(catalogue, partners, { max = BLEND_MAX, every = BLEND_EVERY } = {}) {
+  const seen = new Set(catalogue.map(sameJob));
+  const extra = [];
+  for (const job of partners) {
+    const key = sameJob(job);
+    if (seen.has(key)) continue;
+    seen.add(key); extra.push(job);
+    if (extra.length >= max) break;
+  }
+  const out = [];
+  let next = 0;
+  catalogue.forEach((job, i) => {
+    out.push(job);
+    if ((i + 1) % every === 0 && next < extra.length) out.push(extra[next++]);
+  });
+  return out.concat(extra.slice(next));
+}
+
+export async function partnerBlend({ q, location = '' }, signal, fetchImpl = (...a) => fetch(...a)) {
+  const query = { q: String(q || '').trim().slice(0, 120), location: String(location || '').trim().slice(0, 120), page: 1 };
+  if (!query.q || !BLEND_PARTNER) return [];
+  return askPartner(BLEND_PARTNER, query, signal, fetchImpl);
 }

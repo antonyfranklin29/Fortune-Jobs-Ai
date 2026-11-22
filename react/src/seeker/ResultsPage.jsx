@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Footer, Header, MobileTabs } from '../shared/Shell.jsx';
 import { SearchForm } from './SearchForm.jsx';
 import { PartnerJobs, partnerQuery } from './PartnerJobs.jsx';
-import { liveSearch } from './liveSearch.js';
+import { liveSearch, partnerBlend, blendPartners } from './liveSearch.js';
 import { JobDetail, JobList } from './JobViews.jsx';
 import { guestMatchProfile, quickMatches, recentJobs } from './catalogue.js';
 import { workAuthorizationFilter } from './workAuthorization.js';
@@ -132,7 +132,10 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
       ? subscriptionRequest.then(sub => liveSearch({ q: initial.q, location: initial.location },
           () => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10), controller.signal))
       : searching
-      ? subscriptionRequest.then(sub => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10))
+      ? Promise.all([
+          subscriptionRequest.then(sub => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10)),
+          initial.q ? partnerBlend({ q: initial.q, location: initial.location }, controller.signal) : Promise.resolve([]),
+        ]).then(([rows, partners]) => blendPartners(rows, partners))
       : recentJobs(controller.signal);
     request
       .then(rows => { if (!controller.signal.aborted) { setJobs(rows); setLoading(false); } })
@@ -170,8 +173,6 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
           <MatchPanel job={job} profile={profile} saved={savedKeys.has(jobKey(job))} />
         </div>}
         {CAREERJET_ENABLED && !loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="Careerjet" site="https://www.careerjet.com/" endpoint="careerjet-search" />}
-        {!loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="Jooble" site="https://jooble.org/" endpoint="jooble-search" onDemand />}
-        {!loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="WhatJobs" site="https://www.whatjobs.com/" endpoint="whatjobs-search" onDemand />}
       </div>
       {afterDashboard}
     </main>
