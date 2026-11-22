@@ -12,6 +12,7 @@ import { AccountNav, AdzunaCredit, Avatar, StatusMessage, Spinner, useDocumentTi
 import { avatarPath, exportAccount, httpUrl, isAdzunaJob, removeResume } from './lib/dataSafety.js';
 import * as Deletion from './lib/accountDeletion.js';
 import { SkillGap } from '../seeker/AiTools.jsx';
+import { PartnerApply, isPaidPartner } from '../shared/PartnerApply.jsx';
 import { fixApplyUrl } from '../shared/applyUrl.js';
 import './account-base.css';
 import './profile-page.css';
@@ -607,7 +608,7 @@ function SavedJobs({ toast, onCount }) {
                       <div className="meta">{j.salary || 'Salary not listed'} · saved {timeAgo(j.created_at)}</div>
                       <ApplicationProgress key={JSON.stringify([j.stage, j.application_note])} job={j} onSave={saveProgress} />
                       <div className="acts"><button className="btn btn-danger btn-sm" type="button" onClick={() => unsave(j.id)}>Remove</button>
-                        {url ? <a className="btn btn-dark btn-sm" href={url} target="_blank" rel="noopener">Apply →</a> : null}</div>
+                        {url ? isPaidPartner(j) ? <PartnerApply job={j} className="btn btn-dark btn-sm">Apply →</PartnerApply> : <a className="btn btn-dark btn-sm" href={url} target="_blank" rel="noopener">Apply →</a> : null}</div>
                       {isAdzunaJob(j) ? <AdzunaCredit /> : null}
                     </div>
                   );

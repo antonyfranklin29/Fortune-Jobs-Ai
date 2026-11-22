@@ -49,7 +49,7 @@ function page({ path, title, description, body, noindex = false, live = false, t
     '<link rel="icon" href="/favicon.ico?v=2" sizes="48x48"><link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2"><link rel="stylesheet" href="/jobs/jobs.css">\n' +
     (live ? '<script src="/config.js"></script><script type="module" src="/jobs/live.mjs"></script>\n' : '') +
     '<script type="application/ld+json">' + schema + '</script>\n' +
-    '</head><body><header><nav aria-label="Main navigation">' +
+    '<script defer src="/source-tracking.js"></script></head><body><header><nav aria-label="Main navigation">' +
     '<a class="brand" href="/"><img src="/favicon.svg" alt="">Fortune Jobs AI</a>' +
     '<a href="/find-jobs.html">Find jobs</a></nav></header><main>\n' +
     nav + '\n' + body + '\n</main><footer><a href="/jobs/">Jobs by state and city</a> · ' +

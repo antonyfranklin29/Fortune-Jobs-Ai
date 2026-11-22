@@ -30,6 +30,7 @@ export function liveJobsUrl({ q = '', location = '' }) {
 const SAVED_LIMITS = { job_title: 300, company: 200, location: 200, salary: 120, apply_url: 2000, match_reason: 2000 };
 export function savedJobRow(job, key) {
   const row = { job_key: key };
+  if (job.source) row.source = String(job.source).slice(0, 50);
   const source = { job_title: job.job_title, company: job.company, location: job.location, salary: job.salary, apply_url: job.apply_url, match_reason: job.search_reason };
   for (const [field, limit] of Object.entries(SAVED_LIMITS)) if (source[field] != null && source[field] !== '') row[field] = String(source[field]).slice(0, limit);
   return row;

@@ -66,4 +66,9 @@ for (const [file, p] of Object.entries(PAGES)) {
   html = html.replace(/<!--seo-->[\s\S]*?<!--\/seo-->/, '').replace(/<title>[^<]*<\/title>/, `<title>${esc(p.title)}</title>${head(file, p)}`);
   fs.writeFileSync(f, html);
 }
+for (const file of fs.readdirSync(root).filter(file => file.endsWith('.html'))) {
+  const location = path.join(root, file);
+  const html = fs.readFileSync(location, 'utf8');
+  if (!html.includes('src="/source-tracking.js"')) fs.writeFileSync(location, html.replace('</head>', '<script defer src="/source-tracking.js"></script></head>'));
+}
 module.exports = { PAGES };
