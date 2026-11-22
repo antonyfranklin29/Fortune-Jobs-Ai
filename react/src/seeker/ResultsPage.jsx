@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Footer, Header, MobileTabs } from '../shared/Shell.jsx';
 import { SearchForm } from './SearchForm.jsx';
 import { PartnerJobs, partnerQuery } from './PartnerJobs.jsx';
-import { liveSearch, partnerBlend, blendPartners } from './liveSearch.js';
+import { liveSearch } from './liveSearch.js';
 import { JobDetail, JobList } from './JobViews.jsx';
 import { guestMatchProfile, quickMatches, recentJobs } from './catalogue.js';
 import { workAuthorizationFilter } from './workAuthorization.js';
@@ -132,11 +132,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
       ? subscriptionRequest.then(sub => liveSearch({ q: initial.q, location: initial.location },
           () => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10), controller.signal, undefined, isActive(sub) ? PRO.results : 10))
       : searching
-      ? Promise.all([
-          subscriptionRequest.then(sub => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10)),
-          initial.q ? partnerBlend({ q: initial.q, location: initial.location }, controller.signal) : Promise.resolve([]),
-          subscriptionRequest,
-        ]).then(([rows, partners, sub]) => blendPartners(rows, partners).slice(0, isActive(sub) ? PRO.results : 10))
+      ? subscriptionRequest.then(sub => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10))
       : recentJobs(controller.signal);
     request
       .then(rows => { if (!controller.signal.aborted) { setJobs(rows); setLoading(false); } })
@@ -159,7 +155,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
       <div className="dashboard-body">
         {error && <p className="dashboard-status" role="alert">{error}</p>}
         {loading && <p className="dashboard-status" role="status">Loading jobs…</p>}
-        {!loading && !error && !jobs.length && <p className="dashboard-status">No recent listings match these filters. Try a broader role or location.</p>}
+        {!loading && !error && !jobs.length && <p className="dashboard-status">{initial.mode === 'live' ? 'No live partner jobs for this search right now. Try Quick Match to search all our jobs.' : 'No recent listings match these filters. Try a broader role or location.'}</p>}
         {saveMessage && <p className="dashboard-status" role="status">{saveMessage}</p>}
         {!!job && <div className="dashboard-grid">
           <section className="dashboard-card dashboard-list" aria-label="Job results">

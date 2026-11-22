@@ -61,18 +61,18 @@ export function mergeLive(catalogue, partners) {
   return out.sort((a, b) => (Date.parse(b.posted_at) || 0) - (Date.parse(a.posted_at) || 0));
 }
 
-// Live Search looks like Quick Match: our ranked jobs first, a partner job after every 2 of ours
-// (Jooble and WhatJobs taking turns), capped at the plan's result limit.
-export async function liveSearch({ q, location = '' }, catalogueSearch, signal, fetchImpl = (...a) => fetch(...a), limit = 10) {
+// Live Search shows only partners that pay us per click (WhatJobs today; Jobg8 from January),
+// in the same card layout as Quick Match, capped at the plan's result limit. Our own catalogue
+// (Adzuna, USAJobs, company boards) is Quick Match.
+export const PAID_PARTNERS = LIVE_PARTNERS.filter(p => p.source === 'whatjobs');
+
+export async function liveSearch({ q, location = '' }, _catalogueSearch, signal, fetchImpl = (...a) => fetch(...a), limit = 10) {
   const query = { q: String(q || '').trim().slice(0, 120), location: String(location || '').trim().slice(0, 120), page: 1 };
   if (!query.q) return [];
-  const [catalogue, ...partners] = await Promise.all([
-    catalogueSearch().catch(() => []),
-    ...LIVE_PARTNERS.map(p => askPartner(p, query, signal, fetchImpl)),
-  ]);
+  const lists = await Promise.all(PAID_PARTNERS.map(p => askPartner(p, query, signal, fetchImpl)));
   const turns = [];
-  for (let i = 0; i < Math.max(...partners.map(list => list.length), 0); i++) for (const list of partners) if (list[i]) turns.push(list[i]);
-  return blendPartners(catalogue || [], turns, { max: limit, every: 2 }).slice(0, limit);
+  for (let i = 0; i < Math.max(0, ...lists.map(list => list.length)); i++) for (const list of lists) if (list[i]) turns.push(list[i]);
+  return blendPartners([], turns, { max: limit }).slice(0, limit);
 }
 
 // Normal searches: a few WhatJobs results mixed into our own list as regular cards, credited
