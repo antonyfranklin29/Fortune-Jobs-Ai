@@ -1,3 +1,5 @@
+import sectors from '../../../config/care-sectors.json' with { type: 'json' };
+import { careRole, jobTags, matchesJobTags } from '../shared/jobTags.js';
 import { FJAccuracy, FJCompanyLogos, FJDataSafety } from '../lib/sharedLibs.js';
 import { fixApplyUrl } from '../shared/applyUrl.js';
 import { cityState } from '../shared/location.js';
@@ -6,7 +8,7 @@ import * as Matching from '../resume/lib/resumeMatching.js';
 
 import { workAuthorizationFilter } from './workAuthorization.js';
 
-const fields = 'job_title,company,location,state_code,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,source_url,attribution,closed_at,sponsorship,last_seen_at';
+const fields = 'canonical_role,job_title,company,location,state_code,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,source_url,attribution,closed_at,sponsorship,last_seen_at';
 const DAY = 86400000;
 
 async function read(params, signal, fetchImpl = (...args) => fetch(...args)) {
@@ -85,7 +87,11 @@ function candidateParams(tokens, filters, excludeSource) {
   if (filters.country) params.set('country', `eq.${filters.country.toLowerCase()}`);
   if (['1', '3', '7', '30'].includes(filters.date_posted)) params.set('posted_at', `gte.${new Date(Date.now() - Number(filters.date_posted) * DAY).toISOString()}`);
   if (filters.salary === 'listed' || Number(filters.salary_min) > 0) params.set('salary', 'not.is.null');
-  if (filters.category) params.set('category', `eq.${filters.category}`);
+  const categoryRole = careRole(filters.category);
+  if (categoryRole) params.set('canonical_role', `eq.${categoryRole.id}`);
+  else if (filters.category) params.set('category', `eq.${filters.category}`);
+  else if (sectors[filters.sector]) params.set('canonical_role', `in.(${sectors[filters.sector].join(',')})`);
+  else if (filters.sector === 'tech') params.set('canonical_role', 'in.(software-engineer,data-engineer,data-analyst,devops-engineer,cloud-engineer,qa-engineer,cybersecurity-analyst,data-scientist,machine-learning-engineer,business-analyst)');
   if (filters.work_mode === 'remote') params.set('work_mode', 'eq.remote');
   if (filters.company) params.set('company', `ilike.*${filters.company}*`);
   if (filters.state_code) params.set('state_code', `eq.${filters.state_code}`);
@@ -147,7 +153,10 @@ const meetsSalary = (job, min) => !(Number(min) > 0) || salaryTop(job.salary) >=
 export async function quickMatches(query, filters = {}, signal, limit = 10, fetchImpl) {
   const fetchRows = params => read(params, signal, fetchImpl);
   if (!query.trim() && !Object.values(filters).some(Boolean)) return recentJobs(signal);
-  const tokens = tokensFor(query);
+  const care = careRole(query || filters.category);
+  const searchQuery = care?.id === 'cdl-truck-driver' ? 'CDL driver' : care?.name || query;
+  if (care) filters = { ...filters, shift: filters.shift || jobTags({job_title:query}).shift[0] || '' };
+  const tokens = tokensFor(searchQuery);
   const state = searchState(filters);
   if (state) filters = { ...filters, location_scope: 'region', region: Guest.states[state], state_code: state };
   const first = await fetchRows(candidateParams(tokens, filters));
@@ -180,8 +189,8 @@ export async function quickMatches(query, filters = {}, signal, limit = 10, fetc
   // The database already limited a state search to that state. Many listings name a county rather
   // than the state ("Parsippany, Morris County"), so the location text can't be re-checked here.
   const filterBy = state ? { ...filters, location: '', city: '', region: '', location_scope: '' } : filters;
-  const filtered = accuracy.filterJobs(recent, query, filterBy).filter((job) => meetsSalary(job, filters.salary_min));
-  const ranked = filtered.map(job => ({ ...job, search_reason: accuracy.matchReason(job, query, filters), search_score: score(job, tokens, query.toLowerCase().trim(), filters) }));
+  const filtered = accuracy.filterJobs(recent, searchQuery, careRole(filters.category) ? { ...filterBy, category: '' } : filterBy).filter((job) => meetsSalary(job, filters.salary_min) && (!care || matchesJobTags(job, filters)));
+  const ranked = filtered.map(job => ({ ...job, search_reason: accuracy.matchReason(job, query, filters), search_score: score(job, tokens, searchQuery.toLowerCase().trim(), filters) }));
   ranked.sort((a, b) => b.search_score - a.search_score);
   const top = [], seen = new Set(), companies = new Map();
   for (const job of promoteJobg8(ranked)) {

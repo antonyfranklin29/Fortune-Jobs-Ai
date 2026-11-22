@@ -1,9 +1,12 @@
+import sectors from '../config/care-sectors.json' with { type: 'json' };
 // Public catalogue reads use the same anonymous access and visibility rules as Quick Match.
 import { fixApplyUrl } from '../react/src/shared/applyUrl.js';
 
 export const SITE = 'https://fortunejobsai.com';
 export const MIN_CITY_JOBS = 5;
 export const MIN_STATE_JOBS = 40;
+export const CARE_ROLES = new Set([...sectors.healthcare, ...sectors.transport]);
+export const statePageMinimum = role => CARE_ROLES.has(role) ? 5 : MIN_STATE_JOBS;
 export const DISPLAY_LIMIT = 20;
 const PAGE_SIZE = 1000;
 const summaryFields = 'id,job_title,company,location,state_code,canonical_role,country,posted_at,expires_at,closed_at,source,apply_url,salary,is_remote';

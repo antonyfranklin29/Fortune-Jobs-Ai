@@ -1,5 +1,5 @@
 import {
-  MIN_CITY_JOBS, MIN_STATE_JOBS, DISPLAY_LIMIT, applicationUrl, getAreaListings, getEmployerPostings, jobPosting, postingPath,
+  MIN_CITY_JOBS, MIN_STATE_JOBS, statePageMinimum, DISPLAY_LIMIT, applicationUrl, getAreaListings, getEmployerPostings, jobPosting, postingPath,
 } from './catalogue.mjs';
 
 const panel = document.querySelector('[data-job-page]');
@@ -39,7 +39,7 @@ async function refreshArea() {
   const detailIds = new Set(panel.dataset.detailIds.split(',').filter(Boolean));
   try {
     const rows = await getAreaListings(window.FJ_CONFIG, { city, state, role });
-    if (rows.length < (city ? MIN_CITY_JOBS : MIN_STATE_JOBS)) noindex();
+    if (rows.length < (city ? MIN_CITY_JOBS : statePageMinimum(role))) noindex();
     const visible = rows.slice(0, DISPLAY_LIMIT);
     list.replaceChildren(...visible.map(job => {
       const item = document.createElement('li');

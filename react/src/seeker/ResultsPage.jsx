@@ -1,10 +1,12 @@
+import { SearchAlternatives } from './CatalogueDiscovery.jsx';
+import { careRole, matchesJobTags } from '../shared/jobTags.js';
 import React, { useEffect, useState } from 'react';
 import { Footer, Header, MobileTabs } from '../shared/Shell.jsx';
 import { SearchForm } from './SearchForm.jsx';
 import { PartnerJobs, partnerQuery } from './PartnerJobs.jsx';
 import { liveSearch } from './liveSearch.js';
 import { JobDetail, JobList } from './JobViews.jsx';
-import { guestMatchProfile, quickMatches, recentJobs } from './catalogue.js';
+import { guestMatchProfile, quickMatches, recentJobs, searchState } from './catalogue.js';
 import { workAuthorizationFilter } from './workAuthorization.js';
 import { jobKey, supabase } from '../shared/supabase.js';
 
@@ -126,7 +128,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
     const controller = new AbortController();
     const filters = {
       country: initial.country || '', location: initial.location || '', date_posted: initial.date_posted || '', sponsorship: workAuthorizationFilter(initial.sponsorship),
-      experience: initial.experience || '', job_type: initial.job_type || '', work_mode: initial.work_mode || '', company: initial.company || '', salary: initial.salary || '', salary_min: /^\d{4,7}$/.test(initial.salary_min || '') ? initial.salary_min : '', category: initial.category || ''
+      experience: initial.experience || '', job_type: initial.job_type || '', work_mode: initial.work_mode || '', company: initial.company || '', salary: initial.salary || '', salary_min: /^\d{4,7}$/.test(initial.salary_min || '') ? initial.salary_min : '', category: initial.category || '', sector: initial.sector || '', shift: initial.shift || '', license: initial.license || '', specialty: initial.specialty || ''
     };
     // Pro members see more results: check the subscription first (signed-out visitors skip this quickly).
     const searching = initial.q || initial.mode === 'quick' || Object.values(filters).some(Boolean);
@@ -142,7 +144,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
       ? subscriptionRequest.then(sub => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10))
       : recentJobs(controller.signal);
     request
-      .then(rows => { if (!controller.signal.aborted) { setJobs(rows); setLoading(false); } })
+      .then(rows => { if (careRole(initial.q || initial.category)) rows = rows.filter(row => matchesJobTags(row, initial)); if (!controller.signal.aborted) { setJobs(rows); setLoading(false); } })
       .catch(() => { if (!controller.signal.aborted) { setError('We could not load jobs right now. Please try your search again.'); setLoading(false); } });
     return () => controller.abort();
   }, []);
@@ -163,6 +165,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
         {error && <p className="dashboard-status" role="alert">{error}</p>}
         {loading && <p className="dashboard-status" role="status">Loading jobs…</p>}
         {!loading && !error && !jobs.length && <p className="dashboard-status">{initial.mode === 'live' ? 'No live partner jobs for this search right now. Try Quick Match to search all our jobs.' : 'No recent listings match these filters. Try a broader role or location.'}</p>}
+        {!loading && !error && <SearchAlternatives query={initial.q || initial.category || ''} state={searchState(initial)} count={jobs.length} />}
         {saveMessage && <p className="dashboard-status" role="status">{saveMessage}</p>}
         {!!job && <div className="dashboard-grid">
           <section className="dashboard-card dashboard-list" aria-label="Job results">

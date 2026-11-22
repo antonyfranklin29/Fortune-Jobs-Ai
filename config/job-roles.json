@@ -268,10 +268,12 @@
       "review": "initial",
       "include": [
         "\\bregistered\\s+nurse\\b",
-        "\\brn\\b"
+        "\\brn\\b",
+        "\\b(?:travel|staff)\\s+nurse\\b"
       ],
       "exclude": [
-        "\\bnurse\\s+practitioner\\b"
+        "\\bnurse\\s+practitioner\\b",
+        "\\b(?:lpn|lvn|cna|recruiter|instructor)\\b"
       ]
     },
     {
@@ -323,6 +325,162 @@
         "\\bcustomer\\s+service\\s+(?:representative|rep|associate)\\b"
       ],
       "exclude": []
+    },
+    {
+      "id": "licensed-practical-nurse",
+      "name": "Licensed Practical Nurse",
+      "query": "licensed practical nurse",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\b(?:licensed\\s+(?:practical|vocational)\\s+nurse|lpn|lvn)\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
+    },
+    {
+      "id": "certified-nursing-assistant",
+      "name": "Certified Nursing Assistant",
+      "query": "certified nursing assistant",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\b(?:certified\\s+nurs(?:ing|e)\\s+assistants?|cna)\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
+    },
+    {
+      "id": "medical-assistant",
+      "name": "Medical Assistant",
+      "query": "medical assistant",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\bmedical\\s+assistant\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
+    },
+    {
+      "id": "pharmacy-technician",
+      "name": "Pharmacy Technician",
+      "query": "pharmacy technician",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\bpharmacy\\s+(?:technician|tech)\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
+    },
+    {
+      "id": "physical-therapist",
+      "name": "Physical Therapist",
+      "query": "physical therapist",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\bphysical\\s+therapist\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
+    },
+    {
+      "id": "respiratory-therapist",
+      "name": "Respiratory Therapist",
+      "query": "respiratory therapist",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\brespiratory\\s+therapist\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
+    },
+    {
+      "id": "home-health-aide",
+      "name": "Home Health Aide",
+      "query": "home health aide",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\b(?:home\\s+health\\s+aide|hha)\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
+    },
+    {
+      "id": "cdl-truck-driver",
+      "name": "CDL Truck Driver",
+      "query": "cdl truck driver",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\b(?:cdl(?:[ -]?[ab])?\\s+(?:truck\\s+)?driver|truck\\s+driver)\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
+    },
+    {
+      "id": "delivery-driver",
+      "name": "Delivery Driver",
+      "query": "delivery driver",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\bdelivery\\s+driver\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
+    },
+    {
+      "id": "warehouse-associate",
+      "name": "Warehouse Associate",
+      "query": "warehouse associate",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\bwarehouse\\s+(?:associate|worker)\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
+    },
+    {
+      "id": "forklift-operator",
+      "name": "Forklift Operator",
+      "query": "forklift operator",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\bforklift\\s+operator\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
+    },
+    {
+      "id": "dispatcher",
+      "name": "Dispatcher",
+      "query": "dispatcher",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\b(?:dispatcher|dispatch\\s+coordinator)\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
+    },
+    {
+      "id": "logistics-coordinator",
+      "name": "Logistics Coordinator",
+      "query": "logistics coordinator",
+      "review": "reviewed-2026-11-22",
+      "include": [
+        "\\blogistics\\s+coordinator\\b"
+      ],
+      "exclude": [
+        "\\b(?:recruiter|instructor|sales)\\b"
+      ]
     }
   ]
 }
