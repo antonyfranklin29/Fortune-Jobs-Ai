@@ -7,7 +7,7 @@
 //          NEWSLETTER_UNSUBSCRIBE_SECRET (shared with email-preferences), optional NEWSLETTER_FROM.
 // Sends from fortunejobsai.com, the domain verified in Resend; replies go to info@.
 import { renderDigest } from "./digest.mjs";
-import { alertQuery, campaignFor, pickJobs, unsubscribeToken, type Job, type Profile } from "./select.ts";
+import { alertQuery, campaignFor, pickJobs, alertJobKey, weeklyDue, unsubscribeToken, type Job, type Profile } from "./select.ts";
 
 const BASE = Deno.env.get("SUPABASE_URL") || "https://hqgakkcxcyspqhnlnscv.supabase.co";
 const KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -40,15 +40,18 @@ Deno.serve(async (req: Request) => {
   const live = body.send === true && env("NEWSLETTER_ENABLED") === "true" && !!resend && !!address && unsubSecret.length >= 32;
 
   const now = Date.now();
-  const due = await db(`newsletter_preferences?subscribed=eq.true&next_send_at=lte.${encodeURIComponent(new Date(now).toISOString())}&select=user_id,frequency&order=next_send_at.asc&limit=${BATCH}`) as { user_id: string; frequency: "daily" | "weekly" }[];
+  const frequencyFilter = new Date(now).getUTCDay() === 1 ? "" : "&frequency=eq.daily";
+  const due = await db(`newsletter_preferences?subscribed=eq.true&next_send_at=lte.${encodeURIComponent(new Date(now).toISOString())}&select=user_id,frequency${frequencyFilter}&order=next_send_at.asc&limit=${BATCH}`) as { user_id: string; frequency: "daily" | "weekly" }[];
   const report = { dryRun: !live, due: due.length, withJobs: 0, sent: 0, skipped: 0, failed: 0 };
 
   for (const pref of due) {
+    if (!weeklyDue(pref.frequency, now)) { report.skipped++; continue; }
     const profile = (await db(`profiles?id=eq.${pref.user_id}&select=full_name,current_title,preferred_locations,saved_filters`))[0] as Profile | undefined;
     const query = profile && alertQuery(profile, pref.frequency, now);
     if (!query) { report.skipped++; continue; } // no role or area on the profile: never mail random jobs
     const rows = await db(query.path) as Job[];
-    const jobs = pickJobs(rows, query, now);
+    const previous = await db(`newsletter_deliveries?user_id=eq.${pref.user_id}&state=in.(accepted,reserved,unknown)&select=job_keys&order=reserved_at.desc&limit=8`) as { job_keys?: string[] }[];
+    const jobs = pickJobs(rows, query, now, previous.flatMap(row => row.job_keys || []));
     if (!jobs.length) { report.skipped++; continue; } // nothing new: skip this email
     report.withJobs++;
     if (!live) continue;
@@ -60,10 +63,12 @@ Deno.serve(async (req: Request) => {
 
     const unsub = `${PUBLIC_BASE}/functions/v1/email-preferences?token=${await unsubscribeToken(pref.user_id, unsubSecret)}`;
     let content;
-    try { content = renderDigest({ name: profile!.full_name, jobs, address, unsubscribeUrl: unsub, frequency: pref.frequency }); }
+    try { content = renderDigest({ name: profile!.full_name, jobs, address, unsubscribeUrl: unsub, frequency: pref.frequency, role: query.title, location: query.area }); }
     catch { report.failed++; continue; } // e.g. a malformed postal address: never send a non-compliant email
     const claim = await db("rpc/newsletter_claim", "POST", { p_user: pref.user_id, p_campaign: campaignFor(pref.frequency, now) });
     if (!claim) { report.skipped++; continue; }
+    try { await db(`newsletter_deliveries?id=eq.${claim}`, "PATCH", { job_keys: jobs.map(alertJobKey) }); }
+    catch { report.failed++; continue; }
     const fresh = (await db(`newsletter_preferences?user_id=eq.${pref.user_id}&select=subscribed`))[0];
     if (!fresh?.subscribed) { await db(`newsletter_deliveries?id=eq.${claim}`, "PATCH", { state: "suppressed" }); report.skipped++; continue; }
     try {
