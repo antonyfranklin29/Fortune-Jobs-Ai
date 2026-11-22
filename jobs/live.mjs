@@ -21,6 +21,11 @@ function textElement(tag, text) {
 }
 
 function applyLink(job, href = applicationUrl(job.apply_url), text = 'View original listing') {
+  if (job.source === 'jobg8' && href === applicationUrl(job.apply_url)) {
+    const button = textElement('button', text); button.type = 'button';
+    button.addEventListener('click', () => window.FJSourceTracking?.navigate(job, {method:'jobpage'}));
+    return button;
+  }
   const link = textElement('a', text);
   link.href = href;
   link.rel = 'noopener noreferrer';

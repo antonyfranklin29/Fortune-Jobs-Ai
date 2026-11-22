@@ -12,7 +12,7 @@ const postingFields = summaryFields + ',job_description,is_remote,work_mode';
 export function applicationUrl(value) {
   try {
     const url = new URL(fixApplyUrl(value));
-    if (url.protocol === 'https:' && !url.username && !url.password) return url.href;
+    if (url.protocol === 'https:' && !url.username && !url.password) return fixApplyUrl(value);
   } catch { /* An unparseable link cannot be used to apply. */ }
   return '';
 }

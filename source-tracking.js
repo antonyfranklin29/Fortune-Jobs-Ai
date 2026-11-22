@@ -1,7 +1,14 @@
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
-  if (root) { root.FJSourceTracking = api; api.capture(root.location.search); }
+  if (root) {
+    root.FJSourceTracking = api; api.capture(root.location.search);
+    root.document?.addEventListener('click', event => {
+      const button = event.target.closest?.('[data-partner-job]');
+      if (!button) return;
+      try { const job = JSON.parse(button.dataset.partnerJob); if (job.source === 'jobg8') api.navigate(job); } catch { /* Invalid listing data is inert. */ }
+    });
+  }
 })(typeof window === 'object' ? window : null, function () {
   let memory;
   const clean = value => String(value || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 40);
@@ -48,7 +55,7 @@
     const identity = [job.job_title, job.company, job.apply_url].join('|');
     const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(identity));
     const job_key = Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('');
-    await fetch(config.url + '/rest/v1/rpc/log_partner_click', {
+    await fetch(config.url + (job.source === 'jobg8' ? '/functions/v1/partner-click' : '/rest/v1/rpc/log_partner_click'), {
       method: 'POST', credentials: 'omit', keepalive: true,
       headers: { apikey: config.key, Authorization: 'Bearer ' + config.key, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_partner: job.source, p_source: attribution.source, p_method: method,

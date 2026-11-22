@@ -25,14 +25,16 @@ describe('mergeLive', () => {
 });
 
 describe('liveSearch', () => {
-  it('asks only the paying partner (WhatJobs), not Jooble or our catalogue', async () => {
+  it('asks WhatJobs and our stored Jobg8 rows, never Jooble or the broad catalogue callback', async () => {
     window.FJ_CONFIG = { url: 'https://example.supabase.co', key: 'anon' };
     const fetchImpl = vi.fn(async () => Response.json({ jobs: [{ title: 'Nurse', company: 'Care', url: 'https://whatjobs.test/n', date: 'Today' }] }));
     const catalogue = vi.fn(async () => [{ job_title: 'Ours', company: 'Acme' }]);
     const jobs = await liveSearch({ q: 'nurse', location: 'Greenville, NC' }, catalogue, undefined, fetchImpl);
-    expect(fetchImpl).toHaveBeenCalledTimes(1);
-    expect(fetchImpl.mock.calls[0][0]).toMatch(/whatjobs-search$/);
-    expect(JSON.parse(fetchImpl.mock.calls[0][1].body)).toEqual({ q: 'nurse', location: 'Greenville, NC', page: 1 });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    const call = fetchImpl.mock.calls.find(([url]) => url.endsWith('whatjobs-search'));
+    expect(call).toBeTruthy();
+    expect(new URL(fetchImpl.mock.calls[0][0]).searchParams.get('source')).toBe('eq.jobg8');
+    expect(JSON.parse(call[1].body)).toEqual({ q: 'nurse', location: 'Greenville, NC', page: 1 });
     expect(catalogue).not.toHaveBeenCalled();
     expect(jobs.map(j => j.live_partner)).toEqual(['WhatJobs']);
   });
