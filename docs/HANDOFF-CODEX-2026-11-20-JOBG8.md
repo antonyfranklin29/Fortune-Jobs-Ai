@@ -41,7 +41,10 @@ Jobg8 (Sue Conway, Head of Sales) will send us a custom XML feed of U.S. jobs an
    - A `JOBG8_MODE` secret (`qa` | `live`) recorded in each `ingest_runs` row, so the nightly report can show which mode we're in.
 2. Schedule: a `pg_cron` job every 60 minutes calling the function. **Write the migration only; do not apply it.**
 3. Front end:
-   - Jobg8 jobs appear in search like other sources, showing the advertiser's name (never "Jobg8").
+   - Jobg8 jobs are paid clicks, so they show in **both modes** (Franklin, Nov 21):
+     - **Live Search** = paying partners only. Add Jobg8 to `PAID_PARTNERS` (`react/src/seeker/liveSearch.js`), reading our own `source='jobg8'` rows, not a remote API. Blend with WhatJobs with Jobg8 first, keeping the plan cap (10 free / `PRO.results`).
+     - **Quick Match** = our catalogue, which now includes Jobg8 rows. Rank a matching Jobg8 job among the top results (e.g. at least 1 in every 4 when available), but never above a clearly better title/location match.
+   - Show the advertiser's name as the company, never "Jobg8", and no "Jobs by Jobg8" label.
    - Apply button: `ApplicationURL` + `source`/`method` (+ optional `redirectionURL`, `customtext`), opened in a new tab with `rel="noopener noreferrer"`, built only on the click (no `href` prefetching; use a click handler or `rel="nofollow noopener noreferrer"` with no prerender).
    - Full description shown in the job detail panel.
 4. Tests: XML fixture (5 jobs) → mapping; snapshot diff (new / changed / missing → closed); source-parameter appending (utm → param, default organic, no double-append); HTML sanitising of descriptions.
