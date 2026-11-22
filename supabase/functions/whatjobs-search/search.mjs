@@ -1,12 +1,18 @@
 import { cleanText, mapPartnerJobs } from '../_shared/live-job-partner.mjs';
 
+// WhatJobs sends "0.000000 - 0.000000" when a job has no pay range; show no salary instead of zeros.
+export function cleanSalary(value) {
+  const text = cleanText(value, 120);
+  return /[1-9]/.test(text) ? text : '';
+}
+
 export function whatJobsListings(payload) {
   return mapPartnerJobs(payload?.data, row => ({
     title: cleanText(row.title, 300),
     company: cleanText(row.company, 200),
     location: cleanText(row.location, 200),
     date: cleanText(row.age, 100),
-    salary: cleanText(row.salary, 120),
+    salary: cleanSalary(row.salary),
     description: cleanText(row.snippet, 400),
     url: typeof row.url === 'string' ? row.url : '',
   }));

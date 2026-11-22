@@ -40,3 +40,12 @@ test('falls back on validation errors, maintenance and timeout', async () => {
     assert.deepEqual(await (await handler(request(''))).json(), { jobs: [] });
   }
 });
+
+test('a salary of all zeros is hidden, a real one is kept', async () => {
+  const { cleanSalary } = await import('../supabase/functions/whatjobs-search/search.mjs');
+  assert.equal(cleanSalary('0.000000 - 0.000000'), '');
+  assert.equal(cleanSalary('0'), '');
+  assert.equal(cleanSalary(''), '');
+  assert.equal(cleanSalary('$65,000 - $80,000'), '$65,000 - $80,000');
+  assert.equal(cleanSalary('20.50 - 0.000000'), '20.50 - 0.000000');
+});
