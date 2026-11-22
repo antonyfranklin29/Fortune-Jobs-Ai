@@ -20,7 +20,7 @@ describe('EmailPreferencesPage', () => {
   });
 
   it('reads the current choice with the session token, then saves the new one', async () => {
-    const fetch = vi.fn(async (_url, init) => ({ ok: true, json: async () => (init.method === 'GET' ? { subscribed: false, delivery_active: false } : { subscribed: true, frequency: 'daily', delivery_active: false }) }));
+    const fetch = vi.fn(async (_url, init) => ({ ok: true, json: async () => (init.method === 'GET' ? { subscribed: false, delivery_active: false } : { subscribed: true, frequency: JSON.parse(init.body).frequency, delivery_active: false }) }));
     render(<EmailPreferencesPage client={createPreferenceClient({ sb: fakeSb(SESSION), config: CONFIG, fetch })} />);
     await waitFor(() => expect($('save').disabled).toBe(false));
     expect($('status').textContent).toBe('Job alert emails are starting soon. Choose now and we’ll use it when they launch.');
@@ -29,8 +29,8 @@ describe('EmailPreferencesPage', () => {
     expect(init).toMatchObject({ method: 'GET', headers: { apikey: 'anon-key', Authorization: 'Bearer tok-123' } });
     fireEvent.click($('weekly'));
     fireEvent.submit($('preferences'));
-    await waitFor(() => expect($('status').textContent).toBe('Saved. Job alerts start soon; we’ll email you every morning.'));
-    expect(fetch.mock.calls[1][1]).toMatchObject({ method: 'POST', body: JSON.stringify({ subscribed: true, frequency: 'daily', consent_version: 'alerts-v2' }) });
+    await waitFor(() => expect($('status').textContent).toBe('Saved. Job alerts start soon; we’ll email you on Mondays.'));
+    expect(fetch.mock.calls[1][1]).toMatchObject({ method: 'POST', body: JSON.stringify({ subscribed: true, frequency: 'weekly', consent_version: 'alerts-v2' }) });
     expect($('weekly').checked).toBe(true);
   });
 
@@ -71,7 +71,7 @@ describe('EmailPreferencesPage', () => {
     expect(text).toContain('Job alert emails');
     expect(text).toContain('Creating an account or signing in with Google does not subscribe you.');
     expect(screen.getByLabelText('Daily, each morning')).toBeTruthy();
-    expect(screen.getByLabelText('Weekly')).toBeTruthy();
+    expect(screen.getByLabelText('Weekly, Mondays')).toBeTruthy();
     expect(document.querySelector('fieldset.alert-frequency').disabled).toBe(true); // until opted in
   });
 });

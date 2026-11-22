@@ -2,7 +2,7 @@
 // Resend are stubbed in memory; no real account, row or email is touched.
 //   deno test --allow-env --allow-read --import-map=tests/deno/import_map.json tests/job-alerts.ts
 import { assert, assertEquals } from "./deno/assert.ts";
-import { alertQuery, pickJobs, unsubscribeToken, type Job } from "../supabase/functions/job-alerts/select.ts";
+import { alertQuery, pickJobs, unsubscribeToken, weeklyDue, alertJobKey, type Job } from "../supabase/functions/job-alerts/select.ts";
 
 const SB = "https://fake.supabase.test";
 Deno.env.set("SUPABASE_URL", SB);
@@ -29,7 +29,7 @@ const JOBS: Job[] = [
 const world = {
   prefs: [] as { user_id: string; frequency: string; subscribed: boolean }[],
   profiles: {} as Record<string, unknown>,
-  claims: 0, sent: [] as Record<string, unknown>[], patches: [] as unknown[], resendStatus: 200,
+  claims: 0, sent: [] as Record<string, unknown>[], patches: [] as Record<string, unknown>[], resendStatus: 200,
 };
 const reset = () => Object.assign(world, {
   prefs: [{ user_id: U1, frequency: "daily", subscribed: true }, { user_id: U2, frequency: "weekly", subscribed: true }],
@@ -43,6 +43,7 @@ const reset = () => Object.assign(world, {
   if (url.startsWith(`${SB}/rest/v1/newsletter_preferences?user_id=eq.`)) return Response.json([{ subscribed: world.prefs.find((p) => url.includes(p.user_id))?.subscribed }]);
   if (url.startsWith(`${SB}/rest/v1/profiles?id=eq.`)) return Response.json([world.profiles[url.split("id=eq.")[1].split("&")[0]]].filter(Boolean));
   if (url.startsWith(`${SB}/rest/v1/pre_scraped_jobs?`)) return Response.json(JOBS);
+  if (url.startsWith(`${SB}/rest/v1/newsletter_deliveries?user_id=eq.`)) return Response.json([]);
   if (url === `${SB}/rest/v1/rpc/newsletter_claim`) { world.claims++; return Response.json(`claim-${world.claims}`); }
   if (url.startsWith(`${SB}/rest/v1/newsletter_deliveries?id=eq.`)) { world.patches.push(JSON.parse(String(init?.body))); return new Response(null, { status: 204 }); }
   if (url.startsWith(`${SB}/auth/v1/admin/users/`)) return Response.json({ email: "ana@example.test", email_confirmed_at: "2026-11-01T00:00:00Z" });
@@ -86,10 +87,10 @@ Deno.test("live: daily email with matching jobs, unsubscribe headers and company
   assertEquals((mail as unknown as { from: string }).from, "Fortune Jobs AI <jobs@fortunejobsai.com>"); // the Resend-verified domain
   assertEquals(mail.subject, "2 new jobs for you today · Fortune Jobs AI");
   assert(mail.html.includes("Acme") && mail.html.includes("Beta") && !mail.html.includes("Gamma") && !mail.html.includes("Old Co"), "area + remote + fresh only");
-  assert(mail.html.includes("https://www.adzuna.com/details/123"), "dead Adzuna links are rewritten");
+  assert(mail.html.includes("https://fortunejobsai.com/results.html?") && mail.html.includes("utm_source=email"), "email links go to the portal before any partner click");
   assert(mail.html.includes("YOU DO LMS INC.") && mail.html.includes("Somerset, NJ"), "company and postal address");
   assert(mail.headers["List-Unsubscribe"].includes("/functions/v1/email-preferences?token="), "one-click unsubscribe");
-  assertEquals(world.patches, [{ state: "accepted", provider_id: "re_1" }]);
+  assertEquals(world.patches.filter(p => p.state), [{ state: "accepted", provider_id: "re_1" }]);
 });
 
 Deno.test("an unsubscribe that lands mid-run suppresses the email", async () => {
@@ -105,24 +106,24 @@ Deno.test("an unsubscribe that lands mid-run suppresses the email", async () => 
   const r = await (await call({ send: true })).json();
   (globalThis as unknown as { fetch: typeof fetch }).fetch = fetch0;
   assertEquals(world.sent.length, 0); assertEquals(r.skipped, 1);
-  assertEquals(world.patches, [{ state: "suppressed" }]);
+  assertEquals(world.patches.filter(p => p.state), [{ state: "suppressed" }]);
 });
 
 Deno.test("a provider failure is recorded as unknown and never retried automatically", async () => {
   reset(); liveEnv(true); world.resendStatus = 500;
   const r = await (await call({ send: true })).json();
-  assertEquals(r.failed, 1); assertEquals(world.patches, [{ state: "unknown" }]);
+  assertEquals(r.failed, 1); assertEquals(world.patches.filter(p => p.state), [{ state: "unknown" }]);
 });
 
-Deno.test("selection: needs a role and an area; matches state names and codes; 5 max", () => {
+Deno.test("selection: needs a role and an area; matches state names and codes; 10 max", () => {
   assertEquals(alertQuery({ current_title: "Analyst" }, "daily"), null);
   assertEquals(alertQuery({ saved_filters: { location: "NJ" } }, "daily"), null);
   const q = alertQuery({ current_title: "Power BI Developer", preferred_locations: ["NJ"] }, "weekly", NOW)!;
   assert(q.places.includes("new jersey") && q.places.includes(", nj"), "NJ expands to the state name");
   const picked = pickJobs(JOBS, q, NOW).map((j) => j.company);
   assertEquals(picked, ["Acme", "Beta", "Old Co"]); // weekly window includes the 5-day-old job
-  const many = Array.from({ length: 9 }, (_, i) => ({ ...JOBS[0], company: `C${i}`, apply_url: `https://x.test/${i}` }));
-  assertEquals(pickJobs(many, q, NOW).length, 5);
+  const many = Array.from({ length: 12 }, (_, i) => ({ ...JOBS[0], company: `C${i}`, apply_url: `https://x.test/${i}` }));
+  assertEquals(pickJobs(many, q, NOW).length, 10);
 });
 
 Deno.test("unsubscribe token matches what email-preferences verifies", async () => {
@@ -132,4 +133,11 @@ Deno.test("unsubscribe token matches what email-preferences verifies", async () 
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode("s".repeat(40)), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
   const bytes = Uint8Array.from(atob(sig.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - sig.length % 4) % 4)), (c) => c.charCodeAt(0));
   assert(await crypto.subtle.verify("HMAC", key, bytes, new TextEncoder().encode(payload)), "signature verifies");
+});
+
+Deno.test("weekly alerts select Monday and deduplicate previously sent jobs", () => {
+ const monday=Date.parse("2026-11-23T13:07:00Z"),tuesday=monday+86400000;
+ assert(weeklyDue("weekly",monday));assert(!weeklyDue("weekly",tuesday));assert(weeklyDue("daily",tuesday));
+ const q=alertQuery({current_title:"Power BI Developer",preferred_locations:["NJ"]},"weekly",NOW)!;
+ assert(!pickJobs(JOBS,q,NOW,[alertJobKey(JOBS[0])]).some(job=>job.company==="Acme"));
 });
