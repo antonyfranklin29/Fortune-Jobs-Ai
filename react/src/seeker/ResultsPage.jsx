@@ -19,6 +19,12 @@ const initial = Object.fromEntries(params);
 // Careerjet requires fixed outbound IPs. Keep disabled on serverless hosting.
 const CAREERJET_ENABLED = false;
 const livePartnerQuery = partnerQuery(initial);
+// Quick Match → the same search in Live Search (paying partners).
+export function liveJobsUrl({ q = '', location = '' }) {
+  const params = new URLSearchParams({ mode: 'live', q: String(q).trim() });
+  if (String(location).trim()) params.set('location', String(location).trim());
+  return './results.html?' + params;
+}
 
 // Fields kept within the saved_jobs table limits.
 const SAVED_LIMITS = { job_title: 300, company: 200, location: 200, salary: 120, apply_url: 2000, match_reason: 2000 };
@@ -163,6 +169,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
             {Number(initial.salary_min) > 0 && <p className="dashboard-salary-note">Only jobs whose listed US-dollar pay reaches ${Number(initial.salary_min).toLocaleString('en-US')} a year. Listings without a clear salary are left out.</p>}
             {authChecked && !account && <SignupNudge href={signInToSaveUrl(window.location)} />}
             <JobList jobs={visible} selected={selected} onSelect={selectJob} profile={profile} />
+            {initial.mode !== 'live' && initial.q && <a className="dashboard-live-link" href={liveJobsUrl(initial)}>Also see live jobs from our partners →</a>}
             <ProCard subscription={subscription} />
           </section>
           <button type="button" className="dashboard-back" id="jobDetailTop" onClick={backToList}>← Back to results</button>

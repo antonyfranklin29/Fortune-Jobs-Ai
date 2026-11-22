@@ -85,3 +85,11 @@ describe('blending WhatJobs into normal results', () => {
     expect(rows[0].live_partner).toBe('WhatJobs');
   });
 });
+
+describe('live jobs link', () => {
+  it('keeps the search and location', async () => {
+    const { liveJobsUrl } = await import('./ResultsPage.jsx');
+    expect(liveJobsUrl({ q: ' Registered Nurse ', location: 'Georgia' })).toBe('./results.html?mode=live&q=Registered+Nurse&location=Georgia');
+    expect(liveJobsUrl({ q: 'Data Analyst' })).toBe('./results.html?mode=live&q=Data+Analyst');
+  });
+});
