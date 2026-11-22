@@ -36,6 +36,17 @@ describe('liveSearch', () => {
     expect(jobs.map(j => j.job_title)).toEqual(['Nurse']);
   });
 
+  it('shows at most the plan limit, ours first with partners taking turns after every 2', async () => {
+    window.FJ_CONFIG = { url: 'https://example.supabase.co', key: 'anon' };
+    const many = (name) => ({ jobs: Array.from({ length: 20 }, (_, i) => ({ title: `${name} ${i}`, company: name, url: `https://${name}.test/${i}` })) });
+    const fetchImpl = vi.fn(async (url) => Response.json(many(url.endsWith('jooble-search') ? 'Jooble' : 'WhatJobs')));
+    const ours = Array.from({ length: 10 }, (_, i) => ({ job_title: `Ours ${i}`, company: 'Acme' }));
+    const jobs = await liveSearch({ q: 'nurse' }, async () => ours, undefined, fetchImpl);
+    expect(jobs).toHaveLength(10);
+    expect(jobs.map(j => j.job_title).slice(0, 6)).toEqual(['Ours 0', 'Ours 1', 'Jooble 0', 'Ours 2', 'Ours 3', 'WhatJobs 0']);
+    expect(await liveSearch({ q: 'nurse' }, async () => ours, undefined, fetchImpl, 50)).toHaveLength(50);
+  });
+
   it('does nothing without a search term', async () => {
     const fetchImpl = vi.fn();
     expect(await liveSearch({ q: '  ' }, async () => [], undefined, fetchImpl)).toEqual([]);

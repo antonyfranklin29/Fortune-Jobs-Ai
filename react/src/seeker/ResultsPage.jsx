@@ -130,12 +130,13 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
     // Recent jobs are the same for everyone, so fetch them alongside the subscription check instead of after it.
     const request = initial.mode === 'live'
       ? subscriptionRequest.then(sub => liveSearch({ q: initial.q, location: initial.location },
-          () => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10), controller.signal))
+          () => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10), controller.signal, undefined, isActive(sub) ? PRO.results : 10))
       : searching
       ? Promise.all([
           subscriptionRequest.then(sub => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10)),
           initial.q ? partnerBlend({ q: initial.q, location: initial.location }, controller.signal) : Promise.resolve([]),
-        ]).then(([rows, partners]) => blendPartners(rows, partners))
+          subscriptionRequest,
+        ]).then(([rows, partners, sub]) => blendPartners(rows, partners).slice(0, isActive(sub) ? PRO.results : 10))
       : recentJobs(controller.signal);
     request
       .then(rows => { if (!controller.signal.aborted) { setJobs(rows); setLoading(false); } })
