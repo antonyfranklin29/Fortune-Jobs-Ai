@@ -25,26 +25,24 @@ describe('mergeLive', () => {
 });
 
 describe('liveSearch', () => {
-  it('asks both partners in parallel and survives a partner failure', async () => {
+  it('shows only paying partners (WhatJobs), no duplicates, at most the plan limit', async () => {
     window.FJ_CONFIG = { url: 'https://example.supabase.co', key: 'anon' };
-    const fetchImpl = vi.fn(async (url) => url.endsWith('jooble-search')
-      ? Response.json({ jobs: [{ title: 'Nurse', company: 'Care', url: 'https://jooble.org/n', date: 'Today' }] })
-      : new Response('down', { status: 503 }));
-    const jobs = await liveSearch({ q: 'nurse', location: 'Greenville, NC' }, async () => [], undefined, fetchImpl);
-    expect(fetchImpl).toHaveBeenCalledTimes(2);
-    expect(JSON.parse(fetchImpl.mock.calls[0][1].body)).toEqual({ q: 'nurse', location: 'Greenville, NC', page: 1 });
-    expect(jobs.map(j => j.job_title)).toEqual(['Nurse']);
+    const fetchImpl = vi.fn(async () => Response.json({ jobs: [
+      { title: 'Nurse', company: 'Care', url: 'https://w.test/1' }, { title: 'Nurse', company: 'Care', url: 'https://w.test/2' },
+      ...Array.from({ length: 20 }, (_, i) => ({ title: `RN ${i}`, company: 'P', url: `https://w.test/r${i}` })) ] }));
+    const catalogue = vi.fn(async () => [{ job_title: 'Ours', company: 'Acme' }]);
+    const jobs = await liveSearch({ q: 'nurse', location: 'Greenville, NC' }, catalogue, undefined, fetchImpl);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(fetchImpl.mock.calls[0][0]).toMatch(/whatjobs-search$/);
+    expect(catalogue).not.toHaveBeenCalled();
+    expect(jobs).toHaveLength(10);
+    expect(jobs.every(j => j.live_partner === 'WhatJobs')).toBe(true);
+    expect(jobs.filter(j => j.job_title === 'Nurse')).toHaveLength(1);
   });
 
-  it('shows at most the plan limit, ours first with partners taking turns after every 2', async () => {
+  it('survives WhatJobs being down', async () => {
     window.FJ_CONFIG = { url: 'https://example.supabase.co', key: 'anon' };
-    const many = (name) => ({ jobs: Array.from({ length: 20 }, (_, i) => ({ title: `${name} ${i}`, company: name, url: `https://${name}.test/${i}` })) });
-    const fetchImpl = vi.fn(async (url) => Response.json(many(url.endsWith('jooble-search') ? 'Jooble' : 'WhatJobs')));
-    const ours = Array.from({ length: 10 }, (_, i) => ({ job_title: `Ours ${i}`, company: 'Acme' }));
-    const jobs = await liveSearch({ q: 'nurse' }, async () => ours, undefined, fetchImpl);
-    expect(jobs).toHaveLength(10);
-    expect(jobs.map(j => j.job_title).slice(0, 6)).toEqual(['Ours 0', 'Ours 1', 'Jooble 0', 'Ours 2', 'Ours 3', 'WhatJobs 0']);
-    expect(await liveSearch({ q: 'nurse' }, async () => ours, undefined, fetchImpl, 50)).toHaveLength(50);
+    expect(await liveSearch({ q: 'nurse' }, async () => [], undefined, async () => new Response('down', { status: 503 }))).toEqual([]);
   });
 
   it('does nothing without a search term', async () => {
