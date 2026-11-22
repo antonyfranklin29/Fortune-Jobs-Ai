@@ -6,25 +6,25 @@ import * as Matching from '../resume/lib/resumeMatching.js';
 
 import { workAuthorizationFilter } from './workAuthorization.js';
 
-const fields = 'job_title,company,location,state_code,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,source_url,attribution,closed_at,sponsorship';
+const fields = 'job_title,company,location,state_code,salary,apply_url,employment_type,work_mode,is_remote,posted_at,category,country,job_description,source,source_url,attribution,closed_at,sponsorship,last_seen_at';
 const DAY = 86400000;
 
-async function read(params, signal) {
+async function read(params, signal, fetchImpl = (...args) => fetch(...args)) {
   const config = window.FJ_CONFIG;
   const headers = { apikey: config.key, Authorization: `Bearer ${config.key}` };
-  let response = await fetch(`${config.url}/rest/v1/pre_scraped_jobs?${params}`, { headers, signal });
+  let response = await fetchImpl(`${config.url}/rest/v1/pre_scraped_jobs?${params}`, { headers, signal });
   // A busy database occasionally cancels a broad search at its time limit (HTTP 500); one retry
   // almost always succeeds, so try once more before showing an error.
   if (response.status >= 500 && !signal?.aborted) {
     await new Promise((r) => setTimeout(r, 400));
-    response = await fetch(`${config.url}/rest/v1/pre_scraped_jobs?${params}`, { headers, signal });
+    response = await fetchImpl(`${config.url}/rest/v1/pre_scraped_jobs?${params}`, { headers, signal });
   }
   if (!response.ok) throw new Error('The job catalogue is temporarily unavailable. Please try again.');
   const rows = await response.json();
   return Array.isArray(rows) ? rows.map(job => ({ ...job, location: cityState(job.location, job.state_code) })) : rows;
 }
 
-export function safeApplyUrl(value) { return FJDataSafety.httpUrl(fixApplyUrl(value)); }
+export function safeApplyUrl(value) { const original = fixApplyUrl(value); return FJDataSafety.httpUrl(original) ? original : ''; }
 export function logoFor(job) {
   const value = FJCompanyLogos.urlFor(job);
   return value?.startsWith('assets/') ? `./${value}` : value;
@@ -70,7 +70,8 @@ const stopwords = new Set(['a','an','and','the','of','for','to','in','on','at','
 function tokensFor(text) { return String(text || '').toLowerCase().replace(/[^a-z0-9+#.\s-]/g, ' ').split(/\s+/).filter(token => token.length >= 2 && !stopwords.has(token)); }
 function candidateParams(tokens, filters, excludeSource) {
   const params = new URLSearchParams({ select: fields, limit: CANDIDATE_LIMIT, closed_at: 'is.null', order: 'posted_at.desc.nullslast' });
-  if (excludeSource) params.set('source', `neq.${excludeSource}`);
+  if (filters.source === 'jobg8') params.set('source', 'eq.jobg8');
+  else if (excludeSource) params.set('source', `neq.${excludeSource}`);
   const keywords = tokens.map(token => `search_text.ilike.*${token.replace(/\*/g, '')}*`).join(',');
   const sponsorship = workAuthorizationFilter(filters.sponsorship);
   if (sponsorship === 'hide_no_sponsorship') {
@@ -118,7 +119,7 @@ function score(job, tokens, phrase, filters) {
   if (filters.location && job.location?.toLowerCase().includes(filters.location.toLowerCase().split(',')[0].trim())) points += 30;
   if (filters.work_mode && job.work_mode === filters.work_mode) points += 12;
   if (job.salary) points += 6;
-  const age = (Date.now() - Date.parse(job.posted_at)) / DAY;
+  const age = (Date.now() - Date.parse(job.source === 'jobg8' ? job.last_seen_at || job.posted_at : job.posted_at)) / DAY;
   if (age <= 1) points += 14; else if (age <= 3) points += 9; else if (age <= 7) points += 5;
   return points;
 }
@@ -143,12 +144,13 @@ export function salaryTop(text) {
 }
 const meetsSalary = (job, min) => !(Number(min) > 0) || salaryTop(job.salary) >= Number(min);
 
-export async function quickMatches(query, filters = {}, signal, limit = 10) {
+export async function quickMatches(query, filters = {}, signal, limit = 10, fetchImpl) {
+  const fetchRows = params => read(params, signal, fetchImpl);
   if (!query.trim() && !Object.values(filters).some(Boolean)) return recentJobs(signal);
   const tokens = tokensFor(query);
   const state = searchState(filters);
   if (state) filters = { ...filters, location_scope: 'region', region: Guest.states[state], state_code: state };
-  const first = await read(candidateParams(tokens, filters), signal);
+  const first = await fetchRows(candidateParams(tokens, filters));
   let rows = first;
   // The broad query returns the newest CANDIDATE_LIMIT matches nationwide, so a city's jobs can all fall
   // outside it. A second query limited to the city keeps them in the pool.
@@ -158,14 +160,22 @@ export async function quickMatches(query, filters = {}, signal, limit = 10) {
       const params = candidateParams(tokens, filters);
       params.set('location', `ilike.*${city}*`);
       const urls = new Set(first.map(job => job.apply_url));
-      rows = first.concat((await read(params, signal)).filter(job => !urls.has(job.apply_url)));
+      rows = first.concat((await fetchRows(params)).filter(job => !urls.has(job.apply_url)));
     } catch (error) { if (signal?.aborted) throw error; }
   }
-  if (first.length >= 10 && first.slice(0, 10).every(job => job.source === first[0].source)) {
-    try { rows = rows.concat(await read(candidateParams(tokens, filters, first[0].source), signal)); }
+  if (!filters.source && first.length >= 10 && first.slice(0, 10).every(job => job.source === first[0].source)) {
+    try { rows = rows.concat(await fetchRows(candidateParams(tokens, filters, first[0].source))); }
     catch (error) { if (signal?.aborted) throw error; }
   }
-  const recent = rows.filter(job => ['employer_direct','employer_feed','himalayas','remotive'].includes(job.source) || Date.parse(job.posted_at) >= Date.now() - 30 * DAY);
+  if (!filters.source) {
+    try {
+      const params = candidateParams(tokens, { ...filters, source: 'jobg8' });
+      if (city.length >= 2) params.set('location', `ilike.*${city}*`);
+      const seen = new Set(rows.map(job => job.apply_url));
+      rows = rows.concat((await fetchRows(params)).filter(job => !seen.has(job.apply_url)));
+    } catch (error) { if (signal?.aborted) throw error; }
+  }
+  const recent = rows.filter(job => !filters.source || job.source === filters.source).filter(job => ['jobg8','employer_direct','employer_feed','himalayas','remotive'].includes(job.source) || Date.parse(job.posted_at) >= Date.now() - 30 * DAY);
   const accuracy = FJAccuracy;
   // The database already limited a state search to that state. Many listings name a county rather
   // than the state ("Parsippany, Morris County"), so the location text can't be re-checked here.
@@ -174,20 +184,33 @@ export async function quickMatches(query, filters = {}, signal, limit = 10) {
   const ranked = filtered.map(job => ({ ...job, search_reason: accuracy.matchReason(job, query, filters), search_score: score(job, tokens, query.toLowerCase().trim(), filters) }));
   ranked.sort((a, b) => b.search_score - a.search_score);
   const top = [], seen = new Set(), companies = new Map();
-  for (const job of ranked) {
+  for (const job of promoteJobg8(ranked)) {
     const company = job.company.trim().toLowerCase();
     const key = `${job.job_title.trim().toLowerCase()}|${company}`;
     if (seen.has(key) || (companies.get(company) || 0) >= (limit > 10 ? 4 : 2)) continue;
     seen.add(key); companies.set(company, (companies.get(company) || 0) + 1); top.push(job);
     if (top.length === limit) break;
   }
-  if (limit === 10 && top.length === 10 && top.filter(job => job.source === top[0].source).length >= 8) {
+  if (!filters.source && limit === 10 && top.length === 10 && top.filter(job => job.source === top[0].source).length >= 8) {
     const existing = new Set(top.map(job => job.apply_url));
     const alternate = ranked.find(job => job.source !== top[0].source && !existing.has(job.apply_url) &&
       job.search_score >= top[9].search_score - 10 && !seen.has(`${job.job_title.trim().toLowerCase()}|${job.company.trim().toLowerCase()}`));
     if (alternate) top[9] = alternate;
   }
   return top;
+}
+
+// Fill an available paid slot only among comparably relevant matches. Never leapfrog
+// a clearer title/location match; these contribute 14–55 and 30 points respectively.
+export function promoteJobg8(ranked) {
+  const out = [...ranked];
+  for (let slot = 3; slot < out.length; slot += 4) {
+    const start = slot - 3;
+    if (out.slice(start, slot + 1).some(job => job.source === 'jobg8')) continue;
+    const index = out.findIndex((job, i) => i > slot && job.source === 'jobg8' && job.search_score >= out[slot].search_score - 5);
+    if (index >= 0) out.splice(slot, 0, out.splice(index, 1)[0]);
+  }
+  return out;
 }
 
 export function guestMatchProfile() {

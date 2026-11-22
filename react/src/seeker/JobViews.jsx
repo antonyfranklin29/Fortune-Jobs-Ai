@@ -18,6 +18,7 @@ export function CompanyMark({ job }) {
 }
 
 function SourceCredit({ job }) {
+  if (job.source === 'jobg8') return <span className="react-source">Advertiser listing</span>;
   if (job.source === 'remotive' || job.source === 'himalayas') {
     const href = safeApplyUrl(job.source_url);
     return href && <a className="react-source" href={href} target="_blank" rel="noopener noreferrer">via {job.attribution}</a>;
@@ -35,13 +36,14 @@ export function JobDescription({ job, description, url }) {
   const [open, setOpen] = useState(false);
   const [forJob, setForJob] = useState(job);
   if (forJob !== job) { setForJob(job); setOpen(false); }
-  const long = description.length > 900;
+  const full = job.source === 'jobg8';
+  const long = !full && description.length > 900;
   const preview = !description || /(…|\.\.\.)$/.test(description) || description.length < 700 || job.source === 'adzuna';
   const site = job.source === 'usajobs' ? 'USAJOBS' : job.source === 'adzuna' || job.live_partner ? 'the original listing' : `${job.company || 'the employer'}’s site`;
   return <section className="react-description"><h4>About this role</h4>
     {description ? <p>{long && !open ? `${description.slice(0, 900).replace(/\s\S*$/, '')}…` : description}</p> : <p>This listing’s full description is on the employer’s page.</p>}
     {long && <button type="button" className="react-more" aria-expanded={open} onClick={() => { setOpen(!open); markStep(job, 'read'); }}>{open ? 'Show less' : 'Show full description'}</button>}
-    {url && <p className="react-full-link">{preview && description ? 'This is a preview. ' : ''}{isPartnerJob(job) ? <PartnerApply job={job} onClick={() => markStep(job, 'read')}>Read the complete job description on {site} ↗</PartnerApply> : <a href={url} target="_blank" rel={job.live_partner ? 'nofollow sponsored noopener noreferrer' : 'noopener noreferrer'} onClick={() => markStep(job, 'read')}>Read the complete job description on {site} ↗</a>}</p>}
+    {url && !full && <p className="react-full-link">{preview && description ? 'This is a preview. ' : ''}{isPartnerJob(job) ? <PartnerApply job={job} onClick={() => markStep(job, 'read')}>Read the complete job description on {site} ↗</PartnerApply> : <a href={url} target="_blank" rel={job.live_partner ? 'nofollow sponsored noopener noreferrer' : 'noopener noreferrer'} onClick={() => markStep(job, 'read')}>Read the complete job description on {site} ↗</a>}</p>}
   </section>;
 }
 

@@ -1,7 +1,9 @@
+import { quickMatches } from './catalogue.js';
 // Live Search: asks partner job networks (Jooble, WhatJobs) for openings right now and merges them
 // with our own catalogue. Partners are searched through our edge functions, which keep the keys
 // server-side and rate-limit each visitor. Nothing is stored.
 export const LIVE_PARTNERS = [
+  { source: 'jobg8', name: '', catalogue: true },
   { source: 'jooble', name: 'Jooble', endpoint: 'jooble-search' },
   { source: 'whatjobs', name: 'WhatJobs', endpoint: 'whatjobs-search' },
 ];
@@ -50,7 +52,7 @@ async function askPartner({ endpoint, source }, query, signal, fetchImpl) {
 
 const sameJob = job => `${String(job.job_title || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()}|${String(job.company || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()}`;
 
-// Our catalogue first for the same job (it links to the employer), then newest first.
+// Keep the catalogue copy for duplicates, then newest first.
 export function mergeLive(catalogue, partners) {
   const seen = new Set(), out = [];
   for (const job of [...catalogue, ...partners]) {
@@ -64,12 +66,14 @@ export function mergeLive(catalogue, partners) {
 // Live Search shows only partners that pay us per click (WhatJobs today; Jobg8 from January),
 // in the same card layout as Quick Match, capped at the plan's result limit. Our own catalogue
 // (Adzuna, USAJobs, company boards) is Quick Match.
-export const PAID_PARTNERS = LIVE_PARTNERS.filter(p => p.source === 'whatjobs');
+export const PAID_PARTNERS = LIVE_PARTNERS.filter(p => ['jobg8','whatjobs'].includes(p.source));
 
 export async function liveSearch({ q, location = '' }, _catalogueSearch, signal, fetchImpl = (...a) => fetch(...a), limit = 10) {
   const query = { q: String(q || '').trim().slice(0, 120), location: String(location || '').trim().slice(0, 120), page: 1 };
   if (!query.q) return [];
-  const lists = await Promise.all(PAID_PARTNERS.map(p => askPartner(p, query, signal, fetchImpl)));
+  const lists = await Promise.all(PAID_PARTNERS.map(p => p.catalogue
+    ? quickMatches(query.q, { location: query.location, country: 'us', source: 'jobg8' }, signal, limit, fetchImpl).then(rows => rows.filter(job => job.source === 'jobg8' && job.closed_at == null)).catch(() => [])
+    : askPartner(p, query, signal, fetchImpl)));
   const turns = [];
   for (let i = 0; i < Math.max(0, ...lists.map(list => list.length)); i++) for (const list of lists) if (list[i]) turns.push(list[i]);
   return blendPartners([], turns, { max: limit }).slice(0, limit);

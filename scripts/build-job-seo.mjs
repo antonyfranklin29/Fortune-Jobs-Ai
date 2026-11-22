@@ -47,7 +47,7 @@ function page({ path, title, description, body, noindex = false, live = false, t
     socialTags(fullTitle(title), description, SITE + path) +
     (noindex ? '<meta name="robots" content="noindex,follow">\n' : '') +
     '<link rel="icon" href="/favicon.ico?v=2" sizes="48x48"><link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2"><link rel="stylesheet" href="/jobs/jobs.css">\n' +
-    (live ? '<script src="/config.js"></script><script type="module" src="/jobs/live.mjs"></script>\n' : '') +
+    '<script src="/config.js"></script>' + (live ? '<script type="module" src="/jobs/live.mjs"></script>\n' : '') +
     '<script type="application/ld+json">' + schema + '</script>\n' +
     '<script defer src="/source-tracking.js"></script></head><body><header><nav aria-label="Main navigation">' +
     '<a class="brand" href="/"><img src="/favicon.svg" alt="">Fortune Jobs AI</a>' +
@@ -141,9 +141,9 @@ export function renderArea(target, rows, details, date, related = [], now = Date
   const items = visible.map(job => {
     const detail = details.has(String(job.id));
     return '<li><h2>' + escape(job.job_title) + '</h2><p>' + escape(job.company + ' · ' + job.location) +
-      '</p>' + (job.posted_at ? '<p>Posted ' + escape(job.posted_at.slice(0, 10)) + '</p>' : '') + '<a rel="noopener noreferrer" href="' +
-      escape(detail ? postingPath(job.id) : applicationUrl(job.apply_url)) + '">' +
-      (detail ? 'View job details' : 'View original listing') + '</a>' +
+      '</p>' + (job.posted_at ? '<p>Posted ' + escape(job.posted_at.slice(0, 10)) + '</p>' : '') + (job.source === 'jobg8' && !detail
+        ? '<button type="button" data-partner-job="' + escape(JSON.stringify({source:job.source,apply_url:job.apply_url,job_title:job.job_title,company:job.company,country:job.country})) + '">Apply now</button>'
+        : '<a rel="noopener noreferrer" href="' + escape(detail ? postingPath(job.id) : applicationUrl(job.apply_url)) + '">' + (detail ? 'View job details' : 'View original listing') + '</a>') +
       (job.source === 'adzuna' ? ' <small>Job source: Adzuna</small>' : '') + '</li>';
   }).join('\n');
   const status = count

@@ -79,7 +79,7 @@ describe('catalogue retry', () => {
     let n = 0;
     vi.stubGlobal('fetch', vi.fn(async () => (++n === 1 ? new Response('{}', { status: 500 }) : new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } }))));
     await quickMatches('Data Analyst', {});
-    expect(n).toBe(2);
+    expect(n).toBe(3); // one retry, followed by the separate stored-partner candidate read
   });
 });
 
@@ -107,7 +107,7 @@ describe('work authorization', () => {
     await quickMatches('Data Analyst', { sponsorship: 'hide_no_sponsorship' });
     expect(urls[0].searchParams.get('and')).toBe('(or(search_text.ilike.*data*,search_text.ilike.*analyst*),or(sponsorship.is.null,sponsorship.neq.no_sponsorship))');
     await quickMatches('', { sponsorship: 'hide_no_sponsorship' });
-    expect(urls[1].searchParams.get('or')).toBe('(sponsorship.is.null,sponsorship.neq.no_sponsorship)');
+    expect(urls.at(-1).searchParams.get('or')).toBe('(sponsorship.is.null,sponsorship.neq.no_sponsorship)');
   });
 
   it('describes explicit signals and leaves unknown listings unbadged', () => {

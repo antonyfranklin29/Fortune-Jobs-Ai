@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Jobs>
+ <Job><SenderReference>RN-GA</SenderReference><AdvertiserName>Example Care Hospital</AdvertiserName><Position><![CDATA[Registered Nurse - Night ICU]]></Position>
+ <Description><![CDATA[<p>Work with our team in Atlanta. Full-time position with training and clear responsibilities.</p><ul><li>Collaborate with colleagues.</li><li>Keep accurate records.</li></ul><script>alert('never')</script>]]></Description>
+ <Country>United States</Country><Location>Georgia</Location><Area>Atlanta</Area><Classification>Healthcare</Classification><SubClassification>fixture-0</SubClassification>
+ <ApplicationURL>https://click.example.test/apply/RN-GA?token=a%2fb+X&amp;signature=One%20Two</ApplicationURL>
+ <EmploymentType>Permanent</EmploymentType><WorkHours>Full Time</WorkHours><SalaryCurrency>USD</SalaryCurrency><SalaryMinimum>38</SalaryMinimum><SalaryMaximum>45</SalaryMaximum><SalaryPeriod>hour</SalaryPeriod>
+ <SellPrice>0.20</SellPrice><SellPriceCurrency>USD</SellPriceCurrency><RevenueType>CPC</RevenueType><JobType>TRAFFIC</JobType><FutureOptionalNode>ignored</FutureOptionalNode></Job>
+ <Job><SenderReference>CDL-OH</SenderReference><AdvertiserName>Example Freight</AdvertiserName><Position><![CDATA[CDL-A Truck Driver - Regional]]></Position>
+ <Description><![CDATA[<p>Work with our team in Columbus. Full-time position with training and clear responsibilities.</p><ul><li>Collaborate with colleagues.</li><li>Keep accurate records.</li></ul><script>alert('never')</script>]]></Description>
+ <Country>United States</Country><Location>Ohio</Location><Area>Columbus</Area><Classification>Transport</Classification><SubClassification>fixture-1</SubClassification>
+ <ApplicationURL>https://click.example.test/apply/CDL-OH?token=a%2fb+X&amp;signature=One%20Two</ApplicationURL>
+ <EmploymentType>Permanent</EmploymentType><WorkHours>Full Time</WorkHours><SalaryCurrency>USD</SalaryCurrency><SalaryMinimum>38</SalaryMinimum><SalaryMaximum>45</SalaryMaximum><SalaryPeriod>hour</SalaryPeriod>
+ <SellPrice>0.20</SellPrice><SellPriceCurrency>USD</SellPriceCurrency><RevenueType>CPC</RevenueType><JobType>TRAFFIC</JobType><FutureOptionalNode>ignored</FutureOptionalNode></Job>
+ <Job><SenderReference>SE-NJ</SenderReference><AdvertiserName>Example Systems</AdvertiserName><Position><![CDATA[Software Engineer]]></Position>
+ <Description><![CDATA[<p>Work with our team in Edison. Full-time position with training and clear responsibilities.</p><ul><li>Collaborate with colleagues.</li><li>Keep accurate records.</li></ul><script>alert('never')</script>]]></Description>
+ <Country>United States</Country><Location>New Jersey</Location><Area>Edison</Area><Classification>IT</Classification><SubClassification>fixture-2</SubClassification>
+ <ApplicationURL>https://click.example.test/apply/SE-NJ?token=a%2fb+X&amp;signature=One%20Two</ApplicationURL>
+ <EmploymentType>Permanent</EmploymentType><WorkHours>Full Time</WorkHours><SalaryCurrency>USD</SalaryCurrency><SalaryMinimum>38</SalaryMinimum><SalaryMaximum>45</SalaryMaximum><SalaryPeriod>hour</SalaryPeriod>
+ <SellPrice>0.20</SellPrice><SellPriceCurrency>USD</SellPriceCurrency><RevenueType>CPC</RevenueType><JobType>TRAFFIC</JobType><FutureOptionalNode>ignored</FutureOptionalNode></Job>
+ <Job><SenderReference>RN-TX</SenderReference><AdvertiserName>Example Community Care</AdvertiserName><Position><![CDATA[Registered Nurse - ER]]></Position>
+ <Description><![CDATA[<p>Work with our team in Dallas. Full-time position with training and clear responsibilities.</p><ul><li>Collaborate with colleagues.</li><li>Keep accurate records.</li></ul><script>alert('never')</script>]]></Description>
+ <Country>United States</Country><Location>Texas</Location><Area>Dallas</Area><Classification>Healthcare</Classification><SubClassification>fixture-3</SubClassification>
+ <ApplicationURL>https://click.example.test/apply/RN-TX?token=a%2fb+X&amp;signature=One%20Two</ApplicationURL>
+ <EmploymentType>Permanent</EmploymentType><WorkHours>Full Time</WorkHours><SalaryCurrency>USD</SalaryCurrency><SalaryMinimum>38</SalaryMinimum><SalaryMaximum>45</SalaryMaximum><SalaryPeriod>hour</SalaryPeriod>
+ <SellPrice>0.20</SellPrice><SellPriceCurrency>USD</SellPriceCurrency><RevenueType>CPC</RevenueType><JobType>TRAFFIC</JobType><FutureOptionalNode>ignored</FutureOptionalNode></Job>
+ <Job><SenderReference>PT-CA</SenderReference><AdvertiserName>Example Pharmacy</AdvertiserName><Position><![CDATA[Pharmacy Technician]]></Position>
+ <Description><![CDATA[<p>Work with our team in San Jose. Full-time position with training and clear responsibilities.</p><ul><li>Collaborate with colleagues.</li><li>Keep accurate records.</li></ul><script>alert('never')</script>]]></Description>
+ <Country>United States</Country><Location>California</Location><Area>San Jose</Area><Classification>Healthcare</Classification><SubClassification>fixture-4</SubClassification>
+ <ApplicationURL>https://click.example.test/apply/PT-CA?token=a%2fb+X&amp;signature=One%20Two</ApplicationURL>
+ <EmploymentType>Permanent</EmploymentType><WorkHours>Full Time</WorkHours><SalaryCurrency>USD</SalaryCurrency><SalaryMinimum>38</SalaryMinimum><SalaryMaximum>45</SalaryMaximum><SalaryPeriod>hour</SalaryPeriod>
+ <SellPrice>0.20</SellPrice><SellPriceCurrency>USD</SellPriceCurrency><RevenueType>CPC</RevenueType><JobType>TRAFFIC</JobType><FutureOptionalNode>ignored</FutureOptionalNode></Job>
+</Jobs>
