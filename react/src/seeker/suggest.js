@@ -1,3 +1,4 @@
+import { careRole, ROLE_OPTIONS } from '../shared/jobTags.js';
 // Search suggestions for the job and location boxes.
 // Job titles, skills and companies come from job-titles.js, bundled through lib/sharedLibs.js.
 // Locations come from US states, a short list of large US cities (works offline),
@@ -26,7 +27,10 @@ function buildTitleIndex(src) {
 /** Port of the old homepage's matchTitles(): prefix matches first, then word-start matches, in list order. */
 export function matchTitles(query, src = (typeof window === 'object' && window.JOB_SUGGESTIONS) || JOB_SUGGESTIONS) {
   const q = fold(query).replace(/\s+/g, ' ').trim();
+  const short = careRole(q);
+  if (short && (q.length >= 2)) return [{ text: short.name, kind: 'title', at: 0, len: 0 }];
   if (q.length < MIN_CHARS || !src) return [];
+  src = { ...src, titles: [...new Set([...(src.titles || []), ...ROLE_OPTIONS.map(role => role.name), 'Travel Nurse', 'CDL Driver'])] };
   if (titleSource !== src) { titleIndex = buildTitleIndex(src); titleSource = src; }
   const out = [];
   for (const it of titleIndex) {

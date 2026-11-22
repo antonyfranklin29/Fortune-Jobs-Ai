@@ -1,3 +1,4 @@
+import { careRole, jobTags, ROLE_OPTIONS, TAG_OPTIONS } from '../shared/jobTags.js';
 import React, { useState } from 'react';
 import { SuggestInput } from './SuggestInput.jsx';
 import { SmartSearch } from './AiTools.jsx';
@@ -23,6 +24,8 @@ export function SearchForm({ initial = {}, sort, onSort }) {
   const [company, setCompany] = useState(initial.company || '');
   const [salary, setSalary] = useState(initial.salary || '');
   const [category, setCategory] = useState(initial.category || '');
+  const [tags, setTags] = useState({ shift: initial.shift || jobTags({job_title: initial.q}).shift[0] || '', license: initial.license || '', specialty: initial.specialty || '' });
+  const showCareFilters = Boolean(careRole(query || category));
   const [sponsorship, setSponsorship] = useState(workAuthorizationFilter(initial.sponsorship));
   const [error, setError] = useState('');
   function submit(event) {
@@ -32,6 +35,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
       if (!clean) { setError('Type a job title or skill for Live Search.'); return; }
       const live = new URLSearchParams({ mode: 'live', q: clean });
       if (location.trim()) live.set('location', location.trim());
+      if (showCareFilters) for (const [key,value] of Object.entries(tags)) if (value) live.set(key,value);
       window.location.href = `./results.html?${live}`;
       return;
     }
@@ -40,7 +44,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
     const params = new URLSearchParams({ mode: 'quick', q: clean });
     if (resume === '0' || resume === '1') params.set('resume', resume);
     if (resume === '1' && resumeId) params.set('resume_id', resumeId);
-    for (const [key, value] of Object.entries({ location: typedCountry ? '' : location.trim(), country: typedCountry || country, date_posted: date, experience, job_type: type, work_mode: workMode, company: company.trim(), salary, category, sponsorship })) if (value) params.set(key, value);
+    for (const [key, value] of Object.entries({ location: typedCountry ? '' : location.trim(), country: typedCountry || country, date_posted: date, experience, job_type: type, work_mode: workMode, company: company.trim(), salary, category, sponsorship, ...(!category && initial.sector && { sector: initial.sector }), ...(showCareFilters ? tags : {}) })) if (value) params.set(key, value);
     window.location.href = `./results.html?${params}`;
   }
   return <form className="dashboard-search" onSubmit={submit}>
@@ -52,7 +56,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
       <button type="button" className={`mode-btn ${mode === 'live' ? 'active' : ''}`} aria-pressed={mode === 'live'} onClick={() => { setMode('live'); setError(''); }}>⌕ Live Search</button>
     </div>
     <div className="search-wrapper"><div className="search-bar">
-      <label className="sb-field"><span aria-hidden="true">⌕</span><SuggestInput id="jobSearchInput" aria-label="Job title or keyword" placeholder="Job title, skill or company" maxLength={120} listLabel="Job title suggestions" minChars={MIN_CHARS}
+      <label className="sb-field"><span aria-hidden="true">⌕</span><SuggestInput id="jobSearchInput" aria-label="Job title or keyword" placeholder="Job title, skill or company" maxLength={120} listLabel="Job title suggestions" minChars={2}
         value={query} onChange={setQuery} getItems={(q) => matchTitles(q)}
         describe={(it) => ({ label: it.text, at: it.at, len: it.len, detail: KIND_LABEL[it.kind] })}
         onPick={(it) => { setQuery(it.text); if (!location.trim()) setTimeout(() => document.getElementById('locationInput')?.focus(), 0); }} /></label>
@@ -79,9 +83,13 @@ export function SearchForm({ initial = {}, sort, onSort }) {
     <label className="filter-pill"><select aria-label="Salary" value={salary} onChange={e => setSalary(e.target.value)}><option value="">Salary</option><option value="listed">Salary listed</option></select></label>
     <label className="filter-pill"><select aria-label="Job category" value={category} onChange={event => setCategory(event.target.value)}>
       <option value="">Job Category</option>
-      {['Data Analyst', 'Software Engineer', 'Data Engineer', 'Business Analyst'].map(role => <option key={role}>{role}</option>)}
+      {['Data Analyst', 'Software Engineer', 'Data Engineer', 'Business Analyst', ...ROLE_OPTIONS.map(role => role.name)].map(role => <option key={role}>{role}</option>)}
     </select></label>
     <label className="filter-pill"><select aria-label="Work authorization" value={sponsorship} onChange={event => setSponsorship(event.target.value)}>{WORK_AUTHORIZATION_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+    {showCareFilters && Object.entries(TAG_OPTIONS).map(([key,values]) => <label className="filter-pill" key={key}>
+      <select aria-label={key[0].toUpperCase()+key.slice(1)} value={tags[key]} onChange={event => setTags(previous => ({ ...previous, [key]: event.target.value }))}>
+        <option value="">{key[0].toUpperCase()+key.slice(1)}</option>{values.map(value => <option key={value}>{value}</option>)}
+      </select></label>)}
     <label className="filter-pill dashboard-sort"><select aria-label="Sort jobs" value={sort} onChange={e => onSort(e.target.value)}><option value="relevance">Sort: Relevance</option><option value="newest">Sort: Newest</option></select></label>
     </div>
     {sponsorship && <p className="react-search-hint">Based on listing text. Confirm requirements with the employer.</p>}

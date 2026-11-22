@@ -3,7 +3,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import {
-  SITE, MIN_CITY_JOBS, MIN_STATE_JOBS, DISPLAY_LIMIT, applicationUrl, areaListings, eligiblePosting,
+  SITE, MIN_CITY_JOBS, MIN_STATE_JOBS, statePageMinimum, CARE_ROLES, DISPLAY_LIMIT, applicationUrl, areaListings, eligiblePosting,
   getEmployerPostings, newestFirst, postingPath, readOpenCatalogue,
 } from '../jobs/catalogue.mjs';
 
@@ -160,7 +160,7 @@ export function renderArea(target, rows, details, date, related = [], now = Date
     '"><p role="status">' + status + '</p><ul class="listings">' + items + '</ul></section>' + renderInsights(target, rows, now) + relatedLinks;
   const stateTrail = stateName ? [[stateName, directoryState(state)]] : [];
   return page({ path, title: heading, description: heading + ' as of ' + date + '. Browse listings and check the original posting before applying.',
-    body, noindex: count < (city ? MIN_CITY_JOBS : MIN_STATE_JOBS), live: true,
+    body, noindex: count < (city ? MIN_CITY_JOBS : statePageMinimum(role)), live: true,
     trail: [['Home', '/'], ['Jobs', '/jobs/'], ...stateTrail, [target.title + ' in ' + place, path]],
   });
 }
@@ -228,12 +228,12 @@ export function planPages(catalogue, roles, regions, now) {
   const statePages = regions.flatMap(region => roles.map(role => {
     const target = targetFor(role, region);
     return { target, rows: rowsFor(target) };
-  })).filter(({ rows }) => rows.length >= MIN_STATE_JOBS);
+  })).filter(({ target, rows }) => rows.length >= statePageMinimum(target.role));
   const cityPages = CITIES.filter(([, code]) => regions.some(region => region.code === code)).flatMap(([city, code]) => roles.map(role => {
     const target = targetFor(role, regions.find(region => region.code === code), city);
     return { target, rows: rowsFor(target) };
   }));
-  return { statePages, cityPages };
+  return { statePages, cityPages: cityPages.filter(({target,rows}) => !CARE_ROLES.has(target.role) || rows.length>=5) };
 }
 
 async function build() {

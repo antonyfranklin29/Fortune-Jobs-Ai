@@ -1,0 +1,40 @@
+{
+  "healthcare": [
+    "registered-nurse",
+    "licensed-practical-nurse",
+    "certified-nursing-assistant",
+    "medical-assistant",
+    "pharmacy-technician",
+    "physical-therapist",
+    "respiratory-therapist",
+    "home-health-aide"
+  ],
+  "transport": [
+    "cdl-truck-driver",
+    "delivery-driver",
+    "warehouse-associate",
+    "forklift-operator",
+    "dispatcher",
+    "logistics-coordinator"
+  ],
+  "tech": [
+    "data-analyst",
+    "business-analyst",
+    "business-intelligence-developer",
+    "power-bi-developer",
+    "tableau-developer",
+    "sql-developer",
+    "data-engineer",
+    "data-scientist",
+    "machine-learning-engineer",
+    "software-engineer",
+    "full-stack-developer",
+    "devops-engineer",
+    "cloud-engineer",
+    "qa-engineer",
+    "cybersecurity-analyst",
+    "servicenow-developer",
+    "salesforce-developer",
+    "anaplan-model-builder"
+  ]
+}
