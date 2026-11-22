@@ -102200,5 +102200,1277 @@
         "domain": "zuruautomation.com"
       }
     ]
+  },
+  "adobe systems": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:42.185Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Adobe",
+        "domain": "adobe.com"
+      },
+      {
+        "name": "Adobe Systems",
+        "domain": "adobe.ch"
+      },
+      {
+        "name": "Adobe",
+        "domain": "adobealarm.com"
+      },
+      {
+        "name": "adobe",
+        "domain": "adobe-commerce.com"
+      },
+      {
+        "name": "Adobe",
+        "domain": "lumiak.it"
+      }
+    ]
+  },
+  "aledade pbc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:42.452Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Aledade",
+        "domain": "aledade.com"
+      },
+      {
+        "name": "PBC",
+        "domain": "pandbc.co.uk"
+      },
+      {
+        "name": "PBC",
+        "domain": "pbcgroup.com"
+      },
+      {
+        "name": "PBC",
+        "domain": "pbc.guru"
+      },
+      {
+        "name": "PBC",
+        "domain": "pbcfin.com"
+      }
+    ]
+  },
+  "allied solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:42.721Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Allied Solutions",
+        "domain": "alliedsolutions.com"
+      },
+      {
+        "name": "Allied Solutions LLC",
+        "domain": "alliedsolutions.net"
+      },
+      {
+        "name": "Allied Solutions",
+        "domain": "alliedsolutionsonline.com"
+      },
+      {
+        "name": "Allied Solutions",
+        "domain": "alliedsolutionsbsn.com.au"
+      },
+      {
+        "name": "Allied Government Solutions",
+        "domain": "alliedgov.com"
+      }
+    ]
+  },
+  "beacon health system": {
+    "status": "matched",
+    "domain": "beaconhealthsystem.org",
+    "checked_at": "2026-11-22T16:28:42.993Z",
+    "resolver_version": 2
+  },
+  "beehive industries": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:43.246Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Beehive Industries",
+        "domain": "beehive-industries.com"
+      },
+      {
+        "name": "Beehive Industries",
+        "domain": "beehiveindustries.com"
+      },
+      {
+        "name": "Beehive Industries",
+        "domain": "beehiveindustries.com.au"
+      },
+      {
+        "name": "Beehive",
+        "domain": "paybeehive.com.br"
+      },
+      {
+        "name": "Beehive",
+        "domain": "beehivepros.com"
+      }
+    ]
+  },
+  "beehive industries, llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:43.514Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Beehive Industries",
+        "domain": "beehive-industries.com"
+      },
+      {
+        "name": "Beehive Industries",
+        "domain": "beehiveindustries.com"
+      },
+      {
+        "name": "Beehive Industries",
+        "domain": "beehiveindustries.com.au"
+      },
+      {
+        "name": "Beehive",
+        "domain": "paybeehive.com.br"
+      },
+      {
+        "name": "Beehive",
+        "domain": "beehivepros.com"
+      }
+    ]
+  },
+  "breakpoint labs": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:43.790Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "BreakPoint Labs",
+        "domain": "breakpoint-labs.com"
+      },
+      {
+        "name": "Breakpoint Labs",
+        "domain": "breakpointlabs.eu"
+      },
+      {
+        "name": "BreakPoint",
+        "domain": "breakpointcrm.com"
+      },
+      {
+        "name": "Breakpoint",
+        "domain": "gobreakpoint.com"
+      },
+      {
+        "name": "breakpoint",
+        "domain": "breakpoint.com"
+      }
+    ]
+  },
+  "business needs inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:44.082Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Business Needs Inc",
+        "domain": "businessneedsinc.com"
+      },
+      {
+        "name": "Business Needs AZ",
+        "domain": "businessneedsaz.com"
+      },
+      {
+        "name": "Needs",
+        "domain": "needs.expert"
+      },
+      {
+        "name": "Needs",
+        "domain": "ineeds.org.uk"
+      },
+      {
+        "name": "inc",
+        "domain": "inc-sys.com"
+      }
+    ]
+  },
+  "camden copper/metis endeavor": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:44.330Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Metis Endeavor",
+        "domain": "metisendeavor.com"
+      },
+      {
+        "name": "Endeavor",
+        "domain": "endeavor.org"
+      },
+      {
+        "name": "Endeavor",
+        "domain": "wmegrp.com"
+      },
+      {
+        "name": "Endeavor",
+        "domain": "endeavor.ai"
+      },
+      {
+        "name": "Metis",
+        "domain": "withmetis.ai"
+      }
+    ]
+  },
+  "cascade die casting group": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:44.597Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Cascade Die Casting Group",
+        "domain": "cascade-cdc.com"
+      },
+      {
+        "name": "Die Casting",
+        "domain": "alcast.com.mx"
+      },
+      {
+        "name": "Ryobi Die Casting",
+        "domain": "ryobidiecasting.com"
+      },
+      {
+        "name": "Walker Die Casting",
+        "domain": "walkerdiecasting.com"
+      },
+      {
+        "name": "Northwest Die Casting,",
+        "domain": "nwdiecasting.com"
+      }
+    ]
+  },
+  "chariton valley": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:44.848Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Chariton Valley Association",
+        "domain": "charitonvalley.org"
+      },
+      {
+        "name": "Chariton Valley Electric Cooperative,",
+        "domain": "cvrec.com"
+      },
+      {
+        "name": "Chariton County",
+        "domain": "charitonco.com"
+      },
+      {
+        "name": "Chariton Newspapers",
+        "domain": "charitonleader.com"
+      },
+      {
+        "name": "Chariton Insurance",
+        "domain": "charitonins.com"
+      }
+    ]
+  },
+  "chep": {
+    "status": "matched",
+    "domain": "chep.com",
+    "checked_at": "2026-11-22T16:28:45.094Z",
+    "resolver_version": 2
+  },
+  "clark county department of aviation": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:45.362Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Clark County Health Department",
+        "domain": "clarkhealth.net"
+      },
+      {
+        "name": "Clark County",
+        "domain": "clarkcountynv.gov"
+      },
+      {
+        "name": "Aviation Department",
+        "domain": "nevadadot.com"
+      },
+      {
+        "name": "CLARK, COUNTY OF",
+        "domain": "ntprd.org"
+      },
+      {
+        "name": "Clark County",
+        "domain": "clarkcountywi.gov"
+      }
+    ]
+  },
+  "conexus": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:45.608Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Conexus",
+        "domain": "cnxsi.com"
+      },
+      {
+        "name": "Conexus",
+        "domain": "conexusdx.com"
+      },
+      {
+        "name": "Conexus",
+        "domain": "conexusinc.com"
+      },
+      {
+        "name": "Conexus",
+        "domain": "conexuscommunity.com"
+      },
+      {
+        "name": "Conexus",
+        "domain": "conexus.net"
+      }
+    ]
+  },
+  "ctr management group": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:45.885Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "CTR Management Group",
+        "domain": "ctrmg.com"
+      },
+      {
+        "name": "Group Management Strategy",
+        "domain": "group-management-strategy.com"
+      },
+      {
+        "name": "CTR",
+        "domain": "ctrc.com"
+      },
+      {
+        "name": "CTR Group UK",
+        "domain": "ctrgroup.co.uk"
+      },
+      {
+        "name": "CTR",
+        "domain": "ctrhcm.com"
+      }
+    ]
+  },
+  "dallas college": {
+    "status": "matched",
+    "domain": "dallascollege.edu",
+    "checked_at": "2026-11-22T16:28:46.161Z",
+    "resolver_version": 2
+  },
+  "elkhart county government": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:46.410Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Elkhart County Government",
+        "domain": "elkhartcountyindiana.com"
+      },
+      {
+        "name": "Elkhart County Parks",
+        "domain": "elkhartcountyparks.org"
+      },
+      {
+        "name": "Elkhart County Highway",
+        "domain": "elkcohwy.org"
+      },
+      {
+        "name": "Elkhart County Chiropractic",
+        "domain": "elkhartcochiro.com"
+      },
+      {
+        "name": "Elkhart County Gravel",
+        "domain": "elkhartcountygravel.com"
+      }
+    ]
+  },
+  "emerald resource group": {
+    "status": "matched",
+    "domain": "emeraldresourcegroup.com",
+    "checked_at": "2026-11-22T16:28:46.696Z",
+    "resolver_version": 2
+  },
+  "enzo tech group": {
+    "status": "matched",
+    "domain": "enzotechgroup.com",
+    "checked_at": "2026-11-22T16:28:46.963Z",
+    "resolver_version": 2
+  },
+  "fashionphile": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:47.211Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "FASHIONPHILE",
+        "domain": "fashionphile.com"
+      },
+      {
+        "name": "FASHIONPHILE",
+        "domain": "fashionphile.uk"
+      }
+    ]
+  },
+  "flint community schools": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:47.494Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Flint Community Bank",
+        "domain": "flint.bank"
+      },
+      {
+        "name": "Flint",
+        "domain": "flintk12.com"
+      },
+      {
+        "name": "Flint",
+        "domain": "withflint.com"
+      },
+      {
+        "name": "Flint Community Players",
+        "domain": "flintcommunityplayers.com"
+      },
+      {
+        "name": "FLINT",
+        "domain": "flintbuilders.com"
+      }
+    ]
+  },
+  "fnality international": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:47.759Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Fnality International",
+        "domain": "fnality.com"
+      },
+      {
+        "name": "Marriott International",
+        "domain": "marriott.com"
+      },
+      {
+        "name": "International",
+        "domain": "international.com"
+      },
+      {
+        "name": "CACI International",
+        "domain": "caci.com"
+      },
+      {
+        "name": "Susquehanna International",
+        "domain": "sig.com"
+      }
+    ]
+  },
+  "fourth yuga tech llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:48.020Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Yuga",
+        "domain": "yuga.ro"
+      },
+      {
+        "name": "Yuga",
+        "domain": "yugaport.com"
+      },
+      {
+        "name": "Yuga",
+        "domain": "yuga.in"
+      },
+      {
+        "name": "Yuga",
+        "domain": "yuga-tech.com"
+      },
+      {
+        "name": "Fourth",
+        "domain": "fourth.com"
+      }
+    ]
+  },
+  "gentex corporation": {
+    "status": "matched",
+    "domain": "gentex.com",
+    "checked_at": "2026-11-22T16:28:48.271Z",
+    "resolver_version": 2
+  },
+  "goodwill industries of central texas": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:48.542Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Goodwill Central Texas",
+        "domain": "goodwillcentraltexas.org"
+      },
+      {
+        "name": "Goodwill of Central",
+        "domain": "goodwillindy.org"
+      },
+      {
+        "name": "Goodwill Industries of Central Florida",
+        "domain": "goodwillcfl.org"
+      },
+      {
+        "name": "Goodwill Industries of South Texas",
+        "domain": "goodwillsouthtexas.com"
+      },
+      {
+        "name": "Goodwill Industries of Northeast Texas",
+        "domain": "goodwillnorthtexas.org"
+      }
+    ]
+  },
+  "homeserve": {
+    "status": "matched",
+    "domain": "homeserve.de",
+    "checked_at": "2026-11-22T16:28:48.784Z",
+    "resolver_version": 2
+  },
+  "infini-tek": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:49.035Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Infini",
+        "domain": "infinifi.co.za"
+      },
+      {
+        "name": "infini",
+        "domain": "infini-tek.com"
+      },
+      {
+        "name": "Infini",
+        "domain": "infinittranslation.com"
+      },
+      {
+        "name": "INFINI",
+        "domain": "infini.fit"
+      },
+      {
+        "name": "INFINI",
+        "domain": "infini.com.br"
+      }
+    ]
+  },
+  "info origin inc.": {
+    "status": "matched",
+    "domain": "infoorigin.com",
+    "checked_at": "2026-11-22T16:28:49.307Z",
+    "resolver_version": 2
+  },
+  "innovative information technologies, inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:49.596Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Innovative Information Technologies",
+        "domain": "innovativeinfotech.com"
+      },
+      {
+        "name": "Quorum Information Technologies Inc",
+        "domain": "quoruminfotech.com"
+      },
+      {
+        "name": "Innovative Information Solutions",
+        "domain": "innovativeis.com"
+      },
+      {
+        "name": "Innovative Technologies",
+        "domain": "itgcusa.com"
+      },
+      {
+        "name": "Innovative Technologies,",
+        "domain": "iti-corp.com"
+      }
+    ]
+  },
+  "intrust bank": {
+    "status": "matched",
+    "domain": "intrustbank.com",
+    "checked_at": "2026-11-22T16:28:49.867Z",
+    "resolver_version": 2
+  },
+  "kla": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:50.118Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "KLA",
+        "domain": "kla.com"
+      },
+      {
+        "name": "KLA",
+        "domain": "klalaw.com.br"
+      },
+      {
+        "name": "KLA",
+        "domain": "kla.co.za"
+      },
+      {
+        "name": "KLA",
+        "domain": "klamoyacasino.com"
+      },
+      {
+        "name": "KLA",
+        "domain": "kla.foundation"
+      }
+    ]
+  },
+  "motion": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:50.362Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Motion",
+        "domain": "usemotion.com"
+      },
+      {
+        "name": "Motion",
+        "domain": "motion.com"
+      },
+      {
+        "name": "Motion",
+        "domain": "motionapp.com"
+      },
+      {
+        "name": "Motion",
+        "domain": "motion.dev"
+      },
+      {
+        "name": "Motion",
+        "domain": "motionmetrics.com"
+      }
+    ]
+  },
+  "new gig solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:50.628Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "New Gig Workforce Solutions",
+        "domain": "newgigsolutions.com"
+      },
+      {
+        "name": "GiG",
+        "domain": "gig.com"
+      },
+      {
+        "name": "GIG",
+        "domain": "gig-med.de"
+      },
+      {
+        "name": "GIG",
+        "domain": "gig24.com"
+      },
+      {
+        "name": "Gig Worker Solutions",
+        "domain": "gigworkersolutions.com"
+      }
+    ]
+  },
+  "odawa casino resort": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:50.879Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Odawa Casino Resort",
+        "domain": "odawacasino.com"
+      },
+      {
+        "name": "Palms Casino Resort",
+        "domain": "palms.com"
+      },
+      {
+        "name": "Circa Resort & Casino",
+        "domain": "circalasvegas.com"
+      },
+      {
+        "name": "Eldorado Resort Casino",
+        "domain": "eldoradoreno.com"
+      },
+      {
+        "name": "Eureka Casino Resort",
+        "domain": "eurekamesquite.com"
+      }
+    ]
+  },
+  "overview technomics": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:51.126Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Technomics",
+        "domain": "technomics.net"
+      },
+      {
+        "name": "Overview",
+        "domain": "overview.ai"
+      },
+      {
+        "name": "Overview",
+        "domain": "fscreit.com"
+      },
+      {
+        "name": "Overview",
+        "domain": "overview.earth"
+      },
+      {
+        "name": "Overview",
+        "domain": "lmstrategicventures.com"
+      }
+    ]
+  },
+  "paladin consulting inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:51.403Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Paladin Consulting",
+        "domain": "paladininc.com"
+      },
+      {
+        "name": "Paladin Consulting",
+        "domain": "paladin-consulting.co.za"
+      },
+      {
+        "name": "Paladin Consulting Group Inc",
+        "domain": "paladinconsultinggroup.com"
+      },
+      {
+        "name": "Paladin",
+        "domain": "paladinattachments.com"
+      },
+      {
+        "name": "Paladin",
+        "domain": "paladin.fr"
+      }
+    ]
+  },
+  "peerless": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:51.647Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Peerless",
+        "domain": "peerless-av.com"
+      },
+      {
+        "name": "Peerless",
+        "domain": "epeerless.com"
+      },
+      {
+        "name": "Peerless",
+        "domain": "peerless-inc.com"
+      },
+      {
+        "name": "Peerless",
+        "domain": "getpeerless.com"
+      },
+      {
+        "name": "Peerless",
+        "domain": "bepeerless.co"
+      }
+    ]
+  },
+  "pemcco": {
+    "status": "matched",
+    "domain": "pemcco.com",
+    "checked_at": "2026-11-22T16:28:51.895Z",
+    "resolver_version": 2
+  },
+  "pheaa": {
+    "status": "matched",
+    "domain": "pheaa.org",
+    "checked_at": "2026-11-22T16:28:52.137Z",
+    "resolver_version": 2
+  },
+  "precision technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:52.393Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Precision Technologies",
+        "domain": "precisiontechcorp.com"
+      },
+      {
+        "name": "Precision Technologies",
+        "domain": "precision-techno.com"
+      },
+      {
+        "name": "Precision Technologies",
+        "domain": "precisiontech.biz"
+      },
+      {
+        "name": "Precision Technologies",
+        "domain": "prc-tec.com"
+      },
+      {
+        "name": "Precision Technologies",
+        "domain": "prizmato.com"
+      }
+    ]
+  },
+  "quantumwork advisory": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:52.660Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "QuantumWork Advisory",
+        "domain": "quantumwork.com"
+      },
+      {
+        "name": "ADVISORY",
+        "domain": "8advisory.com"
+      },
+      {
+        "name": "Advisory",
+        "domain": "kwiadvisory.com"
+      },
+      {
+        "name": "Advisory",
+        "domain": "akaadvisory.com"
+      },
+      {
+        "name": "ADVISORY GROUP",
+        "domain": "advisory-group.one"
+      }
+    ]
+  },
+  "rdv": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:52.914Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "RDV",
+        "domain": "rdvcareers.com"
+      },
+      {
+        "name": "RDV",
+        "domain": "rdv-insolvencia.com"
+      },
+      {
+        "name": "rdv",
+        "domain": "rdv.com.co"
+      },
+      {
+        "name": "RDV",
+        "domain": "rdv-it.ru"
+      },
+      {
+        "name": "RDV",
+        "domain": "rdvemploipublic.fr"
+      }
+    ]
+  },
+  "restb.ai": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:53.160Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Restb",
+        "domain": "restb.ai"
+      }
+    ]
+  },
+  "rheem": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:53.407Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Rheem Manufacturing",
+        "domain": "rheem.com"
+      },
+      {
+        "name": "Rheem",
+        "domain": "rheemsolarsolutions.co.nz"
+      },
+      {
+        "name": "Rheem",
+        "domain": "rheemphilippines.com"
+      },
+      {
+        "name": "Rheem",
+        "domain": "rheemheatpumpguide.com"
+      },
+      {
+        "name": "Rheem Australia",
+        "domain": "rheem.com.au"
+      }
+    ]
+  },
+  "rxo": {
+    "status": "matched",
+    "domain": "rxo.com",
+    "checked_at": "2026-11-22T16:28:53.648Z",
+    "resolver_version": 2
+  },
+  "saginaw chippewa indian tribe": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:53.901Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Saginaw Chippewa Indian Tribe of Michigan",
+        "domain": "sagchip.org"
+      },
+      {
+        "name": "Sault Tribe Of Chippewa Indian",
+        "domain": "saulttribe.com"
+      },
+      {
+        "name": "Chippewa Cree Tribe",
+        "domain": "chippewa-cree.org"
+      },
+      {
+        "name": "Saginaw Chippewa Tribal College",
+        "domain": "sagchip.edu"
+      },
+      {
+        "name": "Mn Chippewa Tribe",
+        "domain": "mnchippewatribe.org"
+      }
+    ]
+  },
+  "simmons bank": {
+    "status": "matched",
+    "domain": "simmonsbank.com",
+    "checked_at": "2026-11-22T16:28:54.152Z",
+    "resolver_version": 2
+  },
+  "strategos consulting": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:54.415Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Strategos Consulting",
+        "domain": "strategosconsultingllc.com"
+      },
+      {
+        "name": "Strategos",
+        "domain": "strategos.com"
+      },
+      {
+        "name": "Strategos",
+        "domain": "strategospro.com"
+      },
+      {
+        "name": "STRATEGOS",
+        "domain": "bi-strategos.com"
+      },
+      {
+        "name": "Strategos Consulting Ingolstadt",
+        "domain": "strategos-consulting.de"
+      }
+    ]
+  },
+  "svats": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:54.657Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "SVATS Inc",
+        "domain": "svatsinc.com"
+      }
+    ]
+  },
+  "svats inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:54.926Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "SVATS Inc",
+        "domain": "svatsinc.com"
+      },
+      {
+        "name": "inc",
+        "domain": "inc-sys.com"
+      },
+      {
+        "name": "8020",
+        "domain": "8020.inc"
+      },
+      {
+        "name": "Inc Management BV",
+        "domain": "inc-management.com"
+      },
+      {
+        "name": "Inc Dot Design",
+        "domain": "inc-dot.com"
+      }
+    ]
+  },
+  "the travelers indemnity company": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:55.205Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "National Indemnity Company",
+        "domain": "nationalindemnity.com"
+      },
+      {
+        "name": "Travelers",
+        "domain": "travelers.com"
+      },
+      {
+        "name": "Granada Indemnity Company",
+        "domain": "granadaindemnity.com"
+      },
+      {
+        "name": "Travelers",
+        "domain": "travs.com"
+      },
+      {
+        "name": "Indemnity",
+        "domain": "indemnity.claims"
+      }
+    ]
+  },
+  "thrive aviation": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:55.454Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Thrive",
+        "domain": "thrivenextgen.com"
+      },
+      {
+        "name": "Thrive",
+        "domain": "thriveagency.com"
+      },
+      {
+        "name": "Thrive",
+        "domain": "thrivelearning.com"
+      },
+      {
+        "name": "Thrive",
+        "domain": "thrivetrm.com"
+      },
+      {
+        "name": "Thrive Capital",
+        "domain": "thrivecap.com"
+      }
+    ]
+  },
+  "treva workforce": {
+    "status": "matched",
+    "domain": "trevaworkforce.com",
+    "checked_at": "2026-11-22T16:28:55.706Z",
+    "resolver_version": 2
+  },
+  "true north": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:55.984Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "True North",
+        "domain": "thisistruenorth.co.uk"
+      },
+      {
+        "name": "True North",
+        "domain": "truenorthagency.com"
+      },
+      {
+        "name": "True North",
+        "domain": "truenorth.scot"
+      },
+      {
+        "name": "TRUE NORTH",
+        "domain": "tnexec.com"
+      },
+      {
+        "name": "True North",
+        "domain": "truenorthkitchenandbath.com"
+      }
+    ]
+  },
+  "ufcu plaza": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:56.237Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "UFCU",
+        "domain": "ufcu.org"
+      },
+      {
+        "name": "Plaza",
+        "domain": "getplaza.ai"
+      },
+      {
+        "name": "Plaza",
+        "domain": "plazare.com"
+      },
+      {
+        "name": "Plaza",
+        "domain": "plazahotel.ie"
+      },
+      {
+        "name": "Plaza",
+        "domain": "theplazaco.com"
+      }
+    ]
+  },
+  "valiant solutions": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:56.495Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Valiant Solutions",
+        "domain": "valiantsolutions.com"
+      },
+      {
+        "name": "Valiant Solutions",
+        "domain": "valiantsolutions.io"
+      },
+      {
+        "name": "Valiant Solutions",
+        "domain": "valiantsolutions.ca"
+      },
+      {
+        "name": "Valiant",
+        "domain": "valiant.com.au"
+      },
+      {
+        "name": "Valiant",
+        "domain": "valiantconstruct.com"
+      }
+    ]
+  },
+  "verde capital management": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:56.757Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Verde Capital Management",
+        "domain": "verdecm.com"
+      },
+      {
+        "name": "Casa Verde Capital",
+        "domain": "casaverdecapital.com"
+      },
+      {
+        "name": "Verde Asset Management",
+        "domain": "verdeasset.com.br"
+      },
+      {
+        "name": "Isla Verde Capital",
+        "domain": "islaverdecapital.com"
+      },
+      {
+        "name": "Verde Capital Corp",
+        "domain": "verdecapitalcorp.com"
+      }
+    ]
+  },
+  "vermont mutual insurance": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-22T16:28:57.010Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Vermont Mutual Insurance Group",
+        "domain": "vermontmutual.com"
+      },
+      {
+        "name": "Mutual Insurance",
+        "domain": "mutualid.com"
+      },
+      {
+        "name": "Mutual Insurance",
+        "domain": "mutualinsurancebvi.com"
+      },
+      {
+        "name": "Liberty Mutual Insurance",
+        "domain": "libertymutualinvestments.com"
+      },
+      {
+        "name": "MUTUAL INSURANCE",
+        "domain": "mutualinsuranceinc.com"
+      }
+    ]
   }
 }
