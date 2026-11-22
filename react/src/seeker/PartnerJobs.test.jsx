@@ -21,9 +21,8 @@ it('renders attributed partner links and omits browser credentials', async () =>
   vi.stubGlobal('fetch', fetchJobs);
   const query = partnerQuery({ q: 'Analyst' });
   render(<PartnerJobs query={query} name="Careerjet" site="https://www.careerjet.com/" endpoint="careerjet-search" />);
-  const job = await screen.findByRole('link', { name: 'Analyst' });
-  expect(job.href).toBe('https://jobviewtrack.com/v2/example');
-  expect(job.rel).toBe('nofollow sponsored noopener noreferrer');
+  const job = await screen.findByRole('button', { name: 'Analyst' });
+  expect(job.hasAttribute('href')).toBe(false);
   expect(screen.getByRole('link', { name: 'Jobs by Careerjet' }).href).toBe('https://www.careerjet.com/');
   expect(fetchJobs).toHaveBeenCalledWith('https://example.test/functions/v1/careerjet-search', expect.objectContaining({
     credentials: 'omit', body: JSON.stringify(query),

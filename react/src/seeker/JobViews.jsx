@@ -1,4 +1,4 @@
-import { PartnerApply, isPaidPartner } from '../shared/PartnerApply.jsx';
+import { PartnerApply, isPartnerJob } from '../shared/PartnerApply.jsx';
 import React, { useState } from 'react';
 import { cleanDescription, fitFor, jobAge, logoFor, safeApplyUrl } from './catalogue.js';
 import { AiJobTools } from './AiTools.jsx';
@@ -41,7 +41,7 @@ export function JobDescription({ job, description, url }) {
   return <section className="react-description"><h4>About this role</h4>
     {description ? <p>{long && !open ? `${description.slice(0, 900).replace(/\s\S*$/, '')}…` : description}</p> : <p>This listing’s full description is on the employer’s page.</p>}
     {long && <button type="button" className="react-more" aria-expanded={open} onClick={() => { setOpen(!open); markStep(job, 'read'); }}>{open ? 'Show less' : 'Show full description'}</button>}
-    {url && <p className="react-full-link">{preview && description ? 'This is a preview. ' : ''}{isPaidPartner(job) ? <PartnerApply job={job} onClick={() => markStep(job, 'read')}>Read the complete job description on {site} ↗</PartnerApply> : <a href={url} target="_blank" rel={job.live_partner ? 'nofollow sponsored noopener noreferrer' : 'noopener noreferrer'} onClick={() => markStep(job, 'read')}>Read the complete job description on {site} ↗</a>}</p>}
+    {url && <p className="react-full-link">{preview && description ? 'This is a preview. ' : ''}{isPartnerJob(job) ? <PartnerApply job={job} onClick={() => markStep(job, 'read')}>Read the complete job description on {site} ↗</PartnerApply> : <a href={url} target="_blank" rel={job.live_partner ? 'nofollow sponsored noopener noreferrer' : 'noopener noreferrer'} onClick={() => markStep(job, 'read')}>Read the complete job description on {site} ↗</a>}</p>}
   </section>;
 }
 
@@ -50,7 +50,7 @@ export function JobDetail({ job, profile, compact = false, saved = false, onSave
   const url = safeApplyUrl(job.apply_url);
   const fit = dashboard ? null : fitFor(job, profile);
   const description = cleanDescription(job.job_description);
-  const actions = (where) => <div className={`react-detail-actions react-actions-${where}`}>{url && (isPaidPartner(job) ? <PartnerApply job={job} className="react-apply dashboard-gold">Apply Now ↗</PartnerApply> : <a className="react-apply dashboard-gold" href={url} target="_blank" rel={job.live_partner ? 'nofollow sponsored noopener noreferrer' : 'noopener noreferrer'}>{dashboard ? 'Apply Now' : `Apply on ${job.source === 'adzuna' ? 'Adzuna' : job.live_partner || (['remotive', 'himalayas'].includes(job.source) ? job.attribution : 'the employer site')}`} ↗</a>)}{onSave && <button type="button" className="react-save" aria-pressed={saved} onClick={() => onSave(job)}>{saved ? 'Saved' : 'Save job'}</button>}</div>;
+  const actions = (where) => <div className={`react-detail-actions react-actions-${where}`}>{url && (isPartnerJob(job) ? <PartnerApply job={job} className="react-apply dashboard-gold">Apply Now ↗</PartnerApply> : <a className="react-apply dashboard-gold" href={url} target="_blank" rel={job.live_partner ? 'nofollow sponsored noopener noreferrer' : 'noopener noreferrer'}>{dashboard ? 'Apply Now' : `Apply on ${job.source === 'adzuna' ? 'Adzuna' : job.live_partner || (['remotive', 'himalayas'].includes(job.source) ? job.attribution : 'the employer site')}`} ↗</a>)}{onSave && <button type="button" className="react-save" aria-pressed={saved} onClick={() => onSave(job)}>{saved ? 'Saved' : 'Save job'}</button>}</div>;
   return <article className={`featured-detail ${compact ? 'react-detail-compact' : ''}`}>
     <div className="react-detail-head"><CompanyMark job={job} /><div><p className="react-company">{job.company}</p><h3>{job.job_title}</h3><p>{job.location || 'Location not specified'}</p></div></div>
     <div className="react-badges">{job.salary && <span>{job.salary}</span>}{job.employment_type && <span>{job.employment_type}</span>}{job.work_mode && <span>{job.work_mode}</span>}{jobAge(job) && <span>{jobAge(job)}</span>}<WorkAuthorizationBadge job={job} /></div>

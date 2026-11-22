@@ -1,7 +1,8 @@
+import { isObviousBot } from './partner-protection.mjs';
 import { isIP } from 'node:net';
 
 const origins = new Set(['https://fortunejobsai.com', 'https://www.fortunejobsai.com']);
-const minute = 60_000;
+const minute = 600_000;
 const maxClients = 2048;
 const empty = { jobs: [] };
 
@@ -24,7 +25,7 @@ export function mapPartnerJobs(rows, select) {
   });
 }
 
-export function createPartnerHandler({ getKey, search, fetchImpl = fetch, now = Date.now }) {
+export function createPartnerHandler({ getKey, search, fetchImpl = fetch, now = Date.now, admit }) {
   const limits = new Map();
   let windowStart = -1;
   return async request => {
@@ -41,7 +42,7 @@ export function createPartnerHandler({ getKey, search, fetchImpl = fetch, now = 
       const key = getKey();
       const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
       const userAgent = request.headers.get('user-agent')?.trim();
-      if (!key || !ip || !isIP(ip) || !userAgent) return json(empty);
+      if (!key || !ip || !isIP(ip) || !userAgent || isObviousBot(userAgent)) return json(empty);
       const body = await request.json();
       if (!body || typeof body.q !== 'string' || body.q.length > 120 ||
           (body.location != null && (typeof body.location !== 'string' || body.location.length > 120))) return json(empty);
@@ -54,8 +55,9 @@ export function createPartnerHandler({ getKey, search, fetchImpl = fetch, now = 
       const bucket = Math.floor(now() / minute);
       if (bucket !== windowStart) { limits.clear(); windowStart = bucket; }
       const count = limits.get(ip) || 0;
-      if (count >= 6 || (!count && limits.size >= maxClients)) return json(empty);
+      if (count >= 30 || (!count && limits.size >= maxClients)) return json(empty);
       limits.set(ip, count + 1);
+      if (admit && !await admit(ip)) return json(empty);
 
       const jobs = await search({
         key, q, location, page, ip, userAgent: userAgent.slice(0, 512),

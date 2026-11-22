@@ -1,4 +1,4 @@
-import { PartnerApply, isPaidPartner } from '../shared/PartnerApply.jsx';
+import { PartnerApply, isPartnerJob } from '../shared/PartnerApply.jsx';
 import React, { useEffect, useState } from 'react';
 
 export function partnerQuery(initial) {
@@ -39,7 +39,7 @@ export function PartnerJobs({ query, name, site, endpoint, onDemand = false }) {
       ? <p><button className="react-save" type="button" onClick={() => setRequested(true)}>Search {name}</button></p>
       : !jobs?.length && <p role="status">{jobs ? `No ${name} results available for this search.` : `Loading ${name} jobs…`}</p>)}
     {!!jobs?.length && <ul>{jobs.map(job => <li key={job.url}>
-      {isPaidPartner({ source: name.toLowerCase() }) ? <PartnerApply job={{ ...job, job_title: job.title, apply_url: job.url, source: name.toLowerCase() }}>{job.title}</PartnerApply> : <a href={job.url} target="_blank" rel="nofollow sponsored noopener noreferrer">{job.title}</a>}
+      {isPartnerJob({ source: name.toLowerCase() }) ? <PartnerApply job={{ ...job, job_title: job.title, apply_url: job.url, source: name.toLowerCase() }}>{job.title}</PartnerApply> : <a href={job.url} target="_blank" rel="nofollow sponsored noopener noreferrer">{job.title}</a>}
       <p>{[job.company, job.location, job.salary].filter(Boolean).join(' · ')}</p>
       {job.description && <p>{job.description}</p>}
     </li>)}</ul>}

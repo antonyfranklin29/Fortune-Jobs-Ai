@@ -1,6 +1,9 @@
 # Fortune Jobs AI is public. Account pages are kept out of search results.
 User-agent: *
 Allow: /
+Allow: /jobs/
+Disallow: /results.html?mode=live
+Disallow: /results.html?*mode=live
 Disallow: /login.html
 Disallow: /profile.html
 Disallow: /email-preferences.html
