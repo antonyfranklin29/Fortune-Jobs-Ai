@@ -100,3 +100,14 @@ test('generated sitemap entries all use generation lastmod, preserve static entr
  assert.equal(addSitemapUrls(xml,paths,date),xml);assert.throws(()=>addSitemapUrls(xml,paths,'not-a-date'));
  const thin=planPages(rows.slice(0,4),roles,regions,now);assert.equal(thin.statePages.length,0);assert.equal(thin.cityPages.filter(page=>page.rows.length>=5).length,0);
 });
+
+test('near-identical salaries read as one typical figure, and large counts get thousands separators',async()=>{
+ const geo=await import('../jobs/geo.mjs');
+ assert.equal(geo.payRange({unit:'year',low:122975.2,high:122976.4}),'about $122,975 a year');
+ assert.equal(geo.payRange({unit:'hour',low:38,high:52}),'$38–$52 an hour');
+ assert.equal(geo.fmt(1048),'1,048');
+ const hub={id:'healthcare',label:'Healthcare',rows:Array.from({length:1048},()=>({})),roleCounts:[{name:'Registered Nurse',count:1048}],stateCounts:[{name:'Pennsylvania',count:200}]};
+ const text=geo.hubAnswer(hub,'2026-11-23');
+ assert.match(text,/lists 1,048 open healthcare jobs in the United States/);
+ assert.doesNotMatch(text,/across 1 role/);
+});

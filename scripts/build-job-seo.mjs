@@ -7,7 +7,7 @@ import {
   getEmployerPostings, newestFirst, postingPath, readOpenCatalogue, openListing,
 } from '../jobs/catalogue.mjs';
 
-import { HUBS, MIN_HUB_JOBS, advertiserName, areaFacts, answerBlock, areaFaq, dateLabel, faqSchema, hubAnswer, hubFaq, payRange } from '../jobs/geo.mjs';
+import { HUBS, MIN_HUB_JOBS, advertiserName, areaFacts, answerBlock, areaFaq, dateLabel, faqSchema, hubAnswer, hubFaq, payRange, fmt } from '../jobs/geo.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const CITIES = [['Raleigh', 'NC'], ['Chicago', 'IL'], ['New York', 'NY'],
@@ -279,14 +279,14 @@ export function renderHub(hub, indexed, date) {
       return '<td>'+(count && target ? link(areaPath(target), count+' '+(count===1?'job':'jobs')) : count || '—')+'</td>';
     }).join('')+'</tr>').join('')+'</tbody></table></div>';
   const faq = hubFaq(hub,date);
-  return page({path,title:heading,description:hub.rows.length+' open '+hub.label.toLowerCase()+' jobs across '+hub.roleCounts.length+(hub.roleCounts.length===1?' role, updated ':' roles, updated ')+dateLabel(date)+'.',faq,
+  return page({path,title:heading,description:fmt(hub.rows.length)+' open '+hub.label.toLowerCase()+' jobs'+(hub.roleCounts.length===1?'':' across '+hub.roleCounts.length+' roles')+', updated '+dateLabel(date)+'.',faq,
     body:'<h1>'+escape(heading)+'</h1><p class="geo-answer">'+escape(hubAnswer(hub,date))+'</p>'+updatedLine(date)+table+renderFaq(faq),
     trail:[['Home','/'],['Jobs','/jobs/'],[hub.label,path]]});
 }
 
 export function hubDirectory(hubs) {
   return hubs.length ? '<section class="category-hubs"><h2>Browse by job category</h2><ul>'+hubs.map(hub=>
-    '<li>'+link('/jobs/'+hub.id+'/',hub.label+' ('+hub.rows.length+' open jobs)')+'</li>').join('')+'</ul></section>' : '';
+    '<li>'+link('/jobs/'+hub.id+'/',hub.label+' ('+fmt(hub.rows.length)+' open jobs)')+'</li>').join('')+'</ul></section>' : '';
 }
 
 async function build() {

@@ -27,7 +27,11 @@ export function parsedPay(value) {
  return {unit,midpoint:(min+max)/2};
 }
 const money = (value,unit) => '$'+(unit==='hour' ? Math.floor((value+Number.EPSILON)*100)/100 : Math.floor(value)).toLocaleString('en-US',{maximumFractionDigits:unit==='hour'?2:0});
-export const payRange = pay => money(pay.low,pay.unit)+'–'+money(pay.high,pay.unit)+(pay.unit==='hour'?' an hour':' a year');
+const per = pay => pay.unit==='hour'?' an hour':' a year';
+// A range that collapses (listed salaries almost identical) reads as broken, so show one typical figure instead.
+export const narrowPay = pay => money(pay.low,pay.unit)===money(pay.high,pay.unit) || (pay.high-pay.low)/pay.low < 0.03;
+export const payRange = pay => narrowPay(pay) ? 'about '+money(pay.low,pay.unit)+per(pay) : money(pay.low,pay.unit)+'–'+money(pay.high,pay.unit)+per(pay);
+export const fmt = n => Number(n).toLocaleString('en-US');
 export function areaFacts(rows, role) {
  const valid=rows.filter(job=>advertiserName(job.company));
  const companies=new Map();
@@ -44,8 +48,8 @@ export function areaFacts(rows, role) {
   visa:valid.filter(job=>['sponsors','opt_friendly'].includes(job.sponsorship)).length};
 }
 export function answerBlock(target, facts, date, place) {
- const lead=`Fortune Jobs AI lists ${facts.count} open ${target.title} jobs in ${place}, updated ${dateLabel(date)}.`;
- const pay=facts.pay?`Listed pay: ${payRange(facts.pay)} (25th–75th percentile of ${facts.pay.count} listed salary midpoints).`:'';
+ const lead=`Fortune Jobs AI lists ${fmt(facts.count)} open ${target.title} jobs in ${place}, updated ${dateLabel(date)}.`;
+ const pay=facts.pay?(narrowPay(facts.pay)?`Listed pay: ${payRange(facts.pay)} (based on ${facts.pay.count} listings that show pay).`:`Listed pay: ${payRange(facts.pay)} (25th–75th percentile of ${facts.pay.count} listed salary midpoints).`):'';
  const entry=facts.entry?`${facts.entry} ${facts.entry===1?'listing mentions':'listings mention'} entry-level, new-grad, junior or graduate roles.`:'';
  const remote=facts.remote?`${facts.remote} tech ${facts.remote===1?'listing is':'listings are'} marked remote.`:'';
  const visa=facts.visa?`${facts.visa} ${facts.visa===1?'listing mentions':'listings mention'} visa sponsorship or OPT; confirm with the employer.`:'';
@@ -65,8 +69,8 @@ export function licenseAnswer(role, rows) {
  return null;
 }
 export function areaFaq(target,facts,date,place,rows) {
- const noun=target.title+' jobs',faq=[{q:`How many ${noun} are open in ${place}?`,a:`Fortune Jobs AI lists ${facts.count} open ${noun} in ${place} as of ${dateLabel(date)}.`}];
- if(facts.pay) faq.push({q:`How much do ${noun} in ${place} pay?`,a:`The 25th–75th percentile of listed salary midpoints is ${payRange(facts.pay)}, based on ${facts.pay.count} listings where employers list pay. Listings without usable pay data are excluded; hourly and yearly pay are not mixed.`});
+ const noun=target.title+' jobs',faq=[{q:`How many ${noun} are open in ${place}?`,a:`Fortune Jobs AI lists ${fmt(facts.count)} open ${noun} in ${place} as of ${dateLabel(date)}.`}];
+ if(facts.pay) faq.push({q:`How much do ${noun} in ${place} pay?`,a:`${narrowPay(facts.pay)?'Listed pay is '+payRange(facts.pay):'The 25th–75th percentile of listed salary midpoints is '+payRange(facts.pay)}, based on ${facts.pay.count} listings where employers list pay. Listings without usable pay data are excluded; hourly and yearly pay are not mixed.`});
  if(facts.employers.length) faq.push({q:`Which employers are hiring for ${noun} in ${place}?`,a:'Employers in this catalogue include '+list(facts.employers.slice(0,5).map(item=>item.name+' ('+item.count+' '+(item.count===1?'listing':'listings')+')'))+'.'});
  const license=licenseAnswer(target.role,rows);if(license)faq.push({q:'Do I need a license?',a:license});
  if(facts.visa)faq.push({q:`Do any ${noun} in ${place} mention visa sponsorship or OPT?`,a:`${facts.visa} ${facts.visa===1?'listing mentions':'listings mention'} visa sponsorship or OPT/CPT. A mention does not guarantee sponsorship or eligibility; confirm with the employer.`});
@@ -78,8 +82,8 @@ export const faqSchema = faq => ({'@context':'https://schema.org','@type':'FAQPa
 
 export function hubAnswer(hub,date) {
  const {label,rows,roleCounts,stateCounts}=hub;
- let names=roleCounts.slice(0,3).map(item=>item.name),states=stateCounts.slice(0,3).map(item=>item.name+' ('+item.count+')');
- const combine=()=>`Fortune Jobs AI lists ${rows.length} open ${label.toLowerCase()} jobs across ${roleCounts.length} ${roleCounts.length===1?'role':'roles'} in the United States, updated ${dateLabel(date)}. `+
+ let names=roleCounts.slice(0,3).map(item=>item.name),states=stateCounts.slice(0,3).map(item=>item.name+' ('+fmt(item.count)+')');
+ const combine=()=>`Fortune Jobs AI lists ${fmt(rows.length)} open ${label.toLowerCase()} jobs${roleCounts.length===1?'':' across '+roleCounts.length+' roles'} in the United States, updated ${dateLabel(date)}. `+
   (names.length?'Roles in this catalogue include '+list(names)+'. ':'')+(states.length?'The states with the most listings are '+list(states)+'. ':'')+
   'This job portal groups openings by role and location so you can compare listings and check original postings for requirements and application instructions. The table links to indexed state pages when enough listings are available. Counts reflect this catalogue snapshot, not every vacancy in the market.';
  while(words(combine())>100 && names.length>1)names.pop();while(words(combine())>100 && states.length>1)states.pop();
@@ -87,9 +91,9 @@ export function hubAnswer(hub,date) {
 }
 export function hubFaq(hub,date) {
  const label=hub.label.toLowerCase();
- return [{q:`How many ${label} jobs are listed?`,a:`Fortune Jobs AI lists ${hub.rows.length} open ${label} jobs in the United States as of ${dateLabel(date)}.`},
-  {q:'Which roles are covered?',a:'This catalogue includes '+list(hub.roleCounts.map(item=>item.name+' ('+item.count+')'))+'.'},
-  {q:'Which states have the most listings?',a:'The leading states in this snapshot are '+list(hub.stateCounts.slice(0,5).map(item=>item.name+' ('+item.count+')'))+'.'},
+ return [{q:`How many ${label} jobs are listed?`,a:`Fortune Jobs AI lists ${fmt(hub.rows.length)} open ${label} jobs in the United States as of ${dateLabel(date)}.`},
+  {q:'Which roles are covered?',a:'This catalogue includes '+list(hub.roleCounts.map(item=>item.name+' ('+fmt(item.count)+')'))+'.'},
+  {q:'Which states have the most listings?',a:'The leading states in this snapshot are '+list(hub.stateCounts.slice(0,5).map(item=>item.name+' ('+fmt(item.count)+')'))+'.'},
   {q:'Why do some counts have no state-page link?',a:`Links point to existing indexed role/state pages. ${hub.id==='tech'?'Tech role/state pages require at least 40':'Healthcare and transport role/state pages require at least 5'} open jobs; other counts still contribute to the category total.`},
   {q:'What should I check before applying?',a:'Use the original posting to confirm availability, requirements, pay and application instructions. Fortune Jobs AI is a job portal and does not guarantee a response or hiring outcome.'}];
 }
