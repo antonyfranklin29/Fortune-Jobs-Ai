@@ -103472,5 +103472,1075 @@
         "domain": "mutualinsuranceinc.com"
       }
     ]
+  },
+  "aaratech": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:52.947Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "AARATECH Inc",
+        "domain": "aaratechinc.com"
+      }
+    ]
+  },
+  "accodian llc": {
+    "status": "matched",
+    "domain": "accodian.com",
+    "checked_at": "2026-11-23T20:23:53.247Z",
+    "resolver_version": 2
+  },
+  "accuris": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:53.518Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Accuris",
+        "domain": "accuristech.com"
+      },
+      {
+        "name": "Accuris",
+        "domain": "accuris.com"
+      },
+      {
+        "name": "Accuris",
+        "domain": "accurisltd.com"
+      },
+      {
+        "name": "Accuris Instruments",
+        "domain": "accuris-usa.com"
+      },
+      {
+        "name": "Accuris Healthcare",
+        "domain": "accurishealthcare.com"
+      }
+    ]
+  },
+  "activesoft, inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:53.822Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "ActiveSoft",
+        "domain": "activesoftinc.com"
+      },
+      {
+        "name": "Activesoft",
+        "domain": "activesoft.com.br"
+      },
+      {
+        "name": "ActiveSoft",
+        "domain": "activesoftinc.net"
+      },
+      {
+        "name": "inc",
+        "domain": "inc-sys.com"
+      },
+      {
+        "name": "8020",
+        "domain": "8020.inc"
+      }
+    ]
+  },
+  "air force personnel center": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:54.111Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Air Force",
+        "domain": "airforce.com"
+      },
+      {
+        "name": "Force Personnel Services",
+        "domain": "forcepersonnelok.com"
+      },
+      {
+        "name": "Israeli Air Force",
+        "domain": "iaf.org.il"
+      },
+      {
+        "name": "United States Air Force",
+        "domain": "af.mil"
+      },
+      {
+        "name": "Staff Force Personnel Services",
+        "domain": "staff-force.com"
+      }
+    ]
+  },
+  "antares": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:54.378Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Antares",
+        "domain": "antaresindustries.com"
+      },
+      {
+        "name": "Antares",
+        "domain": "antares-labs.com"
+      },
+      {
+        "name": "Antares",
+        "domain": "thuisbijantares.nl"
+      },
+      {
+        "name": "Antares",
+        "domain": "antares-muenchen.de"
+      },
+      {
+        "name": "Antares",
+        "domain": "antares.edu"
+      }
+    ]
+  },
+  "applab systems inc": {
+    "status": "matched",
+    "domain": "applabsystems.com",
+    "checked_at": "2026-11-23T20:23:54.675Z",
+    "resolver_version": 2
+  },
+  "aptask global workforce": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:54.980Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "ApTask",
+        "domain": "aptask.com"
+      },
+      {
+        "name": "Workforce Global",
+        "domain": "workforceglobal.co"
+      },
+      {
+        "name": "Workforce",
+        "domain": "workforce.com"
+      },
+      {
+        "name": "Global Workforce Consulting",
+        "domain": "globalworkforceconsulting.com"
+      },
+      {
+        "name": "One Workforce Global",
+        "domain": "oneworkforceglobal.com"
+      }
+    ]
+  },
+  "arc institute": {
+    "status": "matched",
+    "domain": "arcinstitute.org",
+    "checked_at": "2026-11-23T20:23:55.271Z",
+    "resolver_version": 2
+  },
+  "arsquare tech llc": {
+    "status": "matched",
+    "domain": "arsquaretech.com",
+    "checked_at": "2026-11-23T20:23:55.572Z",
+    "resolver_version": 2
+  },
+  "augusta national golf club": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:55.858Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Augusta National Golf Club",
+        "domain": "masters.com"
+      },
+      {
+        "name": "Augusta Ranch Golf Club",
+        "domain": "augustaranchgolf.com"
+      },
+      {
+        "name": "National Golf Club",
+        "domain": "nationalgolfclubusa.com"
+      },
+      {
+        "name": "Liberty National Golf Club",
+        "domain": "libertynationalgc.com"
+      },
+      {
+        "name": "Commonwealth National Golf Club",
+        "domain": "commonwealthgolfclub.com"
+      }
+    ]
+  },
+  "birchmere group": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:56.146Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Birchmere Group",
+        "domain": "birchmere.co.uk"
+      },
+      {
+        "name": "Birchmere",
+        "domain": "birchmere.com"
+      },
+      {
+        "name": "The Birchmere Group",
+        "domain": "birchmeregroup.com"
+      },
+      {
+        "name": "Birchmere Ventures",
+        "domain": "birchmerevc.com"
+      },
+      {
+        "name": "Lab14",
+        "domain": "lab14.group"
+      }
+    ]
+  },
+  "biztek people, inc. | apa international placement consultants": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:56.454Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "APA International Placement Consultants",
+        "domain": "apaintl.com"
+      },
+      {
+        "name": "BizTek People",
+        "domain": "biztekpeople.com"
+      },
+      {
+        "name": "BizTek International",
+        "domain": "biztekintl.com"
+      },
+      {
+        "name": "People Placement",
+        "domain": "peopleplacement.net"
+      },
+      {
+        "name": "Biztek",
+        "domain": "biztek.ca"
+      }
+    ]
+  },
+  "brueckner group usa": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:56.771Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Brueckner Group USA",
+        "domain": "brueckner-usa.com"
+      },
+      {
+        "name": "BRUECKNER",
+        "domain": "hausarzt-dr-brueckner.de"
+      },
+      {
+        "name": "Brueckner",
+        "domain": "brueckner-bau.de"
+      },
+      {
+        "name": "Annett Brueckner",
+        "domain": "annettbrueckner.de"
+      },
+      {
+        "name": "STUDIO UWE BRUECKNER",
+        "domain": "studio-uwe-brueckner.com"
+      }
+    ]
+  },
+  "c spire": {
+    "status": "matched",
+    "domain": "cspire.com",
+    "checked_at": "2026-11-23T20:23:57.041Z",
+    "resolver_version": 2
+  },
+  "calyx containers": {
+    "status": "matched",
+    "domain": "calyxcontainers.com",
+    "checked_at": "2026-11-23T20:23:57.315Z",
+    "resolver_version": 2
+  },
+  "cantina": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:57.586Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Cantina",
+        "domain": "cantina.com"
+      },
+      {
+        "name": "Cantina",
+        "domain": "cantina.security"
+      },
+      {
+        "name": "Cantina",
+        "domain": "cantina-lafresca.cz"
+      },
+      {
+        "name": "Cantina",
+        "domain": "rgcantina.com"
+      },
+      {
+        "name": "Cantina",
+        "domain": "cantinala.com"
+      }
+    ]
+  },
+  "clark county": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:57.859Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Clark County",
+        "domain": "clarkcountynv.gov"
+      },
+      {
+        "name": "Clark County",
+        "domain": "clarkcountywi.gov"
+      },
+      {
+        "name": "Clark County",
+        "domain": "clarkccf.org"
+      },
+      {
+        "name": "Clark County Clerk",
+        "domain": "clark.nv.us"
+      },
+      {
+        "name": "YWCA Clark County",
+        "domain": "ywcaclarkcounty.org"
+      }
+    ]
+  },
+  "comtech global": {
+    "status": "matched",
+    "domain": "comtechglobal.com",
+    "checked_at": "2026-11-23T20:23:58.137Z",
+    "resolver_version": 2
+  },
+  "conductorai": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:58.414Z",
+    "resolver_version": 2,
+    "candidates": []
+  },
+  "conflux systems": {
+    "status": "matched",
+    "domain": "confluxsystems.com",
+    "checked_at": "2026-11-23T20:23:58.722Z",
+    "resolver_version": 2
+  },
+  "core health & fitness": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:59.018Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Core Fitness",
+        "domain": "corenashville.com"
+      },
+      {
+        "name": "Core Health",
+        "domain": "corehandf.com"
+      },
+      {
+        "name": "CORE Fitness",
+        "domain": "corefitnesspt.com"
+      },
+      {
+        "name": "Fitness Core",
+        "domain": "fitnesscore-ner.com"
+      },
+      {
+        "name": "Core Fitness",
+        "domain": "corefitusa.com"
+      }
+    ]
+  },
+  "dhl express, inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:23:59.332Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "DHL Express",
+        "domain": "dhl.ru"
+      },
+      {
+        "name": "DHL EXPRESS",
+        "domain": "dhlexpress.ee"
+      },
+      {
+        "name": "DHL Express",
+        "domain": "dhlexpress.gr"
+      },
+      {
+        "name": "DHL Express",
+        "domain": "dhlexpresspoints.nl"
+      },
+      {
+        "name": "DHL",
+        "domain": "dhl.com"
+      }
+    ]
+  },
+  "diversified technology, inc.": {
+    "status": "matched",
+    "domain": "diversifiedtechnology.com",
+    "checked_at": "2026-11-23T20:23:59.624Z",
+    "resolver_version": 2
+  },
+  "dtsv": {
+    "status": "matched",
+    "domain": "dtsv.com",
+    "checked_at": "2026-11-23T20:23:59.887Z",
+    "resolver_version": 2
+  },
+  "eplus inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:00.204Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "ePlus inc",
+        "domain": "eplus.com"
+      },
+      {
+        "name": "ePlus",
+        "domain": "eplus.dev"
+      },
+      {
+        "name": "eplus",
+        "domain": "e-plus.fr"
+      },
+      {
+        "name": "ePlus",
+        "domain": "e-plus.vn"
+      },
+      {
+        "name": "EPLUS",
+        "domain": "eplus-residuos.com"
+      }
+    ]
+  },
+  "faropoint": {
+    "status": "matched",
+    "domain": "faropoint.com",
+    "checked_at": "2026-11-23T20:24:00.519Z",
+    "resolver_version": 2
+  },
+  "flowserve corporation": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:00.799Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Flowserve Corporation",
+        "domain": "flowserves.cn"
+      },
+      {
+        "name": "Flowserve Corporation",
+        "domain": "flowserve.co"
+      },
+      {
+        "name": "Flowserve",
+        "domain": "flowserve.com"
+      },
+      {
+        "name": "Flowserve",
+        "domain": "valve-flowserve.nl"
+      },
+      {
+        "name": "FLOWSERVE VÁLVULAS",
+        "domain": "flowservevalvulas.com.br"
+      }
+    ]
+  },
+  "formenergy": {
+    "status": "matched",
+    "domain": "formenergy.it",
+    "checked_at": "2026-11-23T20:24:01.064Z",
+    "resolver_version": 2
+  },
+  "gartner": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:01.356Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Gartner",
+        "domain": "gartner.com"
+      },
+      {
+        "name": "gartner",
+        "domain": "gartnerbloom.com"
+      },
+      {
+        "name": "Gartner",
+        "domain": "gartnermarketing.com"
+      },
+      {
+        "name": "Gartner",
+        "domain": "gartner.ca"
+      },
+      {
+        "name": "Gartner",
+        "domain": "gartner-keil.de"
+      }
+    ]
+  },
+  "highlands oncology group pa": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:01.680Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Highlands Oncology Group",
+        "domain": "highlandsoncology.com"
+      },
+      {
+        "name": "Highlands Oncology Group",
+        "domain": "highlandsoncologygroup.com"
+      },
+      {
+        "name": "Oncology",
+        "domain": "aoncology.com"
+      },
+      {
+        "name": "Radiation Oncology Associates, PA",
+        "domain": "roa-ne.com"
+      },
+      {
+        "name": "Stuart Oncology Associates PA",
+        "domain": "stuartoncology.com"
+      }
+    ]
+  },
+  "hy-tek intralogistics": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:01.972Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Intralogistics",
+        "domain": "intralogisticsmag.com"
+      },
+      {
+        "name": "intralogistics",
+        "domain": "intralogistics-latam.com"
+      },
+      {
+        "name": "Hy",
+        "domain": "hy-tek.com"
+      },
+      {
+        "name": "hy",
+        "domain": "hy.co"
+      },
+      {
+        "name": "Intralogistics",
+        "domain": "intralogistik-konfigurator.de"
+      }
+    ]
+  },
+  "iconstaff": {
+    "status": "matched",
+    "domain": "iconstaff.com",
+    "checked_at": "2026-11-23T20:24:02.277Z",
+    "resolver_version": 2
+  },
+  "inclined": {
+    "status": "matched",
+    "domain": "inclined.com",
+    "checked_at": "2026-11-23T20:24:02.567Z",
+    "resolver_version": 2
+  },
+  "infinite tek inc.": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:02.859Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "TEK",
+        "domain": "atekinc.com"
+      },
+      {
+        "name": "Tek Inc",
+        "domain": "stek-inc.com"
+      },
+      {
+        "name": "Generis Tek Inc",
+        "domain": "generistek.com"
+      },
+      {
+        "name": "Tek Leaders Inc",
+        "domain": "tekleaders.com"
+      },
+      {
+        "name": "Tek",
+        "domain": "fi-tek.com"
+      }
+    ]
+  },
+  "integra biosciences corp": {
+    "status": "matched",
+    "domain": "integra-biosciences.com",
+    "checked_at": "2026-11-23T20:24:03.139Z",
+    "resolver_version": 2
+  },
+  "interactive resources - ir": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:03.434Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Interactive Resources - iR",
+        "domain": "irtalent.com"
+      },
+      {
+        "name": "Interactive Resources,",
+        "domain": "intres.com"
+      },
+      {
+        "name": "IR",
+        "domain": "ir.com"
+      },
+      {
+        "name": "IR",
+        "domain": "ir-g.com"
+      },
+      {
+        "name": "IR",
+        "domain": "ir-on.com"
+      }
+    ]
+  },
+  "logicgate": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:03.738Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "LogicGate",
+        "domain": "logicgate.com"
+      },
+      {
+        "name": "LogicGate",
+        "domain": "logicgate.ai"
+      }
+    ]
+  },
+  "lone wolf technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:04.024Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Lone Wolf Technologies",
+        "domain": "lwolf.com"
+      },
+      {
+        "name": "Lone Wolf Technologies",
+        "domain": "lonewolftech.com"
+      },
+      {
+        "name": "Lone Wolf Technologies",
+        "domain": "lonewolfrecruitment.com"
+      },
+      {
+        "name": "Lone Wolf Technologies",
+        "domain": "lone-wolf-technologies.com"
+      },
+      {
+        "name": "Lone Wolf",
+        "domain": "lonewolfdist.com"
+      }
+    ]
+  },
+  "menzo": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:04.298Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Menzo Technologies Corp",
+        "domain": "menzotech.com"
+      }
+    ]
+  },
+  "nextera energy": {
+    "status": "matched",
+    "domain": "nexteraenergy.com",
+    "checked_at": "2026-11-23T20:24:04.606Z",
+    "resolver_version": 2
+  },
+  "omnidya": {
+    "status": "matched",
+    "domain": "omnidya.com",
+    "checked_at": "2026-11-23T20:24:04.875Z",
+    "resolver_version": 2
+  },
+  "ortho molecular products, inc": {
+    "status": "matched",
+    "domain": "orthomolecularproducts.com",
+    "checked_at": "2026-11-23T20:24:05.167Z",
+    "resolver_version": 2
+  },
+  "pathrobotics": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:05.430Z",
+    "resolver_version": 2,
+    "candidates": []
+  },
+  "peco foods": {
+    "status": "matched",
+    "domain": "pecofoods.com",
+    "checked_at": "2026-11-23T20:24:05.704Z",
+    "resolver_version": 2
+  },
+  "perk": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:05.988Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Perk",
+        "domain": "perk.com"
+      },
+      {
+        "name": "Perk",
+        "domain": "perkcanada.com"
+      },
+      {
+        "name": "Perk",
+        "domain": "perkselectric.com"
+      },
+      {
+        "name": "Perk",
+        "domain": "perk.es"
+      },
+      {
+        "name": "Perk",
+        "domain": "perk.net.au"
+      }
+    ]
+  },
+  "persistent systems": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:06.271Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Persistent Systems",
+        "domain": "persistent.com"
+      },
+      {
+        "name": "Persistent Systems",
+        "domain": "persistentsystems.com"
+      },
+      {
+        "name": "Persistent",
+        "domain": "persistent.id"
+      },
+      {
+        "name": "Persistent Systems pvt.Ltd",
+        "domain": "linuxnix.com"
+      },
+      {
+        "name": "Persistent",
+        "domain": "persistent.energy"
+      }
+    ]
+  },
+  "provision people": {
+    "status": "matched",
+    "domain": "provisionpeople.com",
+    "checked_at": "2026-11-23T20:24:06.543Z",
+    "resolver_version": 2
+  },
+  "qualia": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:06.813Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Qualia",
+        "domain": "qualia.com"
+      },
+      {
+        "name": "Qualia",
+        "domain": "qualia.id"
+      },
+      {
+        "name": "Qualia",
+        "domain": "qualia.mx"
+      },
+      {
+        "name": "Qualia",
+        "domain": "qualia.ae"
+      },
+      {
+        "name": "Qualia",
+        "domain": "qualiatrading.ai"
+      }
+    ]
+  },
+  "revel it": {
+    "status": "matched",
+    "domain": "revelit.com",
+    "checked_at": "2026-11-23T20:24:07.084Z",
+    "resolver_version": 2
+  },
+  "serán bioscience": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:07.356Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Serán BioScience",
+        "domain": "seranbio.com"
+      },
+      {
+        "name": "Serán",
+        "domain": "seran.com.pk"
+      },
+      {
+        "name": "BIOSCIENCE",
+        "domain": "bioscience.org"
+      },
+      {
+        "name": "Twist Bioscience",
+        "domain": "twistbioscience.com"
+      },
+      {
+        "name": "Bioscience",
+        "domain": "biospecimenservices.com"
+      }
+    ]
+  },
+  "state of nevada": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:07.646Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "State of Nevada",
+        "domain": "nv.gov"
+      },
+      {
+        "name": "Nevada State University",
+        "domain": "nevadastate.edu"
+      },
+      {
+        "name": "Nevada State Development",
+        "domain": "nsdc.com"
+      },
+      {
+        "name": "Nevada State Police",
+        "domain": "nevadastatepolice.com"
+      },
+      {
+        "name": "Nevada State Board of Cosmetology",
+        "domain": "nvcosmo.com"
+      }
+    ]
+  },
+  "summit 7 systems": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:07.926Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Summit 7",
+        "domain": "summit7.us"
+      },
+      {
+        "name": "7 Summit Pathways",
+        "domain": "7summitpathways.com"
+      },
+      {
+        "name": "Summit Systems",
+        "domain": "summitsystems.ca"
+      },
+      {
+        "name": "Summit Systems",
+        "domain": "jobsrig.com"
+      },
+      {
+        "name": "7 Systems",
+        "domain": "247systems.ca"
+      }
+    ]
+  },
+  "sunray informatics": {
+    "status": "matched",
+    "domain": "sunrayinformatics.com",
+    "checked_at": "2026-11-23T20:24:08.199Z",
+    "resolver_version": 2
+  },
+  "technology consulting inc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:08.503Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Halex Technology Consulting Inc",
+        "domain": "halex.com"
+      },
+      {
+        "name": "inc",
+        "domain": "inc-sys.com"
+      },
+      {
+        "name": "Skyland Technology Consulting Inc",
+        "domain": "skylandtech.ca"
+      },
+      {
+        "name": "TNG Technology Consulting",
+        "domain": "tngtech.com"
+      },
+      {
+        "name": "Technology Consulting",
+        "domain": "acclivitypartners.com"
+      }
+    ]
+  },
+  "technotopia solutions llc": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:08.796Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Technotopia",
+        "domain": "technotopiausa.com"
+      },
+      {
+        "name": "LLC",
+        "domain": "llc-avocats.com"
+      },
+      {
+        "name": "w00w00",
+        "domain": "w00w00.llc"
+      },
+      {
+        "name": "Solutions³ LLC",
+        "domain": "solutions3llc.com"
+      },
+      {
+        "name": "Taipei101 Network",
+        "domain": "taipei101.llc"
+      }
+    ]
+  },
+  "techwish": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:09.068Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "TechWish",
+        "domain": "techwish.com"
+      },
+      {
+        "name": "TECHWISH",
+        "domain": "techwish.pl"
+      }
+    ]
+  },
+  "uic government services and the bowhead family of companies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:09.404Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Bowhead Family of Companies",
+        "domain": "bowhead.com"
+      },
+      {
+        "name": "UIC",
+        "domain": "uicstl.com"
+      },
+      {
+        "name": "Bowhead",
+        "domain": "bowhead.net"
+      },
+      {
+        "name": "the UIC",
+        "domain": "theuic.com"
+      },
+      {
+        "name": "UIC",
+        "domain": "uic.org"
+      }
+    ]
+  },
+  "warp": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-23T20:24:09.676Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Warp",
+        "domain": "warp.dev"
+      },
+      {
+        "name": "Warp",
+        "domain": "joinwarp.com"
+      },
+      {
+        "name": "Warp",
+        "domain": "warp.co"
+      },
+      {
+        "name": "WARP",
+        "domain": "wearewarp.com"
+      },
+      {
+        "name": "warp",
+        "domain": "warp.com"
+      }
+    ]
   }
 }
