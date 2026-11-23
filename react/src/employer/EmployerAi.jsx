@@ -58,12 +58,12 @@ export function AiShortlist({ call = callAi }) {
   }
   return <section className="card ai-tools">
     <h2>✨ AI candidate shortlist</h2>
-    <p className="sub">Paste a job description and up to 10 résumés. The AI ranks them on job-related skills and experience only; candidate labels are never sent. Fortune Jobs AI doesn't store the résumés, but our AI provider may keep request data for a limited time under its terms. The ranking is a suggestion for your review, not a hiring decision.</p>
+    <p className="sub">Paste a job description and up to 10 resumes. The AI ranks them on job-related skills and experience only; candidate labels are never sent. Fortune Jobs AI doesn't store the resumes, but our AI provider may keep request data for a limited time under its terms. The ranking is a suggestion for your review, not a hiring decision.</p>
     <input className="input" aria-label="Shortlist job title" maxLength={160} placeholder="Job title" value={job.title} onChange={(e) => setJob({ ...job, title: e.target.value })} />
     <textarea className="input" aria-label="Shortlist job description" maxLength={12000} placeholder="Job description (at least 50 characters)" value={job.description} onChange={(e) => setJob({ ...job, description: e.target.value })} />
     {cands.map((c, i) => <div key={i} className="ai-candidate">
       <input className="input" aria-label={`Candidate ${i + 1} label`} maxLength={60} placeholder={`Candidate ${i + 1} (label or initials)`} value={c.label} onChange={setCand(i, 'label')} />
-      <textarea className="input" aria-label={`Candidate ${i + 1} résumé`} maxLength={15000} placeholder="Paste résumé text" value={c.resume_text} onChange={setCand(i, 'resume_text')} />
+      <textarea className="input" aria-label={`Candidate ${i + 1} resume`} maxLength={15000} placeholder="Paste resume text" value={c.resume_text} onChange={setCand(i, 'resume_text')} />
     </div>)}
     <div className="actions">
       {cands.length < 10 && <button className="btn btn-sm btn-ghost" type="button" onClick={() => setCands([...cands, { label: '', resume_text: '' }])}>Add candidate</button>}

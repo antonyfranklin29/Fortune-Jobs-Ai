@@ -1,5 +1,5 @@
 import { FJResume, JOB_SUGGESTIONS, loadMammoth } from '../lib/sharedLibs.js';
-// Résumé readers for the profile page (through services.resumeTools).
+// Resume readers for the profile page (through services.resumeTools).
 //   pdfToText  - /resume-extraction.mjs (pdf.js from /vendor), loaded on use
 //   docxToText - mammoth, loaded on use (lib/sharedLibs.js)
 //   suggest    - FJResume.suggest and catalog - JOB_SUGGESTIONS, bundled modules

@@ -7,16 +7,16 @@ const SITE = 'https://fortunejobsai.com';
 const IMAGE = `${SITE}/og-image.jpg`;
 
 const PAGES = {
-  'index.html': { url: '/', title: 'Fortune Jobs AI: AI Job Search & Free ATS Résumé Score',
-    description: 'Free AI-powered job portal: search 20,000+ jobs from employer career sites and trusted job networks. Get a free ATS résumé score, AI job matching and AI interview coaching.' },
+  'index.html': { url: '/', title: 'Fortune Jobs AI: AI Job Search & Free ATS Resume Score',
+    description: 'Free AI-powered job portal: search 20,000+ jobs from employer career sites and trusted job networks. Get a free ATS resume score, AI job matching and AI interview coaching.' },
   'find-jobs.html': { url: '/find-jobs.html', title: 'Find U.S. Jobs by Title and City | Fortune Jobs AI',
     description: 'Search U.S. jobs by title, city or state, including remote jobs. Each listing links to the original posting. Free job search with AI matching.' },
-  'resume-search.html': { url: '/resume-search.html', title: 'Free ATS Résumé Score and Job Matches | Fortune Jobs AI',
-    description: 'Upload your résumé (PDF or DOCX) to get a free ATS readiness score, see missing keywords and find matching jobs. Your file stays in your browser.' },
-  'resume-builder.html': { url: '/resume-builder.html', title: 'Free Résumé Builder with ATS Score Checker | Fortune Jobs AI',
-    description: 'Build an ATS-friendly résumé for free. See your ATS readiness score as you type, check a job description’s keywords and download a clean PDF.' },
+  'resume-search.html': { url: '/resume-search.html', title: 'Free ATS Resume Score and Job Matches | Fortune Jobs AI',
+    description: 'Upload your resume (PDF or DOCX) to get a free ATS readiness score, see missing keywords and find matching jobs. Your file stays in your browser.' },
+  'resume-builder.html': { url: '/resume-builder.html', title: 'Free Resume Builder with ATS Score Checker | Fortune Jobs AI',
+    description: 'Build an ATS-friendly resume for free. See your ATS readiness score as you type, check a job description’s keywords and download a clean PDF.' },
   'about.html': { url: '/about.html', title: 'About Fortune Jobs AI: Honest, AI-Powered Job Search',
-    description: 'Fortune Jobs AI helps job seekers find real U.S. jobs, with free AI résumé tools and clear, honest job matching. Every listing links to the original posting.' },
+    description: 'Fortune Jobs AI helps job seekers find real U.S. jobs, with free AI resume tools and clear, honest job matching. Every listing links to the original posting.' },
   'contact.html': { url: '/contact.html', title: 'Contact Fortune Jobs AI',
     description: 'Questions, feedback or employer partnerships? Contact the Fortune Jobs AI team at info@fortunejobsai.com.' },
   'privacy.html': { url: '/privacy.html', title: 'Privacy Policy | Fortune Jobs AI', description: 'How Fortune Jobs AI collects, uses and protects your information.' },
@@ -37,8 +37,8 @@ const ORG = { '@context': 'https://schema.org', '@graph': [
 
 // Free tools: describe them as software so Google can show them as apps.
 const APP = {
-  'resume-search.html': { name: 'Free ATS Résumé Score', description: 'Upload a résumé (PDF or DOCX) to get an ATS readiness score with line-by-line feedback and matching U.S. jobs.' },
-  'resume-builder.html': { name: 'Free ATS Résumé Builder', description: 'Build an ATS-friendly résumé, see the ATS readiness score as you type and download a PDF.' },
+  'resume-search.html': { name: 'Free ATS Resume Score', description: 'Upload a resume (PDF or DOCX) to get an ATS readiness score with line-by-line feedback and matching U.S. jobs.' },
+  'resume-builder.html': { name: 'Free ATS Resume Builder', description: 'Build an ATS-friendly resume, see the ATS readiness score as you type and download a PDF.' },
 };
 const appSchema = (file, url) => ({ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: APP[file].name,
   description: APP[file].description, url, applicationCategory: 'BusinessApplication', operatingSystem: 'Web',

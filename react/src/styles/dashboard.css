@@ -193,7 +193,7 @@
 @media(max-width:768px) and (prefers-reduced-transparency:reduce), (max-width:768px) and (prefers-contrast:more) {
   .dashboard nav.mobile-tabs { background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; border-color:#dfe5ef; }
 }
-/* Résumé Match: AI fit and the full job description */
+/* Resume Match: AI fit and the full job description */
 .match-ring strong.match-level { font-size:clamp(17px,1.8vw,26px); }
 .match-ring-strong { background:conic-gradient(#1f9d61 var(--score),#dce4f1 0); }
 .match-ring-good { background:conic-gradient(#4f9a3a var(--score),#dce4f1 0); }

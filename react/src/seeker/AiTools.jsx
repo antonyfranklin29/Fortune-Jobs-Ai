@@ -1,4 +1,4 @@
-// AI features for job seekers: fit explanation, résumé tailoring, interview prep (per job),
+// AI features for job seekers: fit explanation, resume tailoring, interview prep (per job),
 // smart plain-English search and the skill gap plan. All answers come from ai-assist.
 import React, { useEffect, useRef, useState } from 'react';
 import { callAi, jobForAi } from '../shared/ai.js';
@@ -8,7 +8,7 @@ import '../styles/ai.css';
 const List = ({ items, className }) => (Array.isArray(items) && items.length ? <ul className={className}>{items.map((x, i) => <li key={i}>{x}</li>)}</ul> : null);
 export const FIT_LABEL = { strong: 'Strong fit', good: 'Good fit', partial: 'Partial fit', weak: 'Weak fit' };
 
-// Per job, for this visit: each AI answer (shared by the Coach buttons and the Résumé Match panel,
+// Per job, for this visit: each AI answer (shared by the Coach buttons and the Resume Match panel,
 // so the person waits and pays once) and the Apply-ready steps the person has done.
 const done = new Map(), listeners = new Set();
 export const aiJobKey = (job) => `${job?.job_title}|${job?.company}|${job?.apply_url}`;
@@ -33,7 +33,7 @@ export function AiError({ error }) {
   const next = encodeURIComponent(window.location.pathname.replace(/^\//, '') + window.location.search);
   return <p className="ai-error" role="alert">{error.error}{' '}
     {error.status === 401 && <a href={`./login.html?next=${next}`}>Sign in</a>}
-    {error.need === 'resume' && <a href="./profile.html#resume">Add your résumé</a>}
+    {error.need === 'resume' && <a href="./profile.html#resume">Add your resume</a>}
   </p>;
 }
 
@@ -59,8 +59,8 @@ export function TailorView({ r }) {
     {(r.experience || []).map((role, i) => <div key={i}><h5>{role.role}</h5><List items={role.bullets} /></div>)}
     {r.skills?.length > 0 && <p><strong>Skills, most relevant first:</strong> {r.skills.join(', ')}</p>}
     {r.keywords_added?.length > 0 && <p><strong>Job keywords now included:</strong> {r.keywords_added.join(', ')}</p>}
-    {r.not_supported?.length > 0 && <div className="ai-note"><strong>Not on your résumé, so not added:</strong><List items={r.not_supported} /><span>If you do have this experience, add it to your résumé yourself.</span></div>}
-    <div className="ai-actions"><button type="button" onClick={copy}>{copied ? 'Copied' : 'Copy tailored résumé text'}</button><a href="./resume-builder.html">Open résumé builder →</a></div>
+    {r.not_supported?.length > 0 && <div className="ai-note"><strong>Not on your resume, so not added:</strong><List items={r.not_supported} /><span>If you do have this experience, add it to your resume yourself.</span></div>}
+    <div className="ai-actions"><button type="button" onClick={copy}>{copied ? 'Copied' : 'Copy tailored resume text'}</button><a href="./resume-builder.html">Open resume builder →</a></div>
     <p className="ai-disclaimer">Review every line before you use it. AI can make mistakes.</p>
   </div>;
 }
@@ -79,7 +79,7 @@ export const SkillGapView = ({ r }) => <div className="ai-result">
 
 const JOB_TOOLS = [
   ['fit_explain', '✨ Why this fits me', FitView],
-  ['tailor_resume', '✨ Tailor my résumé', TailorView],
+  ['tailor_resume', '✨ Tailor my resume', TailorView],
   ['interview_prep', '✨ Interview prep', InterviewView],
 ];
 
@@ -101,7 +101,7 @@ export function AiJobTools({ job, call = callAi }) {
       ? { ...s, active: task, busy: false, error: null, results: { ...s.results, [task]: res.result } }
       : { ...s, active: task, busy: false, error: res });
   }
-  // Buttons elsewhere on the page ("Tailor my résumé with these", "Practice interview questions")
+  // Buttons elsewhere on the page ("Tailor my resume with these", "Practice interview questions")
   // ask this panel to run a tool, so every answer appears in one place.
   const runRef = useRef(run); runRef.current = run;
   useEffect(() => {
@@ -157,7 +157,7 @@ export function smartSearchParams(r = {}) {
   return params;
 }
 
-/** Skill gap plan for a target role, from the profile résumé. */
+/** Skill gap plan for a target role, from the profile resume. */
 export function SkillGap({ call = callAi, initialRole = '' }) {
   const [role, setRole] = useState(initialRole);
   const [busy, setBusy] = useState(false);
@@ -173,7 +173,7 @@ export function SkillGap({ call = callAi, initialRole = '' }) {
   }
   return <section className="ai-tools ai-skill-gap" aria-label="Skill gap plan">
     <h3>✨ Skill gap plan</h3>
-    <p>Name the role you want next. The AI compares it with your saved résumé and suggests what to learn.</p>
+    <p>Name the role you want next. The AI compares it with your saved resume and suggests what to learn.</p>
     <form onSubmit={submit}><input aria-label="Target role" maxLength={160} value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g. Data Engineer" /><button type="submit" disabled={busy || !role.trim()}>{busy ? 'Thinking…' : 'Build my plan'}</button></form>
     <div aria-live="polite"><AiError error={error} />{result && <SkillGapView r={result} />}</div>
   </section>;

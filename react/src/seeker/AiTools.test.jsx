@@ -34,13 +34,13 @@ describe('AI tools', () => {
     expect(call).toHaveBeenCalledTimes(1);
   });
 
-  it('signed-out and missing résumé errors link to the fix', async () => {
-    const call = vi.fn().mockResolvedValueOnce({ ok: false, status: 401, error: 'Sign in to use AI features.' }).mockResolvedValueOnce({ ok: false, status: 400, error: 'Add your résumé to your profile first.', need: 'resume' });
+  it('signed-out and missing resume errors link to the fix', async () => {
+    const call = vi.fn().mockResolvedValueOnce({ ok: false, status: 401, error: 'Sign in to use AI features.' }).mockResolvedValueOnce({ ok: false, status: 400, error: 'Add your resume to your profile first.', need: 'resume' });
     render(<AiJobTools job={job} call={call} />);
-    fireEvent.click(screen.getByRole('button', { name: /Tailor my résumé/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Tailor my resume/ }));
     expect((await screen.findByRole('link', { name: 'Sign in' })).getAttribute('href')).toMatch(/^\.\/login\.html\?next=/);
     fireEvent.click(screen.getByRole('button', { name: /Interview prep/ }));
-    expect((await screen.findByRole('link', { name: 'Add your résumé' })).getAttribute('href')).toBe('./profile.html#resume');
+    expect((await screen.findByRole('link', { name: 'Add your resume' })).getAttribute('href')).toBe('./profile.html#resume');
   });
 
   it('skill gap plan renders gaps', async () => {

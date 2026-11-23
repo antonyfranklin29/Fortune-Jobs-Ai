@@ -12,7 +12,7 @@ Put a relevant project under a **Projects** heading. Give the reader the questio
 
 Pick one bullet and ask what changed because of your work. “Answered customer questions” could become “Answered walk-in questions and created a quick reference sheet for the three most common requests,” if that reflects what happened. A result can be a document people used, a task you finished, or a process you improved. Use a number when you can verify it.
 
-### 3. When you are choosing between two résumé layouts
+### 3. When you are choosing between two resume layouts
 
 Compare the layouts by copying a section from each exported file into a plain-text editor. Check whether the title, employer, dates and bullet text come out in a sensible order. That gives you a concrete way to spot an export problem. Start with a simple layout if the text is jumbled, and follow the employer’s file-format instructions.
 
@@ -48,7 +48,7 @@ Check the listing for a contact or instructions first. If a follow-up is appropr
 
 ## Standalone post
 
-### 7 ATS mistakes worth checking before you send a résumé
+### 7 ATS mistakes worth checking before you send a resume
 
 Applicant tracking systems vary. These are practical checks you can run on the actual file you’re sending.
 

@@ -49,7 +49,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
   }
   return <form className="dashboard-search" onSubmit={submit}>
     <div className="dashboard-hero">
-      <div className="dashboard-intro"><h1>Make your next move.</h1><p>Find promising roles, see how your skills match, and build a résumé for what comes next.</p></div>
+      <div className="dashboard-intro"><h1>Make your next move.</h1><p>Find promising roles, see how your skills match, and build a resume for what comes next.</p></div>
       <div className="dashboard-search-card">
     <div className="mode-toggle" role="group" aria-label="Search mode">
       <button type="button" className={`mode-btn ${mode === 'quick' ? 'active' : ''}`} aria-pressed={mode === 'quick'} onClick={() => { setMode('quick'); setError(''); }}>✧ Quick Match</button>
@@ -69,7 +69,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
     </div></div>
     {error && <p className="react-search-error" role="alert">{error}</p>}
     <SmartSearch />
-    <div className="dashboard-resume-links"><a className="dashboard-upload" href="./resume-search.html"><span className="dashboard-upload-icon" aria-hidden="true">⇧</span><span className="dashboard-upload-text"><strong>Upload your résumé <span className="dashboard-upload-badge">Free ATS score</span></strong><small>Get matched jobs and an ATS readiness check · PDF or DOCX, up to 5 MB</small></span><span className="dashboard-upload-arrow" aria-hidden="true">→</span></a><a href={`./results.html?${new URLSearchParams({ mode: 'quick', resume: '0', q: query.trim(), location: location.trim(), ...(sponsorship && { sponsorship }) })}`}>Search without résumé</a></div>
+    <div className="dashboard-resume-links"><a className="dashboard-upload" href="./resume-search.html"><span className="dashboard-upload-icon" aria-hidden="true">⇧</span><span className="dashboard-upload-text"><strong>Upload your resume <span className="dashboard-upload-badge">Free ATS score</span></strong><small>Get matched jobs and an ATS readiness check · PDF or DOCX, up to 5 MB</small></span><span className="dashboard-upload-arrow" aria-hidden="true">→</span></a><a href={`./results.html?${new URLSearchParams({ mode: 'quick', resume: '0', q: query.trim(), location: location.trim(), ...(sponsorship && { sponsorship }) })}`}>Search without resume</a></div>
     </div></div>
     <div className="dashboard-filterbar">
     <details className="dashboard-more"><summary>☷ Filters</summary><div className="dashboard-extra">

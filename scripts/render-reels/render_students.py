@@ -17,7 +17,7 @@ SCRIPTS = {
     52: "Choose three employers and bring one question for each.",
     57: "Describe the feedback, what you changed, and what you learned.",
     62: "Name the club activity you owned and show what changed.",
-    67: "Open the exact résumé file you plan to send.",
+    67: "Open the exact resume file you plan to send.",
     72: "Practice the interview with real examples from your experience.",
     77: "Thank the interviewer and mention one detail from your conversation.",
 }

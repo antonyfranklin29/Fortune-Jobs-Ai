@@ -1,4 +1,4 @@
-# Résumé pages (React)
+# Resume pages (React)
 
 Ports of `resume-search.html` and `resume-builder.html`. The public HTML pages are unchanged.
 
@@ -34,15 +34,15 @@ CSS is scoped under `.fja-res` plus `.fja-resume-search` or `.fja-resume-builder
 
 ## Behaviour kept from the legacy pages
 
-- **Résumé search**
-  - Upload, the manual no-upload path ("Enter experience and skills instead", or `?manual=1`), and "Search jobs without a résumé" (`find-jobs.html?resume=0`) all stay.
+- **Resume search**
+  - Upload, the manual no-upload path ("Enter experience and skills instead", or `?manual=1`), and "Search jobs without a resume" (`find-jobs.html?resume=0`) all stay.
   - `?edit=1` reloads saved details or shows the expiry message.
   - Files are read in the browser only: PDF or DOCX, 1 byte to 5 MB, 30 to 60,000 readable characters. Password-protected PDFs get their own message.
   - Detection uses the legacy `detect()` with the same country map. The estimated-experience note appears when experience is estimated.
   - The form needs a title and 1 to 30 skills. It saves to `sessionStorage` key `fj_guest_resume_v1` (two-hour expiry), then goes to `find-jobs.html?resume=1&resume_id=<match_id>`. If storage is blocked, the person sees the legacy message.
   - Clear removes the saved details.
   - Generation counters drop stale reads.
-- **Résumé builder**
+- **Resume builder**
   - The draft stays local, with a live preview. Only http(s) links are shown.
   - The advice box appears, and export (print) needs the accuracy box ticked, a name, and an email or phone.
   - Clear asks first.

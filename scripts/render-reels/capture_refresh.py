@@ -104,7 +104,7 @@ def capture_all(output, only=None):
 
         def ats(page):
             page.goto(SITE + "/resume-search.html", wait_until="domcontentloaded")
-            page.get_by_text("Upload your résumé", exact=False).last.wait_for()
+            page.get_by_text("Upload your resume", exact=False).last.wait_for()
             page.wait_for_timeout(950)
             page.locator("#guestResumeFile").set_input_files(resume)
             panel = page.locator("#atsPanel")

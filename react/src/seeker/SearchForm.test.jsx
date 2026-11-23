@@ -91,7 +91,7 @@ it('carries the work authorization filter into both search paths', () => {
   render(<SearchForm initial={{ q: 'Engineer' }} sort="relevance" onSort={() => {}} />);
   const select = screen.getByRole('combobox', { name: 'Work authorization' });
   fireEvent.change(select, { target: { value: 'opt_friendly' } });
-  const skip = screen.getByRole('link', { name: 'Search without résumé' });
+  const skip = screen.getByRole('link', { name: 'Search without resume' });
   expect(new URL(skip.href).searchParams.get('sponsorship')).toBe('opt_friendly');
   fireEvent.submit(job().closest('form'));
   expect(params().get('sponsorship')).toBe('opt_friendly');

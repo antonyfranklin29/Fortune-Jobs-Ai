@@ -14,7 +14,7 @@ export function SignupNudge({ href }) {
   return <aside className="signup-nudge" aria-label="Create a free account">
     <div>
       <strong>Keep this search going.</strong>
-      <span>A free account lets you save jobs, track every application and get your ATS résumé score. No credit card.</span>
+      <span>A free account lets you save jobs, track every application and get your ATS resume score. No credit card.</span>
     </div>
     <a className="signup-nudge-cta" href={href}>Create free account</a>
     <button type="button" className="signup-nudge-close" onClick={dismiss} aria-label="Dismiss">×</button>

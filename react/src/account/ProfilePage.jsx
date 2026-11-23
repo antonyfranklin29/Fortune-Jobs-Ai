@@ -1,5 +1,5 @@
 // Job seeker profile (profile.html). Mirrors the legacy page: profile details,
-// photo, résumé upload with review, saved jobs, search history, saved filters,
+// photo, resume upload with review, saved jobs, search history, saved filters,
 // data export and self-service account deletion. Row-level security limits
 // every query to the signed-in person; the page never passes another user's id.
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -236,7 +236,7 @@ function ProfileApp({ user, profile, setProfile, toast, leaving, onDeleted }) {
           <a href="#subscription">Subscription</a>
         </nav>
         <div className="stack">
-          {/* A saved résumé review changes title, experience and skills: remount to refill the form (legacy fillForm()). */}
+          {/* A saved resume review changes title, experience and skills: remount to refill the form (legacy fillForm()). */}
           <ProfileDetails key={formVersion} user={user} profile={profile} setProfile={setProfile} toast={toast} catalog={catalog} />
           <ResumeSection user={user} profile={profile} setProfile={setProfile} toast={toast} onReviewSaved={() => setFormVersion((n) => n + 1)} />
           <div className="card" id="skill-plan"><SkillGap /></div>
@@ -454,7 +454,7 @@ function ResumeSection({ user, profile, setProfile, toast, onReviewSaved }) {
   const editDraft = (k) => (e) => setDraft((d) => ({ ...d, [k]: e.target.value }));
   return (
     <section className="card" id="resume">
-      <div className="card-head"><div><h2>Resume</h2><p className="sub">Upload a text-based PDF or DOCX, review the extracted details, then save them for matching. Your document is read in your browser.</p><p><a href="resume-builder.html">Build a clean résumé from your own facts →</a></p></div></div>
+      <div className="card-head"><div><h2>Resume</h2><p className="sub">Upload a text-based PDF or DOCX, review the extracted details, then save them for matching. Your document is read in your browser.</p><p><a href="resume-builder.html">Build a clean resume from your own facts →</a></p></div></div>
       <StatusMessage text={message} />
       <div>
         {reading ? <div className="empty"><Spinner /> Reading your resume…</div>

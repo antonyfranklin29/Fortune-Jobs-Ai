@@ -28,7 +28,7 @@ const NOW = new Date('2026-11-03T12:00:00Z');
 
 function memoryStorage() { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k), m }; }
 
-describe('résumé matching parity', () => {
+describe('resume matching parity', () => {
   it('suggest() matches', () => {
     for (const t of TEXTS) { expect(Matching.suggest(t)).toEqual(legacyMatching.suggest(t)); expect(Matching.suggest(t, CATALOG)).toEqual(legacyMatching.suggest(t, CATALOG)); }
   });
@@ -50,7 +50,7 @@ describe('résumé matching parity', () => {
   });
 });
 
-describe('guest résumé parity', () => {
+describe('guest resume parity', () => {
   it('detect() matches', () => {
     for (const t of TEXTS) expect(Guest.detect(t, CATALOG, Matching, NOW)).toEqual(legacyGuest.detect(t, CATALOG, legacyMatching, NOW));
   });
@@ -71,7 +71,7 @@ describe('guest résumé parity', () => {
   });
 });
 
-describe('résumé builder parity', () => {
+describe('resume builder parity', () => {
   it('draft(), advice() and profileSuggestions() match', () => {
     const inputs = [{}, { name: ' Ana\u0007 ', email: 'a@b.co', experience: 'Responsible for reports\n\nLed migration', skills: Array(40).fill('SQL').join('\n') }, { name: 'B', phone: '1', target: 'Dev', projects: 'P' }];
     for (const i of inputs) { const d = Builder.draft(i); expect(d).toEqual(legacyBuilder.draft(i)); expect(Builder.advice(d)).toEqual(legacyBuilder.advice(d)); }

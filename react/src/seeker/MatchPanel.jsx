@@ -14,8 +14,8 @@ export function short(text) {
   return s.length <= 140 ? s : s.slice(0, 137).replace(/\s\S*$/, '') + '…';
 }
 
-/** Résumé match for the open job: the skill estimate when the listing names enough skills, otherwise
- *  the AI's reading of the person's own résumé against the job (asked for, never run automatically). */
+/** Resume match for the open job: the skill estimate when the listing names enough skills, otherwise
+ *  the AI's reading of the person's own resume against the job (asked for, never run automatically). */
 export function MatchPanel({ job, profile, saved = false, call = callAi }) {
   const fit = job && fitFor(job, profile);
   const ai = useAiFit(job);
@@ -29,7 +29,7 @@ export function MatchPanel({ job, profile, saved = false, call = callAi }) {
     if (res.ok) rememberFit(job, res.result); else setError(res);
   }
   return <aside className="dashboard-match dashboard-card" aria-labelledby="match-title">
-    <h2 id="match-title"><span aria-hidden="true">▤</span> Your Résumé Match</h2>
+    <h2 id="match-title"><span aria-hidden="true">▤</span> Your Resume Match</h2>
     {fit ? <>
       <div className="match-overview">
         <div className="match-ring" style={{ '--score': fit.score + '%' }}>
@@ -51,12 +51,12 @@ export function MatchPanel({ job, profile, saved = false, call = callAi }) {
       {ai.strengths?.length > 0 && <><h3>Top Strengths</h3><ul className="match-strengths">{ai.strengths.slice(0, 4).map((x, i) => <li key={i}>{short(x)}</li>)}</ul></>}
       {ai.gaps?.length > 0 && <><h3>Opportunities to Improve</h3><ul className="match-gaps">{ai.gaps.slice(0, 4).map((x, i) => <li key={i}>{short(x)}</li>)}</ul></>}
       {ai.advice && <p className="match-advice"><strong>Next step:</strong> {ai.advice}</p>}
-      <p className="match-note">AI reading of your résumé against this job. Full reasons are under “Why this fits me”.</p>
+      <p className="match-note">AI reading of your resume against this job. Full reasons are under “Why this fits me”.</p>
     </> : <>
       <div className="match-overview">
         <div className="match-ring" style={{ '--score': '0%' }}><div><strong>—</strong><small>Match Score</small></div></div>
-        <div><strong className="match-label">{profile?.skills?.length ? 'Ask AI for your match' : 'Add your résumé'}</strong>
-          <p>{profile?.skills?.length ? 'This listing doesn’t name enough skills for a quick score. AI can read the whole listing against your résumé instead.' : 'See how your experience matches a job and which skills to review.'}</p>
+        <div><strong className="match-label">{profile?.skills?.length ? 'Ask AI for your match' : 'Add your resume'}</strong>
+          <p>{profile?.skills?.length ? 'This listing doesn’t name enough skills for a quick score. AI can read the whole listing against your resume instead.' : 'See how your experience matches a job and which skills to review.'}</p>
           {!profile?.skills?.length && <a href="./resume-search.html?manual=1">Enter skills instead</a>}
         </div>
       </div>
@@ -64,12 +64,12 @@ export function MatchPanel({ job, profile, saved = false, call = callAi }) {
         <button type="button" className="match-ai-button" onClick={askAi} disabled={busy}>{busy ? 'Reading the listing… about 10 seconds' : '✨ Get my AI match'}</button>
         <AiError error={error} />
         <h3>What you’ll get</h3>
-        <ul className="match-preview"><li>Your fit level: strong, good, partial or weak</li><li>Strengths from your résumé that match</li><li>Gaps to address before applying</li></ul>
+        <ul className="match-preview"><li>Your fit level: strong, good, partial or weak</li><li>Strengths from your resume that match</li><li>Gaps to address before applying</li></ul>
       </>}
     </>}
     {job && <ApplyReady job={job} profile={profile} saved={saved} progress={progress} />}
     <ProfileSnapshot profile={profile} />
     <NextSteps />
-    <a className="dashboard-gold match-action" href="./resume-builder.html">✧ Improve Résumé</a>
+    <a className="dashboard-gold match-action" href="./resume-builder.html">✧ Improve Resume</a>
   </aside>;
 }

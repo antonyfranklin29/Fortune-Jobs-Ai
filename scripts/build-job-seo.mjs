@@ -123,7 +123,7 @@ function renderInsights(target, rows, now) {
       '</strong> (middle half of ' + pay.count + ' listings that show yearly pay).</p>' : '') +
     (companies.length ? '<h3>Top hiring companies</h3><ul>' + companies.map(([name, n]) =>
       '<li>' + escape(name) + ' (' + n + ')</li>').join('') + '</ul>' : '') +
-    '<p>' + link('/resume-search.html', 'Check how your résumé matches ' + target.title + ' jobs — free ATS score') + '</p></section>';
+    '<p>' + link('/resume-search.html', 'Check how your resume matches ' + target.title + ' jobs — free ATS score') + '</p></section>';
 }
 
 export function renderCity(target, rows, details, date, related = []) {

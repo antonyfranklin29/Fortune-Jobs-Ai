@@ -22,7 +22,7 @@ export const FJAccuracy = api(accuracy, 'FJAccuracy');
 export const FJResume = api(matching, 'FJResume');
 export const JOB_SUGGESTIONS = globalThis.JOB_SUGGESTIONS;
 
-/** mammoth (reads .docx résumés) is ~600 KB, so it is only loaded when someone picks a Word file. */
+/** mammoth (reads .docx resumes) is ~600 KB, so it is only loaded when someone picks a Word file. */
 let mammothLoad = null;
 export function loadMammoth() {
   if (globalThis.mammoth) return Promise.resolve(globalThis.mammoth);

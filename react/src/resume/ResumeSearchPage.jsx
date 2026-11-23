@@ -1,4 +1,4 @@
-// resume-search.html: start job matching from a résumé, from manually entered
+// resume-search.html: start job matching from a resume, from manually entered
 // experience, or with nothing at all. The file is read in this browser and never
 // uploaded; reviewed details stay in sessionStorage for up to two hours
 // (lib/guestResume.js). Only the job title and chosen area reach Live Search.
@@ -49,7 +49,7 @@ export function ResumeSearchPage() {
 
   useEffect(() => { if (scrollKey) reviewRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }); }, [scrollKey]);
   useEffect(() => {
-    if (typeof document !== 'undefined') { const t = document.title; document.title = 'Free ATS Résumé Score and Job Matches | Fortune Jobs AI'; return () => { document.title = t; }; }
+    if (typeof document !== 'undefined') { const t = document.title; document.title = 'Free ATS Resume Score and Job Matches | Fortune Jobs AI'; return () => { document.title = t; }; }
     return undefined;
   }, []);
 
@@ -58,7 +58,7 @@ export function ResumeSearchPage() {
     generation.current++;
     setResumeText('');
     fill({ ...EMPTY });
-    say('Enter your experience and skills below. No résumé file is needed.');
+    say('Enter your experience and skills below. No resume file is needed.');
     setScrollKey((k) => k + 1);
   }
 
@@ -67,7 +67,7 @@ export function ResumeSearchPage() {
     if (entry.get('edit') === '1') {
       const saved = svc.storage ? Guest.load(svc.storage) : null;
       if (saved) { fill(saved); say('Edit your temporary matching details, then continue to job search.'); }
-      else say('Your temporary details have expired. Upload a résumé or enter your experience again.');
+      else say('Your temporary details have expired. Upload a resume or enter your experience again.');
     } else if (entry.get('manual') === '1') startManual();
     // Runs once per visit, like the legacy page.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -75,22 +75,22 @@ export function ResumeSearchPage() {
 
   async function extract(file) {
     const token = ++generation.current;
-    say('Reading your résumé in this browser…');
+    say('Reading your resume in this browser…');
     setForm(null); setDraft(null); setResumeText('');
     try {
       const text = await readResumeFile(svc, file, { messages: READ_MESSAGES });
       if (token !== generation.current) return;
-      if (text.replace(/\s/g, '').length < 30) throw new Error('No readable résumé text found. Scanned PDFs need OCR first; export a text-based PDF or DOCX.');
-      if (text.length > 60000) throw new Error('Please use a résumé with under 60,000 characters.');
+      if (text.replace(/\s/g, '').length < 30) throw new Error('No readable resume text found. Scanned PDFs need OCR first; export a text-based PDF or DOCX.');
+      if (text.length > 60000) throw new Error('Please use a resume with under 60,000 characters.');
       const profile = Guest.detect(text, { ...(svc.catalog() || {}), countries: COUNTRY_CODES }, Matching);
       profile.scope = profile.region ? 'region' : 'city';
       profile.skills = profile.skills.slice(0, 30);
       fill(profile); setResumeText(text);
-      say('Your résumé was read. Review your job title and skills below before searching.');
+      say('Your resume was read. Review your job title and skills below before searching.');
       setScrollKey((k) => k + 1);
     } catch (error) {
       if (token !== generation.current) return;
-      say(readErrorText(error, 'Could not read this résumé. Export a new PDF or DOCX and try again.'), true);
+      say(readErrorText(error, 'Could not read this resume. Export a new PDF or DOCX and try again.'), true);
     }
   }
 
@@ -108,12 +108,12 @@ export function ResumeSearchPage() {
     const profile = read();
     if (profile.skills.length > 30) { say('Choose up to 30 skills for matching.', true); return; }
     if (!profile.current_title) { say('Please enter your current or target job title.', true); return; }
-    if (!profile.skills.length) { say('Add at least one skill you genuinely have so we can estimate job fit, or search without a résumé.', true); return; }
+    if (!profile.skills.length) { say('Add at least one skill you genuinely have so we can estimate job fit, or search without a resume.', true); return; }
     try {
       const saved = Guest.save(svc.storage, profile);
       svc.navigate('find-jobs.html?resume=1&resume_id=' + encodeURIComponent(saved.match_id));
     } catch {
-      say('Your browser could not keep the temporary matching details. Allow session storage or search without a résumé.', true);
+      say('Your browser could not keep the temporary matching details. Allow session storage or search without a resume.', true);
     }
   }
 
@@ -121,7 +121,7 @@ export function ResumeSearchPage() {
     generation.current++;
     try { Guest.clear(svc.storage); } catch { /* storage blocked */ }
     setDraft(null); setForm(null); setResumeText(''); setJobText('');
-    say('Temporary résumé details cleared.');
+    say('Temporary resume details cleared.');
   }
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -131,17 +131,17 @@ export function ResumeSearchPage() {
       <nav className="nav"><a className="brand" href="index.html">Fortune Jobs AI</a><a href="about.html">About</a><a href="find-jobs.html" style={{ color: 'var(--gold)' }}>Find Jobs</a></nav>
       <main>
         <h1>Get job matches based on your experience</h1>
-        <p className="intro">Upload a résumé or enter your experience and skills yourself. We’ll show an explainable fit estimate when a job listing has enough detail. You can also <a href="find-jobs.html?resume=0">search jobs without adding any details</a>.</p>
+        <p className="intro">Upload a resume or enter your experience and skills yourself. We’ll show an explainable fit estimate when a job listing has enough detail. You can also <a href="find-jobs.html?resume=0">search jobs without adding any details</a>.</p>
         <section className="panel">
           <h2>Choose how to start</h2>
-          <label className="drop" htmlFor="guestResumeFile"><strong>📄 Upload your résumé</strong><span>Text-based PDF or DOCX · up to 5 MB</span><span>Review the detected details before matching</span></label>
+          <label className="drop" htmlFor="guestResumeFile"><strong>📄 Upload your resume</strong><span>Text-based PDF or DOCX · up to 5 MB</span><span>Review the detected details before matching</span></label>
           <input id="guestResumeFile" ref={fileInput} type="file" hidden accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             onChange={(e) => { const file = e.target.files[0]; e.target.value = ''; if (file) extract(file); }} />
           <div className="actions">
             <button className="btn btn-outline" type="button" onClick={startManual}>Enter experience and skills instead</button>
-            <a className="btn btn-outline" href="find-jobs.html?resume=0">Search jobs without a résumé</a>
+            <a className="btn btn-outline" href="find-jobs.html?resume=0">Search jobs without a resume</a>
           </div>
-          <p className="sub">Your file is read in this browser and is not uploaded to our résumé storage. Temporary matching details stay in this tab for up to two hours. Only your job title and chosen search area are sent for a Live Search.</p>
+          <p className="sub">Your file is read in this browser and is not uploaded to our resume storage. Temporary matching details stay in this tab for up to two hours. Only your job title and chosen search area are sent for a Live Search.</p>
         </section>
         <p id="notice" className={notice.error ? 'error' : ''} role="status" aria-live="polite">{notice.text}</p>
         {form && (
@@ -172,17 +172,17 @@ export function ResumeSearchPage() {
             <div className="actions">
               <button className="btn btn-primary" type="submit">Save details and find jobs</button>
               <button className="btn btn-outline" type="button" onClick={forget}>Clear these details</button>
-              <button className="btn btn-outline" type="button" onClick={() => fileInput.current?.click()}>Use another résumé</button>
+              <button className="btn btn-outline" type="button" onClick={() => fileInput.current?.click()}>Use another resume</button>
             </div>
           </form>
         )}
         {ats && (
           <div className="panel" id="atsPanel">
-            <AtsPanel ats={ats} jobText={jobText} onJobText={setJobText} intro="We checked the text of your uploaded résumé for what applicant tracking systems (ATS) and recruiters commonly look for." />
-            <p className="sub">Want to fix these? <a href="resume-builder.html">Open the résumé builder</a> and import the same file.</p>
+            <AtsPanel ats={ats} jobText={jobText} onJobText={setJobText} intro="We checked the text of your uploaded resume for what applicant tracking systems (ATS) and recruiters commonly look for." />
+            <p className="sub">Want to fix these? <a href="resume-builder.html">Open the resume builder</a> and import the same file.</p>
           </div>
         )}
-        <p className="sub">Fit estimates are based on confirmed skills and details found in each job listing. They are not ATS scores or hiring predictions. Search stays available without a résumé.</p>
+        <p className="sub">Fit estimates are based on confirmed skills and details found in each job listing. They are not ATS scores or hiring predictions. Search stays available without a resume.</p>
       </main>
     </div>
   );

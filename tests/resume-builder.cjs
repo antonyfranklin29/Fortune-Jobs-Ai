@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const builder=require('../resume-builder.js');
 
-test('résumé draft keeps only supplied facts and never invents credentials or achievements',()=>{
+test('resume draft keeps only supplied facts and never invents credentials or achievements',()=>{
   const data=builder.draft({name:'Franklin Antony',target:'Data Analyst',skills:'SQL\nPython',experience:'Built a verified report.',education:'',projects:''});
   assert.equal(data.name,'Franklin Antony');
   assert.deepEqual(data.skills,['SQL','Python']);
@@ -21,7 +21,7 @@ test('saved profile offers only existing facts for explicit review',()=>{
   assert.equal(data.resume_text,undefined);
 });
 
-test('résumé workspace renders user text as text and gates export on review',()=>{
+test('resume workspace renders user text as text and gates export on review',()=>{
   const source=fs.readFileSync('resume-builder-page.js','utf8');
   new vm.Script(source);
   assert.match(source,/node\.textContent=text/);

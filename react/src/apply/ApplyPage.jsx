@@ -10,7 +10,7 @@ const MODES = { onsite: 'On-site', hybrid: 'Hybrid', remote: 'Remote' };
 
 export function mailtoFor(job) {
   const subject = `Application: ${job.job_title} (via Fortune Jobs AI)`;
-  const body = `Hello ${job.company} hiring team,\n\nI would like to apply for the ${job.job_title} role in ${job.location}, which I found on Fortune Jobs AI.\n\nMy résumé is attached.\n\nThank you,\n`;
+  const body = `Hello ${job.company} hiring team,\n\nI would like to apply for the ${job.job_title} role in ${job.location}, which I found on Fortune Jobs AI.\n\nMy resume is attached.\n\nThank you,\n`;
   return `mailto:${job.apply_email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
@@ -46,12 +46,12 @@ export function ApplyPage({ client, search = window.location.search }) {
             <p className="meta">{[job.location, MODES[job.work_mode] || job.work_mode, job.employment_type].filter(Boolean).join(' · ')}{job.closing_date ? ` · Apply by ${niceDate(job.closing_date)}` : ''}</p>
             <div className="apply-box">
               <h2>Apply by email</h2>
-              <p>This employer takes applications by email. Send your résumé to <strong id="applyEmail">{job.apply_email}</strong>.</p>
+              <p>This employer takes applications by email. Send your resume to <strong id="applyEmail">{job.apply_email}</strong>.</p>
               <div className="actions">
                 <a className="btn" id="applyByEmail" href={mailtoFor(job)}>✉ Apply by email</a>
                 <button className="btn btn-outline" type="button" onClick={copy}>{copied ? 'Copied' : 'Copy email address'}</button>
               </div>
-              <p className="small">Your email program opens with the subject filled in. Attach your résumé before sending. Fortune Jobs AI does not see or keep your application.</p>
+              <p className="small">Your email program opens with the subject filled in. Attach your resume before sending. Fortune Jobs AI does not see or keep your application.</p>
             </div>
             <h2>About the job</h2>
             <p className="desc">{job.description}</p>

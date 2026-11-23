@@ -46,9 +46,9 @@ the caption text too; Instagram search reads it.
 
 ## November 13 content refresh
 
-Upcoming slots 09–81 rotate through six designs: product screenshots in a phone frame, a live job pick, résumé myth and fact, a dated catalogue count, a three-card checklist, and student Q&A with licensed stock photography. Slots 16 and 19 trade formats so slot 16 keeps its corrected tech-search copy. The actual images and captions keep the same IDs and paths. Job picks and counts are snapshots, with the date visible on the artwork. Stock photos are illustrative and credit is recorded in the stock README.
+Upcoming slots 09–81 rotate through six designs: product screenshots in a phone frame, a live job pick, resume myth and fact, a dated catalogue count, a three-card checklist, and student Q&A with licensed stock photography. Slots 16 and 19 trade formats so slot 16 keeps its corrected tech-search copy. The actual images and captions keep the same IDs and paths. Job picks and counts are snapshots, with the date visible on the artwork. Stock photos are illustrative and credit is recorded in the stock README.
 
-The upcoming Reels rotate five cuts of actual site recordings. A hook appears immediately, the footage cuts about every 1.45 seconds, the original music loops rotate by ID, and the last 3.2 seconds are the existing coin-spin outro from Reel 00. The résumé is fictional and the tracker and save scenes use a labelled demo account with intercepted writes. Reels 00–08 and their captions stay as historical schedule slots.
+The upcoming Reels rotate five cuts of actual site recordings. A hook appears immediately, the footage cuts about every 1.45 seconds, the original music loops rotate by ID, and the last 3.2 seconds are the existing coin-spin outro from Reel 00. The resume is fictional and the tracker and save scenes use a labelled demo account with intercepted writes. Reels 00–08 and their captions stay as historical schedule slots.
 
 From the repository root, with Chrome, Python Playwright, Pillow, NumPy, and FFmpeg installed, run:
 

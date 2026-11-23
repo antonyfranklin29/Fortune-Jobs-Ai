@@ -19,7 +19,7 @@ test('employer and education addresses do not become a home address',()=>{
  assert.equal(detect('test@example.invalid | Edison, NJ\nData Analyst').city,'Edison');
 });
 test('unknown experience stays unknown and future employment is not counted',()=>{assert.equal(detect('Data Analyst\nSkills\nSQL').years_experience,null);assert.equal(detect('Experience\nData Analyst\nJan 2027 - Jan 2030').years_experience,null);});
-test('temporary storage excludes full résumé, expires, and can be cleared',()=>{
+test('temporary storage excludes full resume, expires, and can be cleared',()=>{
  const s=storage();const p={current_title:'Data Analyst',skills:['SQL'],city:'Edison',region:'New Jersey',country:'us',resume_text:'PRIVATE SENTINEL',email:'private@example.invalid'};G.save(s,p,1000);assert.equal(JSON.stringify([...s.m.values()]).includes('PRIVATE SENTINEL'),false);assert.equal(JSON.stringify([...s.m.values()]).includes('private@example.invalid'),false);assert.ok(G.load(s,2000));assert.equal(G.load(s,1000+G.TTL),null);G.save(s,p);G.clear(s);assert.equal(G.load(s),null);
 });
 test('malformed temporary profiles are rejected without changing account profiles',()=>{const s=storage();assert.throws(()=>G.save(s,{current_title:'Data Analyst',years_experience:-1}));s.setItem(G.KEY,'not json');assert.equal(G.load(s),null);assert.equal(G.clean({current_title:''}),null);});
@@ -29,11 +29,11 @@ test('state search accepts verified NJ towns and rejects NY or unknown regions',
  assert.equal(A.matches({...jobs[0],source_metadata:{location:{city:'Trenton',state:'NJ',country:'US'}}},'Data Analyst',filters),true);
  assert.equal(A.matches(jobs[0],'Data Analyst',{location:'Edison',region:'New Jersey',country:'us'}),false);
 });
-test('guest page and entry point contain no account or résumé-storage requirement',()=>{
+test('guest page and entry point contain no account or resume-storage requirement',()=>{
  const page=fs.readFileSync('resume-search.html','utf8'),code=fs.readFileSync('guest-resume-page.js','utf8');assert.doesNotMatch(page,/auth.js|config.js|login.html/);assert.doesNotMatch(code,/FJ\.sb|storage\.from|resume_text/);const home=fs.readFileSync('index.html','utf8');assert.match(home,/function goUploadResume\(\) \{\s*location.href = 'resume-search.html'/);assert.match(home,/guest\s*\|\|\s*\(resumeChoice/);
 });
 
-test('an older results link cannot pick up a different newly uploaded résumé',()=>{const s=storage();const a=G.save(s,{current_title:'Data Analyst',skills:['SQL']},1000);const b=G.save(s,{current_title:'Software Engineer',skills:['Java']},1100);assert.notEqual(a.match_id,b.match_id);assert.equal(G.load(s,1200,a.match_id),null);assert.equal(G.load(s,1200,b.match_id).current_title,'Software Engineer');assert.equal(G.params(b).get('resume_id'),b.match_id);});
+test('an older results link cannot pick up a different newly uploaded resume',()=>{const s=storage();const a=G.save(s,{current_title:'Data Analyst',skills:['SQL']},1000);const b=G.save(s,{current_title:'Software Engineer',skills:['Java']},1100);assert.notEqual(a.match_id,b.match_id);assert.equal(G.load(s,1200,a.match_id),null);assert.equal(G.load(s,1200,b.match_id).current_title,'Software Engineer');assert.equal(G.params(b).get('resume_id'),b.match_id);});
 
 test('DOCX upload asks for review before saving temporary job fit details',async()=>{
  const vm=require('node:vm'),elements=new Map(),s=storage();let navigated;const navigation=new Promise(resolve=>navigated=resolve);
@@ -54,7 +54,7 @@ test('DOCX upload asks for review before saving temporary job fit details',async
  const url=await Promise.race([navigation,new Promise((_,reject)=>setTimeout(()=>reject(Error('Guest review did not continue')),2000))]);
  const params=new URL(url,'https://example.invalid/').searchParams;assert.equal(params.get('resume'),'1');assert.ok(params.get('resume_id'));assert.equal(G.load(s).years_experience,4);assert.doesNotMatch(JSON.stringify([...s.m.values()]),/Synthetic Guest Applicant|Built reporting dashboards/);
 });
-test('manual experience entry needs no résumé file or location',()=>{
+test('manual experience entry needs no resume file or location',()=>{
  const vm=require('node:vm'),elements=new Map(),s=storage();let destination='';
  const node=id=>{if(!elements.has(id))elements.set(id,{value:'',hidden:false,options:[],listeners:{},addEventListener(event,fn){this.listeners[event]=fn;},replaceChildren(){},append(){},scrollIntoView(){},reportValidity(){return true;},click(){this.listeners.click?.();}});return elements.get(id);};
  node('guestCountry').options=[];

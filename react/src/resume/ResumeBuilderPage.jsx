@@ -1,4 +1,4 @@
-// resume-builder.html: a local-only résumé draft with a live preview. Nothing is
+// resume-builder.html: a local-only resume draft with a live preview. Nothing is
 // sent to an AI provider or saved to the account. Optional imports (saved profile,
 // or a PDF/DOCX read in this browser) only fill fields that are still empty, and
 // always uncheck the accuracy confirmation so the person reviews again.
@@ -34,7 +34,7 @@ export function ResumeBuilderPage() {
   const importGen = useRef(0);
 
   useEffect(() => {
-    if (typeof document !== 'undefined') { const t = document.title; document.title = 'Free Résumé Builder with ATS Score Checker | Fortune Jobs AI'; return () => { document.title = t; }; }
+    if (typeof document !== 'undefined') { const t = document.title; document.title = 'Free Resume Builder with ATS Score Checker | Fortune Jobs AI'; return () => { document.title = t; }; }
     return undefined;
   }, []);
 
@@ -52,7 +52,7 @@ export function ResumeBuilderPage() {
   function onExport() { if (canExport) svc.print(); }
 
   function onClear() {
-    if (!svc.confirm('Clear all résumé details in this tab?')) return;
+    if (!svc.confirm('Clear all resume details in this tab?')) return;
     importGen.current++; profileGen.current++;
     setImported({ status: '', text: '', suggestions: null });
     setProfile({ status: '', signIn: false, suggestions: null });
@@ -88,12 +88,12 @@ export function ResumeBuilderPage() {
 
   async function importFile(file) {
     const gen = ++importGen.current;
-    setImported({ status: 'Reading your résumé in this browser…', text: '', suggestions: null });
+    setImported({ status: 'Reading your resume in this browser…', text: '', suggestions: null });
     try {
       const text = await readResumeFile(svc, file, { messages: IMPORT_MESSAGES });
       if (gen !== importGen.current) return;
       if (text.replace(/\s/g, '').length < 30 || text.length > 60000) throw new Error('The document has no readable text or is too long. Scanned PDFs need OCR first.');
-      setImported({ status: 'Read locally. Review the extracted text, then choose whether to use the suggested title and skills. Copy only facts you want in the résumé.', text, suggestions: suggest(text) });
+      setImported({ status: 'Read locally. Review the extracted text, then choose whether to use the suggested title and skills. Copy only facts you want in the resume.', text, suggestions: suggest(text) });
     } catch (error) {
       if (gen !== importGen.current) return;
       setImported({ status: readErrorText(error, 'Could not read this document.'), text: '', suggestions: null });
@@ -125,8 +125,8 @@ export function ResumeBuilderPage() {
     <div className="fja-res fja-resume-builder">
       <nav className="builder-nav" aria-label="Main"><a href="index.html">Fortune Jobs AI</a><a href="find-jobs.html">Find jobs</a><a href="profile.html">My profile</a></nav>
       <main>
-        <h1>Build your résumé</h1>
-        <p className="lead">Turn your own facts into a clean, editable résumé. Your draft stays in this browser tab; you can optionally read details from your saved Fortune Jobs AI profile. This version does not send your résumé to an AI provider or save the draft to your account. Review every statement before sharing it.</p>
+        <h1>Build your resume</h1>
+        <p className="lead">Turn your own facts into a clean, editable resume. Your draft stays in this browser tab; you can optionally read details from your saved Fortune Jobs AI profile. This version does not send your resume to an AI provider or save the draft to your account. Review every statement before sharing it.</p>
 
         <section className="card import-card" aria-labelledby="profileImportTitle">
           <h2 id="profileImportTitle">Start from your saved profile</h2>
@@ -143,9 +143,9 @@ export function ResumeBuilderPage() {
         </section>
 
         <section className="card import-card" aria-labelledby="importTitle">
-          <h2 id="importTitle">Start from an existing résumé</h2>
-          <p>Optional: choose a text-based PDF or DOCX (up to 5 MB). We read it in this browser, suggest a title and skills, and show the source text for you to review. Nothing is automatically added to the final résumé.</p>
-          <input id="importFile" type="file" aria-label="Existing résumé file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          <h2 id="importTitle">Start from an existing resume</h2>
+          <p>Optional: choose a text-based PDF or DOCX (up to 5 MB). We read it in this browser, suggest a title and skills, and show the source text for you to review. Nothing is automatically added to the final resume.</p>
+          <input id="importFile" type="file" aria-label="Existing resume file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             onChange={(e) => { const file = e.target.files[0]; e.target.value = ''; if (file) importFile(file); }} />
           <p id="importStatus" role="status" aria-live="polite">{imported.status}</p>
           {showSuggestions && <button className="btn btn-outline btn-sm" type="button" onClick={useSuggestions}>Use reviewed title and skills</button>}
@@ -185,7 +185,7 @@ export function ResumeBuilderPage() {
           </form>
           <div className="preview-wrap">
             <div className="preview-toolbar"><strong>Live preview</strong><span className="small">Plain layout for easy reading</span></div>
-            <article className="paper" id="preview" aria-label="Résumé preview">
+            <article className="paper" id="preview" aria-label="Resume preview">
               <h2>{data.name || 'Your name'}</h2>
               <p className="role">{data.target || 'Target role'}</p>
               <p className="contact">{contact || 'Add a contact method'}</p>

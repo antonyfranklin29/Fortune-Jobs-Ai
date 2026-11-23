@@ -25,7 +25,7 @@ it('carries confirmed guest skills into a job fit estimate', () => {
   expect(fit?.matched).toEqual(expect.arrayContaining(['SQL', 'Python']));
 });
 
-it('respects the visitor choice to search without résumé details', () => {
+it('respects the visitor choice to search without resume details', () => {
   save(sessionStorage, { current_title: 'Data Analyst', skills: ['SQL'] });
   window.history.replaceState({}, '', '/results.html?resume=0');
   expect(guestMatchProfile()).toBeNull();

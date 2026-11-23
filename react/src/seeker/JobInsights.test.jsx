@@ -11,7 +11,7 @@ describe('job insights', () => {
     expect(kitFor({ job_title: 'Senior Data Analyst' }).role).toBe('data analyst');
     expect(kitFor({ job_title: 'Chef' }).role).toBe('this kind of');
   });
-  it('puts keywords the listing names first and marks what the résumé already has', () => {
+  it('puts keywords the listing names first and marks what the resume already has', () => {
     const k = keywordsFor(job, { skills: ['Python'] });
     expect(k.slice(0, 3).map((x) => x.keyword)).toEqual(['AWS', 'Terraform', 'Python']);
     expect(k.find((x) => x.keyword === 'Python').have).toBe(true);
@@ -25,7 +25,7 @@ describe('job insights', () => {
   it('asks the AI panel to run when a helper button is clicked', () => {
     const seen = vi.fn(); window.addEventListener('fj-ai-run', (e) => seen(e.detail));
     render(<><ResumeKeywords job={job} profile={{ skills: ['Python'] }} /><InterviewReady job={job} /></>);
-    fireEvent.click(screen.getByRole('button', { name: /tailor my résumé/i }));
+    fireEvent.click(screen.getByRole('button', { name: /tailor my resume/i }));
     fireEvent.click(screen.getByRole('button', { name: /prepare answers/i }));
     expect(seen.mock.calls.map((c) => c[0])).toEqual(['tailor_resume', 'interview_prep']);
   });

@@ -114,7 +114,7 @@ try {
       if (expected) { checked++; if (!shown.startsWith(String(expected.score))) consistent = false; }
       else if (/\d/.test(shown)) consistent = false;
     }
-    check('profile: every fit chip equals the résumé matcher, and sparse listings get no number', consistent && checked > 0, `checked=${checked}`);
+    check('profile: every fit chip equals the resume matcher, and sparse listings get no number', consistent && checked > 0, `checked=${checked}`);
     const parts = await page.evaluate(() => {
       const total = Number(document.querySelector('#jobDetail .fit-total strong')?.textContent);
       const spans = [...document.querySelectorAll('#jobDetail .fit-parts dt span')].map((s) => Number(s.textContent.replace('−', '-').split(' ')[0]));

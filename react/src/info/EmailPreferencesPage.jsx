@@ -88,7 +88,7 @@ export function EmailPreferencesPage({ client }) {
           <label><input type="radio" name="frequency" value="daily" checked={frequency === 'daily'} onChange={() => setFrequency('daily')} /><span>Daily, each morning</span></label>
           <label><input type="radio" name="frequency" value="weekly" checked={frequency === 'weekly'} onChange={() => setFrequency('weekly')} /><span>Weekly, Mondays</span></label>
         </fieldset>
-        <p style={{ fontSize: '14px' }}>Optional. Creating an account or signing in with Google does not subscribe you. Matches use the job title on your profile and the location from your last search or profile. Résumé documents are not sent to the email provider.</p>
+        <p style={{ fontSize: '14px' }}>Optional. Creating an account or signing in with Google does not subscribe you. Matches use the job title on your profile and the location from your last search or profile. Resume documents are not sent to the email provider.</p>
         <button className="btn btn-primary" type="submit" id="save" disabled={disabled}>Save email preference</button>
       </form>
       <p id="status" role="status" aria-live="polite">{status}{signIn && <a href="login.html?next=email-preferences.html"> Sign in</a>}</p>

@@ -1,4 +1,4 @@
-// Services for the résumé pages. Self-contained so react/src/resume has no
+// Services for the resume pages. Self-contained so react/src/resume has no
 // imports from other feature folders. Pass the app's account services in as
 // `account` (any object with sb, user()), or nothing for signed-out use.
 import { createContext, useContext } from 'react';
@@ -33,7 +33,7 @@ export function createResumeServices(opts = {}) {
   };
 }
 
-/** Résumé readers: /resume-extraction.mjs (pdf.js) and mammoth, each loaded only when used. */
+/** Resume readers: /resume-extraction.mjs (pdf.js) and mammoth, each loaded only when used. */
 export function createBrowserResumeReaders({ extractionUrl = '/resume-extraction.mjs', win = typeof window === 'object' ? window : globalThis } = {}) {
   return {
     async pdfToText(file) { return (await import(/* @vite-ignore */ extractionUrl)).pdfToText(file); },
@@ -51,7 +51,7 @@ export function ResumeServicesProvider({ services, children }) {
 
 export function useResumeServices() {
   const value = useContext(ResumeServicesContext);
-  if (!value) throw new Error('Wrap résumé pages in <ResumeServicesProvider>.');
+  if (!value) throw new Error('Wrap resume pages in <ResumeServicesProvider>.');
   return value;
 }
 
@@ -61,7 +61,7 @@ export async function readResumeFile(services, file, { messages }) {
   if (!['pdf', 'docx'].includes(ext)) throw new Error(messages.type);
   if (!file.size || file.size > 5 * 1024 * 1024) throw new Error(messages.size);
   if (ext === 'pdf') {
-    if (!services.pdfToText) throw new Error('Résumé reading is unavailable right now. Please try again later.');
+    if (!services.pdfToText) throw new Error('Resume reading is unavailable right now. Please try again later.');
     return services.pdfToText(file);
   }
   if (!services.docxToText) throw new Error(messages.docxLoading);

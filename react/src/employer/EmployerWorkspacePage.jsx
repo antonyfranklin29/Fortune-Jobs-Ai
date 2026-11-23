@@ -356,7 +356,7 @@ function PostForm({ org: o, post: p, taxonomy, rpc, say, render, onCancel }) {
     if (method === 'email') {
       fields.apply_email = fields.apply_email.toLowerCase(); fields.apply_url = '';
       const at = fields.apply_email.split('@')[1] || '';
-      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(fields.apply_email)) { setMsg('Enter the email address where candidates should send their résumé.'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(fields.apply_email)) { setMsg('Enter the email address where candidates should send their resume.'); return; }
       if (domain && at !== domain && !at.endsWith('.' + domain)) { setMsg(`The email address must be at ${domain}, your verified company domain.`); return; }
     } else {
       fields.apply_email = '';
@@ -393,7 +393,7 @@ function PostForm({ org: o, post: p, taxonomy, rpc, say, render, onCancel }) {
       </fieldset>
       {method === 'link'
         ? <Field label="Application link" id={ids.url} hint="An https page where candidates apply. We review every link before it goes live."><input className="input" id={ids.url} type="url" maxLength={2000} required placeholder="https://" value={f.apply_url} onChange={set('apply_url')} /></Field>
-        : <Field label="Application email" id={ids.email} hint={`Candidates email their résumé straight to this address. It must be at ${domain || 'your company domain'}. Email jobs are checked by our team before they go live.`}><input className="input" id={ids.email} type="email" maxLength={254} required placeholder={domain ? `recruiting@${domain}` : 'recruiting@yourcompany.com'} value={f.apply_email} onChange={set('apply_email')} /></Field>}
+        : <Field label="Application email" id={ids.email} hint={`Candidates email their resume straight to this address. It must be at ${domain || 'your company domain'}. Email jobs are checked by our team before they go live.`}><input className="input" id={ids.email} type="email" maxLength={254} required placeholder={domain ? `recruiting@${domain}` : 'recruiting@yourcompany.com'} value={f.apply_email} onChange={set('apply_email')} /></Field>}
       <div className="grid2">
         <Field label="Posting date" id={ids.from}><input className="input" id={ids.from} type="date" required value={f.posting_date} onChange={set('posting_date')} /></Field>
         <Field label="Closing date" id={ids.to} hint="Up to 90 days after posting."><input className="input" id={ids.to} type="date" required value={f.closing_date} onChange={set('closing_date')} /></Field>

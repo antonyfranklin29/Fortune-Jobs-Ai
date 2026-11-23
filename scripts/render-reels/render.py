@@ -193,7 +193,7 @@ def end_card():
     image.paste(logo(145), (mid - 72, 602), logo(145))
     draw.text((mid, 840), "Free at", font=font(58, 740), fill=GOLD, anchor="mm")
     draw.text((mid, 940), "fortunejobsai.com", font=font(69, 830), fill="white", anchor="mm")
-    draw.text((mid, 1054), "Find jobs and build your résumé", font=font(34, 550),
+    draw.text((mid, 1054), "Find jobs and build your resume", font=font(34, 550),
               fill="#d7e6f4", anchor="mm")
     return image
 

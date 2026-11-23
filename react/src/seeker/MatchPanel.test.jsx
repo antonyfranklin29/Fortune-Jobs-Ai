@@ -17,10 +17,10 @@ describe('MatchPanel', () => {
     expect(screen.getByText('Strong SQL work')).toBeTruthy();
     expect(screen.getByText('No clinical background')).toBeTruthy();
   });
-  it('asks for a résumé when there is none, and never calls AI on its own', () => {
+  it('asks for a resume when there is none, and never calls AI on its own', () => {
     const call = vi.fn();
     render(<MatchPanel job={{ ...job, apply_url: 'https://x.test/2' }} profile={null} call={call} />);
-    expect(screen.getByText('Add your résumé')).toBeTruthy();
+    expect(screen.getByText('Add your resume')).toBeTruthy();
     expect(screen.queryByRole('button', { name: /ai match/i })).toBeNull();
     expect(call).not.toHaveBeenCalled();
   });

@@ -30,13 +30,13 @@ const services = createAccountServices({
 ```
 
 - **Navigation.** It defaults to full-page `location.href` / `location.replace`. Pass `navigate` / `replace` to use the router, but full loads are the safer default around Supabase auth redirects.
-- **Résumé reading.** `createBrowserResumeTools()` expects these on the page:
+- **Resume reading.** `createBrowserResumeTools()` expects these on the page:
   - the legacy `/resume-extraction.mjs` with `/vendor/pdf*`;
   - `window.mammoth` (`/vendor/mammoth.browser.js`);
   - `window.FJResume` (`/resume-matching.js`);
   - `window.JOB_SUGGESTIONS` (`/job-titles.js`).
 
-  Without them, the résumé box shows "Resume reading is unavailable" and everything else works.
+  Without them, the resume box shows "Resume reading is unavailable" and everything else works.
 - **Employer workspace data.** It fetches `config/job-roles.json` and `config/us-regions.json` relative to the page. Serve them at the same paths.
 - **Reviewer prompts.** The reviewer panel uses `window.prompt` for the evidence note, as today. Pass `prompt={fn}` to replace it.
 
@@ -52,8 +52,8 @@ CSS is scoped. Every rule sits under `.fja-acct` plus `.fja-login`, `.fja-profil
   - It runs only from the final button. The checks are the typed phrase, a matching email and the confirmation box.
   - It sends one request, carrying the bearer token, to `/functions/v1/delete-account`.
   - A re-authentication answer returns to `profile.html#delete-account`, and the page's own sign-out redirect does not override it.
-- **Résumé and photo rules.**
-  - Résumé removal detaches first and only removes the user's own path.
+- **Resume and photo rules.**
+  - Resume removal detaches first and only removes the user's own path.
   - Avatars are shown only from this project's `avatars` bucket, under the user's folder.
   - Saved-job links are restricted to http(s), and Adzuna listings carry the credit.
 

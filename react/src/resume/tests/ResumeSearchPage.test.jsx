@@ -18,10 +18,10 @@ const file = (name, body = 'x', type = 'application/pdf') => new File([body], na
 const upload = (f) => fireEvent.change(document.getElementById('guestResumeFile'), { target: { files: [f] } });
 
 describe('ResumeSearchPage', () => {
-  it('keeps the no-résumé routes and privacy copy', () => {
+  it('keeps the no-resume routes and privacy copy', () => {
     setup();
     expect(document.querySelectorAll('a[href="find-jobs.html?resume=0"]').length).toBe(2);
-    expect(screen.getByText(/not uploaded to our résumé storage/)).toBeTruthy();
+    expect(screen.getByText(/not uploaded to our resume storage/)).toBeTruthy();
     expect(screen.getByText(/not ATS scores or hiring predictions/)).toBeTruthy();
     expect(document.getElementById('guestReview')).toBeNull();
     expect(document.getElementById('guestCountry')).toBeNull();
@@ -30,7 +30,7 @@ describe('ResumeSearchPage', () => {
   it('manual profile: no file needed, validates, saves and navigates with the match id', () => {
     const { navigate, storage } = setup();
     fireEvent.click(screen.getByText('Enter experience and skills instead'));
-    expect(screen.getByRole('status').textContent).toMatch(/No résumé file is needed/);
+    expect(screen.getByRole('status').textContent).toMatch(/No resume file is needed/);
     fireEvent.change(document.getElementById('guestRole'), { target: { value: 'QA Engineer' } });
     fireEvent.submit(document.getElementById('guestReview'));
     expect(screen.getByRole('status').textContent).toMatch(/Add at least one skill/);
@@ -60,7 +60,7 @@ describe('ResumeSearchPage', () => {
     expect(document.getElementById('guestCountry').value).toBe('us');
   });
 
-  it('reads a résumé locally, shows detected details and the estimate note', async () => {
+  it('reads a resume locally, shows detected details and the estimate note', async () => {
     const { pdfToText } = setup();
     upload(file('cv.pdf'));
     await waitFor(() => expect(document.getElementById('guestReview')).toBeTruthy());
@@ -100,7 +100,7 @@ describe('ResumeSearchPage', () => {
     release(RESUME);
     await new Promise((r) => setTimeout(r, 10));
     expect(document.getElementById('guestRole').value).toBe('');
-    expect(screen.getByRole('status').textContent).toMatch(/No résumé file is needed/);
+    expect(screen.getByRole('status').textContent).toMatch(/No resume file is needed/);
   });
 
   it('clears temporary details and reports blocked storage', () => {
@@ -110,7 +110,7 @@ describe('ResumeSearchPage', () => {
     fireEvent.click(screen.getByText('Clear these details'));
     expect(storage.m.has(Guest.KEY)).toBe(false);
     expect(document.getElementById('guestReview')).toBeNull();
-    expect(screen.getByRole('status').textContent).toBe('Temporary résumé details cleared.');
+    expect(screen.getByRole('status').textContent).toBe('Temporary resume details cleared.');
     cleanup();
     const blocked = { getItem: () => null, setItem: () => { throw new Error('QuotaExceeded'); }, removeItem: () => {} };
     const { navigate } = setup({ search: '?manual=1', storage: blocked });
@@ -121,7 +121,7 @@ describe('ResumeSearchPage', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('scores an uploaded résumé for ATS readiness and checks pasted job keywords; manual entry has no score', async () => {
+  it('scores an uploaded resume for ATS readiness and checks pasted job keywords; manual entry has no score', async () => {
     setup();
     upload(file('cv.pdf'));
     await waitFor(() => expect(document.getElementById('atsPanel')).toBeTruthy());

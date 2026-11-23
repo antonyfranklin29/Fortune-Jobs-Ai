@@ -1,4 +1,4 @@
-// Extra help under a job and in the Résumé Match panel: the job at a glance, résumé keywords,
+// Extra help under a job and in the Resume Match panel: the job at a glance, resume keywords,
 // interview questions and a short checklist. Nothing here is presented as coming from the listing
 // unless it does: role-typical keywords and questions are labelled as typical for the role.
 import React from 'react';
@@ -39,7 +39,7 @@ const GENERIC = { role: 'this kind of', keywords: ['Communication', 'Problem Sol
 
 export function kitFor(job) { return KITS.find((k) => k.re.test(job?.job_title || '')) || GENERIC; }
 
-/** Keywords for the résumé: those the listing names first, then ones typical for the role. */
+/** Keywords for the resume: those the listing names first, then ones typical for the role. */
 export function keywordsFor(job, profile) {
   const kit = kitFor(job);
   const text = `${job?.job_title || ''} ${cleanDescription(job?.job_description)}`;
@@ -72,10 +72,10 @@ export function ResumeKeywords({ job, profile }) {
   const list = keywordsFor(job, profile);
   const kit = kitFor(job);
   const hasProfile = !!profile?.skills?.length;
-  return <section className="insight-keywords"><h4>Résumé keywords for this job</h4>
+  return <section className="insight-keywords"><h4>Resume keywords for this job</h4>
     <p>{list.some((x) => x.inListing) ? 'Words marked ★ appear in this listing; the rest are common in ' : 'Common in '}{kit.role} job posts. Add one only if you really have that experience.</p>
-    <ul>{list.map(({ keyword, inListing, have }) => <li key={keyword} className={hasProfile ? (have ? 'have' : 'add') : ''}>{inListing && <span aria-label="in this listing">★ </span>}{keyword}{hasProfile && <span className="insight-state">{have ? ' ✓ on your résumé' : ' + add if true'}</span>}</li>)}</ul>
-    <button type="button" className="insight-ai" onClick={() => runAi('tailor_resume')}>✨ Tailor my résumé with these</button>
+    <ul>{list.map(({ keyword, inListing, have }) => <li key={keyword} className={hasProfile ? (have ? 'have' : 'add') : ''}>{inListing && <span aria-label="in this listing">★ </span>}{keyword}{hasProfile && <span className="insight-state">{have ? ' ✓ on your resume' : ' + add if true'}</span>}</li>)}</ul>
+    <button type="button" className="insight-ai" onClick={() => runAi('tailor_resume')}>✨ Tailor my resume with these</button>
   </section>;
 }
 
@@ -84,16 +84,16 @@ export function InterviewReady({ job }) {
   return <section className="insight-interview"><h4>Get ready for the interview</h4>
     <p>Questions often asked in {kit.role} interviews:</p>
     <ol>{kit.questions.map((q) => <li key={q}>{q}</li>)}</ol>
-    <button type="button" className="insight-ai" onClick={() => runAi('interview_prep')}>✨ Prepare answers from my résumé</button>
+    <button type="button" className="insight-ai" onClick={() => runAi('interview_prep')}>✨ Prepare answers from my resume</button>
   </section>;
 }
 
 export function BeforeYouApply({ job }) {
   return <section className="insight-checklist"><h4>Before you apply</h4><ul>
     <li>Read the complete listing on the employer’s page and note the must-have requirements.</li>
-    <li>Match your résumé’s top lines to the {job.category || 'role'}’s main duties.</li>
+    <li>Match your resume’s top lines to the {job.category || 'role'}’s main duties.</li>
     <li>Use the employer’s own words for skills you truly have.</li>
-    <li>{job.source === 'usajobs' ? 'Federal applications ask for a USAJOBS account and a résumé that lists hours per week for each job.' : 'Save the job so you can track it after applying.'}</li>
+    <li>{job.source === 'usajobs' ? 'Federal applications ask for a USAJOBS account and a resume that lists hours per week for each job.' : 'Save the job so you can track it after applying.'}</li>
   </ul></section>;
 }
 
@@ -109,7 +109,7 @@ export function ProfileSnapshot({ profile }) {
 
 export function NextSteps() {
   return <section className="insight-next"><h3>Make your application stronger</h3>
-    <button type="button" onClick={() => runAi('tailor_resume')}>✨ Tailor my résumé to this job</button>
+    <button type="button" onClick={() => runAi('tailor_resume')}>✨ Tailor my resume to this job</button>
     <button type="button" onClick={() => runAi('interview_prep')}>✨ Practice interview questions</button>
     <button type="button" onClick={() => runAi('fit_explain')}>✨ Explain my fit in detail</button>
   </section>;
@@ -130,9 +130,9 @@ export function WhyReal({ job }) {
 /** Apply-ready: steps that make an application stronger, ticked off as the person does them. */
 export function applySteps({ profile, progress, saved }) {
   return [
-    ['resume', 'Résumé on your profile', !!profile?.skills?.length, null],
+    ['resume', 'Resume on your profile', !!profile?.skills?.length, null],
     ['fit_explain', 'Checked how you fit', !!progress.fit_explain, 'fit_explain'],
-    ['tailor_resume', 'Tailored your résumé to this job', !!progress.tailor_resume, 'tailor_resume'],
+    ['tailor_resume', 'Tailored your resume to this job', !!progress.tailor_resume, 'tailor_resume'],
     ['interview_prep', 'Practiced the interview questions', !!progress.interview_prep, 'interview_prep'],
     ['read', 'Read the complete listing', !!progress.read, null],
     ['saved', 'Saved the job to track it', !!saved, null],

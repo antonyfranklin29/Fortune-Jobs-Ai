@@ -1,4 +1,4 @@
-// ATS readiness check for the résumé builder. Applicant tracking systems (ATS) differ by
+// ATS readiness check for the resume builder. Applicant tracking systems (ATS) differ by
 // employer and none publish a score, so this is NOT a prediction of any employer's result.
 // It checks what ATS parsers and recruiters commonly rely on: contact details, standard
 // sections, dated experience, measurable results, skills, length and (when the person
@@ -7,7 +7,7 @@
 import { contains } from './resumeMatching.js';
 
 // Common hard skills and tools named in U.S. job listings. Used only to find which of a
-// pasted job's keywords the résumé already mentions.
+// pasted job's keywords the resume already mentions.
 export const KEYWORDS = [
   // data and analytics
   'SQL', 'Python', 'Excel', 'Power BI', 'Tableau', 'Looker', 'Qlik', 'DAX', 'Power Query', 'SAS', 'SPSS', 'Statistics',
@@ -108,7 +108,7 @@ export function atsCheck(data, jobText = '', upload = null) {
   return { score, max: 100, grade, checks, keywords };
 }
 
-// ---- Uploaded résumés: find the sections in plain text, then run the same checks. ----
+// ---- Uploaded resumes: find the sections in plain text, then run the same checks. ----
 const HEADINGS = [
   ['summary', /^(?:professional\s+|career\s+|executive\s+)?(?:summary|profile|objective|about(?:\s+me)?)$/i],
   ['experience', /^(?:professional\s+|work\s+|relevant\s+|career\s+)?(?:experience|employment(?:\s+history)?|work\s+history|career\s+history)$/i],
@@ -119,7 +119,7 @@ const HEADINGS = [
 const PHONE = /(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/;
 const bullet = (l) => l.replace(/^[\s•●▪◦*·–-]+/, '').trim();
 
-/** Split plain résumé text into the builder's draft shape. headings = which standard sections were found. */
+/** Split plain resume text into the builder's draft shape. headings = which standard sections were found. */
 export function fromText(text, { target = '' } = {}) {
   const lines = String(text || '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const sections = { summary: [], experience: [], skills: [], education: [], projects: [] };
@@ -147,7 +147,7 @@ export function fromText(text, { target = '' } = {}) {
   };
 }
 
-/** ATS readiness for an uploaded résumé's text. */
+/** ATS readiness for an uploaded resume's text. */
 export function atsCheckText(text, jobText = '', opts = {}) {
   const { data, headings, words: total } = fromText(text, opts);
   const r = atsCheck(data, jobText, { fullText: text, headings, words: total });

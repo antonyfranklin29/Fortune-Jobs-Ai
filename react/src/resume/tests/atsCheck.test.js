@@ -26,7 +26,7 @@ describe('atsCheck', () => {
     expect(r.keywords).toBeNull();
   });
 
-  it('scores a complete, dated, measured résumé as strong', () => {
+  it('scores a complete, dated, measured resume as strong', () => {
     const r = atsCheck(strong);
     expect(r.score).toBeGreaterThanOrEqual(85);
     expect(r.grade).toBe('Strong');
@@ -54,7 +54,7 @@ describe('atsCheck', () => {
     expect(jobKeywords('Our team does research and development on a tight schedule every day of the week.')).not.toContain('R');
   });
 
-  it('reads sections from an uploaded résumé text', () => {
+  it('reads sections from an uploaded resume text', () => {
     const text = ['Ana Silva', 'Data Analyst', 'ana@example.com | (555) 010-0100', 'Summary', 'Data Analyst with 4 years of experience building SQL and Power BI reporting for sales and finance teams across three regions.',
       'Experience', 'Data Analyst, Example Co. | Jan 2022 – Present', '• Built 12 Power BI dashboards used by 150 managers', '• Automated SQL reports, cutting close time by 40%',
       'Analyst, Sample LLC | 2019 – 2021', '• Reconciled $2M in monthly sales data', 'Skills', 'SQL, Power BI, Excel, Python, DAX, Tableau', 'Education', 'B.S. Statistics, State University'].join('\n');

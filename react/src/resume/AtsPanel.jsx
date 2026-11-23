@@ -1,4 +1,4 @@
-// ATS readiness score panel, shared by the résumé builder and the upload page.
+// ATS readiness score panel, shared by the resume builder and the upload page.
 // The pasted job description stays in this tab; nothing is sent anywhere.
 export function AtsPanel({ ats, jobText, onJobText, intro }) {
   const tone = ats.score >= 85 ? 'strong' : ats.score >= 70 ? 'good' : ats.score >= 50 ? 'work' : 'start';
@@ -18,7 +18,7 @@ export function AtsPanel({ ats, jobText, onJobText, intro }) {
       </div>
       {ats.keywords && (
         <div id="atsKeywords" className="ats-keywords">
-          <p><strong>Job keywords on your résumé:</strong> {ats.keywords.matched.length ? ats.keywords.matched.join(', ') : 'none yet'}</p>
+          <p><strong>Job keywords on your resume:</strong> {ats.keywords.matched.length ? ats.keywords.matched.join(', ') : 'none yet'}</p>
           {ats.keywords.missing.length > 0 && <p><strong>Missing:</strong> {ats.keywords.missing.join(', ')}. Add only the ones you really have.</p>}
         </div>
       )}

@@ -9,25 +9,25 @@ from PIL import Image, ImageDraw, ImageOps
 
 from render import GOLD, NAVY, SOCIAL, background, fitted, logo
 
-FORMATS = ("Product demo", "Job of the day", "Résumé myth / fact",
+FORMATS = ("Product demo", "Job of the day", "Resume myth / fact",
            "Catalogue snapshot", "3-step checklist", "Student Q&A")
 SHOTS = ("search", "ats", "tracker", "hiring", "save")
-SHOT_LABELS = {"search": "Find jobs", "ats": "Free ATS résumé check",
+SHOT_LABELS = {"search": "Find jobs", "ats": "Free ATS resume check",
                "tracker": "Application tracker · Demo account",
                "hiring": "Hiring now", "save": "Saved jobs · Demo account"}
 SHOT_COPY = {
     "search": ("Search a role in seconds", ["Enter a role or skill", "Choose a location", "Review the results"], "Start with a role or skill and a location. Open a result to review the job details and application steps."),
-    "ats": ("Check your résumé", ["Upload a text-based PDF or DOCX", "Review the ATS score", "Use the feedback to revise"], "Use the free ATS résumé check to spot formatting and content issues. The screen shows a sample résumé."),
+    "ats": ("Check your resume", ["Upload a text-based PDF or DOCX", "Review the ATS score", "Use the feedback to revise"], "Use the free ATS resume check to spot formatting and content issues. The screen shows a sample resume."),
     "tracker": ("See where you left off", ["Save a listing", "Update its stage in your profile", "Add a private note"], "Keep your next steps in Saved Jobs. The screen uses a demo account."),
     "hiring": ("See who's hiring", ["Browse employer names", "Check the open-job counts", "Open a company search"], "Explore companies with open listings in the catalogue. Counts change, and listings do not imply an affiliation."),
     "save": ("Save a role for later", ["Open the listing", "Select Save job", "Find it in your profile"], "Save roles you want to revisit. The screen uses a demo account."),
 }
-MYTHS = ("A résumé needs a graphic-heavy layout.", "Every résumé needs an objective.",
-         "One résumé works for every role.", "Only paid experience belongs on a résumé.",
+MYTHS = ("A resume needs a graphic-heavy layout.", "Every resume needs an objective.",
+         "One resume works for every role.", "Only paid experience belongs on a resume.",
          "Recruiters need every course you took.", "A project title tells the whole story.",
          "A score tells you whether you’ll be hired.", "A PDF is always readable by software.",
-         "A longer résumé always looks stronger.", "Every bullet needs a number.",
-         "A résumé needs a full street address.", "A skill list is enough on its own.")
+         "A longer resume always looks stronger.", "Every bullet needs a number.",
+         "A resume needs a full street address.", "A skill list is enough on its own.")
 
 
 def words(draw, text, x, y, width, maximum, lines, color=NAVY, weight=700):
@@ -89,12 +89,12 @@ def render_post(post, captures, data):
             "Export a text-based PDF and check that you can select the text.",
             "Keep the experience that makes your case for this role.",
             "Specific scope and outcomes can show impact even without a number.",
-            "City, region and reliable contact details are enough for most résumés.",
+            "City, region and reliable contact details are enough for most resumes.",
             "Connect each important skill to something you did with it.",
         )
         fact = facts[turn]
         words(draw, fact, 103, 806, 870, 59, 4)
-        title, points, caption = "Résumé myth vs. fact", [myth, fact], f"Résumé myth: {myth} {fact}"
+        title, points, caption = "Resume myth vs. fact", [myth, fact], f"Resume myth: {myth} {fact}"
     elif kind == 3:
         stat = data["stats"][turn]
         count = f'{stat["count"]:,}'
@@ -132,7 +132,7 @@ def render_post(post, captures, data):
 
 DEMO_EDITS = [
     ("Find your next role", [("search", 1.0), ("search", 3.9), ("hiring", 2.8)]),
-    ("Check your résumé", [("ats", 0.65), ("ats", 1.65), ("search", 3.9)]),
+    ("Check your resume", [("ats", 0.65), ("ats", 1.65), ("search", 3.9)]),
     ("Track your next step", [("save", 2.85), ("tracker", 0.30), ("tracker", 0.45)]),
     ("See who's hiring", [("hiring", 1.6), ("hiring", 2.8), ("search", 3.9)]),
     ("Save a role for later", [("search", 3.9), ("save", 2.85), ("tracker", 0.35)]),
@@ -193,7 +193,7 @@ def render_reels(captures, start, end):
     def one(index):
         variant = (index - start) % len(DEMO_EDITS)
         hook = DEMO_EDITS[variant][0]
-        alternate = ("Watch a job search in action.", "See a sample résumé checked in the browser.",
+        alternate = ("Watch a job search in action.", "See a sample resume checked in the browser.",
                      "See how to move a saved job through your application stages.",
                      "Explore the Hiring now strip and run a search.",
                      "Save a listing and revisit it in your tracker.")[variant]

@@ -27,7 +27,7 @@
   form.addEventListener('input',render);form.addEventListener('change',render);
   form.addEventListener('submit',event=>event.preventDefault());
   document.getElementById('export').addEventListener('click',()=>{render();if(!document.getElementById('export').disabled)window.print();});
-  document.getElementById('clear').addEventListener('click',()=>{if(!window.confirm('Clear all résumé details in this tab?'))return;++importGeneration;++profileGeneration;importSuggestions=null;profileSuggestions=null;document.getElementById('sourceText').textContent='';document.getElementById('sourceDetails').hidden=true;document.getElementById('useSuggestions').hidden=true;document.getElementById('importStatus').textContent='';document.getElementById('profilePreview').replaceChildren();document.getElementById('profilePreview').hidden=true;document.getElementById('useProfile').hidden=true;document.getElementById('profileSignIn').hidden=true;document.getElementById('profileStatus').textContent='';form.reset();render();});
+  document.getElementById('clear').addEventListener('click',()=>{if(!window.confirm('Clear all resume details in this tab?'))return;++importGeneration;++profileGeneration;importSuggestions=null;profileSuggestions=null;document.getElementById('sourceText').textContent='';document.getElementById('sourceDetails').hidden=true;document.getElementById('useSuggestions').hidden=true;document.getElementById('importStatus').textContent='';document.getElementById('profilePreview').replaceChildren();document.getElementById('profilePreview').hidden=true;document.getElementById('useProfile').hidden=true;document.getElementById('profileSignIn').hidden=true;document.getElementById('profileStatus').textContent='';form.reset();render();});
   document.getElementById('loadProfile').addEventListener('click',async()=>{
     const generation=++profileGeneration,status=document.getElementById('profileStatus');
     profileSuggestions=null;document.getElementById('profilePreview').replaceChildren();document.getElementById('profilePreview').hidden=true;document.getElementById('useProfile').hidden=true;document.getElementById('profileSignIn').hidden=true;
@@ -62,7 +62,7 @@
     importSuggestions=null;document.getElementById('useSuggestions').hidden=true;
     document.getElementById('sourceDetails').hidden=true;
     document.getElementById('sourceText').textContent='';
-    status.textContent='Reading your résumé in this browser…';
+    status.textContent='Reading your resume in this browser…';
     try{
       const ext=file.name.split('.').pop().toLowerCase();
       if(!['pdf','docx'].includes(ext)||!file.size||file.size>5*1024*1024)throw new Error('Choose a text-based PDF or DOCX under 5 MB.');
@@ -75,7 +75,7 @@
       document.getElementById('sourceText').textContent=text;
       document.getElementById('sourceDetails').hidden=false;
       document.getElementById('useSuggestions').hidden=!(importSuggestions.current_title||importSuggestions.skills.length);
-      status.textContent='Read locally. Review the extracted text, then choose whether to use the suggested title and skills. Copy only facts you want in the résumé.';
+      status.textContent='Read locally. Review the extracted text, then choose whether to use the suggested title and skills. Copy only facts you want in the resume.';
     }catch(error){if(generation!==importGeneration)return;status.textContent=error.name==='PasswordException'?'Remove the PDF password and try again.':error.message||'Could not read this document.';}
   });
   document.getElementById('useSuggestions').addEventListener('click',()=>{
