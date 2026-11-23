@@ -8,7 +8,7 @@ const IMAGE = `${SITE}/og-image.jpg`;
 
 const PAGES = {
   'index.html': { url: '/', title: 'Fortune Jobs AI: AI Job Search & Free ATS Résumé Score',
-    description: 'Search 17,000+ U.S. jobs from employer career sites and trusted job networks. Get a free ATS résumé score, AI job matching and AI interview coaching.' },
+    description: 'Free AI-powered job portal: search 20,000+ jobs from employer career sites and trusted job networks. Get a free ATS résumé score, AI job matching and AI interview coaching.' },
   'find-jobs.html': { url: '/find-jobs.html', title: 'Find U.S. Jobs by Title and City | Fortune Jobs AI',
     description: 'Search U.S. jobs by title, city or state, including remote jobs. Each listing links to the original posting. Free job search with AI matching.' },
   'resume-search.html': { url: '/resume-search.html', title: 'Free ATS Résumé Score and Job Matches | Fortune Jobs AI',
@@ -28,7 +28,9 @@ const PAGES = {
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 const ORG = { '@context': 'https://schema.org', '@graph': [
   { '@type': 'Organization', '@id': `${SITE}/#org`, name: 'Fortune Jobs AI', url: `${SITE}/`, logo: `${SITE}/newsletter-logo.png`,
-    email: 'info@fortunejobsai.com', sameAs: ['https://www.instagram.com/fortunejobs_ai/', 'https://www.facebook.com/profile.php?id=61596142272586', 'https://www.linkedin.com/company/fortunejobsai/'] },
+    email: 'info@fortunejobsai.com', description: 'Free AI-powered job portal for college students, new graduates and job seekers.',
+    parentOrganization: { '@type': 'Organization', name: 'YOU DO LMS INC.' },
+    sameAs: ['https://www.instagram.com/fortunejobs_ai/', 'https://www.facebook.com/profile.php?id=61596142272586', 'https://www.linkedin.com/company/fortunejobsai/', 'https://www.threads.com/@fortunejobs_ai'] },
   { '@type': 'WebSite', '@id': `${SITE}/#site`, name: 'Fortune Jobs AI', url: `${SITE}/`, publisher: { '@id': `${SITE}/#org` },
     potentialAction: { '@type': 'SearchAction', target: { '@type': 'EntryPoint', urlTemplate: `${SITE}/results.html?mode=quick&q={search_term_string}` }, 'query-input': 'required name=search_term_string' } },
 ] };
@@ -42,7 +44,18 @@ const appSchema = (file, url) => ({ '@context': 'https://schema.org', '@type': '
   description: APP[file].description, url, applicationCategory: 'BusinessApplication', operatingSystem: 'Web',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, publisher: { '@type': 'Organization', name: 'Fortune Jobs AI', url: `${SITE}/` } });
 
-function head(file, p) {
+// FAQ structured data mirrors the visible FAQ in the page's crawler-readable block (<h3> question, <p> answer).
+const unhtml = (t) => t.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&quot;/g, '"').replace(/&amp;/g, '&').trim();
+function faqSchema(html) {
+  const block = html.match(/<h2>Frequently asked questions<\/h2>([\s\S]*?)<\/main>/);
+  if (!block) return null;
+  const items = [...block[1].matchAll(/<h3>([\s\S]*?)<\/h3><p>([\s\S]*?)<\/p>/g)]
+    .map(([, q, a]) => ({ '@type': 'Question', name: unhtml(q), acceptedAnswer: { '@type': 'Answer', text: unhtml(a) } }));
+  return items.length ? { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: items } : null;
+}
+const ABOUT = { '@context': 'https://schema.org', '@type': 'AboutPage', url: `${SITE}/about.html`, mainEntity: { '@id': `${SITE}/#org` } };
+
+function head(file, p, html = '') {
   const url = SITE + p.url;
   const tags = [
     `<meta name="description" content="${esc(p.description)}">`,
@@ -55,6 +68,9 @@ function head(file, p) {
     '<meta name="theme-color" content="#10243b">',
   ];
   if (file === 'index.html') tags.push(`<script type="application/ld+json">${JSON.stringify(ORG)}</script>`);
+  const faq = faqSchema(html);
+  if (faq) tags.push(`<script type="application/ld+json">${JSON.stringify(faq).replace(/</g, '\\u003c')}</script>`);
+  if (file === 'about.html') tags.push(`<script type="application/ld+json">${JSON.stringify({ ...ABOUT, mainEntity: ORG['@graph'][0] })}</script>`);
   if (APP[file]) tags.push(`<script type="application/ld+json">${JSON.stringify(appSchema(file, url)).replace(/</g, '\\u003c')}</script>`);
   return `<!--seo-->${tags.join('')}<!--/seo-->`;
 }
@@ -63,7 +79,7 @@ const root = path.resolve(__dirname, '..');
 for (const [file, p] of Object.entries(PAGES)) {
   const f = path.join(root, file);
   let html = fs.readFileSync(f, 'utf8');
-  html = html.replace(/<!--seo-->[\s\S]*?<!--\/seo-->/, '').replace(/<title>[^<]*<\/title>/, `<title>${esc(p.title)}</title>${head(file, p)}`);
+  html = html.replace(/<!--seo-->[\s\S]*?<!--\/seo-->/, '').replace(/<title>[^<]*<\/title>/, `<title>${esc(p.title)}</title>${head(file, p, html)}`);
   fs.writeFileSync(f, html);
 }
 for (const file of fs.readdirSync(root).filter(file => file.endsWith('.html'))) {
