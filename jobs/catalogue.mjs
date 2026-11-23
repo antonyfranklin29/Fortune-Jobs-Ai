@@ -1,3 +1,4 @@
+import { advertiserName } from './geo.mjs';
 import sectors from '../config/care-sectors.json' with { type: 'json' };
 // Public catalogue reads use the same anonymous access and visibility rules as Quick Match.
 import { fixApplyUrl } from '../react/src/shared/applyUrl.js';
@@ -9,8 +10,8 @@ export const CARE_ROLES = new Set([...sectors.healthcare, ...sectors.transport])
 export const statePageMinimum = role => CARE_ROLES.has(role) ? 5 : MIN_STATE_JOBS;
 export const DISPLAY_LIMIT = 20;
 const PAGE_SIZE = 1000;
-const summaryFields = 'id,job_title,company,location,state_code,canonical_role,country,posted_at,expires_at,closed_at,source,apply_url,salary,is_remote';
-const postingFields = summaryFields + ',job_description,is_remote,work_mode';
+const summaryFields = 'id,job_title,company,location,state_code,canonical_role,country,posted_at,expires_at,closed_at,source,apply_url,salary,is_remote,sponsorship,job_description,work_mode';
+const postingFields = summaryFields;
 
 export function applicationUrl(value) {
   try {
@@ -25,7 +26,7 @@ export function openListing(job, now = Date.now()) {
   const expiry = job?.expires_at == null ? Infinity : Date.parse(job.expires_at);
   return !['remotive', 'himalayas'].includes(job?.source) && /^\d+$/.test(String(job?.id)) && job.country === 'us' && job.closed_at == null &&
     (job.posted_at == null || posted <= now) && expiry > now &&
-    Boolean(job.job_title?.trim() && job.company?.trim() && job.location?.trim() && applicationUrl(job.apply_url)) &&
+    Boolean(job.job_title?.trim() && advertiserName(job.company) && job.location?.trim() && applicationUrl(job.apply_url)) &&
     !/\b(?:please ignore|do not apply|test listing|test posting|fortune jobs ai test)\b/i.test(job.job_title);
 }
 

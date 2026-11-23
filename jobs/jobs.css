@@ -6,7 +6,7 @@ a:focus-visible { outline: 3px solid #996d12; outline-offset: 4px; }
 header { background: #10243b; color: white; }
 nav, main, footer { width: min(100% - 36px, 960px); margin-inline: auto; }
 nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding-block: 18px; }
-nav a { color: white; }
+header nav a { color: white; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 750; text-decoration: none; }
 .brand img { width: 36px; height: 36px; }
 main { padding-block: clamp(32px, 6vw, 64px); min-height: 72vh; }
@@ -23,3 +23,18 @@ footer { border-top: 1px solid #ded9cb; padding-block: 18px; }
 .market h2 { margin-top: 0; }
 .market ul { margin: 6px 0 10px; padding-left: 20px; }
 .market a { font-weight: 650; }
+
+.geo-answer { font-size: 1.05rem; max-width: 78ch; }
+.updated { color: #4a5d70; font-size: .9rem; }
+.faq { margin-block: 28px; background: white; border: 1px solid #dbe3e8; border-radius: 12px; padding: 20px; }
+.faq h3 { font-size: 1rem; margin: 22px 0 8px; }
+.faq p { margin: 0; }
+.hub-table { overflow-x: auto; margin-block: 24px; }
+table { width: 100%; border-collapse: collapse; background: white; }
+caption { text-align: left; font-weight: 700; margin-bottom: 12px; }
+th, td { padding: 12px; border: 1px solid #dbe3e8; text-align: left; }
+thead { background: #10243b; color: white; }
+.category-hubs ul { display: flex; flex-wrap: wrap; gap: 14px; padding: 0; list-style: none; }
+.category-hubs li { background: white; padding: 16px; border: 1px solid #dbe3e8; border-radius: 12px; }
+
+.hub-table:focus-visible { outline: 3px solid #996d12; outline-offset: 4px; }

@@ -4,8 +4,10 @@ import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import {
   SITE, MIN_CITY_JOBS, MIN_STATE_JOBS, statePageMinimum, CARE_ROLES, DISPLAY_LIMIT, applicationUrl, areaListings, eligiblePosting,
-  getEmployerPostings, newestFirst, postingPath, readOpenCatalogue,
+  getEmployerPostings, newestFirst, postingPath, readOpenCatalogue, openListing,
 } from '../jobs/catalogue.mjs';
+
+import { HUBS, MIN_HUB_JOBS, advertiserName, areaFacts, answerBlock, areaFaq, dateLabel, faqSchema, hubAnswer, hubFaq, payRange } from '../jobs/geo.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const CITIES = [['Raleigh', 'NC'], ['Chicago', 'IL'], ['New York', 'NY'],
@@ -31,7 +33,7 @@ const siteSearch = ({ title, city, state }) => '/results.html?' + new URLSearchP
   mode: 'quick', country: 'us', q: title, ...(city && { location: city + ', ' + state }),
 });
 
-function page({ path, title, description, body, noindex = false, live = false, trail = [['Home', '/'], ['Jobs', '/jobs/']] }) {
+function page({ path, title, description, body, faq = [], noindex = false, live = false, trail = [['Home', '/'], ['Jobs', '/jobs/']] }) {
   const breadcrumbs = { '@context': 'https://schema.org', '@type': 'BreadcrumbList',
     itemListElement: trail.map(([name, path], index) => ({
       '@type': 'ListItem', position: index + 1, name, item: SITE + path,
@@ -49,6 +51,7 @@ function page({ path, title, description, body, noindex = false, live = false, t
     '<link rel="icon" href="/favicon.ico?v=2" sizes="48x48"><link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2"><link rel="stylesheet" href="/jobs/jobs.css">\n' +
     '<script src="/config.js"></script>' + (live ? '<script type="module" src="/jobs/live.mjs"></script>\n' : '') +
     '<script type="application/ld+json">' + schema + '</script>\n' +
+    (faq.length ? '<script type="application/ld+json">' + JSON.stringify(faqSchema(faq)).replaceAll('<', '\\u003c') + '</script>\n' : '') +
     '<script defer src="/source-tracking.js"></script></head><body><header><nav aria-label="Main navigation">' +
     '<a class="brand" href="/"><img src="/favicon.svg" alt="">Fortune Jobs AI</a>' +
     '<a href="/find-jobs.html">Find jobs</a></nav></header><main>\n' +
@@ -72,7 +75,6 @@ export function socialTags(title, description, url) {
 }
 
 const DAY = 86400000;
-const money = n => '$' + Math.round(n / 1000) + 'K';
 
 // Yearly pay from text like "$62,000 - $141,000 per year" or "$102,400–$179,000"; hourly or monthly figures are skipped.
 export function annualPay(text) {
@@ -110,7 +112,8 @@ export function areaInsights(rows, now = Date.now()) {
 
 function renderInsights(target, rows, now) {
   if (rows.length < 3) return '';
-  const { pay, companies, companyCount, remote, recent } = areaInsights(rows, now);
+  const { companies, companyCount, remote, recent } = areaInsights(rows, now);
+  const { pay } = areaFacts(rows, target.role);
   const place = areaName(target);
   const facts = [
     recent ? recent + ' posted in the last 7 days' : '',
@@ -119,23 +122,32 @@ function renderInsights(target, rows, now) {
   ].filter(Boolean).join(' · ');
   return '<section class="market" aria-label="Market snapshot"><h2>' + escape(target.title + ' job market in ' + place) + '</h2>' +
     '<p>' + escape(facts) + '.</p>' +
-    (pay ? '<p>Typical listed pay: <strong>' + money(pay.low) + '–' + money(pay.high) + '</strong> a year, median <strong>' + money(pay.median) +
-      '</strong> (middle half of ' + pay.count + ' listings that show yearly pay).</p>' : '') +
+    (pay ? '<p>Middle half of listed salary midpoints: <strong>' + escape(payRange(pay)) + '</strong> (' + pay.count + ' listings with usable pay).</p>' : '') +
     (companies.length ? '<h3>Top hiring companies</h3><ul>' + companies.map(([name, n]) =>
       '<li>' + escape(name) + ' (' + n + ')</li>').join('') + '</ul>' : '') +
     '<p>' + link('/resume-search.html', 'Check how your résumé matches ' + target.title + ' jobs — free ATS score') + '</p></section>';
 }
+
+export function renderFaq(faq) {
+  return faq.length ? '<section class="faq" aria-label="Frequently asked questions"><h2>Frequently asked questions</h2>' +
+    faq.map(({q,a}) => '<h3>' + escape(q) + '</h3><p>' + escape(a) + '</p>').join('') + '</section>' : '';
+}
+const updatedLine = date => '<p class="updated">Updated <time datetime="' + date + '">' + escape(dateLabel(date)) + '</time></p>';
 
 export function renderCity(target, rows, details, date, related = []) {
   return renderArea(target, rows, details, date, related);
 }
 
 export function renderArea(target, rows, details, date, related = [], now = Date.parse(date + 'T12:00:00Z')) {
+  rows = rows.filter(job => advertiserName(job.company));
   const { role, city, state, stateName } = target;
   const place = areaName(target);
   const count = rows.length;
   const heading = count + ' ' + target.title + (count === 1 ? ' job in ' : ' jobs in ') + place;
   const path = areaPath(target);
+  const indexable = count >= (city ? MIN_CITY_JOBS : statePageMinimum(role));
+  const facts = areaFacts(rows, role);
+  const faq = indexable ? areaFaq(target, facts, date, place, rows) : [];
   const visible = rows.slice(0, DISPLAY_LIMIT);
   const detailIds = rows.filter(job => details.has(String(job.id))).map(job => job.id);
   const items = visible.map(job => {
@@ -151,16 +163,16 @@ export function renderArea(target, rows, details, date, related = [], now = Date
     : 'No open listings in the ' + date + ' snapshot.';
   const relatedLinks = related.length ? '<h2>Related job searches</h2><ul>' + related.map(({ target }) =>
     '<li>' + link(areaPath(target), target.title + ' jobs in ' + areaName(target)) + '</li>').join('') + '</ul>' : '';
-  const body = '<h1>' + escape(heading) + '</h1><p>' +
-    (count ? 'Browse open ' + escape(target.title) + ' listings in ' + escape(place) + '. Use the original listing to confirm requirements and apply.' :
+  const body = '<h1>' + escape(heading) + '</h1><p class="geo-answer">' +
+    (indexable ? escape(answerBlock(target, facts, date, place)) : count ? 'Browse open ' + escape(target.title) + ' listings in ' + escape(place) + '. Use the original listing to confirm requirements and apply.' :
       'Our catalogue has no open ' + escape(target.title) + ' listings in ' + escape(place) + ' in this snapshot. Try a broader search.') +
-    '</p><p>' + link(siteSearch(target), city ? 'Search this city in Quick Match' : 'Search this role nationwide') + '</p>' +
+    '</p>' + updatedLine(date) + '<p>' + link(siteSearch(target), city ? 'Search this city in Quick Match' : 'Search this role nationwide') + '</p>' +
     '<section aria-label="Open listings" data-job-page="area" data-city="' + escape(city || '') +
     '" data-state="' + state + '" data-role="' + role + '" data-detail-ids="' + detailIds.join(',') +
-    '"><p role="status">' + status + '</p><ul class="listings">' + items + '</ul></section>' + renderInsights(target, rows, now) + relatedLinks;
+    '"><p role="status">' + status + '</p><ul class="listings">' + items + '</ul></section>' + renderInsights(target, rows, now) + renderFaq(faq) + relatedLinks;
   const stateTrail = stateName ? [[stateName, directoryState(state)]] : [];
   return page({ path, title: heading, description: heading + ' as of ' + date + '. Browse listings and check the original posting before applying.',
-    body, noindex: count < (city ? MIN_CITY_JOBS : statePageMinimum(role)), live: true,
+    body, faq, noindex: !indexable, live: true,
     trail: [['Home', '/'], ['Jobs', '/jobs/'], ...stateTrail, [target.title + ' in ' + place, path]],
   });
 }
@@ -177,7 +189,8 @@ function renderPosting(job) {
   });
 }
 
-export function addSitemapUrls(xml, paths) {
+export function addSitemapUrls(xml, paths, date = new Date().toISOString().slice(0, 10)) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) throw new Error('Invalid generation date');
   const oldStart = xml.indexOf(START);
   if (oldStart >= 0) {
     const oldEnd = xml.indexOf(END, oldStart);
@@ -187,7 +200,7 @@ export function addSitemapUrls(xml, paths) {
   const close = xml.lastIndexOf('</urlset>');
   if (close < 0) throw new Error('Expected sitemap urlset');
   return xml.slice(0, close) + START + '\n' +
-    paths.map(path => '  <url><loc>' + escape(SITE + path) + '</loc></url>\n').join('') +
+    paths.map(path => '  <url><loc>' + escape(SITE + path) + '</loc><lastmod>' + date + '</lastmod></url>\n').join('') +
     END + '\n' + xml.slice(close);
 }
 
@@ -236,6 +249,46 @@ export function planPages(catalogue, roles, regions, now) {
   return { statePages, cityPages: cityPages.filter(({target,rows}) => !CARE_ROLES.has(target.role) || rows.length>=5) };
 }
 
+export function planHubs(catalogue, roles, regions, now) {
+  const roleNames = new Map(roles.map(role => [role.id, role.name]));
+  const stateNames = new Map(regions.map(region => [region.code, region.name]));
+  return HUBS.flatMap(sector => {
+    const seen = new Set();
+    const rows = catalogue.filter(job => {
+      if (!sector.roles.includes(job.canonical_role) || !stateNames.has(job.state_code) || !openListing(job, now)) return false;
+      const key = applicationUrl(job.apply_url); if (seen.has(key)) return false; seen.add(key); return true;
+    });
+    if (rows.length < MIN_HUB_JOBS) return [];
+    const counts = key => [...new Set(rows.map(job => job[key]))].map(id => ({id,
+      name:(key === 'canonical_role' ? roleNames : stateNames).get(id) || id,
+      count:rows.filter(job => job[key] === id).length,
+    })).sort((a,b) => b.count-a.count || a.name.localeCompare(b.name));
+    return [{...sector, rows, roleCounts:counts('canonical_role'), stateCounts:counts('state_code')}];
+  });
+}
+
+export function renderHub(hub, indexed, date) {
+  const path = '/jobs/' + hub.id + '/', heading = hub.label + ' jobs in the United States';
+  const states = hub.stateCounts.slice(0,5);
+  const targets = new Map(indexed.filter(({target}) => !target.city).map(({target}) => [target.role+'/'+target.state,target]));
+  const table = '<div class="hub-table" role="region" aria-label="Open jobs by role and top states" tabindex="0"><table><caption>Open jobs by role and top states</caption><thead><tr><th scope="col">Role</th>' +
+    states.map(state => '<th scope="col">'+escape(state.name)+'</th>').join('') + '</tr></thead><tbody>' +
+    hub.roleCounts.map(role => '<tr><th scope="row">'+escape(role.name)+'</th>' + states.map(state => {
+      const count = hub.rows.filter(job => job.canonical_role===role.id && job.state_code===state.id).length;
+      const target = targets.get(role.id+'/'+state.id);
+      return '<td>'+(count && target ? link(areaPath(target), count+' '+(count===1?'job':'jobs')) : count || '—')+'</td>';
+    }).join('')+'</tr>').join('')+'</tbody></table></div>';
+  const faq = hubFaq(hub,date);
+  return page({path,title:heading,description:hub.rows.length+' open '+hub.label.toLowerCase()+' jobs across '+hub.roleCounts.length+(hub.roleCounts.length===1?' role, updated ':' roles, updated ')+dateLabel(date)+'.',faq,
+    body:'<h1>'+escape(heading)+'</h1><p class="geo-answer">'+escape(hubAnswer(hub,date))+'</p>'+updatedLine(date)+table+renderFaq(faq),
+    trail:[['Home','/'],['Jobs','/jobs/'],[hub.label,path]]});
+}
+
+export function hubDirectory(hubs) {
+  return hubs.length ? '<section class="category-hubs"><h2>Browse by job category</h2><ul>'+hubs.map(hub=>
+    '<li>'+link('/jobs/'+hub.id+'/',hub.label+' ('+hub.rows.length+' open jobs)')+'</li>').join('')+'</ul></section>' : '';
+}
+
 async function build() {
   const window = {};
   runInNewContext(await readFile(join(ROOT, 'config.js'), 'utf8'), { window });
@@ -252,6 +305,9 @@ async function build() {
   const details = new Set(postings.map(job => String(job.id)));
   const { cityPages, statePages } = planPages(catalogue, roles, regions, now);
   const indexed = [...statePages, ...cityPages.filter(({ rows }) => rows.length >= MIN_CITY_JOBS)];
+  const hubs = planHubs(catalogue, roles, regions, now);
+  for (const hub of hubs) await writePage('/jobs/' + hub.id + '/', renderHub(hub, indexed, date));
+  await prunePages('', new Set(hubs.map(hub => hub.id)), name => HUBS.some(hub => hub.id === name));
   for (const { target, rows } of [...statePages, ...cityPages]) {
     const others = indexed.filter(page => page.target !== target);
     const sameRole = others.filter(page => page.target.role === target.role)
@@ -264,9 +320,10 @@ async function build() {
   for (const job of postings) await writePage(postingPath(job.id), renderPosting(job));
   await prunePages('posting', details, name => /^\d+$/.test(name));
   const stateSlugs = new Set(regions.map(region => slug(region.name)));
+  const citySlugs = new Set(CITIES.map(([city,state]) => cityPath({role:'role',city,state}).split('/').at(-2)));
   for (const role of roles) {
-    const active = new Set(statePages.filter(page => page.target.role === role.id).map(page => slug(page.target.stateName)));
-    await prunePages(role.id, active, name => stateSlugs.has(name));
+    const active = new Set([...statePages,...cityPages].filter(page => page.target.role === role.id).map(page => areaPath(page.target).split('/').at(-2)));
+    await prunePages(role.id, active, name => stateSlugs.has(name) || citySlugs.has(name));
   }
   const sections = [...regions].sort((a, b) => a.name.localeCompare(b.name)).map(region => {
     const pages = indexed.filter(page => page.target.state === region.code);
@@ -279,18 +336,19 @@ async function build() {
     path: '/jobs/', title: 'Browse jobs by state and city',
     description: 'Browse ' + indexed.length + ' job search pages by state, city and role.',
     body: '<h1>Browse jobs by state and city</h1><p>Explore current openings by location and role, or ' +
-      link('/find-jobs.html', 'search all jobs') + '.</p>' + sections,
+      link('/find-jobs.html', 'search all jobs') + '.</p>' + hubDirectory(hubs) + sections,
     noindex: indexed.length === 0,
   }));
   const sitemap = join(ROOT, 'sitemap.xml');
   const paths = [
     ...(indexed.length ? ['/jobs/'] : []),
+    ...hubs.map(hub => '/jobs/' + hub.id + '/'),
     ...indexed.map(({ target }) => areaPath(target)),
     ...postings.map(job => postingPath(job.id)),
   ];
-  await writeFile(sitemap, addSitemapUrls(await readFile(sitemap, 'utf8'), paths));
+  await writeFile(sitemap, addSitemapUrls(await readFile(sitemap, 'utf8'), paths, date));
   console.log(statePages.length + ' state pages, ' + cityPages.length + ' city pages, ' +
-    indexed.length + ' indexable area pages, ' + postings.length + ' eligible employer posting pages.');
+    hubs.length + ' category hubs, ' + indexed.length + ' indexable area pages, ' + postings.length + ' eligible employer posting pages.');
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) await build();

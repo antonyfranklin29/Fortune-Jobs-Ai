@@ -20,7 +20,7 @@ jobs:
           node-version: '22'
       - name: Test and rebuild from the public catalogue
         run: |
-          node --test tests/job-seo.mjs tests/indexnow.mjs
+          node --test tests/job-seo.mjs tests/geo-job-pages.mjs tests/indexnow.mjs
           node scripts/build-job-seo.mjs
       - name: Sanity-check the rebuilt pages
         run: |

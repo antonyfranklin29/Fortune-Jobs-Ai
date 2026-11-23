@@ -139,7 +139,7 @@ test('area pages show a market snapshot built from their own listings', async ()
   assert.equal(facts.remote, 1);
   const html = renderArea({ role: 'data-analyst', title: 'Data Analyst', city: 'Raleigh', state: 'NC', stateName: 'North Carolina' }, rows, new Set(), '2026-11-15');
   assert.match(html, /Data Analyst job market in Raleigh, NC/);
-  assert.match(html, /\$80K–\$100K/);
+  assert.doesNotMatch(html, /Middle half of listed salary midpoints/); // Fewer than five usable salaries.
   assert.match(html, /Top hiring companies/);
   assert.match(html, /resume-search\.html/);
 });
