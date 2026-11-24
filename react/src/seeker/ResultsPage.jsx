@@ -1,6 +1,6 @@
 import { SearchAlternatives } from './CatalogueDiscovery.jsx';
 import { careRole, matchesJobTags } from '../shared/jobTags.js';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Footer, Header, MobileTabs } from '../shared/Shell.jsx';
 import { SearchForm } from './SearchForm.jsx';
 import { PartnerJobs, partnerQuery } from './PartnerJobs.jsx';
@@ -90,6 +90,24 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
   // Phones show the list and the details one after the other: tapping a job opens its
   // details, and "Back to results" returns to the same row.
   const phone = () => typeof window !== 'undefined' && window.matchMedia?.('(max-width:720px)').matches;
+  // Desktop/tablet: the detail and match panels stay in view (sticky) while the list scrolls.
+  // A newly picked job opens at the top of each panel, and the sticky offset follows the site header.
+  const sideRef = useRef(null);
+  useEffect(() => {
+    const side = sideRef.current;
+    if (!side) return;
+    side.scrollTop = 0;
+    side.querySelectorAll('.featured-detail, .dashboard-match').forEach(panel => { panel.scrollTop = 0; });
+  }, [selected]);
+  useEffect(() => {
+    const setTop = () => {
+      const header = document.querySelector('nav[aria-label="Main navigation"]') || document.querySelector('nav');
+      const height = header && getComputedStyle(header).position.match(/sticky|fixed/) ? header.offsetHeight : 0;
+      document.documentElement.style.setProperty('--dash-top', height + 'px');
+    };
+    setTop(); window.addEventListener('resize', setTop);
+    return () => window.removeEventListener('resize', setTop);
+  }, []);
   function selectJob(index) {
     setSelected(index);
     if (phone()) requestAnimationFrame(() => document.getElementById('jobDetailTop')?.scrollIntoView({ block: 'start' }));
@@ -198,8 +216,10 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
             <ProCard subscription={subscription} />
           </section>
           <button type="button" className="dashboard-back" id="jobDetailTop" onClick={backToList}>← Back to results</button>
-          <JobDetail job={job} profile={profile} saved={savedKeys.has(jobKey(job))} onSave={toggleSave} dashboard />
-          <MatchPanel job={job} profile={profile} saved={savedKeys.has(jobKey(job))} />
+          <div className="dashboard-side" ref={sideRef}>
+            <JobDetail job={job} profile={profile} saved={savedKeys.has(jobKey(job))} onSave={toggleSave} dashboard />
+            <MatchPanel job={job} profile={profile} saved={savedKeys.has(jobKey(job))} />
+          </div>
         </div>}
         {CAREERJET_ENABLED && !loading && livePartnerQuery && <PartnerJobs query={livePartnerQuery} name="Careerjet" site="https://www.careerjet.com/" endpoint="careerjet-search" />}
       </div>

@@ -275,3 +275,20 @@
 .dashboard-pager button.active{background:#10243b;color:#fff;border-color:#10243b}
 .dashboard-pager button:disabled{opacity:.4;cursor:default}
 @media (max-width:480px){.dashboard-pager{gap:3px}.dashboard-pager button{min-width:30px;height:30px;padding:0 6px;font-size:13px}}
+/* Sticky detail + match panels: the list scrolls, the open job stays in view (desktop and tablet).
+   Each panel scrolls on its own; Apply / Save stay pinned at the top of the detail panel. */
+.dashboard-side{display:contents}
+@media(min-width:721px){
+  .dashboard-grid{align-items:start}
+  .dashboard-side .featured-detail,.dashboard-side .dashboard-match,.dashboard-side{scrollbar-width:thin;overscroll-behavior:contain}
+  .dashboard .dashboard-side .react-actions-top{position:sticky;top:calc(-1 * clamp(14px,1.5vw,24px));z-index:3;margin:0 calc(-1 * clamp(14px,1.5vw,24px));padding:10px clamp(14px,1.5vw,24px);background:rgba(255,255,255,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid #e6ebf3}
+}
+@media(min-width:1051px){
+  .dashboard-side .featured-detail,.dashboard-side .dashboard-match{position:sticky;top:calc(var(--dash-top,72px) + 12px);max-height:calc(100vh - var(--dash-top,72px) - 24px);overflow-y:auto}
+}
+@media(min-width:721px) and (max-width:1050px){
+  .dashboard-side{display:flex;flex-direction:column;gap:12px;grid-column:2;grid-row:1;position:sticky;top:calc(var(--dash-top,72px) + 12px);max-height:calc(100vh - var(--dash-top,72px) - 24px);overflow-y:auto;border-radius:20px}
+  .dashboard-side .dashboard-match{grid-column:auto}
+  .dashboard-side>*{flex-shrink:0}
+  .dashboard .dashboard-side .react-actions-top{top:0}
+}
