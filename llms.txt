@@ -14,6 +14,11 @@ Creating an account and the core tools are free; the free plan shows 10 results 
 - [Resume builder](https://fortunejobsai.com/resume-builder.html): build an ATS-friendly resume and download a PDF
 - [About](https://fortunejobsai.com/about.html)
 - [Contact](https://fortunejobsai.com/contact.html): info@fortunejobsai.com
+<!-- BEGIN DEMAND HUBS -->
+- [Remote jobs](https://fortunejobsai.com/jobs/remote/)
+- [Entry-level and new-grad jobs](https://fortunejobsai.com/jobs/entry-level/)
+- [Listed salaries from current postings](https://fortunejobsai.com/salaries/)
+<!-- END DEMAND HUBS -->
 
 ## Example job pages
 - [Software Engineer jobs in Texas](https://fortunejobsai.com/jobs/software-engineer/texas/)
