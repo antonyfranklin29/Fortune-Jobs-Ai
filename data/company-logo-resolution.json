@@ -104542,5 +104542,201 @@
         "domain": "warp.com"
       }
     ]
+  },
+  "digital united": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-24T19:35:29.682Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Digital United",
+        "domain": "digitalunited360.com"
+      },
+      {
+        "name": "Digital United",
+        "domain": "digital-united.vc"
+      },
+      {
+        "name": "Digital United",
+        "domain": "digitalunitedgroup.com"
+      },
+      {
+        "name": "United Digital",
+        "domain": "nonstopconsulting.net"
+      },
+      {
+        "name": "Digital United",
+        "domain": "digitalunited.net"
+      }
+    ]
+  },
+  "hewlett packard enterprise": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-24T19:35:29.953Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Hewlett Packard Enterprise",
+        "domain": "hpe.com"
+      },
+      {
+        "name": "Hewlett Packard Enterprise",
+        "domain": "selectium.com"
+      },
+      {
+        "name": "Hewlett Packard Enterprise",
+        "domain": "hpeengageandgrow.com"
+      },
+      {
+        "name": "Hewlett Packard Enterprise",
+        "domain": "staging--hpe-dev-portal.netlify.app"
+      },
+      {
+        "name": "Hewlett Packard Enterprise",
+        "domain": "cdstechchallenge.com"
+      }
+    ]
+  },
+  "ispot": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-24T19:35:30.223Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "iSpot",
+        "domain": "ispot.tv"
+      },
+      {
+        "name": "iSpot",
+        "domain": "ispot.ai"
+      },
+      {
+        "name": "ISPOT Interactive",
+        "domain": "ispot.com"
+      },
+      {
+        "name": "Ispot Homes",
+        "domain": "ispothomes.com"
+      },
+      {
+        "name": "iSPOT media",
+        "domain": "i-spotmedia.com"
+      }
+    ]
+  },
+  "naval medical command": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-24T19:35:30.500Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Command Medical Products",
+        "domain": "commandmedical.com"
+      },
+      {
+        "name": "Command",
+        "domain": "gocommand.com"
+      },
+      {
+        "name": "Naval",
+        "domain": "navalengineers.org"
+      },
+      {
+        "name": "Command",
+        "domain": "command.com"
+      },
+      {
+        "name": "Naval",
+        "domain": "nav.al"
+      }
+    ]
+  },
+  "new jersey manufacturers": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-24T19:35:30.778Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "New Jersey",
+        "domain": "newjerseywools.co.uk"
+      },
+      {
+        "name": "NEW JERSEY",
+        "domain": "ccnnewjersey.com"
+      },
+      {
+        "name": "New Brunswick, New Jersey",
+        "domain": "cityofnewbrunswick.org"
+      },
+      {
+        "name": "New Jersey",
+        "domain": "onpointnewjersey.com"
+      },
+      {
+        "name": "KIPP New Jersey",
+        "domain": "kippnj.org"
+      }
+    ]
+  },
+  "serko ltd": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-24T19:35:31.070Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Serko",
+        "domain": "serko.com"
+      },
+      {
+        "name": "Serko",
+        "domain": "serko.ai"
+      },
+      {
+        "name": "SERKO",
+        "domain": "serko.com.tr"
+      },
+      {
+        "name": "SERKO USA",
+        "domain": "serkousa.com"
+      },
+      {
+        "name": "Serko Geveltechniek BV",
+        "domain": "serko.nl"
+      }
+    ]
+  },
+  "signalfire": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-24T19:35:31.333Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "SignalFire",
+        "domain": "signalfire.com"
+      },
+      {
+        "name": "Signalfire",
+        "domain": "signalfire.us"
+      },
+      {
+        "name": "SignalFire",
+        "domain": "signalfirehq.com"
+      },
+      {
+        "name": "SignalFire Wireless Telemetry",
+        "domain": "signal-fire.com"
+      },
+      {
+        "name": "Signalfire Internet Services Ltd",
+        "domain": "signalfire.co.uk"
+      }
+    ]
   }
 }
