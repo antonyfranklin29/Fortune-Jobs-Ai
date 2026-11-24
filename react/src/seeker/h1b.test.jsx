@@ -23,3 +23,9 @@ it('live history filter only keeps role/company matches and leaves partner URLs 
  expect(rows).toHaveLength(1);expect(rows[0].apply_url).toBe(job.apply_url);
  const args=historyReadArgs(new URLSearchParams({canonical_role:'eq.data-analyst',source:'eq.jobg8',country:'eq.us'}));expect(args.p_filters.roles).toEqual(['data-analyst']);
 });
+
+it('live partner cards can resolve a clear title without pretending the provider supplied a canonical role',async()=>{
+ config();vi.stubGlobal('fetch',vi.fn(async()=>Response.json([{employer_key:'live example inc',role_id:'data-analyst',fiscal_year:2026}])));
+ render(<H1bBadge job={{...job,canonical_role:undefined,company:'Live Example Inc.'}}/>);
+ expect(await screen.findByRole('link',{name:'Filed H-1B LCAs (FY2026)'})).toBeTruthy();
+});

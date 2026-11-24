@@ -50,6 +50,7 @@ export async function readH1b(config,fetchImpl=fetch) {
   if(batch.length<1000){
    const check=await fetchImpl(config.url+'/rest/v1/h1b_data_state?select=updated_at&singleton=eq.true',{headers,signal:AbortSignal.timeout(8000)});
    if(!check.ok || (await check.json())[0]?.updated_at!==metadata.updated_at)throw Error('H-1B snapshot changed during generation; preserve the previous build.');
+   if(!rows.length)throw Error('Unexpected empty H-1B snapshot; preserving the previous build.');
    return {rows,metadata};
   }
  }

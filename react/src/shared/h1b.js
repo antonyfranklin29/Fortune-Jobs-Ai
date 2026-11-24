@@ -21,7 +21,9 @@ export async function filterHistoryJobs(jobs,signal,fetchImpl=fetch){
 }
 const cache=new Map(),queue=[];let scheduled=false;
 export function badgeFor(job){
- if(!job?.canonical_role || !window.FJ_CONFIG)return Promise.resolve(null);
+ const role=historyRole(job || {});
+ if(!role || !window.FJ_CONFIG)return Promise.resolve(null);
+ job={...job,canonical_role:role};
  const url=window.FJ_CONFIG.url,key=url+'|'+employerKey(job.company)+'|'+job.canonical_role,cached=cache.get(key);
  if(cached?.until>Date.now())return Promise.resolve(cached.value);
  return new Promise(resolve=>{

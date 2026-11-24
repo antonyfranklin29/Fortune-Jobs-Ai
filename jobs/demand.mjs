@@ -10,6 +10,7 @@ export function publicRows(catalogue,now) {
 }
 function remoteModel(rows,role,date) {
  const label=role?.name || 'U.S.',target={role:role?.id || '',title:role?.name || 'remote'},facts=areaFacts(rows,target.role);
+ facts.entry=rows.filter(job=>entryEvidence(job).entry && !entryEvidence(job).internship).length;
  const faq=areaFaq(target,facts,date,'the United States',rows).filter(item=>!item.q.includes('license'));
  const restriction={q:'Is every listing fully remote from any state?',a:'Check each listing; some remote jobs are limited to certain states or include location and worksite requirements. A remote label does not mean work from anywhere.'};
  const answer=`Fortune Jobs AI lists ${fmt(rows.length)} open remote ${role?role.name+' ':''}jobs, updated ${dateLabel(date)}. `+answerBlock(target,facts,date,'the United States').replace(/^Fortune Jobs AI lists[^.]+\. /,'');
@@ -26,8 +27,8 @@ function entryModel(rows,role,region,date) {
  const label=role?.name || 'U.S.',place=region?.name || 'the United States',facts=areaFacts(jobs,role?.id || '');
  const years=jobs.filter(job=>entryEvidence(job).years).length,noExperience=jobs.filter(job=>entryEvidence(job).noExperience).length;
  const target={role:role?.id || '',title:role?.name || 'entry-level and new-grad'};
- const faq=areaFaq(target,facts,date,place,jobs).filter(item=>!item.q.includes('entry-level') && !item.q.includes('license')).slice(0,4);
- faq.push({q:'Do I need experience?',a:`${fmt(years)} listings mention 0–2 years and ${fmt(noExperience)} say no experience required. Other requirements vary; review the original posting. A title match alone does not confirm eligibility.`});
+ const faq=areaFaq(target,facts,date,place,jobs).filter(item=>!item.q.startsWith('Are there entry-level') && !item.q.includes('license')).slice(0,4);
+ faq.push({q:'Do I need experience?',a:years || noExperience?`${fmt(years)} listings mention 0–2 years and ${fmt(noExperience)} say no experience required. Other requirements vary; review the original posting. A title match alone does not confirm eligibility.`:'These listings match explicit entry-level, junior, graduate or early-career titles. A title alone does not confirm an experience requirement; review the original posting.'});
  const answer=`Fortune Jobs AI lists ${fmt(jobs.length)} open entry-level and new-grad ${role?role.name+' ':''}jobs in ${place}, updated ${dateLabel(date)}. `+
   (internships?`${fmt(internships)} internship listings are shown separately and are not included in that job count. `:'')+
   'Matches use explicit junior, graduate and early-career titles or descriptions mentioning 0–2 years or no experience required. Check each original posting for requirements. This job portal is for every job seeker; all experience levels remain available.';
@@ -76,4 +77,14 @@ export function planSalary(catalogue,roles,regions,now,date) {
   {q:'Why are some roles or states missing?',a:'A salary page requires at least eight current listings with usable pay in the same unit. We omit a page when that threshold is not met.'},
   {q:'Are these guaranteed offers?',a:'No. Listed pay can change and an offer may depend on the employer and candidate. Confirm the full range and terms in the original posting.'}]});
  return pages;
+}
+
+// National all-levels role pages give each filtered role page a real same-role escape route.
+export function planAllLevels(catalogue,roles,now,date,requestedRoles) {
+ const rows=publicRows(catalogue,now);
+ return roles.filter(role=>requestedRoles.has(role.id)).flatMap(role=>{
+  const own=rows.filter(job=>job.canonical_role===role.id);if(own.length<5)return [];
+  const facts=areaFacts(own,role.id),target={role:role.id,title:role.name};
+  return [{kind:'all-levels',path:'/jobs/'+role.id+'/',role:role.id,title:role.name,h1:role.name+' jobs in the United States',answer:answerBlock(target,facts,date,'the United States'),rows:own,faq:areaFaq(target,facts,date,'the United States',own)}];
+ });
 }

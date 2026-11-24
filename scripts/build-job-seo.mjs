@@ -9,7 +9,7 @@ import {
 
 import {planH1b,readH1b,employerKey,employerAnchor,DOL_SOURCE,FILING_CAVEAT} from '../jobs/h1b.mjs';
 import {entryEvidence} from '../jobs/levels.mjs';
-import {planRemote,planEntry,planSalary,typicalPay} from '../jobs/demand.mjs';
+import {planRemote,planEntry,planSalary,typicalPay,planAllLevels,stateSlug} from '../jobs/demand.mjs';
 import { HUBS, MIN_HUB_JOBS, advertiserName, areaFacts, answerBlock, areaFaq, dateLabel, faqSchema, hubAnswer, hubFaq, payRange, fmt } from '../jobs/geo.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
@@ -36,7 +36,7 @@ const siteSearch = ({ title, city, state }) => '/results.html?' + new URLSearchP
   mode: 'quick', country: 'us', q: title, ...(city && { location: city + ', ' + state }),
 });
 
-function page({ path, title, description, body, faq = [], noindex = false, live = false, trail = [['Home', '/'], ['Jobs', '/jobs/']] }) {
+function page({ path, title, description, body, faq = [], faqOnly = false, noindex = false, live = false, trail = [['Home', '/'], ['Jobs', '/jobs/']] }) {
   const breadcrumbs = { '@context': 'https://schema.org', '@type': 'BreadcrumbList',
     itemListElement: trail.map(([name, path], index) => ({
       '@type': 'ListItem', position: index + 1, name, item: SITE + path,
@@ -53,7 +53,7 @@ function page({ path, title, description, body, faq = [], noindex = false, live 
     (noindex ? '<meta name="robots" content="noindex,follow">\n' : '') +
     '<link rel="icon" href="/favicon.ico?v=2" sizes="48x48"><link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2"><link rel="stylesheet" href="/jobs/jobs.css">\n' +
     '<script src="/config.js"></script>' + (live ? '<script type="module" src="/jobs/live.mjs"></script>\n' : '') +
-    '<script type="application/ld+json">' + schema + '</script>\n' +
+    (faqOnly ? '' : '<script type="application/ld+json">' + schema + '</script>\n') +
     (faq.length ? '<script type="application/ld+json">' + JSON.stringify(faqSchema(faq)).replaceAll('<', '\\u003c') + '</script>\n' : '') +
     '<script defer src="/source-tracking.js"></script></head><body><header><nav aria-label="Main navigation">' +
     '<a class="brand" href="/"><img src="/favicon.svg" alt="">Fortune Jobs AI</a>' +
@@ -152,7 +152,7 @@ export function salaryDetails(model) {
  if(!model.stats)return '';
  const stats=model.stats;
  return '<section><h2>Listed pay summary</h2><p>'+stats.count+' usable listings; median listed midpoint: '+escape(typicalPay(stats.median,stats.unit))+'.</p>'+
- (stats.employers.length?'<h3>Highest listed employer medians</h3><table><thead><tr><th>Employer</th><th>Median listed midpoint</th><th>Listings</th></tr></thead><tbody>'+stats.employers.map(item=>'<tr><td>'+escape(item.name)+'</td><td>'+escape(typicalPay(item.median,stats.unit))+'</td><td>'+item.count+'</td></tr>').join('')+'</tbody></table>':'')+'</section>';
+ (stats.employers.length?'<h3>Highest listed employer medians</h3><div class="hub-table" role="region" tabindex="0" aria-label="Listed employer pay medians"><table><thead><tr><th>Employer</th><th>Median listed midpoint</th><th>Listings</th></tr></thead><tbody>'+stats.employers.map(item=>'<tr><td>'+escape(item.name)+'</td><td>'+escape(typicalPay(item.median,stats.unit))+'</td><td>'+item.count+'</td></tr>').join('')+'</tbody></table></div>':'')+'</section>';
 }
 export function h1bDetails(model,catalogue = []) {
  if(model.kind!=='h1b')return '';
@@ -167,12 +167,44 @@ export function h1bDetails(model,catalogue = []) {
   return '<tr'+id+'><td>'+escape(row.employer_name)+jobs+'</td><td>'+escape(row.state_code)+'</td><td>'+escape(row.soc_code)+'</td><td>FY'+row.fiscal_year+'</td><td>'+row.certified_lcas+'</td><td>'+escape(row.median_wage_annual==null?'Not available':typicalPay(Number(row.median_wage_annual),'year'))+'</td></tr>';
  }).join('')+'</tbody></table></div>';
 }
+export function discoveryChips(target,paths) {
+ if(!target.role)return '';
+ const state=target.stateName || '',role=target.role,choose=(prefix)=>{
+  const slice=prefix+role+'/'+(state?stateSlug(state)+'/':'');
+  return paths.has(slice)?slice:paths.has(prefix+role+'/')?prefix+role+'/':null;
+ };
+ const links=[['Remote','/jobs/remote/'+role+'/'],['Entry-level',choose('/jobs/entry-level/')],['Salary',choose('/salaries/')],['H-1B filers',choose('/h1b/')]].filter(([,path])=>path && paths.has(path));
+ return links.length?'<nav class="discovery-chips" aria-label="Related role pages">'+links.map(([label,path])=>link(path,label)).join(' ')+'</nav>':'';
+}
+export function demandDirectory(models) {
+ const labels={'/jobs/remote/':'Remote jobs','/jobs/entry-level/':'Entry-level and new-grad jobs','/salaries/':'Listed salaries','/h1b/':'H-1B filing history'};
+ return '<section><h2>More ways to explore</h2><ul>'+models.filter(model=>labels[model.path]).map(model=>'<li>'+link(model.path,labels[model.path])+'</li>').join('')+'<li>'+link('/application-tracker.html','Free application tracker')+'</li></ul></section>';
+}
+export function updateLlms(text,paths) {
+ const start='<!-- BEGIN DEMAND HUBS -->',end='<!-- END DEMAND HUBS -->';
+ text=text.replace(new RegExp(start+'[\\s\\S]*?'+end+'\\n?'),'');
+ const options=[['Remote jobs','/jobs/remote/'],['Entry-level and new-grad jobs','/jobs/entry-level/'],['Listed salaries from current postings','/salaries/'],['H-1B filer history (not a sponsorship guarantee)','/h1b/']];
+ const lines=options.filter(([,path])=>paths.has(path)).map(([label,path])=>'- ['+label+']('+SITE+path+')');
+ const at=text.indexOf('\n## ',text.indexOf('## Main pages')+13),block=start+'\n'+lines.join('\n')+'\n'+end+'\n';
+ return at<0?text.trimEnd()+'\n'+block:text.slice(0,at).trimEnd()+'\n'+block+text.slice(at);
+}
+async function retireDemandPages(paths) {
+ const manifest=join(ROOT,'jobs/demand-pages.json');
+ const previous=JSON.parse(await readFile(manifest,'utf8').catch(error=>{if(error.code==='ENOENT')return '{"paths":[]}';throw error;}));
+ for(const path of previous.paths || []){
+  if(paths.has(path) || !/^\/(?:jobs|salaries|h1b)\/(?:[a-z0-9-]+\/)*$/.test(path))continue;
+  const file=join(ROOT,path.slice(1),'index.html'),html=await readFile(file,'utf8').catch(error=>{if(error.code==='ENOENT')return '';throw error;});
+  if(html.startsWith('<!doctype html>\n'+GENERATED))await unlink(file);
+ }
+ await writeFile(manifest,JSON.stringify({paths:[...paths].sort()},null,2)+'\n');
+}
 export function renderDemand(model,date,paths = new Set(),catalogue = []) {
  const links=(model.children || []).filter(child=>paths.has(child.path));
- const list=links.length?'<section><h2>Browse roles and locations</h2><ul>'+links.map(child=>'<li>'+link(child.path,child.h1)+' ('+child.rows.length+')</li>').join('')+'</ul></section>':'';
+ const countLabel=child=>child.kind==='h1b'?child.employerCount+' employers':child.kind==='entry-level'?child.count+' jobs'+(child.internships?' + '+child.internships+(child.internships===1?' internship':' internships'):''):child.kind==='salary'?child.stats.count+' listed salaries':child.rows.length+' jobs';
+ const list=links.length?'<section><h2>Browse roles and locations</h2><ul>'+links.map(child=>'<li>'+link(child.path,child.h1)+' ('+countLabel(child)+')</li>').join('')+'</ul></section>':'';
  return page({path:model.path,title:model.h1,description:model.answer,faq:model.faq,
-  body:'<h1>'+escape(model.h1)+'</h1><p class="geo-answer">'+escape(model.answer)+'</p>'+updatedLine(date)+(model.kind==='salary'?salaryDetails(model):'')+h1bDetails(model,catalogue)+list+
-  '<ul class="listings">'+listingCards(model.rows)+'</ul>'+renderFaq(model.faq),
+  faqOnly:true,body:'<h1>'+escape(model.h1)+'</h1><p class="geo-answer">'+escape(model.answer)+'</p>'+updatedLine(date)+discoveryChips(model,paths)+(model.role && model.kind==='entry-level' && paths.has('/jobs/'+model.role+'/')?'<p>'+link('/jobs/'+model.role+'/','Browse this role at all experience levels')+'</p>':'')+(model.role && model.kind==='salary'?'<p>'+link('/results.html?'+new URLSearchParams({mode:'quick',country:'us',q:model.title,...(model.stateName?{location:model.stateName}:{})}),'See open jobs')+'</p>':'')+(model.kind==='salary'?salaryDetails(model):'')+h1bDetails(model,catalogue)+list+
+  (model.rows.length?'<ul class="listings">'+listingCards(model.rows)+'</ul>':'')+renderFaq(model.faq),
   trail:[['Home','/'],['Jobs','/jobs/'],[model.h1,model.path]]});
 }
 
@@ -180,7 +212,7 @@ export function renderCity(target, rows, details, date, related = []) {
   return renderArea(target, rows, details, date, related);
 }
 
-export function renderArea(target, rows, details, date, related = [], now = Date.parse(date + 'T12:00:00Z')) {
+export function renderArea(target, rows, details, date, related = [], now = Date.parse(date + 'T12:00:00Z'), discoveryPaths = new Set()) {
   rows = rows.filter(job => advertiserName(job.company));
   const { role, city, state, stateName } = target;
   const place = areaName(target);
@@ -201,7 +233,7 @@ export function renderArea(target, rows, details, date, related = [], now = Date
   const body = '<h1>' + escape(heading) + '</h1><p class="geo-answer">' +
     (indexable ? escape(answerBlock(target, facts, date, place)) : count ? 'Browse open ' + escape(target.title) + ' listings in ' + escape(place) + '. Use the original listing to confirm requirements and apply.' :
       'Our catalogue has no open ' + escape(target.title) + ' listings in ' + escape(place) + ' in this snapshot. Try a broader search.') +
-    '</p>' + updatedLine(date) + '<p>' + link(siteSearch(target), city ? 'Search this city in Quick Match' : 'Search this role nationwide') + '</p>' +
+    '</p>' + updatedLine(date) + discoveryChips(target,discoveryPaths) + '<p>' + link(siteSearch(target), city ? 'Search this city in Quick Match' : 'Search this role nationwide') + '</p>' +
     '<section aria-label="Open listings" data-job-page="area" data-city="' + escape(city || '') +
     '" data-state="' + state + '" data-role="' + role + '" data-detail-ids="' + detailIds.join(',') +
     '"><p role="status">' + status + '</p><ul class="listings">' + items + '</ul></section>' + renderInsights(target, rows, now) + renderFaq(faq) + relatedLinks;
@@ -337,14 +369,25 @@ async function build() {
   const catalogue = await readOpenCatalogue(config);
   const candidates = await getEmployerPostings(config);
   const h1b = await readH1b(config);
+  if(!h1b.metadata){
+    const previous=JSON.parse(await readFile(join(ROOT,'jobs/demand-pages.json'),'utf8').catch(error=>{if(error.code==='ENOENT')return '{"paths":[]}';throw error;}));
+    if(previous.paths?.some(path=>path.startsWith('/h1b/')))throw Error('H-1B data unavailable; preserving previously published pages.');
+  }
   const postings = candidates.filter(job => eligiblePosting(job, now));
   const details = new Set(postings.map(job => String(job.id)));
   const { cityPages, statePages } = planPages(catalogue, roles, regions, now);
   const indexed = [...statePages, ...cityPages.filter(({ rows }) => rows.length >= MIN_CITY_JOBS)];
   const hubs = planHubs(catalogue, roles, regions, now);
   const demand = [...planRemote(catalogue,roles,now,date),...planEntry(catalogue,roles,regions,now,date),...planSalary(catalogue,roles,regions,now,date),...planH1b(h1b.rows,h1b.metadata,roles,regions,date)];
-  for (const model of demand) model.children=demand.filter(child=>child!==model && child.role);
-  for (const model of demand) await writePage(model.path,renderDemand(model,date,new Set(demand.map(item=>item.path)),catalogue));
+  demand.push(...planAllLevels(catalogue,roles,now,date,new Set(demand.map(model=>model.role).filter(Boolean))));
+  const allPaths=new Set([...demand.map(model=>model.path),...indexed.map(({target})=>areaPath(target))]);
+  for(const model of demand){
+    model.children=model.kind==='all-levels'
+      ? indexed.filter(({target})=>target.role===model.role && !target.city).map(({target,rows})=>({path:areaPath(target),h1:target.title+' jobs in '+target.stateName,rows}))
+      : demand.filter(child=>child!==model && child.kind===model.kind && (model.role?child.role===model.role && child.state && !model.state:child.role && !child.state));
+    await writePage(model.path,renderDemand(model,date,allPaths,catalogue));
+  }
+  await retireDemandPages(new Set(demand.map(model=>model.path)));
   for (const hub of hubs) await writePage('/jobs/' + hub.id + '/', renderHub(hub, indexed, date));
   await prunePages('', new Set(hubs.map(hub => hub.id)), name => HUBS.some(hub => hub.id === name));
   for (const { target, rows } of [...statePages, ...cityPages]) {
@@ -354,7 +397,7 @@ async function build() {
     const samePlace = others.filter(page => page.target.role !== target.role && page.target.state === target.state &&
       (page.target.city || '') === (target.city || '')).sort((a, b) => b.rows.length - a.rows.length).slice(0, 6);
     const related = [...sameRole, ...samePlace];
-    await writePage(areaPath(target), renderArea(target, rows, details, date, related));
+    await writePage(areaPath(target), renderArea(target, rows, details, date, related, now, allPaths));
   }
   for (const job of postings) await writePage(postingPath(job.id), renderPosting(job));
   await prunePages('posting', details, name => /^\d+$/.test(name));
@@ -375,18 +418,22 @@ async function build() {
     path: '/jobs/', title: 'Browse jobs by state and city',
     description: 'Browse ' + indexed.length + ' job search pages by state, city and role.',
     body: '<h1>Browse jobs by state and city</h1><p>Explore current openings by location and role, or ' +
-      link('/find-jobs.html', 'search all jobs') + '.</p>' + hubDirectory(hubs) + sections,
-    noindex: indexed.length === 0,
+      link('/find-jobs.html', 'search all jobs') + '.</p>' + hubDirectory(hubs) + demandDirectory(demand) + sections,
+    noindex: indexed.length === 0 && demand.length === 0,
   }));
   const sitemap = join(ROOT, 'sitemap.xml');
   const paths = [
-    ...(indexed.length ? ['/jobs/'] : []),
+    ...(indexed.length || demand.length ? ['/jobs/'] : []),
+    '/application-tracker.html',
     ...demand.map(model=>model.path),
     ...hubs.map(hub => '/jobs/' + hub.id + '/'),
     ...indexed.map(({ target }) => areaPath(target)),
     ...postings.map(job => postingPath(job.id)),
   ];
   await writeFile(sitemap, addSitemapUrls(await readFile(sitemap, 'utf8'), paths, date));
+  const llms=join(ROOT,'llms.txt');
+  await writeFile(llms,updateLlms(await readFile(llms,'utf8'),allPaths));
+  console.log('Demand page counts: '+JSON.stringify(Object.fromEntries(['remote','entry-level','salary','h1b','all-levels'].map(kind=>[kind,demand.filter(model=>model.kind===kind).length]))));
   console.log(statePages.length + ' state pages, ' + cityPages.length + ' city pages, ' +
     hubs.length + ' category hubs, ' + indexed.length + ' indexable area pages, ' + postings.length + ' eligible employer posting pages.');
 }

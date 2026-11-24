@@ -38,3 +38,9 @@ thead { background: #10243b; color: white; }
 .category-hubs li { background: white; padding: 16px; border: 1px solid #dbe3e8; border-radius: 12px; }
 
 .hub-table:focus-visible { outline: 3px solid #996d12; outline-offset: 4px; }
+
+.discovery-chips { width:100%; justify-content:flex-start; padding:12px 0; }
+.discovery-chips a { display:inline-block; border:1px solid #dbe3e8; border-radius:20px; padding:7px 13px; background:white; }
+.internship-label { display:inline-block; margin-top:8px; padding:3px 9px; border-radius:12px; background:#fff0c9; font-weight:700; }
+
+.listings { overflow-wrap: anywhere; }
