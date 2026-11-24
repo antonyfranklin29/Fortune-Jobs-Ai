@@ -1,6 +1,6 @@
 # Fortune Jobs AI
 
-> Fortune Jobs AI (fortunejobsai.com) is a free AI-powered job portal for college students, new graduates and job seekers. It lists 20,000+ open jobs refreshed daily, gives a free ATS resume score, ranks jobs against your resume, filters for jobs that mention visa sponsorship or OPT, and tracks your applications.
+> Fortune Jobs AI (fortunejobsai.com) is a free AI-powered job portal for college students, new graduates and job seekers. It lists open jobs refreshed daily, gives a free ATS resume score, ranks jobs against your resume, filters for jobs that mention visa sponsorship or OPT, and tracks your applications.
 
 Jobs come from employer career boards (Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Breezy), USAJOBS and job-search partners (Adzuna, WhatJobs). Every listing links to the original posting. Most jobs are tech and data roles; healthcare jobs such as registered nurse are growing. Jobs cover all 50 states and Washington, DC.
 

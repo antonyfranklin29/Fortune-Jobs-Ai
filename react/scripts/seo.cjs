@@ -4,11 +4,11 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const SITE = 'https://fortunejobsai.com';
-const IMAGE = `${SITE}/og-image.jpg`;
+const IMAGE = `${SITE}/og-image-v2.jpg`;
 
 const PAGES = {
   'index.html': { url: '/', title: 'Fortune Jobs AI: AI Job Search & Free ATS Resume Score',
-    description: 'Free AI-powered job portal: search 20,000+ jobs from employer career sites and trusted job networks. Get a free ATS resume score, AI job matching and AI interview coaching.' },
+    description: 'Free AI-powered job portal: search jobs from employer career sites and trusted job networks, updated daily. Get a free ATS resume score, AI job matching and AI interview coaching.' },
   'find-jobs.html': { url: '/find-jobs.html', title: 'Find U.S. Jobs by Title and City | Fortune Jobs AI',
     description: 'Search U.S. jobs by title, city or state, including remote jobs. Each listing links to the original posting. Free job search with AI matching.' },
   'application-tracker.html': { url:'/application-tracker.html',title:'Free Job Application Tracker | Fortune Jobs AI',description:'Track saved jobs, applications, interviews and offers in your free Fortune Jobs AI account. Update stages and keep private notes.' },

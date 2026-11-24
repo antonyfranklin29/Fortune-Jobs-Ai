@@ -73,8 +73,8 @@ export function fullTitle(title) {
 export function socialTags(title, description, url) {
   return '<meta property="og:type" content="website"><meta property="og:site_name" content="Fortune Jobs AI">' +
     '<meta property="og:title" content="' + escape(title) + '"><meta property="og:description" content="' + escape(description) + '">' +
-    '<meta property="og:url" content="' + url + '"><meta property="og:image" content="' + SITE + '/og-image.jpg">' +
-    '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="' + SITE + '/og-image.jpg">\n';
+    '<meta property="og:url" content="' + url + '"><meta property="og:image" content="' + SITE + '/og-image-v2.jpg">' +
+    '<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="' + SITE + '/og-image-v2.jpg">\n';
 }
 
 const DAY = 86400000;
