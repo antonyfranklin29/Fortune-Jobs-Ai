@@ -14,7 +14,19 @@ import { MatchPanel } from './MatchPanel.jsx';
 import { SignupNudge } from './SignupNudge.jsx';
 import { ProCard } from '../shared/ProCard.jsx';
 import { PRO, isActive, mySubscription } from '../shared/billing.js';
+
 import '../styles/dashboard.css';
+
+// Pro results come in pages of 15 so long result lists stay easy to scan.
+export const PAGE_SIZE = 15;
+export function Pager({ page, pages, onPage }) {
+  if (pages <= 1) return null;
+  return <nav className="dashboard-pager" aria-label="Result pages">
+    <button type="button" disabled={page === 0} onClick={() => onPage(page - 1)} aria-label="Previous page">‹ Prev</button>
+    {Array.from({ length: pages }, (_, index) => <button type="button" key={index} aria-current={index === page ? 'page' : undefined} className={index === page ? 'active' : undefined} onClick={() => onPage(index)}>{index + 1}</button>)}
+    <button type="button" disabled={page === pages - 1} onClick={() => onPage(page + 1)} aria-label="Next page">Next ›</button>
+  </nav>;
+}
 
 const params = new URLSearchParams(window.location.search);
 const initial = Object.fromEntries(params);
@@ -74,6 +86,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
   const [jobs, setJobs] = useState([]);
   const [sort, setSort] = useState('relevance');
   const [selected, setSelected] = useState(0);
+  const [page, setPage] = useState(0);
   // Phones show the list and the details one after the other: tapping a job opens its
   // details, and "Back to results" returns to the same row.
   const phone = () => typeof window !== 'undefined' && window.matchMedia?.('(max-width:720px)').matches;
@@ -83,7 +96,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
   }
   function backToList() {
     const rows = document.querySelectorAll('.featured-list .featured-card');
-    (rows[selected] || document.querySelector('.dashboard-list'))?.scrollIntoView({ block: 'center' });
+    (rows[selected - page * PAGE_SIZE] || document.querySelector('.dashboard-list'))?.scrollIntoView({ block: 'center' });
   }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -152,6 +165,13 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
     ? [...jobs].sort((a, b) => (Date.parse(b.posted_at) || 0) - (Date.parse(a.posted_at) || 0))
     : jobs;
   const job = visible[selected];
+  const pages = Math.ceil(visible.length / PAGE_SIZE);
+  const start = page * PAGE_SIZE;
+  const pageJobs = visible.slice(start, start + PAGE_SIZE);
+  function goToPage(next) {
+    setPage(next); setSelected(next * PAGE_SIZE);
+    requestAnimationFrame(() => document.querySelector('.dashboard-list')?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
+  }
   return <div className="dashboard"><Header />
     <main>
       <SearchForm initial={{
@@ -159,7 +179,7 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
         q: initial.q || (initial.resume === '1' ? profile?.current_title : ''),
         location: initial.location || (initial.resume === '1' ? [profile?.city, profile?.region].filter(Boolean).join(', ') : ''),
         country: initial.country || (initial.resume === '1' ? profile?.country : ''),
-      }} sort={sort} onSort={value => { setSort(value); setSelected(0); }} />
+      }} sort={sort} onSort={value => { setSort(value); setSelected(0); setPage(0); }} />
       {afterSearch}
       <div className="dashboard-body">
         {error && <p className="dashboard-status" role="alert">{error}</p>}
@@ -169,10 +189,11 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
         {saveMessage && <p className="dashboard-status" role="status">{saveMessage}</p>}
         {!!job && <div className="dashboard-grid">
           <section className="dashboard-card dashboard-list" aria-label="Job results">
-            <h2>{visible.length} {visible.length === 1 ? 'job' : 'jobs'} found</h2>
+            <h2>{visible.length} {visible.length === 1 ? 'job' : 'jobs'} found{pages > 1 && <span className="dashboard-page-note"> · page {page + 1} of {pages}</span>}</h2>
             {Number(initial.salary_min) > 0 && <p className="dashboard-salary-note">Only jobs whose listed US-dollar pay reaches ${Number(initial.salary_min).toLocaleString('en-US')} a year. Listings without a clear salary are left out.</p>}
             {authChecked && !account && <SignupNudge href={signInToSaveUrl(window.location)} />}
-            <JobList jobs={visible} selected={selected} onSelect={selectJob} profile={profile} />
+            <JobList jobs={pageJobs} selected={selected - start} onSelect={index => selectJob(start + index)} profile={profile} />
+            <Pager page={page} pages={pages} onPage={goToPage} />
             {initial.mode !== 'live' && initial.q && <a className="dashboard-live-link" href={liveJobsUrl(initial)}>Also see live jobs from our partners →</a>}
             <ProCard subscription={subscription} />
           </section>
