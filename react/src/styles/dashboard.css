@@ -168,7 +168,6 @@
   .dashboard .featured-location { color:#5b6880; }
   .dashboard .featured-location::before { content:none; }
   .dashboard .featured-card .featured-source { grid-column:2; font-size:13px; color:#5b6880; margin-top:4px; }
-  .dashboard-back { display:inline-flex; align-items:center; gap:6px; justify-self:start; margin:4px 0 -4px; padding:8px 4px; border:0; background:none; color:#1d2b47; font-weight:600; font-size:15px; scroll-margin-top:84px; }
 }
 
 /* Phones: frosted-glass floating tab bar (see-through, blurred, soft edge light). */
@@ -292,3 +291,20 @@
   .dashboard-side>*{flex-shrink:0}
   .dashboard .dashboard-side .react-actions-top{top:0}
 }
+/* Phones: the open job is a full-screen card over the list. */
+.dashboard-sheet-bar{display:none}
+@media(max-width:720px){
+  .dashboard-side{display:none}
+  .dashboard-side.sheet-open{display:block;position:fixed;inset:0;z-index:1000;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#f4f7fc;padding:0 12px calc(24px + env(safe-area-inset-bottom));animation:fja-sheet-up .22s ease-out}
+  .dashboard-side.sheet-open>*+*{margin-top:12px}
+  .dashboard-sheet-bar{display:flex;align-items:center;gap:6px;position:sticky;top:0;z-index:4;margin:0 -12px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #e1e8f1}
+  .dashboard-back{display:inline-flex;align-items:center;padding:8px 6px;border:0;background:none;color:#10243b;font-weight:700;font-size:16px;cursor:pointer}
+  .dashboard-sheet-count{margin-left:auto;font-size:13px;color:#5b6880}
+  .dashboard-sheet-step{width:38px;height:38px;border-radius:10px;border:1px solid #e1e5eb;background:#fff;color:#10243b;font-size:20px;line-height:1;cursor:pointer}
+  .dashboard-sheet-step:disabled{opacity:.35}
+  .dashboard .dashboard-side.sheet-open .react-actions-top{position:sticky;top:calc(55px + env(safe-area-inset-top));z-index:3;margin:0 calc(-1 * clamp(14px,1.5vw,24px));padding:10px clamp(14px,1.5vw,24px);background:rgba(255,255,255,.97);border-bottom:1px solid #e6ebf3}
+  body.job-sheet-open{overflow:hidden}
+  body.job-sheet-open nav.mobile-tabs{display:none}
+}
+@keyframes fja-sheet-up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.dashboard-side.sheet-open{animation:none}}

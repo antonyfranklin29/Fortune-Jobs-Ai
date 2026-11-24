@@ -108,13 +108,29 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
     setTop(); window.addEventListener('resize', setTop);
     return () => window.removeEventListener('resize', setTop);
   }, []);
+  // Phones: tapping a job opens it as a full-screen card over the list (the list never moves).
+  // Back, the phone's back gesture or Esc closes it; ‹ › flips to the previous/next job.
+  const [sheet, setSheet] = useState(false);
+  useEffect(() => {
+    const onPop = () => setSheet(false);
+    const onKey = event => { if (event.key === 'Escape') closeSheet(); };
+    window.addEventListener('popstate', onPop); window.addEventListener('keydown', onKey);
+    return () => { window.removeEventListener('popstate', onPop); window.removeEventListener('keydown', onKey); };
+  }, []);
+  useEffect(() => {
+    document.body.classList.toggle('job-sheet-open', sheet);
+    return () => document.body.classList.remove('job-sheet-open');
+  }, [sheet]);
   function selectJob(index) {
     setSelected(index);
-    if (phone()) requestAnimationFrame(() => document.getElementById('jobDetailTop')?.scrollIntoView({ block: 'start' }));
+    if (phone() && !sheet) { setSheet(true); window.history.pushState({ ...(window.history.state || {}), fjSheet: true }, ''); }
   }
-  function backToList() {
-    const rows = document.querySelectorAll('.featured-list .featured-card');
-    (rows[selected - page * PAGE_SIZE] || document.querySelector('.dashboard-list'))?.scrollIntoView({ block: 'center' });
+  function closeSheet() {
+    if (window.history.state?.fjSheet) window.history.back(); else setSheet(false);
+  }
+  function stepJob(delta) {
+    const next = Math.min(Math.max(selected + delta, 0), visible.length - 1);
+    setSelected(next); setPage(Math.floor(next / PAGE_SIZE));
   }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -215,8 +231,13 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
             {initial.mode !== 'live' && initial.q && <a className="dashboard-live-link" href={liveJobsUrl(initial)}>Also see live jobs from our partners →</a>}
             <ProCard subscription={subscription} />
           </section>
-          <button type="button" className="dashboard-back" id="jobDetailTop" onClick={backToList}>← Back to results</button>
-          <div className="dashboard-side" ref={sideRef}>
+          <div className={'dashboard-side' + (sheet ? ' sheet-open' : '')} ref={sideRef} {...(sheet ? { role: 'dialog', 'aria-modal': 'true', 'aria-label': job.job_title } : {})}>
+            <div className="dashboard-sheet-bar">
+              <button type="button" className="dashboard-back" onClick={closeSheet}>← Back</button>
+              <span className="dashboard-sheet-count">{selected + 1} of {visible.length}</span>
+              <button type="button" className="dashboard-sheet-step" aria-label="Previous job" disabled={selected === 0} onClick={() => stepJob(-1)}>‹</button>
+              <button type="button" className="dashboard-sheet-step" aria-label="Next job" disabled={selected >= visible.length - 1} onClick={() => stepJob(1)}>›</button>
+            </div>
             <JobDetail job={job} profile={profile} saved={savedKeys.has(jobKey(job))} onSave={toggleSave} dashboard />
             <MatchPanel job={job} profile={profile} saved={savedKeys.has(jobKey(job))} />
           </div>
