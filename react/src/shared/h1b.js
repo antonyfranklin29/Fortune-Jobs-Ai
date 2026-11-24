@@ -1,10 +1,11 @@
+import {h1bReady} from '../seeker/workAuthorization.js';
 import {employerKey,employerAnchor} from '../../../jobs/h1b.mjs';
 import roles from '../../../config/job-roles.json' with {type:'json'};
 export {employerKey};
 export const historyRole = job => job.canonical_role || roles.roles.find(role=>role.include.some(p=>new RegExp(p,'i').test(job.job_title || '')) && !role.exclude.some(p=>new RegExp(p,'i').test(job.job_title || '')))?.id;
 const unavailable=()=>Object.assign(new Error('H-1B filing history is not available yet. Try another work-authorization option or search without this filter.'),{code:'H1B_UNAVAILABLE'});
 export async function historyMatches(jobs,signal,fetchImpl=fetch) {
- const config=window.FJ_CONFIG;if(!config)return [];
+ const config=window.FJ_CONFIG;if(!config || !h1bReady())return [];
  const pairs=[...new Map(jobs.map(job=>({company:job.company,role_id:historyRole(job)})).filter(pair=>pair.company && pair.role_id).map(pair=>[employerKey(pair.company)+'|'+pair.role_id,pair])).values()];
  if(!pairs.length)return [];
  const response=await fetchImpl(config.url+'/rest/v1/rpc/h1b_job_badges',{method:'POST',headers:{apikey:config.key,Authorization:'Bearer '+config.key,'Content-Type':'application/json'},signal,body:JSON.stringify({p_pairs:pairs.slice(0,100)})});

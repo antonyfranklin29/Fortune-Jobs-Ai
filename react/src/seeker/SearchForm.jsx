@@ -2,7 +2,7 @@ import { careRole, jobTags, ROLE_OPTIONS, TAG_OPTIONS } from '../shared/jobTags.
 import React, { useState } from 'react';
 import { SuggestInput } from './SuggestInput.jsx';
 import { SmartSearch } from './AiTools.jsx';
-import { WORK_AUTHORIZATION_OPTIONS, workAuthorizationFilter } from './workAuthorization.js';
+import { visibleWorkAuthorizationOptions, workAuthorizationFilter } from './workAuthorization.js';
 import { MIN_CHARS, SEARCH_COUNTRIES, exactCountry, fetchCities, localPlaces, matchTitles, mergePlaces, placeLabel } from './suggest.js';
 
 const KIND_LABEL = { title: 'Job title', skill: 'Skill', company: 'Company' };
@@ -85,7 +85,7 @@ export function SearchForm({ initial = {}, sort, onSort }) {
       <option value="">Job Category</option>
       {['Data Analyst', 'Software Engineer', 'Data Engineer', 'Business Analyst', ...ROLE_OPTIONS.map(role => role.name)].map(role => <option key={role}>{role}</option>)}
     </select></label>
-    <label className="filter-pill"><select aria-label="Work authorization" value={sponsorship} onChange={event => setSponsorship(event.target.value)}>{WORK_AUTHORIZATION_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+    <label className="filter-pill"><select aria-label="Work authorization" value={sponsorship} onChange={event => setSponsorship(event.target.value)}>{visibleWorkAuthorizationOptions().map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
     {showCareFilters && Object.entries(TAG_OPTIONS).map(([key,values]) => <label className="filter-pill" key={key}>
       <select aria-label={key[0].toUpperCase()+key.slice(1)} value={tags[key]} onChange={event => setTags(previous => ({ ...previous, [key]: event.target.value }))}>
         <option value="">{key[0].toUpperCase()+key.slice(1)}</option>{values.map(value => <option key={value}>{value}</option>)}

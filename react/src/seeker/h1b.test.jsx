@@ -1,7 +1,7 @@
 import React from 'react';import {afterEach,expect,it,vi} from 'vitest';import {cleanup,render,screen} from '@testing-library/react';
 import {H1bBadge} from '../shared/H1bBadge.jsx';import {historyReadArgs,filterHistoryJobs} from '../shared/h1b.js';import {quickMatches} from './catalogue.js';import {liveSearch} from './liveSearch.js';import {workAuthorizationFilter} from './workAuthorization.js';
 afterEach(()=>{cleanup();vi.unstubAllGlobals();});
-const config=()=>{window.FJ_CONFIG={url:'https://fixture-h1b.test',key:'public'};};
+const config=()=>{window.FJ_CONFIG={url:'https://fixture-h1b.test',key:'public',h1bReady:true};};
 const job={company:'Example Incorporated',canonical_role:'data-analyst',job_title:'Data Analyst',country:'us',location:'Edison, NJ',posted_at:new Date().toISOString(),apply_url:'https://whatjobs.test/exact?sig=a%2fb+X',source:'whatjobs',closed_at:null};
 it('badges use role-specific past filings and an employer row link, without a sponsorship promise',async()=>{
  config();vi.stubGlobal('fetch',vi.fn(async()=>Response.json([{employer_key:'example inc',role_id:'data-analyst',fiscal_year:2026}])));
@@ -28,4 +28,14 @@ it('live partner cards can resolve a clear title without pretending the provider
  config();vi.stubGlobal('fetch',vi.fn(async()=>Response.json([{employer_key:'live example inc',role_id:'data-analyst',fiscal_year:2026}])));
  render(<H1bBadge job={{...job,canonical_role:undefined,company:'Live Example Inc.'}}/>);
  expect(await screen.findByRole('link',{name:'Filed H-1B LCAs (FY2026)'})).toBeTruthy();
+});
+
+it('H-1B option and badge lookups stay hidden until config enables them',async()=>{
+ const {visibleWorkAuthorizationOptions}=await import('./workAuthorization.js');const {historyMatches}=await import('../shared/h1b.js');
+ window.FJ_CONFIG={url:'https://fixture-h1b.test',key:'public'};let calls=0;
+ expect(visibleWorkAuthorizationOptions().some(([key])=>key==='recent_h1b')).toBe(false);
+ expect(await historyMatches([{company:'Acme',canonical_role:'data-analyst'}],undefined,async()=>{calls++;return {ok:true,json:async()=>[]};})).toEqual([]);
+ expect(calls).toBe(0);
+ window.FJ_CONFIG={url:'https://fixture-h1b.test',key:'public',h1bReady:true};
+ expect(visibleWorkAuthorizationOptions().some(([key])=>key==='recent_h1b')).toBe(true);
 });
