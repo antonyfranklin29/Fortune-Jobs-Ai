@@ -15,6 +15,7 @@ import {
 } from './messages.js';
 import '../account/account-base.css';
 import './employer-workspace.css';
+import logo from '../../../newsletter-logo.png';
 
 const Chip = ({ status: [label, cls] }) => <span className={'status ' + cls}>{label}</span>;
 
@@ -136,7 +137,7 @@ export function EmployerWorkspacePage({ prompt: askPrompt }) {
   return (
     <div className="fja-acct fja-employer">
       <nav className="top-nav">
-        <a className="logo-text" href="index.html">Fortune Jobs AI</a>
+        <a className="logo" href="index.html" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}><img className="brand-mark" src={logo} width="34" height="34" alt="" style={{ borderRadius: 9 }} /><span className="logo-text">Fortune Jobs AI</span></a>
         <div className="employer-nav-actions">
           <a className="nav-link" href="find-jobs.html">Find jobs</a>
           <a className="nav-link" href="profile.html">Job seeker profile</a>

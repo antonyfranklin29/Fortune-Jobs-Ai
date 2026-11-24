@@ -2,16 +2,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAccountServices } from './services.jsx';
 import { avatarPath } from './lib/dataSafety.js';
+import logo from '../../../newsletter-logo.png';
 
-export function LogoMark() {
-  return (
-    <span className="logo-icon">
-      <svg width="20" height="20" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-        <path d="M3 14 L7 8 L11 14 L15 9 L19 15" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="7" cy="8" r="2" fill="#0F172A" /><circle cx="15" cy="9" r="2" fill="#0F172A" /><circle cx="19" cy="15" r="2" fill="#0F172A" />
-      </svg>
-    </span>
-  );
+export function LogoMark({ size = 38 }) {
+  return <img className="brand-mark" src={logo} width={size} height={size} alt="" style={{ borderRadius: 10, display: 'block' }} />;
 }
 
 /** Top bar used by the account pages. `children` are the right-hand links. */

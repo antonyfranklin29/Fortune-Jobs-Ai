@@ -2,19 +2,13 @@
 // contact.html. The wording is copied exactly from the static pages: change it
 // only with a reviewed policy update, never as part of a code change.
 import React from 'react';
+import logo from '../../../newsletter-logo.png';
 
 export function AboutPage() {
   return <>
 <nav>
   <a href="index.html" className="logo">
-    <div className="logo-icon">
-      <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-        <path d="M3 14 L7 8 L11 14 L15 9 L19 15" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="7" cy="8" r="2" fill="#0F172A" />
-        <circle cx="15" cy="9" r="2" fill="#0F172A" />
-        <circle cx="19" cy="15" r="2" fill="#0F172A" />
-      </svg>
-    </div>
+    <img className="brand-mark" src={logo} width="38" height="38" alt="" style={{ borderRadius: 10 }} />
     <span className="logo-text">Fortune Jobs AI</span>
   </a>
   <ul className="nav-links">
@@ -44,7 +38,7 @@ export function AboutPage() {
 
 export function PrivacyPage() {
   return <>
-<nav className="top-nav"><a className="logo-text logo" href="index.html">Fortune Jobs AI</a><div><a className="nav-link" href="about.html">About</a><a className="nav-link" style={{ color: 'var(--gold)' }} href="find-jobs.html">Find Jobs</a></div></nav><main><h1>Privacy information</h1><p>Updated November 6, 2026</p><div className="notice">Fortune Jobs AI is preparing for launch. These details describe the current product. You can delete your account from your profile or contact us by email with privacy questions.</div>
+<nav className="top-nav"><a className="logo-text logo" href="index.html" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><img className="brand-mark" src={logo} width="34" height="34" alt="" style={{ borderRadius: 9 }} />Fortune Jobs AI</a><div><a className="nav-link" href="about.html">About</a><a className="nav-link" style={{ color: 'var(--gold)' }} href="find-jobs.html">Find Jobs</a></div></nav><main><h1>Privacy information</h1><p>Updated November 6, 2026</p><div className="notice">Fortune Jobs AI is preparing for launch. These details describe the current product. You can delete your account from your profile or contact us by email with privacy questions.</div>
 <h2>Who we are</h2><p>Fortune Jobs AI is operated by YOU DO LMS INC., a New Jersey corporation. YOU DO LMS INC. is responsible for the personal information described on this page. Mailing address: 1553 Route 27, Suite 1000, Somerset, NJ 08873, United States. Email: <a href="mailto:info@fortunejobsai.com">info@fortunejobsai.com</a>.</p>
 <h2>Searching for jobs</h2><p>Search terms and chosen location and filters are processed to find matching listings. Live Search sends those search settings to external job-search processing services. Searches have separate identifiers. Job listings are public information and matching does not guarantee employment or eligibility.</p><p>When Careerjet search is enabled, Careerjet receives your search words, selected location, IP address and browser type to show live results and prevent fraud. We do not attach your name, email, resume or account details to these requests. If you choose to search Jooble, we send Jooble your search words and selected location to show live listings. If you choose to search WhatJobs, we send your search words, selected location, IP address and browser type to WhatJobs to show live listings.</p>
 <h2>Guest resume matching</h2><p>Supported PDF and DOCX documents are read in your browser. The guest document is not uploaded to resume storage. Reduced role, skills, experience and home-area details are kept in this tab's temporary storage with a two-hour validity period. Expired details are discarded the next time the matching tools access them. Clear them with the Clear resume details option. Search links contain the job title, selected area and an opaque matching identifier. Avoid sharing those links if you want to keep your search private.</p>
@@ -61,7 +55,7 @@ export function PrivacyPage() {
 
 export function TermsPage() {
   return <>
-<nav className="top-nav"><a className="logo-text logo" href="index.html">Fortune Jobs AI</a><div><a className="nav-link" href="find-jobs.html">Find jobs</a><a className="nav-link" href="contact.html">Contact</a></div></nav>
+<nav className="top-nav"><a className="logo-text logo" href="index.html" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><img className="brand-mark" src={logo} width="34" height="34" alt="" style={{ borderRadius: 9 }} />Fortune Jobs AI</a><div><a className="nav-link" href="find-jobs.html">Find jobs</a><a className="nav-link" href="contact.html">Contact</a></div></nav>
 <main>
 <h1>Terms of Use</h1>
 <p>Effective November 8, 2026</p>
@@ -98,7 +92,7 @@ export function TermsPage() {
 
 export function ContactPage() {
   return <>
-<nav className="top-nav"><a className="logo-text logo" href="index.html">Fortune Jobs AI</a><div><a className="nav-link" href="about.html">About</a><a className="nav-link" style={{ color: 'var(--gold)' }} href="find-jobs.html">Find Jobs</a></div></nav><main><h1>Contact Fortune Jobs AI</h1><div className="notice"><strong>We’d like to hear from you.</strong><p>For questions, feedback, feature suggestions or problems with Fortune Jobs AI, email <a href="mailto:info@fortunejobsai.com">info@fortunejobsai.com</a>.</p><p>Tell us what you were trying to do and what happened so we can improve your experience. Please do not include passwords, payment details or private documents.</p></div><h2>Company details</h2><p>Fortune Jobs AI is operated by YOU DO LMS INC., a New Jersey corporation. Mailing address: 1553 Route 27, Suite 1000, Somerset, NJ 08873, United States. Email is the fastest way to reach us.</p><h2>Need to change your data?</h2><p>If you have an account, your <a href="profile.html">profile page</a> lets you update your information, remove your resume, clear search history, remove saved jobs and download your data. Guest resume results include a Clear resume details option.</p><h2>Search help</h2><p>Quick Match searches saved listings. Live Search looks for fresh listings. Narrow filters may return fewer than ten jobs, or none. Try adjusting the location or filters. Uploads support text-based PDF and DOCX; scanned documents need conversion first.</p><h2>Subscriptions</h2><p>The planned Pro price is $9.99 per month or $79 per year, with any applicable taxes shown before purchase. Payments are not enabled yet.</p><h2>Privacy and account deletion</h2><p>For privacy questions or an account-deletion request, email <a href="mailto:info@fortunejobsai.com?subject=Privacy%20request">info@fortunejobsai.com</a>. Complete self-service account deletion is still being prepared. Read our <a href="privacy.html">current privacy information</a> for available controls.</p></main><footer><a href="privacy.html">Privacy</a> · <a href="contact.html">Contact</a></footer>
+<nav className="top-nav"><a className="logo-text logo" href="index.html" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><img className="brand-mark" src={logo} width="34" height="34" alt="" style={{ borderRadius: 9 }} />Fortune Jobs AI</a><div><a className="nav-link" href="about.html">About</a><a className="nav-link" style={{ color: 'var(--gold)' }} href="find-jobs.html">Find Jobs</a></div></nav><main><h1>Contact Fortune Jobs AI</h1><div className="notice"><strong>We’d like to hear from you.</strong><p>For questions, feedback, feature suggestions or problems with Fortune Jobs AI, email <a href="mailto:info@fortunejobsai.com">info@fortunejobsai.com</a>.</p><p>Tell us what you were trying to do and what happened so we can improve your experience. Please do not include passwords, payment details or private documents.</p></div><h2>Company details</h2><p>Fortune Jobs AI is operated by YOU DO LMS INC., a New Jersey corporation. Mailing address: 1553 Route 27, Suite 1000, Somerset, NJ 08873, United States. Email is the fastest way to reach us.</p><h2>Need to change your data?</h2><p>If you have an account, your <a href="profile.html">profile page</a> lets you update your information, remove your resume, clear search history, remove saved jobs and download your data. Guest resume results include a Clear resume details option.</p><h2>Search help</h2><p>Quick Match searches saved listings. Live Search looks for fresh listings. Narrow filters may return fewer than ten jobs, or none. Try adjusting the location or filters. Uploads support text-based PDF and DOCX; scanned documents need conversion first.</p><h2>Subscriptions</h2><p>The planned Pro price is $9.99 per month or $79 per year, with any applicable taxes shown before purchase. Payments are not enabled yet.</p><h2>Privacy and account deletion</h2><p>For privacy questions or an account-deletion request, email <a href="mailto:info@fortunejobsai.com?subject=Privacy%20request">info@fortunejobsai.com</a>. Complete self-service account deletion is still being prepared. Read our <a href="privacy.html">current privacy information</a> for available controls.</p></main><footer><a href="privacy.html">Privacy</a> · <a href="contact.html">Contact</a></footer>
 
   </>;
 }

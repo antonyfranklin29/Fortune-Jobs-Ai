@@ -2,6 +2,7 @@
 // Port of newsletter-preferences.js. The choice is read and saved only through
 // the email-preferences Edge Function with the person's own session token.
 import React, { useEffect, useRef, useState } from 'react';
+import logo from '../../../newsletter-logo.png';
 
 const NOT_AVAILABLE = 'Newsletter preferences are not available yet. Your choice has not been changed.';
 
@@ -78,7 +79,7 @@ export function EmailPreferencesPage({ client }) {
 
   const disabled = !ready || busy;
   return <>
-    <nav className="top-nav"><a className="logo-text" href="index.html">Fortune Jobs AI</a><a className="nav-link" href="profile.html">Back to profile</a></nav>
+    <nav className="top-nav"><a className="logo" href="index.html" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}><img className="brand-mark" src={logo} width="34" height="34" alt="" style={{ borderRadius: 9 }} /><span className="logo-text">Fortune Jobs AI</span></a><a className="nav-link" href="profile.html">Back to profile</a></nav>
     <main>
       <h1>Job alert emails</h1>
       <p>New jobs matching your role and area, up to five per email. If there are no new matches, we don't send anything.</p>
