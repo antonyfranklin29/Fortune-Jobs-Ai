@@ -7,7 +7,8 @@ import {
   getEmployerPostings, newestFirst, postingPath, readOpenCatalogue, openListing,
 } from '../jobs/catalogue.mjs';
 
-import {planRemote} from '../jobs/demand.mjs';
+import {entryEvidence} from '../jobs/levels.mjs';
+import {planRemote,planEntry} from '../jobs/demand.mjs';
 import { HUBS, MIN_HUB_JOBS, advertiserName, areaFacts, answerBlock, areaFaq, dateLabel, faqSchema, hubAnswer, hubFaq, payRange, fmt } from '../jobs/geo.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
@@ -142,6 +143,7 @@ export function listingCards(rows, details = new Set()) {
       '</p>' + (job.posted_at ? '<p>Posted ' + escape(job.posted_at.slice(0, 10)) + '</p>' : '') + (job.source === 'jobg8' && !detail
         ? '<button type="button" data-partner-job="' + escape(JSON.stringify({source:job.source,apply_url:job.apply_url,job_title:job.job_title,company:job.company,country:job.country})) + '">Apply now</button>'
         : '<a rel="noopener noreferrer" href="' + escape(detail ? postingPath(job.id) : applicationUrl(job.apply_url)) + '">' + (detail ? 'View job details' : 'View original listing') + '</a>') +
+      (entryEvidence(job).internship ? ' <span class="internship-label">Internship</span>' : '') +
       (job.source === 'adzuna' ? ' <small>Job source: Adzuna</small>' : '') + '</li>';
   }).join('\n');
 }
@@ -319,7 +321,7 @@ async function build() {
   const { cityPages, statePages } = planPages(catalogue, roles, regions, now);
   const indexed = [...statePages, ...cityPages.filter(({ rows }) => rows.length >= MIN_CITY_JOBS)];
   const hubs = planHubs(catalogue, roles, regions, now);
-  const demand = planRemote(catalogue,roles,now,date);
+  const demand = [...planRemote(catalogue,roles,now,date),...planEntry(catalogue,roles,regions,now,date)];
   for (const model of demand) model.children=demand.filter(child=>child!==model && child.role);
   for (const model of demand) await writePage(model.path,renderDemand(model,date,new Set(demand.map(item=>item.path))));
   for (const hub of hubs) await writePage('/jobs/' + hub.id + '/', renderHub(hub, indexed, date));
