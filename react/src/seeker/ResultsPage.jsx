@@ -138,14 +138,14 @@ export function ResultsPage({ afterSearch, afterDashboard }) {
     });
     // Recent jobs are the same for everyone, so fetch them alongside the subscription check instead of after it.
     const request = initial.mode === 'live'
-      ? subscriptionRequest.then(sub => liveSearch({ q: initial.q, location: initial.location },
+      ? subscriptionRequest.then(sub => liveSearch({ q: initial.q, location: initial.location, sponsorship: initial.sponsorship },
           () => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10), controller.signal, undefined, isActive(sub) ? PRO.results : 10))
       : searching
       ? subscriptionRequest.then(sub => quickMatches(initial.q || '', filters, controller.signal, isActive(sub) ? PRO.results : 10))
       : recentJobs(controller.signal);
     request
       .then(rows => { if (careRole(initial.q || initial.category)) rows = rows.filter(row => matchesJobTags(row, initial)); if (!controller.signal.aborted) { setJobs(rows); setLoading(false); } })
-      .catch(() => { if (!controller.signal.aborted) { setError('We could not load jobs right now. Please try your search again.'); setLoading(false); } });
+      .catch(error => { if (!controller.signal.aborted) { setError(error?.code==='H1B_UNAVAILABLE'?error.message:'We could not load jobs right now. Please try your search again.'); setLoading(false); } });
     return () => controller.abort();
   }, []);
   const visible = sort === 'newest'

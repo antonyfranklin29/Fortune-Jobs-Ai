@@ -1,3 +1,4 @@
+import {historyReadArgs,historyUnavailable} from '../shared/h1b.js';
 import sectors from '../../../config/care-sectors.json' with { type: 'json' };
 import { careRole, jobTags, matchesJobTags } from '../shared/jobTags.js';
 import { FJAccuracy, FJCompanyLogos, FJDataSafety } from '../lib/sharedLibs.js';
@@ -13,6 +14,10 @@ const DAY = 86400000;
 
 async function read(params, signal, fetchImpl = (...args) => fetch(...args)) {
   const config = window.FJ_CONFIG;
+  if(params.get('fj_h1b')==='true'){
+    const response=await fetchImpl(config.url+'/rest/v1/rpc/h1b_search_jobs',{method:'POST',headers:{apikey:config.key,Authorization:'Bearer '+config.key,'Content-Type':'application/json'},signal,body:JSON.stringify(historyReadArgs(params))});
+    if(!response.ok)throw historyUnavailable();const rows=await response.json();return Array.isArray(rows)?rows.map(job=>({...job,location:cityState(job.location,job.state_code)})):[];
+  }
   const headers = { apikey: config.key, Authorization: `Bearer ${config.key}` };
   let response = await fetchImpl(`${config.url}/rest/v1/pre_scraped_jobs?${params}`, { headers, signal });
   // A busy database occasionally cancels a broad search at its time limit (HTTP 500); one retry
@@ -76,13 +81,14 @@ function candidateParams(tokens, filters, excludeSource) {
   else if (excludeSource) params.set('source', `neq.${excludeSource}`);
   const keywords = tokens.map(token => `search_text.ilike.*${token.replace(/\*/g, '')}*`).join(',');
   const sponsorship = workAuthorizationFilter(filters.sponsorship);
+  if(sponsorship==='recent_h1b')params.set('fj_h1b','true');
   if (sponsorship === 'hide_no_sponsorship') {
     const allowed = 'sponsorship.is.null,sponsorship.neq.no_sponsorship';
     if (keywords) params.set('and', `(or(${keywords}),or(${allowed}))`);
     else params.set('or', `(${allowed})`);
   } else {
     if (keywords) params.set('or', `(${keywords})`);
-    if (sponsorship) params.set('sponsorship', `eq.${sponsorship}`);
+    if (sponsorship && sponsorship!=='recent_h1b') params.set('sponsorship', `eq.${sponsorship}`);
   }
   if (filters.country) params.set('country', `eq.${filters.country.toLowerCase()}`);
   if (['1', '3', '7', '30'].includes(filters.date_posted)) params.set('posted_at', `gte.${new Date(Date.now() - Number(filters.date_posted) * DAY).toISOString()}`);

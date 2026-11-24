@@ -2,6 +2,7 @@ export const WORK_AUTHORIZATION_OPTIONS = [
   ['', 'Work authorization · Any'],
   ['sponsors', 'Sponsors visa'],
   ['opt_friendly', 'OPT/CPT friendly'],
+  ['recent_h1b', 'Employers with recent H-1B filings'],
   ['hide_no_sponsorship', 'Hide “no sponsorship” jobs'],
 ];
 

@@ -7,6 +7,7 @@ import {
   getEmployerPostings, newestFirst, postingPath, readOpenCatalogue, openListing,
 } from '../jobs/catalogue.mjs';
 
+import {planH1b,readH1b,employerKey,employerAnchor,DOL_SOURCE,FILING_CAVEAT} from '../jobs/h1b.mjs';
 import {entryEvidence} from '../jobs/levels.mjs';
 import {planRemote,planEntry,planSalary,typicalPay} from '../jobs/demand.mjs';
 import { HUBS, MIN_HUB_JOBS, advertiserName, areaFacts, answerBlock, areaFaq, dateLabel, faqSchema, hubAnswer, hubFaq, payRange, fmt } from '../jobs/geo.mjs';
@@ -153,11 +154,24 @@ export function salaryDetails(model) {
  return '<section><h2>Listed pay summary</h2><p>'+stats.count+' usable listings; median listed midpoint: '+escape(typicalPay(stats.median,stats.unit))+'.</p>'+
  (stats.employers.length?'<h3>Highest listed employer medians</h3><table><thead><tr><th>Employer</th><th>Median listed midpoint</th><th>Listings</th></tr></thead><tbody>'+stats.employers.map(item=>'<tr><td>'+escape(item.name)+'</td><td>'+escape(typicalPay(item.median,stats.unit))+'</td><td>'+item.count+'</td></tr>').join('')+'</tbody></table>':'')+'</section>';
 }
-export function renderDemand(model,date,paths = new Set()) {
+export function h1bDetails(model,catalogue = []) {
+ if(model.kind!=='h1b')return '';
+ const linked=new Set(),employers=new Map();for(const job of catalogue){const key=employerKey(job.company);if(!employers.has(key))employers.set(key,[]);employers.get(key).push(job);}
+ const rows=[...model.stats].sort((a,b)=>b.certified_lcas-a.certified_lcas || a.employer_name.localeCompare(b.employer_name));
+ return '<p>'+link(DOL_SOURCE,'Source: U.S. Department of Labor LCA Programs disclosure data')+'</p><p>'+escape(FILING_CAVEAT)+'</p>'+
+ '<p>Counts are certified LCA cases, not visas, workers or open jobs. Wage medians are shown separately for each employer, worksite state, SOC occupation, role and fiscal year; medians are not combined.</p>'+
+ '<div class="hub-table" role="region" tabindex="0" aria-label="Certified LCA history"><table><thead><tr><th>Employer</th><th>State</th><th>SOC</th><th>Fiscal year</th><th>Certified LCAs</th><th>Median annual offered wage</th></tr></thead><tbody>'+rows.map(row=>{
+  const anchor=employerAnchor(row.employer_key),id=linked.has(anchor)?'':' id="'+anchor+'"';linked.add(anchor);
+  const matches=(employers.get(row.employer_key)||[]).filter(job=>!model.role || job.canonical_role===model.role);
+  const jobs=matches.length?' '+link('/results.html?'+new URLSearchParams({mode:'quick',country:'us',company:matches[0].company,...(model.title?{q:model.title}:{})}),'See open jobs'):'';
+  return '<tr'+id+'><td>'+escape(row.employer_name)+jobs+'</td><td>'+escape(row.state_code)+'</td><td>'+escape(row.soc_code)+'</td><td>FY'+row.fiscal_year+'</td><td>'+row.certified_lcas+'</td><td>'+escape(row.median_wage_annual==null?'Not available':typicalPay(Number(row.median_wage_annual),'year'))+'</td></tr>';
+ }).join('')+'</tbody></table></div>';
+}
+export function renderDemand(model,date,paths = new Set(),catalogue = []) {
  const links=(model.children || []).filter(child=>paths.has(child.path));
  const list=links.length?'<section><h2>Browse roles and locations</h2><ul>'+links.map(child=>'<li>'+link(child.path,child.h1)+' ('+child.rows.length+')</li>').join('')+'</ul></section>':'';
  return page({path:model.path,title:model.h1,description:model.answer,faq:model.faq,
-  body:'<h1>'+escape(model.h1)+'</h1><p class="geo-answer">'+escape(model.answer)+'</p>'+updatedLine(date)+salaryDetails(model)+list+
+  body:'<h1>'+escape(model.h1)+'</h1><p class="geo-answer">'+escape(model.answer)+'</p>'+updatedLine(date)+(model.kind==='salary'?salaryDetails(model):'')+h1bDetails(model,catalogue)+list+
   '<ul class="listings">'+listingCards(model.rows)+'</ul>'+renderFaq(model.faq),
   trail:[['Home','/'],['Jobs','/jobs/'],[model.h1,model.path]]});
 }
@@ -322,14 +336,15 @@ async function build() {
   // for the anonymous database connection's short statement timeout.
   const catalogue = await readOpenCatalogue(config);
   const candidates = await getEmployerPostings(config);
+  const h1b = await readH1b(config);
   const postings = candidates.filter(job => eligiblePosting(job, now));
   const details = new Set(postings.map(job => String(job.id)));
   const { cityPages, statePages } = planPages(catalogue, roles, regions, now);
   const indexed = [...statePages, ...cityPages.filter(({ rows }) => rows.length >= MIN_CITY_JOBS)];
   const hubs = planHubs(catalogue, roles, regions, now);
-  const demand = [...planRemote(catalogue,roles,now,date),...planEntry(catalogue,roles,regions,now,date),...planSalary(catalogue,roles,regions,now,date)];
+  const demand = [...planRemote(catalogue,roles,now,date),...planEntry(catalogue,roles,regions,now,date),...planSalary(catalogue,roles,regions,now,date),...planH1b(h1b.rows,h1b.metadata,roles,regions,date)];
   for (const model of demand) model.children=demand.filter(child=>child!==model && child.role);
-  for (const model of demand) await writePage(model.path,renderDemand(model,date,new Set(demand.map(item=>item.path))));
+  for (const model of demand) await writePage(model.path,renderDemand(model,date,new Set(demand.map(item=>item.path)),catalogue));
   for (const hub of hubs) await writePage('/jobs/' + hub.id + '/', renderHub(hub, indexed, date));
   await prunePages('', new Set(hubs.map(hub => hub.id)), name => HUBS.some(hub => hub.id === name));
   for (const { target, rows } of [...statePages, ...cityPages]) {

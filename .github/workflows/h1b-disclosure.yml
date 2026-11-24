@@ -1,0 +1,41 @@
+name: Prepare official H-1B employer filing aggregates
+on:
+  workflow_dispatch:
+    inputs:
+      load:
+        description: 'Load the reviewed aggregates into Supabase (requires separate owner approval and migration)'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: h1b-disclosure
+  cancel-in-progress: false
+jobs:
+  aggregate:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Test mappings and workbook reader
+        run: python3 -m unittest discover -s tests/h1b -p 'test_*.py'
+      - name: Download official disclosures and aggregate
+        run: python3 scripts/h1b/import_lca.py --output "$RUNNER_TEMP/h1b-employers.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h1b-employer-aggregates
+          path: ${{ runner.temp }}/h1b-employers.json
+          retention-days: 7
+      - name: Load aggregates only when explicitly approved
+        if: inputs.load
+        run: node scripts/h1b/load_stats.mjs "$RUNNER_TEMP/h1b-employers.json"
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+# Proposed quarterly schedule is documented in the PR, NOT installed here.

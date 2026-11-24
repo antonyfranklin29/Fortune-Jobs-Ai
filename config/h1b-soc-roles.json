@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "notes": "A listed SOC family AND an explicit canonical title rule are both required. SOC alone never assigns a role. Unmapped/ambiguous titles are omitted. SOC detail suffixes are retained in storage. Mapping is Fortune Jobs AI classification, not a DOL endorsement.",
+  "source": "https://www.bls.gov/soc/2018/major_groups.htm",
+  "rules": [
+    {
+      "role_id": "data-analyst",
+      "soc_codes": [
+        "15-2051",
+        "13-1111",
+        "15-2031",
+        "15-2041"
+      ],
+      "include": [
+        "\\bdata\\s+(?:&|and)?\\s*(?:\\w+\\s+)?analyst\\b",
+        "\\banalytics\\s+analyst\\b",
+        "\\breporting\\s+(?:&\\s+)?(?:data\\s+)?analyst\\b",
+        "\\bdata\\s+insights?\\s+analyst\\b"
+      ],
+      "exclude": [
+        "\\bdata\\s+engineer",
+        "\\bdata\\s+scien",
+        "\\bdata\\s+entry\\b",
+        "\\bdatabase\\s+admin",
+        "\\bsecurity\\s+analyst\\b",
+        "\\bdata\\s+center\\b",
+        "\\barchitect\\b"
+      ]
+    },
+    {
+      "role_id": "business-analyst",
+      "soc_codes": [
+        "13-1111",
+        "15-1211"
+      ],
+      "include": [
+        "\\bbusiness\\s+(?:systems\\s+)?analyst\\b",
+        "\\b(?:it|information\\s+technology)\\s+specialist\\b.*\\([^)]*\\b(?:sysanalysis|plcypln)\\b"
+      ],
+      "exclude": [
+        "\\bbusiness\\s+data\\s+analyst\\b"
+      ]
+    },
+    {
+      "role_id": "business-intelligence-developer",
+      "soc_codes": [
+        "15-2051",
+        "15-1243"
+      ],
+      "include": [
+        "\\b(?:business\\s+intelligence|bi)\\s+(?:developer|engineer)\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "role_id": "power-bi-developer",
+      "soc_codes": [
+        "15-2051",
+        "15-1252"
+      ],
+      "include": [
+        "\\bpower\\s*bi\\b.*\\b(?:developer|engineer|consultant)\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "role_id": "tableau-developer",
+      "soc_codes": [
+        "15-2051",
+        "15-1252"
+      ],
+      "include": [
+        "\\btableau\\b.*\\b(?:developer|engineer|consultant)\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "role_id": "sql-developer",
+      "soc_codes": [
+        "15-1243",
+        "15-1252"
+      ],
+      "include": [
+        "\\bsql\\s+(?:server\\s+)?developer\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "role_id": "data-engineer",
+      "soc_codes": [
+        "15-1243",
+        "15-1252",
+        "15-2051",
+        "15-1299"
+      ],
+      "include": [
+        "\\bdata\\s+engineer\\b",
+        "\\b(?:it|information\\s+technology)\\s+specialist\\b.*\\([^)]*\\bdatamgt\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "role_id": "data-scientist",
+      "soc_codes": [
+        "15-2051"
+      ],
+      "include": [
+        "\\bdata\\s+scientist\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "role_id": "machine-learning-engineer",
+      "soc_codes": [
+        "15-2051",
+        "15-1252"
+      ],
+      "include": [
+        "\\b(?:machine\\s+learning|ml)\\s+engineer\\b",
+        "\\b(?:ai|artificial\\s+intelligence)\\s+engineer\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "role_id": "software-engineer",
+      "soc_codes": [
+        "15-1252",
+        "15-1251"
+      ],
+      "include": [
+        "\\bsoftware\\s+(?:engineer|developer)\\b",
+        "(?:\\b(?:java|python|c\\+\\+|golang|ruby|php|javascript|typescript|react|angular|node(?:\\.js)?|ios|android|mobile|front[\\s-]*end|back[\\s-]*end|web)|\\.net|\\bc#)\\s+(?:software\\s+)?(?:developer|engineer|programmer)\\b",
+        "\\b(?:it|information\\s+technology)\\s+specialist\\b.*\\([^)]*\\bappsw\\b"
+      ],
+      "exclude": [
+        "\\btest\\b",
+        "\\bqa\\b",
+        "\\bsales\\b",
+        "\\bsupport\\s+engineer\\b"
+      ]
+    },
+    {
+      "role_id": "full-stack-developer",
+      "soc_codes": [
+        "15-1252",
+        "15-1254"
+      ],
+      "include": [
+        "\\bfull[\\s-]*stack\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "role_id": "devops-engineer",
+      "soc_codes": [
+        "15-1252",
+        "15-1299",
+        "15-1244"
+      ],
+      "include": [
+        "\\bdevops\\b",
+        "\\bsite\\s+reliability\\s+engineer\\b",
+        "\\b(?:it|information\\s+technology)\\s+specialist\\b.*\\([^)]*\\b(?:sysadmin|network|inet|os)\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "role_id": "cloud-engineer",
+      "soc_codes": [
+        "15-1241",
+        "15-1244",
+        "15-1252",
+        "15-1299"
+      ],
+      "include": [
+        "\\bcloud\\s+(?:engineer|architect)\\b",
+        "\\b(?:it|information\\s+technology)\\s+specialist\\b.*\\([^)]*\\b(?:entarch|cloud)\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "role_id": "qa-engineer",
+      "soc_codes": [
+        "15-1253",
+        "15-1252"
+      ],
+      "include": [
+        "\\b(?:qa|quality\\s+assurance|test(?:ing)?|sdet)\\b.*\\b(?:engineer|analyst|tester)\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "role_id": "cybersecurity-analyst",
+      "soc_codes": [
+        "15-1212"
+      ],
+      "include": [
+        "\\b(?:cyber\\s*security|information\\s+security|security|soc)\\s+analyst\\b",
+        "\\b(?:it|information\\s+technology)\\s+specialist\\b.*\\([^)]*\\b(?:infosec|cyber|security)\\b",
+        "\\b(?:it|information\\s+technology)\\s+cyber\\s*security\\s+specialist\\b"
+      ],
+      "exclude": []
+    },
+    {
+      "role_id": "registered-nurse",
+      "soc_codes": [
+        "29-1141"
+      ],
+      "include": [
+        "\\bregistered\\s+nurse\\b",
+        "\\brn\\b",
+        "\\b(?:travel|staff)\\s+nurse\\b"
+      ],
+      "exclude": [
+        "\\bnurse\\s+practitioner\\b",
+        "\\b(?:lpn|lvn|cna|recruiter|instructor)\\b"
+      ]
+    }
+  ]
+}
