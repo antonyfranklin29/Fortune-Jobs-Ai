@@ -21,11 +21,11 @@ import '../styles/dashboard.css';
 export const PAGE_SIZE = 15;
 export function Pager({ page, pages, onPage }) {
   if (pages <= 1) return null;
-  return <nav className="dashboard-pager" aria-label="Result pages">
-    <button type="button" disabled={page === 0} onClick={() => onPage(page - 1)} aria-label="Previous page">‹ Prev</button>
+  return <div className="dashboard-pager" role="navigation" aria-label="Result pages">
+    <button type="button" disabled={page === 0} onClick={() => onPage(page - 1)} aria-label="Previous page">‹</button>
     {Array.from({ length: pages }, (_, index) => <button type="button" key={index} aria-current={index === page ? 'page' : undefined} className={index === page ? 'active' : undefined} onClick={() => onPage(index)}>{index + 1}</button>)}
-    <button type="button" disabled={page === pages - 1} onClick={() => onPage(page + 1)} aria-label="Next page">Next ›</button>
-  </nav>;
+    <button type="button" disabled={page === pages - 1} onClick={() => onPage(page + 1)} aria-label="Next page">›</button>
+  </div>;
 }
 
 const params = new URLSearchParams(window.location.search);

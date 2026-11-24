@@ -7,7 +7,7 @@ it('shows numbered pages of 15 for long Pro result lists', () => {
   expect(PAGE_SIZE).toBe(15);
   const onPage = vi.fn();
   render(<Pager page={0} pages={Math.ceil(100 / PAGE_SIZE)} onPage={onPage} />);
-  expect(screen.getAllByRole('button').map(b => b.textContent)).toEqual(['‹ Prev', '1', '2', '3', '4', '5', '6', '7', 'Next ›']);
+  expect(screen.getAllByRole('button').map(b => b.textContent)).toEqual(['‹', '1', '2', '3', '4', '5', '6', '7', '›']);
   expect(screen.getByRole('button', { name: 'Previous page' }).disabled).toBe(true);
   expect(screen.getByRole('button', { name: '1' }).getAttribute('aria-current')).toBe('page');
   fireEvent.click(screen.getByRole('button', { name: '3' })); expect(onPage).toHaveBeenCalledWith(2);

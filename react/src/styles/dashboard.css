@@ -269,8 +269,9 @@
 .category-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 3%}.category-tiles a{display:flex;flex-wrap:wrap;gap:12px;align-items:center;border:1px solid #d4a84366;background:#fffaf0;border-radius:18px;padding:22px;color:#10243b;text-decoration:none}.category-tiles strong{font-size:18px}.category-tiles span:last-child{margin-left:auto;color:#9e7317}.listing-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.listing-tags>span{border:1px solid #d4a84355;border-radius:20px;padding:4px 9px;background:#fff7e6;color:#10243b;font-size:12px}.search-alternatives{padding:20px;border:1px solid #d4a84366;border-radius:18px;margin-bottom:20px;background:#fffaf0}.search-alternatives h2{font-size:20px}.search-alternatives h3{font-size:15px}.search-alternatives a{display:inline-block;margin:5px 12px 5px 0;color:#10243b}@media(max-width:600px){.category-tiles{grid-template-columns:1fr}.category-tiles a{padding:16px}.dashboard-filterbar{flex-wrap:wrap}.filter-pill{max-width:100%}.listing-tags{max-width:100%}}
 
 .dashboard-page-note{font-weight:500;font-size:.8em;color:var(--muted,#54657a)}
-.dashboard-pager{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:18px 0 10px}
-.dashboard-pager button{min-width:40px;height:40px;padding:0 12px;border-radius:10px;border:1px solid #e1e5eb;background:#fff;color:#10243b;font-weight:600;cursor:pointer}
+.dashboard-pager{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;margin:14px 0 10px;padding:0;height:auto;position:static;background:none;border:0}
+.dashboard-pager button{min-width:32px;height:32px;margin:0;padding:0 8px;border-radius:8px;border:1px solid #e1e5eb;background:#fff;color:#10243b;font-size:14px;font-weight:600;line-height:1;cursor:pointer;box-shadow:none}
 .dashboard-pager button:hover:not(:disabled){border-color:#d4a843}
 .dashboard-pager button.active{background:#10243b;color:#fff;border-color:#10243b}
 .dashboard-pager button:disabled{opacity:.4;cursor:default}
+@media (max-width:480px){.dashboard-pager{gap:3px}.dashboard-pager button{min-width:30px;height:30px;padding:0 6px;font-size:13px}}
