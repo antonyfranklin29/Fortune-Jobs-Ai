@@ -1,3 +1,4 @@
+import {freshness} from './seo-freshness.mjs';
 import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,6 +38,7 @@ const siteSearch = ({ title, city, state }) => '/results.html?' + new URLSearchP
 });
 
 function page({ path, title, description, body, faq = [], faqOnly = false, noindex = false, live = false, trail = [['Home', '/'], ['Jobs', '/jobs/']] }) {
+  description=description.length>165 ? description.slice(0,162).replace(/\s+\S*$/,'')+'…' : description;
   const breadcrumbs = { '@context': 'https://schema.org', '@type': 'BreadcrumbList',
     itemListElement: trail.map(([name, path], index) => ({
       '@type': 'ListItem', position: index + 1, name, item: SITE + path,
@@ -238,7 +240,7 @@ export function renderArea(target, rows, details, date, related = [], now = Date
     '" data-state="' + state + '" data-role="' + role + '" data-detail-ids="' + detailIds.join(',') +
     '"><p role="status">' + status + '</p><ul class="listings">' + items + '</ul></section>' + renderInsights(target, rows, now) + renderFaq(faq) + relatedLinks;
   const stateTrail = stateName ? [[stateName, directoryState(state)]] : [];
-  return page({ path, title: heading, description: heading + ' as of ' + date + '. Browse listings and check the original posting before applying.',
+  return page({ path, title: heading, description: 'Browse '+count+' open '+target.title+' jobs in '+place+'. Check listed pay and requirements, then review the original posting before applying.',
     body, faq, noindex: !indexable, live: true,
     trail: [['Home', '/'], ['Jobs', '/jobs/'], ...stateTrail, [target.title + ' in ' + place, path]],
   });
@@ -256,7 +258,7 @@ function renderPosting(job) {
   });
 }
 
-export function addSitemapUrls(xml, paths, date = new Date().toISOString().slice(0, 10)) {
+export function addSitemapUrls(xml, paths, date = new Date().toISOString().slice(0, 10), dates = {}) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) throw new Error('Invalid generation date');
   const oldStart = xml.indexOf(START);
   if (oldStart >= 0) {
@@ -267,11 +269,18 @@ export function addSitemapUrls(xml, paths, date = new Date().toISOString().slice
   const close = xml.lastIndexOf('</urlset>');
   if (close < 0) throw new Error('Expected sitemap urlset');
   return xml.slice(0, close) + START + '\n' +
-    paths.map(path => '  <url><loc>' + escape(SITE + path) + '</loc><lastmod>' + date + '</lastmod></url>\n').join('') +
+    paths.map(path => '  <url><loc>' + escape(SITE + path) + '</loc><lastmod>' + (dates[path]?.lastmod || date) + '</lastmod></url>\n').join('') +
     END + '\n' + xml.slice(close);
 }
 
-async function writePage(path, html) {
+let oldFreshness={}, newFreshness={};
+async function writePage(path, html, evidence=[]) {
+  const next=freshness(oldFreshness[path],html,new Date().toISOString().slice(0,10),evidence);
+  newFreshness[path]=next;
+  // Keep the original snapshot, including its visible date, when substantive content is unchanged.
+  if(oldFreshness[path]?.digest===next.digest){
+    try { await readFile(join(ROOT,path.slice(1),'index.html')); return; } catch(error) {if(error.code!=='ENOENT')throw error;}
+  }
   const file = join(ROOT, path.slice(1), 'index.html');
   await mkdir(dirname(file), { recursive: true });
   await writeFile(file, html);
@@ -357,6 +366,8 @@ export function hubDirectory(hubs) {
 }
 
 async function build() {
+  oldFreshness=JSON.parse(await readFile(join(ROOT,'jobs/seo-freshness.json'),'utf8').catch(error=>{if(error.code==='ENOENT')return '{}';throw error;}));
+  newFreshness={};
   const window = {};
   runInNewContext(await readFile(join(ROOT, 'config.js'), 'utf8'), { window });
   const config = window.FJ_CONFIG;
@@ -385,10 +396,10 @@ async function build() {
     model.children=model.kind==='all-levels'
       ? indexed.filter(({target})=>target.role===model.role && !target.city).map(({target,rows})=>({path:areaPath(target),h1:target.title+' jobs in '+target.stateName,rows}))
       : demand.filter(child=>child!==model && child.kind===model.kind && (model.role?child.role===model.role && child.state && !model.state:child.role && !child.state));
-    await writePage(model.path,renderDemand(model,date,allPaths,catalogue));
+    await writePage(model.path,renderDemand(model,date,allPaths,catalogue),model.rows?.length?model.rows:(model.stats || []));
   }
   await retireDemandPages(new Set(demand.map(model=>model.path)));
-  for (const hub of hubs) await writePage('/jobs/' + hub.id + '/', renderHub(hub, indexed, date));
+  for (const hub of hubs) await writePage('/jobs/' + hub.id + '/', renderHub(hub, indexed, date),hub.rows);
   await prunePages('', new Set(hubs.map(hub => hub.id)), name => HUBS.some(hub => hub.id === name));
   for (const { target, rows } of [...statePages, ...cityPages]) {
     const others = indexed.filter(page => page.target !== target);
@@ -397,9 +408,9 @@ async function build() {
     const samePlace = others.filter(page => page.target.role !== target.role && page.target.state === target.state &&
       (page.target.city || '') === (target.city || '')).sort((a, b) => b.rows.length - a.rows.length).slice(0, 6);
     const related = [...sameRole, ...samePlace];
-    await writePage(areaPath(target), renderArea(target, rows, details, date, related, now, allPaths));
+    await writePage(areaPath(target), renderArea(target, rows, details, date, related, now, allPaths),rows);
   }
-  for (const job of postings) await writePage(postingPath(job.id), renderPosting(job));
+  for (const job of postings) await writePage(postingPath(job.id), renderPosting(job),[job]);
   await prunePages('posting', details, name => /^\d+$/.test(name));
   const stateSlugs = new Set(regions.map(region => slug(region.name)));
   const citySlugs = new Set(CITIES.map(([city,state]) => cityPath({role:'role',city,state}).split('/').at(-2)));
@@ -416,9 +427,9 @@ async function build() {
   }).join('\n');
   await writePage('/jobs/', page({
     path: '/jobs/', title: 'Browse jobs by state and city',
-    description: 'Browse ' + indexed.length + ' job search pages by state, city and role.',
+    description: 'Browse current U.S. job listings by state, city and role. Explore remote and entry-level searches, listed salaries and related job portal tools.',
     body: '<h1>Browse jobs by state and city</h1><p>Explore current openings by location and role, or ' +
-      link('/find-jobs.html', 'search all jobs') + '.</p>' + hubDirectory(hubs) + demandDirectory(demand) + sections,
+      link('/find-jobs.html', 'search all jobs') + '.</p>' + hubDirectory(hubs) + demandDirectory(demand) + '<section><h2>Browse roles and focused searches</h2><ul>'+demand.filter(model=>model.role && !model.state).map(model=>'<li>'+link(model.path,model.h1)+'</li>').join('')+'</ul></section>' + sections,
     noindex: indexed.length === 0 && demand.length === 0,
   }));
   const sitemap = join(ROOT, 'sitemap.xml');
@@ -430,7 +441,8 @@ async function build() {
     ...indexed.map(({ target }) => areaPath(target)),
     ...postings.map(job => postingPath(job.id)),
   ];
-  await writeFile(sitemap, addSitemapUrls(await readFile(sitemap, 'utf8'), paths, date));
+  await writeFile(sitemap, addSitemapUrls(await readFile(sitemap, 'utf8'), paths, date, newFreshness));
+  await writeFile(join(ROOT,'jobs/seo-freshness.json'),JSON.stringify(newFreshness,null,2)+'\n');
   const llms=join(ROOT,'llms.txt');
   await writeFile(llms,updateLlms(await readFile(llms,'utf8'),allPaths));
   console.log('Demand page counts: '+JSON.stringify(Object.fromEntries(['remote','entry-level','salary','h1b','all-levels'].map(kind=>[kind,demand.filter(model=>model.kind===kind).length]))));

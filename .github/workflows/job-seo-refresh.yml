@@ -21,7 +21,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Test and rebuild from the public catalogue
         run: |
-          node --test tests/job-seo.mjs tests/geo-job-pages.mjs tests/seo-demand.mjs tests/seo-demand-build.mjs tests/h1b-pages.mjs tests/indexnow.mjs
+          node --test tests/seo-audit.mjs tests/job-seo.mjs tests/geo-job-pages.mjs tests/seo-demand.mjs tests/seo-demand-build.mjs tests/h1b-pages.mjs tests/indexnow.mjs
           node scripts/build-job-seo.mjs
       - name: Sanity-check the rebuilt pages
         run: |
@@ -31,10 +31,21 @@ jobs:
           urls=$(grep -c '<loc>' sitemap.xml)
           echo "pages=$pages sitemap_urls=$urls"
           if [ "$pages" -lt 200 ] || [ "$urls" -lt 100 ]; then echo "Rebuild looks incomplete; not publishing."; exit 1; fi
+      - name: SEO audit report (informational, never blocks publication)
+        continue-on-error: true
+        run: node scripts/seo-audit.mjs --root . --output /tmp/seo-audit
+      - name: Retain SEO audit report
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: seo-audit
+          path: /tmp/seo-audit.*
+          retention-days: 14
       - name: Publish to the live site
         run: |
           set -euo pipefail
-          git add -A -- ':(glob)jobs/**/index.html' jobs/index.html jobs/demand-pages.json sitemap.xml llms.txt
+          git add -A -- ':(glob)jobs/**/index.html' jobs/index.html jobs/demand-pages.json jobs/seo-freshness.json sitemap.xml llms.txt
           for directory in salaries h1b; do
             if [ -n "$(git ls-files --cached --others --exclude-standard -- "$directory")" ]; then
               git add -A -- ":(glob)$directory/**/index.html"

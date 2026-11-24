@@ -85,6 +85,17 @@ for (const [file, p] of Object.entries(PAGES)) {
     const block='<style>.prerender{visibility:hidden;animation:fja-prerender 0s 4s forwards}@keyframes fja-prerender{to{visibility:visible}}</style><main class="prerender" style="max-width:760px;margin:auto;padding:24px;font-family:Inter,Arial,sans-serif;color:#10243b"><h1>'+esc(score.heading)+'</h1><p>'+esc(score.answer)+'</p><h2>Frequently asked questions</h2>'+score.faq.map(({q,a})=>'<h3>'+esc(q)+'</h3><p>'+esc(a)+'</p>').join('')+'<p><a href="/privacy.html">Privacy Policy</a></p></main>';
     html=html.replace(/(<div id="root">)[\s\S]*?(<\/div>)/,'$1'+block+'$2');
   }
+  if(['find-jobs.html','resume-builder.html','contact.html','privacy.html','terms.html'].includes(file)){
+    const copy={
+      'find-jobs.html':['Find jobs by role and location','Search the Fortune Jobs AI job portal by job title, skill, company, city or state. Quick Match uses our saved catalogue. You can search without uploading a resume. Add your experience or use the resume tools if you want a fit estimate. Review each original posting for current requirements and application instructions.','Browse jobs by state and city','https://fortunejobsai.com/jobs/'],
+      'resume-builder.html':['Free resume builder','Build a resume from experience and qualifications you can verify. Review standard sections, check keyword gaps against a job description you provide, and download a PDF. The readiness score is guidance, not an employer ATS decision or a promise of an interview. You remain responsible for the facts you include.','Check your resume','/resume-search.html'],
+      'contact.html':['Contact Fortune Jobs AI','Send questions, feedback or employer enquiries to info@fortunejobsai.com. Include enough context to explain a website problem, but do not send passwords, payment details or API keys. Fortune Jobs AI is a job portal operated by YOU DO LMS INC. Job availability and application requirements should be checked on each original posting.','About the job portal','/about.html'],
+      'privacy.html':['Privacy Policy','Fortune Jobs AI is operated by YOU DO LMS INC. Accounts store the information you choose to save. Resume files saved to profiles use private storage. Some optional AI features send the information needed for the request to Anthropic. Stripe processes payments. This introduction does not replace the full Privacy Policy shown in the application.','Contact us about privacy','/contact.html'],
+      'terms.html':['Terms of Use and Refund Policy','These terms cover the Fortune Jobs AI job portal operated by YOU DO LMS INC. Listings and AI suggestions should be checked before you rely on them. No result guarantees a job, interview or sponsorship. Pro subscription and refund details are described in the full terms shown in the application.','Contact us about these terms','/contact.html']
+    }[file];
+    const fallback='<main class="prerender" style="max-width:760px;margin:auto;padding:24px;font-family:Inter,Arial,sans-serif;color:#10243b"><h1>'+esc(copy[0])+'</h1><p>'+esc(copy[1])+'</p><p><a href="'+copy[3]+'">'+esc(copy[2])+'</a> · <a href="/application-tracker.html">Free application tracker</a> · <a href="/resume-builder.html">Resume builder</a> · <a href="/index.html">Home</a></p></main>';
+    html=html.replace(/(<div id="root">)[\s\S]*?(<\/div>)/,'$1'+fallback+'$2');
+  }
   html = html.replace(/<!--seo-->[\s\S]*?<!--\/seo-->/, '').replace(/<title>[^<]*<\/title>/, `<title>${esc(p.title)}</title>${head(file, p, html)}`);
   fs.writeFileSync(f, html);
 }
