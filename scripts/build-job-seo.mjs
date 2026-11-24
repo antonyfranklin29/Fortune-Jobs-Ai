@@ -7,6 +7,7 @@ import {
   getEmployerPostings, newestFirst, postingPath, readOpenCatalogue, openListing,
 } from '../jobs/catalogue.mjs';
 
+import {planRemote} from '../jobs/demand.mjs';
 import { HUBS, MIN_HUB_JOBS, advertiserName, areaFacts, answerBlock, areaFaq, dateLabel, faqSchema, hubAnswer, hubFaq, payRange, fmt } from '../jobs/geo.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
@@ -134,6 +135,25 @@ export function renderFaq(faq) {
 }
 const updatedLine = date => '<p class="updated">Updated <time datetime="' + date + '">' + escape(dateLabel(date)) + '</time></p>';
 
+export function listingCards(rows, details = new Set()) {
+  return rows.slice(0, DISPLAY_LIMIT).map(job => {
+    const detail = details.has(String(job.id));
+    return '<li><h2>' + escape(job.job_title) + '</h2><p>' + escape(job.company + ' · ' + job.location) +
+      '</p>' + (job.posted_at ? '<p>Posted ' + escape(job.posted_at.slice(0, 10)) + '</p>' : '') + (job.source === 'jobg8' && !detail
+        ? '<button type="button" data-partner-job="' + escape(JSON.stringify({source:job.source,apply_url:job.apply_url,job_title:job.job_title,company:job.company,country:job.country})) + '">Apply now</button>'
+        : '<a rel="noopener noreferrer" href="' + escape(detail ? postingPath(job.id) : applicationUrl(job.apply_url)) + '">' + (detail ? 'View job details' : 'View original listing') + '</a>') +
+      (job.source === 'adzuna' ? ' <small>Job source: Adzuna</small>' : '') + '</li>';
+  }).join('\n');
+}
+export function renderDemand(model,date,paths = new Set()) {
+ const links=(model.children || []).filter(child=>paths.has(child.path));
+ const list=links.length?'<section><h2>Browse roles and locations</h2><ul>'+links.map(child=>'<li>'+link(child.path,child.h1)+' ('+child.rows.length+')</li>').join('')+'</ul></section>':'';
+ return page({path:model.path,title:model.h1,description:model.answer,faq:model.faq,
+  body:'<h1>'+escape(model.h1)+'</h1><p class="geo-answer">'+escape(model.answer)+'</p>'+updatedLine(date)+list+
+  '<ul class="listings">'+listingCards(model.rows)+'</ul>'+renderFaq(model.faq),
+  trail:[['Home','/'],['Jobs','/jobs/'],[model.h1,model.path]]});
+}
+
 export function renderCity(target, rows, details, date, related = []) {
   return renderArea(target, rows, details, date, related);
 }
@@ -150,14 +170,7 @@ export function renderArea(target, rows, details, date, related = [], now = Date
   const faq = indexable ? areaFaq(target, facts, date, place, rows) : [];
   const visible = rows.slice(0, DISPLAY_LIMIT);
   const detailIds = rows.filter(job => details.has(String(job.id))).map(job => job.id);
-  const items = visible.map(job => {
-    const detail = details.has(String(job.id));
-    return '<li><h2>' + escape(job.job_title) + '</h2><p>' + escape(job.company + ' · ' + job.location) +
-      '</p>' + (job.posted_at ? '<p>Posted ' + escape(job.posted_at.slice(0, 10)) + '</p>' : '') + (job.source === 'jobg8' && !detail
-        ? '<button type="button" data-partner-job="' + escape(JSON.stringify({source:job.source,apply_url:job.apply_url,job_title:job.job_title,company:job.company,country:job.country})) + '">Apply now</button>'
-        : '<a rel="noopener noreferrer" href="' + escape(detail ? postingPath(job.id) : applicationUrl(job.apply_url)) + '">' + (detail ? 'View job details' : 'View original listing') + '</a>') +
-      (job.source === 'adzuna' ? ' <small>Job source: Adzuna</small>' : '') + '</li>';
-  }).join('\n');
+  const items = listingCards(rows, details);
   const status = count
     ? 'Showing ' + visible.length + ' of ' + count + ' open listings as of ' + date + '.'
     : 'No open listings in the ' + date + ' snapshot.';
@@ -306,6 +319,9 @@ async function build() {
   const { cityPages, statePages } = planPages(catalogue, roles, regions, now);
   const indexed = [...statePages, ...cityPages.filter(({ rows }) => rows.length >= MIN_CITY_JOBS)];
   const hubs = planHubs(catalogue, roles, regions, now);
+  const demand = planRemote(catalogue,roles,now,date);
+  for (const model of demand) model.children=demand.filter(child=>child!==model && child.role);
+  for (const model of demand) await writePage(model.path,renderDemand(model,date,new Set(demand.map(item=>item.path))));
   for (const hub of hubs) await writePage('/jobs/' + hub.id + '/', renderHub(hub, indexed, date));
   await prunePages('', new Set(hubs.map(hub => hub.id)), name => HUBS.some(hub => hub.id === name));
   for (const { target, rows } of [...statePages, ...cityPages]) {
@@ -342,6 +358,7 @@ async function build() {
   const sitemap = join(ROOT, 'sitemap.xml');
   const paths = [
     ...(indexed.length ? ['/jobs/'] : []),
+    ...demand.map(model=>model.path),
     ...hubs.map(hub => '/jobs/' + hub.id + '/'),
     ...indexed.map(({ target }) => areaPath(target)),
     ...postings.map(job => postingPath(job.id)),
