@@ -10,7 +10,7 @@ export const KEY = '1f0e8b72f79c843779156477ed99e958';
 export function urlsFor(files, read = file => existsSync(file) ? readFileSync(file, 'utf8') : null) {
   const urls = new Set();
   for (const file of files) {
-    if (!/^(jobs\/.*index\.html|index\.html|[a-z-]+\.html)$/.test(file) || file === 'results.html') continue;
+    if (!/^((?:jobs|salaries|h1b)\/.*index\.html|index\.html|[a-z-]+\.html)$/.test(file) || file === 'results.html') continue;
     const html = read(file);
     if (!html || /<meta name="robots" content="noindex/.test(html)) continue;
     urls.add(SITE + '/' + file.replace(/index\.html$/, ''));

@@ -27,3 +27,9 @@ test('ping posts the key and URLs and accepts 200/202', async () => {
   assert.match(out, /1 URLs submitted/);
   await assert.rejects(ping(['x'], async () => ({ status: 403 })));
 });
+
+test('salary and H-1B pages are submitted too', () => {
+  const html = '<html><head></head></html>';
+  assert.deepEqual(urlsFor(['salaries/data-analyst/texas/index.html', 'h1b/data-analyst/index.html', 'react/dist/index.html'], () => html),
+    ['https://fortunejobsai.com/salaries/data-analyst/texas/', 'https://fortunejobsai.com/h1b/data-analyst/']);
+});
