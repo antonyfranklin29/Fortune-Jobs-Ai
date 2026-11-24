@@ -1,0 +1,26 @@
+{
+  "heading": "Free ATS resume score and job matches",
+  "answer": "Fortune Jobs AI offers a free ATS resume readiness check in your browser. It checks headings, contact details, length and keywords from a target job description you provide. Supported files are text-based PDF and DOCX up to 5 MB. The score explains useful improvements; it is not an employer ATS result or a hiring prediction.",
+  "faq": [
+    {
+      "q": "What does the ATS resume score check?",
+      "a": "It checks standard headings, contact information, dated experience, skills, measurable results, length and keywords from a target job description you paste. File validation accepts text-based PDF and DOCX. It does not certify every ATS layout or predict an employer’s decision."
+    },
+    {
+      "q": "Is the resume score free?",
+      "a": "Yes. The ATS readiness score is free, with no account or credit card required. Optional paid AI features are separate from this local score."
+    },
+    {
+      "q": "Which files can I check?",
+      "a": "Use a text-based PDF or DOCX up to 5 MB. Scanned image-only PDFs need text extraction or conversion first. Password-protected files may need the password removed."
+    },
+    {
+      "q": "Is my resume stored?",
+      "a": "On this score page, the file is read locally and the extracted text is held in browser memory, not uploaded to resume storage. If you continue to matching, reviewed role, skill, experience and area details are kept in this tab’s session storage for up to two hours and can be cleared. Separate account uploads and optional AI features follow the Privacy Policy."
+    },
+    {
+      "q": "How can I improve my score?",
+      "a": "Use clear headings and contact details, add dated experience and results you can verify, and include relevant skills you actually have. Paste the target job description to review keyword gaps, then edit your resume. Do not invent qualifications or chase a guaranteed hiring score."
+    }
+  ]
+}

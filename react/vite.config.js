@@ -13,6 +13,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         home: resolve(import.meta.dirname, 'index.html'),
+        tracker: resolve(import.meta.dirname, 'application-tracker.html'),
         find: resolve(import.meta.dirname, 'find-jobs.html'),
         results: resolve(import.meta.dirname, 'results.html'),
         login: resolve(import.meta.dirname, 'login.html'),

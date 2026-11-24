@@ -3,7 +3,7 @@ const path = require('node:path');
 
 const dist = path.resolve(__dirname, '..', 'dist');
 const required = [
-  'index.html', 'find-jobs.html', 'results.html', 'login.html',
+  'index.html', 'application-tracker.html', 'find-jobs.html', 'results.html', 'login.html',
   'employer-login.html', 'profile.html', 'employers.html',
   'resume-search.html', 'resume-builder.html', 'privacy.html',
   'terms.html', 'about.html', 'contact.html', 'email-preferences.html', 'apply.html'

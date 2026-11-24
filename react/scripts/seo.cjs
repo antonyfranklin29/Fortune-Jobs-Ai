@@ -11,6 +11,7 @@ const PAGES = {
     description: 'Free AI-powered job portal: search 20,000+ jobs from employer career sites and trusted job networks. Get a free ATS resume score, AI job matching and AI interview coaching.' },
   'find-jobs.html': { url: '/find-jobs.html', title: 'Find U.S. Jobs by Title and City | Fortune Jobs AI',
     description: 'Search U.S. jobs by title, city or state, including remote jobs. Each listing links to the original posting. Free job search with AI matching.' },
+  'application-tracker.html': { url:'/application-tracker.html',title:'Free Job Application Tracker | Fortune Jobs AI',description:'Track saved jobs, applications, interviews and offers in your free Fortune Jobs AI account. Update stages and keep private notes.' },
   'resume-search.html': { url: '/resume-search.html', title: 'Free ATS Resume Score and Job Matches | Fortune Jobs AI',
     description: 'Upload your resume (PDF or DOCX) to get a free ATS readiness score, see missing keywords and find matching jobs. Your file stays in your browser.' },
   'resume-builder.html': { url: '/resume-builder.html', title: 'Free Resume Builder with ATS Score Checker | Fortune Jobs AI',
@@ -71,7 +72,7 @@ function head(file, p, html = '') {
   const faq = faqSchema(html);
   if (faq) tags.push(`<script type="application/ld+json">${JSON.stringify(faq).replace(/</g, '\\u003c')}</script>`);
   if (file === 'about.html') tags.push(`<script type="application/ld+json">${JSON.stringify({ ...ABOUT, mainEntity: ORG['@graph'][0] })}</script>`);
-  if (APP[file]) tags.push(`<script type="application/ld+json">${JSON.stringify(appSchema(file, url)).replace(/</g, '\\u003c')}</script>`);
+  if (APP[file] && file !== 'resume-search.html') tags.push(`<script type="application/ld+json">${JSON.stringify(appSchema(file, url)).replace(/</g, '\\u003c')}</script>`);
   return `<!--seo-->${tags.join('')}<!--/seo-->`;
 }
 
@@ -79,6 +80,11 @@ const root = path.resolve(__dirname, '..');
 for (const [file, p] of Object.entries(PAGES)) {
   const f = path.join(root, file);
   let html = fs.readFileSync(f, 'utf8');
+  if(file==='resume-search.html'){
+    const score=JSON.parse(fs.readFileSync(path.join(root,'src/resume/score-content.json'),'utf8'));
+    const block='<style>.prerender{visibility:hidden;animation:fja-prerender 0s 4s forwards}@keyframes fja-prerender{to{visibility:visible}}</style><main class="prerender" style="max-width:760px;margin:auto;padding:24px;font-family:Inter,Arial,sans-serif;color:#10243b"><h1>'+esc(score.heading)+'</h1><p>'+esc(score.answer)+'</p><h2>Frequently asked questions</h2>'+score.faq.map(({q,a})=>'<h3>'+esc(q)+'</h3><p>'+esc(a)+'</p>').join('')+'<p><a href="/privacy.html">Privacy Policy</a></p></main>';
+    html=html.replace(/(<div id="root">)[\s\S]*?(<\/div>)/,'$1'+block+'$2');
+  }
   html = html.replace(/<!--seo-->[\s\S]*?<!--\/seo-->/, '').replace(/<title>[^<]*<\/title>/, `<title>${esc(p.title)}</title>${head(file, p, html)}`);
   fs.writeFileSync(f, html);
 }

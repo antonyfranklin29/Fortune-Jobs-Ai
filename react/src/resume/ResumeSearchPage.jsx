@@ -1,3 +1,4 @@
+import scoreContent from './score-content.json';
 // resume-search.html: start job matching from a resume, from manually entered
 // experience, or with nothing at all. The file is read in this browser and never
 // uploaded; reviewed details stay in sessionStorage for up to two hours
@@ -130,7 +131,7 @@ export function ResumeSearchPage() {
     <div className="fja-res fja-resume-search">
       <nav className="nav"><a className="brand" href="index.html">Fortune Jobs AI</a><a href="about.html">About</a><a href="find-jobs.html" style={{ color: 'var(--gold)' }}>Find Jobs</a></nav>
       <main>
-        <h1>Get job matches based on your experience</h1>
+        <h1>{scoreContent.heading}</h1><p className="intro score-answer">{scoreContent.answer}</p>
         <p className="intro">Upload a resume or enter your experience and skills yourself. We’ll show an explainable fit estimate when a job listing has enough detail. You can also <a href="find-jobs.html?resume=0">search jobs without adding any details</a>.</p>
         <section className="panel">
           <h2>Choose how to start</h2>
@@ -182,6 +183,7 @@ export function ResumeSearchPage() {
             <p className="sub">Want to fix these? <a href="resume-builder.html">Open the resume builder</a> and import the same file.</p>
           </div>
         )}
+        <section className="panel" aria-label="Frequently asked questions"><h2>Frequently asked questions</h2>{scoreContent.faq.map(({q,a})=><div key={q}><h3>{q}</h3><p>{a}</p></div>)}<a href="privacy.html">Read the Privacy Policy</a></section>
         <p className="sub">Fit estimates are based on confirmed skills and details found in each job listing. They are not ATS scores or hiring predictions. Search stays available without a resume.</p>
       </main>
     </div>
