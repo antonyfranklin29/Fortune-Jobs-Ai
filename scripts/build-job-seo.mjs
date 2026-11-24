@@ -8,7 +8,7 @@ import {
 } from '../jobs/catalogue.mjs';
 
 import {entryEvidence} from '../jobs/levels.mjs';
-import {planRemote,planEntry} from '../jobs/demand.mjs';
+import {planRemote,planEntry,planSalary,typicalPay} from '../jobs/demand.mjs';
 import { HUBS, MIN_HUB_JOBS, advertiserName, areaFacts, answerBlock, areaFaq, dateLabel, faqSchema, hubAnswer, hubFaq, payRange, fmt } from '../jobs/geo.mjs';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
@@ -147,11 +147,17 @@ export function listingCards(rows, details = new Set()) {
       (job.source === 'adzuna' ? ' <small>Job source: Adzuna</small>' : '') + '</li>';
   }).join('\n');
 }
+export function salaryDetails(model) {
+ if(!model.stats)return '';
+ const stats=model.stats;
+ return '<section><h2>Listed pay summary</h2><p>'+stats.count+' usable listings; median listed midpoint: '+escape(typicalPay(stats.median,stats.unit))+'.</p>'+
+ (stats.employers.length?'<h3>Highest listed employer medians</h3><table><thead><tr><th>Employer</th><th>Median listed midpoint</th><th>Listings</th></tr></thead><tbody>'+stats.employers.map(item=>'<tr><td>'+escape(item.name)+'</td><td>'+escape(typicalPay(item.median,stats.unit))+'</td><td>'+item.count+'</td></tr>').join('')+'</tbody></table>':'')+'</section>';
+}
 export function renderDemand(model,date,paths = new Set()) {
  const links=(model.children || []).filter(child=>paths.has(child.path));
  const list=links.length?'<section><h2>Browse roles and locations</h2><ul>'+links.map(child=>'<li>'+link(child.path,child.h1)+' ('+child.rows.length+')</li>').join('')+'</ul></section>':'';
  return page({path:model.path,title:model.h1,description:model.answer,faq:model.faq,
-  body:'<h1>'+escape(model.h1)+'</h1><p class="geo-answer">'+escape(model.answer)+'</p>'+updatedLine(date)+list+
+  body:'<h1>'+escape(model.h1)+'</h1><p class="geo-answer">'+escape(model.answer)+'</p>'+updatedLine(date)+salaryDetails(model)+list+
   '<ul class="listings">'+listingCards(model.rows)+'</ul>'+renderFaq(model.faq),
   trail:[['Home','/'],['Jobs','/jobs/'],[model.h1,model.path]]});
 }
@@ -321,7 +327,7 @@ async function build() {
   const { cityPages, statePages } = planPages(catalogue, roles, regions, now);
   const indexed = [...statePages, ...cityPages.filter(({ rows }) => rows.length >= MIN_CITY_JOBS)];
   const hubs = planHubs(catalogue, roles, regions, now);
-  const demand = [...planRemote(catalogue,roles,now,date),...planEntry(catalogue,roles,regions,now,date)];
+  const demand = [...planRemote(catalogue,roles,now,date),...planEntry(catalogue,roles,regions,now,date),...planSalary(catalogue,roles,regions,now,date)];
   for (const model of demand) model.children=demand.filter(child=>child!==model && child.role);
   for (const model of demand) await writePage(model.path,renderDemand(model,date,new Set(demand.map(item=>item.path))));
   for (const hub of hubs) await writePage('/jobs/' + hub.id + '/', renderHub(hub, indexed, date));
