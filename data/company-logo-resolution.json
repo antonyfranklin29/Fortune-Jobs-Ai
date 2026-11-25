@@ -104738,5 +104738,225 @@
         "domain": "signalfire.co.uk"
       }
     ]
+  },
+  "bdi": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-25T18:43:02.243Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "BDI",
+        "domain": "bdiexpress.com"
+      },
+      {
+        "name": "BDI",
+        "domain": "bdiusa.com"
+      },
+      {
+        "name": "BDI",
+        "domain": "bdi.eu"
+      },
+      {
+        "name": "BDI",
+        "domain": "bdiagency.com"
+      },
+      {
+        "name": "BDI",
+        "domain": "bditest.com"
+      }
+    ]
+  },
+  "brindley engineering": {
+    "status": "matched",
+    "domain": "brindleyengineering.com",
+    "checked_at": "2026-11-25T18:43:02.465Z",
+    "resolver_version": 2
+  },
+  "cognition": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-25T18:43:02.660Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Cognition",
+        "domain": "cognition.com"
+      },
+      {
+        "name": "Cognition",
+        "domain": "cognitionads.com"
+      },
+      {
+        "name": "Cognition",
+        "domain": "cognitionstudio.com"
+      },
+      {
+        "name": "Cognition",
+        "domain": "gocognition.com"
+      },
+      {
+        "name": "COGNITION",
+        "domain": "cognitionlabs.io"
+      }
+    ]
+  },
+  "constellation technologies": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-25T18:43:02.893Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Constellation Technologies,",
+        "domain": "cti-md.com"
+      },
+      {
+        "name": "Constellation Technologies",
+        "domain": "constellationtechnologies.com.au"
+      },
+      {
+        "name": "Constellation Technologies",
+        "domain": "constellation.global"
+      },
+      {
+        "name": "Constellation Technologies",
+        "domain": "jamseekapp.com"
+      },
+      {
+        "name": "Constellation",
+        "domain": "constellationenergy.com"
+      }
+    ]
+  },
+  "deputy assistant secretary for finance": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-25T18:43:03.117Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Deputy Finance",
+        "domain": "deputyfinance.com"
+      },
+      {
+        "name": "Deputy",
+        "domain": "deputy.com"
+      },
+      {
+        "name": "Deputy",
+        "domain": "deputyandmizell.com"
+      },
+      {
+        "name": "Assistant Secretary for Heritage and Services",
+        "domain": "sad.mt.gov.br"
+      },
+      {
+        "name": "DEPUTY",
+        "domain": "washcodeputy.org"
+      }
+    ]
+  },
+  "gritter francona": {
+    "status": "matched",
+    "domain": "gritterfrancona.com",
+    "checked_at": "2026-11-25T18:43:03.303Z",
+    "resolver_version": 2
+  },
+  "ingram micro": {
+    "status": "matched",
+    "domain": "ingrammicro.com",
+    "checked_at": "2026-11-25T18:43:03.498Z",
+    "resolver_version": 2
+  },
+  "invicti security": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-25T18:43:03.833Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Invicti",
+        "domain": "invicti.com"
+      },
+      {
+        "name": "Acunetix by Invicti",
+        "domain": "acunetix.com"
+      },
+      {
+        "name": "Invicti Ltd",
+        "domain": "invicti.co.uk"
+      },
+      {
+        "name": "Abnormal Security",
+        "domain": "abnormalsecurity.com"
+      },
+      {
+        "name": "Keeper Security",
+        "domain": "keepersecurity.com"
+      }
+    ]
+  },
+  "leaders group/ sports business journal": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-25T18:43:04.055Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Sports Business Journal",
+        "domain": "sportsbusinessjournal.com"
+      },
+      {
+        "name": "Sports Business Leaders",
+        "domain": "sportsbusinessleaders.com"
+      },
+      {
+        "name": "Leaders Sports",
+        "domain": "leadershealth.com.au"
+      },
+      {
+        "name": "Business Leaders",
+        "domain": "business-leaders.net"
+      },
+      {
+        "name": "Business Leaders Group AG",
+        "domain": "business-leaders.ch"
+      }
+    ]
+  },
+  "transportation security administration": {
+    "status": "matched",
+    "domain": "transportationsecurityadministration.com",
+    "checked_at": "2026-11-25T18:43:04.256Z",
+    "resolver_version": 2
+  },
+  "weekday ai": {
+    "status": "review",
+    "domain": null,
+    "checked_at": "2026-11-25T18:43:04.458Z",
+    "resolver_version": 2,
+    "candidates": [
+      {
+        "name": "Weekday",
+        "domain": "weekday.works"
+      },
+      {
+        "name": "Weekday",
+        "domain": "weekday.com"
+      },
+      {
+        "name": "Weekday",
+        "domain": "weekday.co.jp"
+      },
+      {
+        "name": "Weekday",
+        "domain": "weekdayevansville.com"
+      },
+      {
+        "name": "Weekday",
+        "domain": "weekdaygroup.com.au"
+      }
+    ]
   }
 }
