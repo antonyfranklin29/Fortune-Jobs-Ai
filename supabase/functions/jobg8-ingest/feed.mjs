@@ -85,8 +85,10 @@ export function normalize(raw, { stateIndex, classify, cleanText }) {
   const number = key => /^\d+(?:\.\d+)?$/.test(raw[key] || '') ? Number(raw[key]) : null;
   const min = number('SalaryMinimum'), max = number('SalaryMaximum');
   const currency = t('SalaryCurrency', 10);
-  const amount = n => (currency === 'USD' ? '$' : currency + ' ') + n.toLocaleString('en-US');
-  const salary = min || max ? [min, max].filter(n => n != null && n > 0).map(amount).join(' – ') + (t('SalaryPeriod') ? ' / ' + t('SalaryPeriod', 30) : '') : null;
+  const amount = n => (/^(usd|us\s*dollars?|\$)$/i.test(currency.replace(/\s+/g, ' ')) ? '$' : currency + ' ') + n.toLocaleString('en-US');
+  const period = { annual: 'year', annually: 'year', yearly: 'year', hourly: 'hour', monthly: 'month', weekly: 'week', daily: 'day' }[t('SalaryPeriod').toLowerCase()] || t('SalaryPeriod', 30);
+  const bounds = [...new Set([min, max].filter(n => n != null && n > 0))];
+  const salary = bounds.length ? bounds.map(amount).join(' – ') + (period ? ' / ' + period : '') : null;
   // Reuse the portal's plain-text cleaner; remove active blocks first. Never insert feed HTML.
   const description = cleanText(String(raw.Description || '').replace(/<(script|style|iframe|object|svg)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, ' '), 10_000);
   const meta = Object.fromEntries(['Classification','SubClassification','AdditionalClassification1','AdditionalClassification2','AdditionalClassification3','AdditionalClassification4','AdvertiserType','DisplayReference','ConversionType','LogoURL','Language','StartDate','Duration','WorkHours','SalaryAdditional'].filter(k => raw[k]).map(k => [k, t(k, 1000)]));

@@ -35,6 +35,12 @@ test('five-job ZIP streams across arbitrary chunks; maps identity, exact signed 
  const optional=fixture.replace(/<SellPrice>.*?<\/SellPrice>/g,'').replace(/<SalaryMinimum>.*?<\/SalaryPeriod>/g,'');const empty=await rows(optional);assert.equal(empty[0].jobg8_sell_price,null);assert.equal(empty[0].salary,null);
 });
 
+test('salary text reads naturally for US Dollar currency names and equal bounds',()=>{
+ const raw={SenderReference:'s1',Position:'CDL A Driver',AdvertiserName:'Carrier',Country:'United States',Location:'VA',Area:'Hampton',ApplicationURL:'https://a.test/x',SalaryMinimum:'107000',SalaryMaximum:'107000',SalaryCurrency:'US Dollar',SalaryPeriod:'Annual'};
+ assert.equal(normalize(raw,context).salary,'$107,000 / year');
+ assert.equal(normalize({...raw,SalaryMaximum:'110000',SalaryPeriod:'Hourly'},context).salary,'$107,000 – $110,000 / hour');
+});
+
 test('rejects dangerous XML and truncation; skips invalid advertiser names and non-US rows',async()=>{
  await assert.rejects(rows(fixture.replace('<Jobs>','<!DOCTYPE Jobs [<!ENTITY steal SYSTEM "file:///etc/passwd">]><Jobs>')));
  assert.equal((await rows(fixture.replace('Example Care Hospital','Jobg8')))[0].skip,'invalid_identity');
