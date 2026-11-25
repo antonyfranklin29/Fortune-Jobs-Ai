@@ -1,4 +1,5 @@
 import {freshness} from './seo-freshness.mjs';
+import {editorialSection} from '../jobs/editorial.mjs';
 import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -55,7 +56,7 @@ function page({ path, title, description, body, faq = [], faqOnly = false, noind
     (noindex ? '<meta name="robots" content="noindex,follow">\n' : '') +
     '<link rel="icon" href="/favicon.ico?v=2" sizes="48x48"><link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2"><link rel="stylesheet" href="/jobs/jobs.css">\n' +
     '<script src="/config.js"></script>' + (live ? '<script type="module" src="/jobs/live.mjs"></script>\n' : '') +
-    (faqOnly ? '' : '<script type="application/ld+json">' + schema + '</script>\n') +
+    '<script type="application/ld+json">' + schema + '</script>\n' +
     (faq.length ? '<script type="application/ld+json">' + JSON.stringify(faqSchema(faq)).replaceAll('<', '\\u003c') + '</script>\n' : '') +
     '<script defer src="/source-tracking.js"></script></head><body><header><nav aria-label="Main navigation">' +
     '<a class="brand" href="/"><img src="/favicon.svg" alt="">Fortune Jobs AI</a>' +
@@ -205,7 +206,7 @@ export function renderDemand(model,date,paths = new Set(),catalogue = []) {
  const countLabel=child=>child.kind==='h1b'?child.employerCount+' employers':child.kind==='entry-level'?child.count+' jobs'+(child.internships?' + '+child.internships+(child.internships===1?' internship':' internships'):''):child.kind==='salary'?child.stats.count+' listed salaries':child.rows.length+' jobs';
  const list=links.length?'<section><h2>Browse roles and locations</h2><ul>'+links.map(child=>'<li>'+link(child.path,child.h1)+' ('+countLabel(child)+')</li>').join('')+'</ul></section>':'';
  return page({path:model.path,title:model.h1,description:model.answer,faq:model.faq,
-  faqOnly:true,body:'<h1>'+escape(model.h1)+'</h1><p class="geo-answer">'+escape(model.answer)+'</p>'+updatedLine(date)+discoveryChips(model,paths)+(model.role && model.kind==='entry-level' && paths.has('/jobs/'+model.role+'/')?'<p>'+link('/jobs/'+model.role+'/','Browse this role at all experience levels')+'</p>':'')+(model.role && model.kind==='salary'?'<p>'+link('/results.html?'+new URLSearchParams({mode:'quick',country:'us',q:model.title,...(model.stateName?{location:model.stateName}:{})}),'See open jobs')+'</p>':'')+(model.kind==='salary'?salaryDetails(model):'')+h1bDetails(model,catalogue)+list+
+  faqOnly:true,body:'<h1>'+escape(model.h1)+'</h1><p class="geo-answer">'+escape(model.answer)+'</p>'+updatedLine(date)+discoveryChips(model,paths)+(model.role && model.kind==='entry-level' && paths.has('/jobs/'+model.role+'/')?'<p>'+link('/jobs/'+model.role+'/','Browse this role at all experience levels')+'</p>':'')+(model.role && model.kind==='salary'?'<p>'+link('/results.html?'+new URLSearchParams({mode:'quick',country:'us',q:model.title,...(model.stateName?{location:model.stateName}:{})}),'See open jobs')+'</p>':'')+(model.kind==='salary'?salaryDetails(model):'')+h1bDetails(model,catalogue)+editorialSection(model.path,model.rows,model.role,paths)+list+
   (model.rows.length?'<ul class="listings">'+listingCards(model.rows)+'</ul>':'')+renderFaq(model.faq),
   trail:[['Home','/'],['Jobs','/jobs/'],[model.h1,model.path]]});
 }
@@ -238,7 +239,7 @@ export function renderArea(target, rows, details, date, related = [], now = Date
     '</p>' + updatedLine(date) + discoveryChips(target,discoveryPaths) + '<p>' + link(siteSearch(target), city ? 'Search this city in Quick Match' : 'Search this role nationwide') + '</p>' +
     '<section aria-label="Open listings" data-job-page="area" data-city="' + escape(city || '') +
     '" data-state="' + state + '" data-role="' + role + '" data-detail-ids="' + detailIds.join(',') +
-    '"><p role="status">' + status + '</p><ul class="listings">' + items + '</ul></section>' + renderInsights(target, rows, now) + renderFaq(faq) + relatedLinks;
+    '"><p role="status">' + status + '</p><ul class="listings">' + items + '</ul></section>' + renderInsights(target, rows, now) + editorialSection(path,rows,role,discoveryPaths) + renderFaq(faq) + relatedLinks;
   const stateTrail = stateName ? [[stateName, directoryState(state)]] : [];
   return page({ path, title: heading, description: 'Browse '+count+' open '+target.title+' jobs in '+place+'. Check listed pay and requirements, then review the original posting before applying.',
     body, faq, noindex: !indexable, live: true,

@@ -45,10 +45,10 @@ test('role chips and llms links only point at generated targets',()=>{
  const html=discoveryChips({role:'software-engineer',stateName:'Texas'},paths);assert(html.includes('Remote'));assert(html.includes('Salary'));assert(!html.includes('H-1B filers'));
  const text=updateLlms('# Site\n## Main pages\n- Home\n\n## Other\nText',paths);assert(text.includes('/jobs/remote/'));assert(!text.includes('https://fortunejobsai.com/h1b/'));assert.equal(updateLlms(text,paths),text);
 });
-test('new page schemas mirror visible FAQs and contain only FAQPage structured data',()=>{
+test('new page schemas mirror visible FAQs and include BreadcrumbList and visible FAQPage only',()=>{
  const page=planRemote(Array.from({length:25},(_,i)=>row(i)),roles,now,date)[0],html=renderDemand(page,date);
- const schemas=[...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map(match=>JSON.parse(match[1]));assert.equal(schemas.length,1);assert.equal(schemas[0]['@type'],'FAQPage');
+ const schemas=[...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map(match=>JSON.parse(match[1]));assert.deepEqual(schemas.map(s=>s['@type']),['BreadcrumbList','FAQPage']);
  const decode=s=>s.replaceAll('&amp;','&').replaceAll('&lt;','<').replaceAll('&gt;','>').replaceAll('&quot;','"').replaceAll('&#39;',"'");
  const visible=[...html.match(/<section class="faq"[\s\S]*?<\/section>/)[0].matchAll(/<h3>(.*?)<\/h3><p>(.*?)<\/p>/g)].map(([,q,a])=>({q:decode(q),a:decode(a)}));
- assert.deepEqual(schemas[0].mainEntity.map(item=>({q:item.name,a:item.acceptedAnswer.text})),visible);
+ assert.deepEqual(schemas[1].mainEntity.map(item=>({q:item.name,a:item.acceptedAnswer.text})),visible);
 });
