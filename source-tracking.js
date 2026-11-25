@@ -2,7 +2,8 @@
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) {
-    root.FJSourceTracking = api; api.capture(root.location.search);
+    root.FJSourceTracking = api; api.capture(root.location.search); api.captureLanding();
+    root.document?.addEventListener('DOMContentLoaded', () => { api.logFunnel('landing'); });
     root.document?.addEventListener('click', event => {
       const button = event.target.closest?.('[data-partner-job]');
       if (!button) return;
@@ -62,5 +63,45 @@
         p_campaign: attribution.campaign, p_job_key: job_key, p_country_hint: /^[a-z]{2}$/i.test(job.country || '') ? job.country.toLowerCase() : null }),
     });
   }
-  return { capture, clean, appendJobg8, methodFor, navigate };
+
+  // Tab-session attribution only. Never retain a query string, fragment, raw
+  // referrer URL, email, resume text or search text in funnel storage.
+  const roleIds=new Set(["data-analyst", "business-analyst", "business-intelligence-developer", "power-bi-developer", "tableau-developer", "sql-developer", "data-engineer", "data-scientist", "machine-learning-engineer", "software-engineer", "full-stack-developer", "devops-engineer", "cloud-engineer", "qa-engineer", "cybersecurity-analyst", "servicenow-developer", "salesforce-developer", "anaplan-model-builder", "product-manager", "project-manager", "registered-nurse", "accountant", "marketing-manager", "human-resources-manager", "sales-representative", "customer-service-representative", "licensed-practical-nurse", "certified-nursing-assistant", "medical-assistant", "pharmacy-technician", "physical-therapist", "respiratory-therapist", "home-health-aide", "cdl-truck-driver", "delivery-driver", "warehouse-associate", "forklift-operator", "dispatcher", "logistics-coordinator"]), locations=new Set(["alabama", "alaska", "arizona", "arkansas", "california", "colorado", "connecticut", "delaware", "florida", "georgia", "hawaii", "idaho", "illinois", "indiana", "iowa", "kansas", "kentucky", "louisiana", "maine", "maryland", "massachusetts", "michigan", "minnesota", "mississippi", "missouri", "montana", "nebraska", "nevada", "new-hampshire", "new-jersey", "new-mexico", "new-york", "north-carolina", "north-dakota", "ohio", "oklahoma", "oregon", "pennsylvania", "rhode-island", "south-carolina", "south-dakota", "tennessee", "texas", "utah", "vermont", "virginia", "washington", "west-virginia", "wisconsin", "wyoming", "district-of-columbia", "raleigh-nc", "chicago-il", "new-york-ny", "austin-tx", "seattle-wa", "san-francisco-ca", "dallas-tx", "houston-tx", "charlotte-nc", "atlanta-ga", "boston-ma", "washington-dc", "jersey-city-nj", "newark-nj", "arlington-va", "los-angeles-ca", "san-jose-ca", "denver-co", "phoenix-az"]);
+  const publicPages=new Set(['/', '/index.html','/find-jobs.html','/resume-search.html','/resume-builder.html','/application-tracker.html','/about.html','/contact.html','/privacy.html','/terms.html','/results.html','/login.html','/employer-login.html']);
+  function safePath(value) {
+    let path;try{path=new URL(String(value||'/'),'https://fortunejobsai.com').pathname;}catch{return '/other';}
+    if(path==='/index.html')return '/';if(publicPages.has(path))return path;
+    if(!/^\/(jobs|salaries|h1b)\/(?:[a-z-]+\/)*$/.test(path))return '/other';
+    const [section,first,second,third,...rest]=path.split('/').filter(Boolean);
+    if(rest.length)return '/other';if(!first)return path;
+    if(section==='jobs' && ['tech','healthcare','transport'].includes(first) && !second)return path;
+    if(section==='jobs' && ['remote','entry-level'].includes(first))return (!second || roleIds.has(second) && (!third || first==='entry-level' && locations.has(third)))?path:'/other';
+    return roleIds.has(first) && (!second || locations.has(second)) && !third?path:'/other';
+  }
+  const refDomains=['google.com','google.co.uk','bing.com','duckduckgo.com','yahoo.com','linkedin.com','instagram.com','facebook.com','reddit.com','t.co','threads.net','youtube.com','fortunejobsai.com'];
+  function referrerBucket(value){try{const host=new URL(value).hostname.toLowerCase();return refDomains.find(d=>host===d||host.endsWith('.'+d))||'other';}catch{return 'direct';}}
+  const allowed=env=>!(env?.navigator?.globalPrivacyControl || ['1','yes'].includes(env?.navigator?.doNotTrack));
+  function captureLanding(store=storage(), env=typeof window==='object'?window:null){
+    if(!env || !allowed(env))return null;
+    try{const old=JSON.parse(store?.getItem('fj_first_landing')||'null');if(old && /^[a-f0-9-]{36}$/.test(old.id) && old.path===safePath(old.path) && Date.now()-old.started<7*86400000)return old;}catch{}
+    if(!env.crypto?.randomUUID)return null;
+    const item={id:env.crypto.randomUUID(),path:safePath(env.location?.pathname),referrer:referrerBucket(env.document?.referrer),started:Date.now(),...capture(env.location?.search||'',store)};
+    try{store?.setItem('fj_first_landing',JSON.stringify(item));}catch{return null;}return item;
+  }
+  function signupContext(){const item=captureLanding();return item?{id:item.id,path:item.path,referrer:item.referrer,source:item.source,medium:item.medium,campaign:item.campaign}:null;}
+  async function logFunnel(kind,eventId=null){
+    try{const context=signupContext(),config=window.FJ_CONFIG;if(!context || !config || !['landing','search'].includes(kind))return;
+      await fetch(config.url+'/rest/v1/rpc/seo_log_funnel',{method:'POST',credentials:'omit',keepalive:true,headers:{apikey:config.key,Authorization:'Bearer '+config.key,'Content-Type':'application/json'},body:JSON.stringify({p_context:context,p_event:kind,p_event_id:eventId})});
+    }catch{/* Analytics never blocks a search or signup. */}
+  }
+  async function recordSearch(){
+    try{if(!signupContext())return;const params=new URLSearchParams(window.location.search);if(!(params.get('q')||'').trim())return;
+      const pairs=[...params].filter(([k])=>['q','mode','location','country','category','date','work_mode','experience','job_type','salary_min','industry','company','sponsorship','posted'].includes(k)).sort(([a],[b])=>a.localeCompare(b));
+      const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(pairs)));
+      const key='fj_search_'+Array.from(new Uint8Array(hash),v=>v.toString(16).padStart(2,'0')).join('');const store=storage();if(!store)return;
+      const id=store.getItem(key)||crypto.randomUUID();store.setItem(key,id);await logFunnel('search',id);
+    }catch{}
+  }
+
+  return { capture, clean, appendJobg8, methodFor, navigate, safePath, referrerBucket, captureLanding, signupContext, logFunnel, recordSearch };
 });

@@ -83,6 +83,7 @@ async function rememberSearch(userId) {
 }
 
 export function ResultsPage({ afterSearch, afterDashboard }) {
+  useEffect(()=>{ window.FJSourceTracking?.recordSearch?.(); },[]);
   const [jobs, setJobs] = useState([]);
   const [sort, setSort] = useState('relevance');
   const [selected, setSelected] = useState(0);

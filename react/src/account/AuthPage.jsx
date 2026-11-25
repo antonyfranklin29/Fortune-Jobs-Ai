@@ -139,7 +139,7 @@ function AuthPage({ area }) {
       } else if (mode === 'signup') {
         const { data, error } = await fj.sb.auth.signUp({
           email: mail, password,
-          options: { data: { full_name: fullName.trim().slice(0, 120) }, emailRedirectTo: fj.baseUrl() + 'login.html?next=' + encodeURIComponent(nextPage('profile.html')) },
+          options: { data: { full_name: fullName.trim().slice(0, 120), ...(window.FJSourceTracking?.signupContext?.() ? { seo_first_touch: window.FJSourceTracking.signupContext() } : {}) }, emailRedirectTo: fj.baseUrl() + 'login.html?next=' + encodeURIComponent(nextPage('profile.html')) },
         });
         if (error) throw error;
         if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) throw new Error('already registered');
