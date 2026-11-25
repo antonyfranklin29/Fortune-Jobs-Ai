@@ -26,7 +26,7 @@ create table pre_scraped_jobs(id bigint generated always as identity primary key
 create unique index listing_uq on pre_scraped_jobs(source,source_listing_id) where source_listing_id is not null;`);
 await db.exec(readFileSync('migrations/20261122_partner_clicks.sql','utf8'));
 await db.exec(readFileSync('migrations/20261122_partner_search_limits.sql','utf8'));
-await db.exec(readFileSync('migrations/pending/20261122_jobg8_feed.sql','utf8'));
+await db.exec(readFileSync('migrations/20261122_jobg8_feed.sql','utf8'));
 const rpc=async(name,args)=>{const keys=Object.keys(args);const result=await db.query('select public.'+name+'('+keys.map((k,i)=>k+'=> $'+(i+1)).join(',')+') as result',keys.map(k=>typeof args[k]==='object'&&args[k]!==null?JSON.stringify(args[k]):args[k]));return result.rows[0].result;};return{db,rpc};}
 
 test('five-job ZIP streams across arbitrary chunks; maps identity, exact signed links, states and nullable price fields',async()=>{
