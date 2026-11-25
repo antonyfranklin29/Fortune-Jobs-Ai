@@ -432,10 +432,15 @@ async function build() {
       link('/find-jobs.html', 'search all jobs') + '.</p>' + hubDirectory(hubs) + demandDirectory(demand) + '<section><h2>Browse roles and focused searches</h2><ul>'+demand.filter(model=>model.role && !model.state).map(model=>'<li>'+link(model.path,model.h1)+'</li>').join('')+'</ul></section>' + sections,
     noindex: indexed.length === 0 && demand.length === 0,
   }));
+  // Static tools in the generated sitemap section also keep content-based dates.
+  for(const path of ['/application-tracker.html']){
+    try{newFreshness[path]=freshness(oldFreshness[path],await readFile(join(ROOT,path.slice(1)),'utf8'),date);}
+    catch(error){if(error.code!=='ENOENT')throw error;}
+  }
   const sitemap = join(ROOT, 'sitemap.xml');
   const paths = [
     ...(indexed.length || demand.length ? ['/jobs/'] : []),
-    '/application-tracker.html',
+    ...(newFreshness['/application-tracker.html']?['/application-tracker.html']:[]),
     ...demand.map(model=>model.path),
     ...hubs.map(hub => '/jobs/' + hub.id + '/'),
     ...indexed.map(({ target }) => areaPath(target)),

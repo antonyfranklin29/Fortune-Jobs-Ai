@@ -1,6 +1,7 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';
 import {inspect,graphReport,sitemapEntries,robotsBlocked} from '../scripts/seo-audit.mjs';
 import {freshness} from '../scripts/seo-freshness.mjs';
+import {addSitemapUrls} from '../scripts/build-job-seo.mjs';
 const page=(path,links=[])=>({path,mainText:'Useful unique content',title:path,links,issues:[]});
 test('raw HTML detects non-self canonical, mismatched FAQ and JS-only shells',()=>{
  const p=inspect('<html><head><title>Useful sample job search</title><link rel="canonical" href="https://fortunejobsai.com/wrong/"><script type="application/ld+json">{"@type":"FAQPage","mainEntity":[{"name":"Missing question","acceptedAnswer":{"text":"Missing answer"}}]}</script></head><body><div id="root"></div></body></html>','https://fortunejobsai.com/jobs/');
@@ -25,3 +26,5 @@ test('freshness ignores clock-only rebuilds, catches hidden job replacement and 
  assert.equal(freshness(first,html+'<p>Changed useful explanation</p>','2026-11-25',rows).lastmod,'2026-11-25');
  assert.equal(freshness(first,html,'2026-11-25',[{...rows[0],updated_at:'2026-11-25'}]).lastmod,'2026-11-24');
 });
+
+test('static tool sitemap dates use their content record instead of the daily build date',()=>{const xml=addSitemapUrls('<urlset></urlset>',['/application-tracker.html'],'2026-11-25',{'/application-tracker.html':{lastmod:'2026-11-24'}});assert(xml.includes('<lastmod>2026-11-24</lastmod>'));assert(!xml.includes('2026-11-25'));});
