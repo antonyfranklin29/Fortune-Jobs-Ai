@@ -1,0 +1,46 @@
+name: Collect Search Console observations and SEO actions
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Daily collection or report from stored data only
+        type: choice
+        options: [daily, weekly]
+        default: daily
+permissions:
+  contents: read
+concurrency:
+  group: seo-gsc-collector
+  cancel-in-progress: false
+jobs:
+  collect:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts
+      - name: Test the collector and private database permissions
+        run: node --test tests/seo-gsc.mjs
+      - name: Collect finalized observations or render weekly actions
+        env:
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REPORT_MODE: ${{ inputs.mode }}
+        run: |
+          if [ "$REPORT_MODE" = "weekly" ]; then
+            node scripts/seo-gsc.mjs --weekly
+          else
+            node scripts/seo-gsc.mjs
+          fi
+      - name: Retain action report for review (no automatic commit)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: seo-weekly
+          path: docs/ops/seo-weekly.md
+          retention-days: 14
