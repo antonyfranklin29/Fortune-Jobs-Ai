@@ -1,0 +1,1 @@
+import"./rolldown-runtime-COiEfhsA.js";import"./modulepreload-polyfill-P2Xu9kJm.js";import{n as e,r as t,t as n}from"./jsx-runtime-zSn6fQB5.js";import{r}from"./info-Bt1b93L5.js";t();var i=e(),a=n();(0,i.createRoot)(document.getElementById(`root`)).render((0,a.jsx)(r,{}));

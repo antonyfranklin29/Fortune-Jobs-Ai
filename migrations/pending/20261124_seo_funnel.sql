@@ -38,7 +38,7 @@ create function public.seo_valid_context(p jsonb) returns boolean language sql i
  select coalesce(jsonb_typeof(p)='object'
   and (p->>'id') ~ '^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$'
   and (p->>'path')=public.seo_safe_path(p->>'path')
-  and (p->>'referrer') in ('direct','other','google.com','google.co.uk','bing.com','duckduckgo.com','yahoo.com','linkedin.com','instagram.com','facebook.com','reddit.com','t.co','threads.net','youtube.com','fortunejobsai.com')
+  and (p->>'referrer') in ('direct','other','chatgpt.com','openai.com','perplexity.ai','gemini.google.com','copilot.microsoft.com','claude.ai','google.com','google.co.uk','bing.com','duckduckgo.com','yahoo.com','linkedin.com','instagram.com','facebook.com','reddit.com','t.co','threads.net','youtube.com','fortunejobsai.com')
   and (p->>'source') ~ '^[a-z0-9_-]{1,40}$'
   and (p->>'medium') ~ '^[a-z0-9_-]{0,40}$'
   and (p->>'campaign') ~ '^[a-z0-9_-]{0,40}$',false);

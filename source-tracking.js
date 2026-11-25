@@ -78,7 +78,7 @@
     if(section==='jobs' && ['remote','entry-level'].includes(first))return (!second || roleIds.has(second) && (!third || first==='entry-level' && locations.has(third)))?path:'/other';
     return roleIds.has(first) && (!second || locations.has(second)) && !third?path:'/other';
   }
-  const refDomains=['google.com','google.co.uk','bing.com','duckduckgo.com','yahoo.com','linkedin.com','instagram.com','facebook.com','reddit.com','t.co','threads.net','youtube.com','fortunejobsai.com'];
+  const refDomains=['chatgpt.com','openai.com','perplexity.ai','gemini.google.com','copilot.microsoft.com','claude.ai','google.com','google.co.uk','bing.com','duckduckgo.com','yahoo.com','linkedin.com','instagram.com','facebook.com','reddit.com','t.co','threads.net','youtube.com','fortunejobsai.com'];
   function referrerBucket(value){try{const host=new URL(value).hostname.toLowerCase();return refDomains.find(d=>host===d||host.endsWith('.'+d))||'other';}catch{return 'direct';}}
   const allowed=env=>!(env?.navigator?.globalPrivacyControl || ['1','yes'].includes(env?.navigator?.doNotTrack));
   function captureLanding(store=storage(), env=typeof window==='object'?window:null){

@@ -9,7 +9,7 @@ test('first landing wins within a tab, strips private URL material and honors pr
  env.location.pathname='/find-jobs.html';assert.equal(api.captureLanding(store,env).path,context.path);
  assert(!JSON.stringify([...data.values()]).includes('secret@example.com'));assert(!JSON.stringify(first).includes('private'));
  env.navigator.globalPrivacyControl=true;assert.equal(api.captureLanding(store,env),null);
- assert.equal(api.safePath('/jobs/jane-smith/email@example.com/'),'/other');assert.equal(api.safePath('/profile.html'),'/other');assert.equal(api.referrerBucket('https://private-client.example.com/user/secret'),'other');
+ assert.equal(api.safePath('/jobs/jane-smith/email@example.com/'),'/other');assert.equal(api.safePath('/profile.html'),'/other');assert.equal(api.referrerBucket('https://private-client.example.com/user/secret'),'other');assert.equal(api.referrerBucket('https://chatgpt.com/c/abc'),'chatgpt.com');assert.equal(api.referrerBucket('https://gemini.google.com/app'),'gemini.google.com');assert.equal(api.referrerBucket('https://www.google.com/'),'google.com');
 });
 test('private funnel counts deduplicate and only real live Pro conversions count',async()=>{
  const {PGlite}=await import('@electric-sql/pglite');const db=new PGlite();

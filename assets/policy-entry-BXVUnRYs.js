@@ -1,0 +1,1 @@
+import"./rolldown-runtime-COiEfhsA.js";import{n as e,r as t,t as n}from"./jsx-runtime-zSn6fQB5.js";import{a as r,i,o as a}from"./info-Bt1b93L5.js";t();var o=e(),s=n(),c={"privacy.html":r,"terms.html":a,"contact.html":i}[window.location.pathname.split(`/`).pop()]||r;(0,o.createRoot)(document.getElementById(`root`)).render((0,s.jsx)(c,{}));
