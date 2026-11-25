@@ -85,7 +85,8 @@ export function normalize(raw, { stateIndex, classify, cleanText }) {
   const number = key => /^\d+(?:\.\d+)?$/.test(raw[key] || '') ? Number(raw[key]) : null;
   const min = number('SalaryMinimum'), max = number('SalaryMaximum');
   const currency = t('SalaryCurrency', 10);
-  const amount = n => (/^(usd|us\s*dollars?|\$)$/i.test(currency.replace(/\s+/g, ' ')) ? '$' : currency + ' ') + n.toLocaleString('en-US');
+  // Feed sends e.g. "US Dollar (USD)", truncated by cleanText; treat any USD spelling as $.
+  const amount = n => (/^(usd\b|us\s*dollar|\$)/i.test(currency.trim()) ? '$' : currency.trim() + ' ') + n.toLocaleString('en-US');
   const period = { annual: 'year', annually: 'year', yearly: 'year', hourly: 'hour', monthly: 'month', weekly: 'week', daily: 'day' }[t('SalaryPeriod').toLowerCase()] || t('SalaryPeriod', 30);
   const bounds = [...new Set([min, max].filter(n => n != null && n > 0))];
   const salary = bounds.length ? bounds.map(amount).join(' – ') + (period ? ' / ' + period : '') : null;

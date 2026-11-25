@@ -39,6 +39,7 @@ test('salary text reads naturally for US Dollar currency names and equal bounds'
  const raw={SenderReference:'s1',Position:'CDL A Driver',AdvertiserName:'Carrier',Country:'United States',Location:'VA',Area:'Hampton',ApplicationURL:'https://a.test/x',SalaryMinimum:'107000',SalaryMaximum:'107000',SalaryCurrency:'US Dollar',SalaryPeriod:'Annual'};
  assert.equal(normalize(raw,context).salary,'$107,000 / year');
  assert.equal(normalize({...raw,SalaryMaximum:'110000',SalaryPeriod:'Hourly'},context).salary,'$107,000 – $110,000 / hour');
+ assert.equal(normalize({...raw,SalaryCurrency:'US Dollar (USD)',SalaryPeriod:'Hourly'},context).salary,'$107,000 / hour');
 });
 
 test('rejects dangerous XML and truncation; skips invalid advertiser names and non-US rows',async()=>{
