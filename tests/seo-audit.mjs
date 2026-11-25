@@ -18,6 +18,8 @@ test('freshness ignores clock-only rebuilds, catches hidden job replacement and 
  const html='<h1>Data Analyst</h1><p>Updated November 24, 2026</p>';const rows=[{id:1,company:'A',posted_at:'2026-11-01',salary:'$100,000'}];
  const first=freshness(null,html,'2026-11-24',rows);
  assert.equal(freshness(first,html.replace('24,','25,'),'2026-11-25',rows).lastmod,'2026-11-24');
+ const withRecent=freshness(null,html+'<p>1 posted in the last 7 days · 2 employers hiring</p>','2026-11-24',rows);
+ assert.equal(freshness(withRecent,html+'<p>2 employers hiring</p>','2026-11-25',rows).lastmod,'2026-11-24');
  assert.equal(freshness(first,html,'2026-11-25',[{...rows[0],id:2}]).lastmod,'2026-11-25');
  assert.equal(freshness(first,html,'2026-11-25',[{...rows[0],salary:'$110,000'}]).lastmod,'2026-11-25');
  assert.equal(freshness(first,html+'<p>Changed useful explanation</p>','2026-11-25',rows).lastmod,'2026-11-25');
