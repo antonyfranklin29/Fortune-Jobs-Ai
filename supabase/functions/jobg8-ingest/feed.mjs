@@ -73,15 +73,15 @@ export const safeHttps = value => {
 export function normalize(raw, { stateIndex, classify, cleanText }) {
   const t = (key, max = 300) => cleanText(raw[key] || '', max);
   const title = t('Position'), company = t('AdvertiserName'), id = t('SenderReference', 200);
-  // Missing optional nodes are normal. Missing identity or invalid US data aborts the snapshot,
-  // preserving existing jobs instead of mistaking malformed rows for provider deletions.
-  if (!id || !title || !company || /^jobg8(?:\b|$)/i.test(company)) throw new Error('invalid_identity');
-  if (!/^(us|usa|united states|united states of america)$/i.test(t('Country'))) throw new Error('non_us_job');
-  const region = t('Location'), code = region.toUpperCase();
-  const state = stateIndex.get(code) || stateIndex.get(region.toLowerCase());
-  if (!state) throw new Error('unknown_state');
+  // Missing optional nodes are normal. A row we cannot list (no identity, outside the US, unknown
+  // state, unsafe link) is skipped and counted; the handler aborts the whole snapshot when too
+  // many rows are skipped, so a malformed feed is never mistaken for provider deletions.
+  if (!id || !title || !company || /^jobg8(?:\b|$)/i.test(company)) return { skip: 'invalid_identity' };
+  if (!/^(us|usa|u\.s\.a?\.?|united states|united states of america)$/i.test(t('Country'))) return { skip: 'non_us_job' };
+  const state = stateFor(t('Location'), stateIndex) || stateFor(t('Area'), stateIndex);
+  if (!state) return { skip: 'unknown_state' };
   const url = raw.ApplicationURL?.trim();
-  if (!safeHttps(url)) throw new Error('invalid_application_url');
+  if (!safeHttps(url)) return { skip: 'invalid_application_url' };
   const number = key => /^\d+(?:\.\d+)?$/.test(raw[key] || '') ? Number(raw[key]) : null;
   const min = number('SalaryMinimum'), max = number('SalaryMaximum');
   const currency = t('SalaryCurrency', 10);
@@ -91,11 +91,29 @@ export function normalize(raw, { stateIndex, classify, cleanText }) {
   const description = cleanText(String(raw.Description || '').replace(/<(script|style|iframe|object|svg)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, ' '), 10_000);
   const meta = Object.fromEntries(['Classification','SubClassification','AdditionalClassification1','AdditionalClassification2','AdditionalClassification3','AdditionalClassification4','AdvertiserType','DisplayReference','ConversionType','LogoURL','Language','StartDate','Duration','WorkHours','SalaryAdditional'].filter(k => raw[k]).map(k => [k, t(k, 1000)]));
   const canonical = classify(title);
-  return { source_listing_id: id, job_title: title, company, location: t('Area') ? t('Area') + ', ' + state : state,
+  return { source_listing_id: id, job_title: title, company, location: cityFor(t('Area') || t('Location'), state, stateIndex),
     state_code: state, country: 'us', canonical_role: canonical, category: canonical || t('Classification') || null,
     job_description: description, apply_url: url, salary, employment_type: t('EmploymentType') || null,
     jobg8_sell_price: number('SellPrice'), jobg8_sell_price_currency: t('SellPriceCurrency', 3) || null,
     jobg8_revenue_type: ['CPA','CPC'].includes(raw.RevenueType) ? raw.RevenueType : null,
     jobg8_job_type: ['APPLICATION','ATS','TRAFFIC'].includes(raw.JobType) ? raw.JobType : null,
     source_metadata: meta };
+}
+
+// Location is normally a state code or name, but tolerate "Atlanta, GA" / "Georgia, US" forms.
+function stateFor(value, stateIndex) {
+  const v = String(value || '').trim();
+  if (!v) return null;
+  const direct = stateIndex.get(v.toUpperCase()) || stateIndex.get(v.toLowerCase());
+  if (direct) return direct;
+  const parts = v.split(',').map(p => p.trim()).filter(p => p && !/^(us|usa|united states)$/i.test(p));
+  for (const part of parts.reverse()) {
+    const hit = stateIndex.get(part.toUpperCase()) || stateIndex.get(part.toLowerCase()) || stateIndex.get(part.replace(/\s+\d{5}(-\d{4})?$/, '').toUpperCase());
+    if (hit) return hit;
+  }
+  return null;
+}
+function cityFor(area, state, stateIndex) {
+  const city = String(area || '').split(',')[0].trim();
+  return city && stateFor(city, stateIndex) !== state ? city + ', ' + state : state;
 }

@@ -35,12 +35,12 @@ test('five-job ZIP streams across arbitrary chunks; maps identity, exact signed 
  const optional=fixture.replace(/<SellPrice>.*?<\/SellPrice>/g,'').replace(/<SalaryMinimum>.*?<\/SalaryPeriod>/g,'');const empty=await rows(optional);assert.equal(empty[0].jobg8_sell_price,null);assert.equal(empty[0].salary,null);
 });
 
-test('rejects dangerous XML, duplicate identities, truncation and invalid advertiser names',async()=>{
+test('rejects dangerous XML and truncation; skips invalid advertiser names and non-US rows',async()=>{
  await assert.rejects(rows(fixture.replace('<Jobs>','<!DOCTYPE Jobs [<!ENTITY steal SYSTEM "file:///etc/passwd">]><Jobs>')));
- await assert.rejects(rows(fixture.replace('Example Care Hospital','Jobg8')),/invalid_identity/);
+ assert.equal((await rows(fixture.replace('Example Care Hospital','Jobg8')))[0].skip,'invalid_identity');
  await assert.rejects(rows(fixture.replace('</Jobs>','')));
  await assert.rejects(readZip(stream(archive().slice(0,40)),async()=>{},zip));
- await assert.rejects(rows(fixture.replace('United States','Canada')),/non_us_job/);
+ assert.equal((await rows(fixture.replace('United States','Canada')))[0].skip,'non_us_job');
  const long=fixture.replace(/<Description><!\[CDATA\[[\s\S]*?\]\]><\/Description>/,'<Description><![CDATA['+'A'.repeat(15000)+']]></Description>');assert.equal((await rows(long))[0].job_description.length,10000);
 });
 
@@ -48,7 +48,7 @@ test('snapshot fixture: 5 inserted, then 1 inserted / 1 updated / 1 closed; firs
  const{db,rpc}=await database();try{
  let xml=fixture,modified='Sun, 22 Nov 2026 12:00:00 GMT';const methods=[];
  const fetchImpl=async(url,options)=>{assert.equal(url,'https://feed.example.test/private-feed.zip');methods.push(options.method);return new Response(options.method==='HEAD'?null:archive(xml),{headers:{'last-modified':modified}});};
- const handler=createIngestHandler({getEnv:k=>({INGEST_SECRET:'fixture-secret',JOBG8_FEED_URL:'https://feed.example.test/private-feed.zip',JOBG8_MODE:'qa'})[k],rpc,fetchImpl,zip,context});
+ const handler=createIngestHandler({getEnv:k=>({INGEST_SECRET:'fixture-secret',JOBG8_FEED_URL:'https://feed.example.test/private-feed.zip',JOBG8_MODE:'live'})[k],rpc,fetchImpl,zip,context});
  let response=await handler(request());const initial=await response.json();assert.equal(response.status,200);assert.equal(initial.inserted,5);assert.equal(initial.updated,0);assert.equal(initial.closed,0);
  const before=(await db.query("select posted_at from pre_scraped_jobs where source_listing_id='RN-GA'")).rows[0].posted_at;
  const unchanged=await(await handler(request())).json();assert.equal(unchanged.status,'unchanged');assert.deepEqual(methods,['HEAD','GET','HEAD']);
@@ -57,14 +57,14 @@ test('snapshot fixture: 5 inserted, then 1 inserted / 1 updated / 1 closed; firs
  assert.equal(new Date((await db.query("select posted_at from pre_scraped_jobs where source_listing_id='RN-GA'")).rows[0].posted_at).getTime(),new Date(before).getTime());
  assert.equal((await db.query("select count(*)::int as n from pre_scraped_jobs where source='jobg8' and closed_at is null")).rows[0].n,5);
  modified='Sun, 22 Nov 2026 14:00:00 GMT';const limited=await handler(request());assert.equal(limited.status,429);assert.equal(methods.filter(m=>m==='GET').length,2);
- const modes=await db.query("select distinct mode from ingest_runs where source='jobg8'");assert.equal(modes.rows[0].mode,'qa');
+ const modes=await db.query("select distinct mode from ingest_runs where source='jobg8'");assert.equal(modes.rows[0].mode,'live');
  console.log('Fixture initial: inserted=5 updated=0 closed=0; amended snapshot: inserted=1 updated=1 closed=1');
  }finally{await db.close()}
 });
 
 test('failed, incomplete and duplicate snapshots never close existing jobs; leases fence concurrent workers and visitors',async()=>{
  const{db,rpc}=await database();try{
- const first=await rpc('jobg8_start',{p_mode:'qa'}),auth={p_run:first.run_id,p_token:first.token};
+ const first=await rpc('jobg8_start',{p_mode:'live'}),auth={p_run:first.run_id,p_token:first.token};
  assert.equal((await rpc('jobg8_start',{p_mode:'qa'})).status,'busy');
  await assert.rejects(rpc('jobg8_publish',{...auth,p_after:''}),/snapshot_incomplete/);
  const records=await rows();await rpc('jobg8_stage',{...auth,p_rows:records});await assert.rejects(rpc('jobg8_stage',{...auth,p_rows:records}),/duplicate key/);
@@ -73,6 +73,21 @@ test('failed, incomplete and duplicate snapshots never close existing jobs; leas
  assert.equal((await bad(request())).status,502);assert.equal((await db.query('select count(*)::int as n from pre_scraped_jobs where closed_at is null')).rows[0].n,5);
  await assert.rejects(rpc('jobg8_ready',auth),/lease_lost/);
  await db.exec('set role anon');await assert.rejects(rpc('jobg8_start',{p_mode:'qa'}),/permission denied/);await db.exec('reset role');
+ }finally{await db.close()}
+});
+
+test('QA mode stores jobs hidden; bad rows are skipped and counted; mostly-bad feeds abort',async()=>{
+ const{db,rpc}=await database();try{
+ const one=fixture.match(/<Job><SenderReference>RN-GA[\s\S]*?<\/Job>/)[0];
+ let xml=fixture.replace('</Jobs>',one.replace('Georgia','Ontario').replaceAll('RN-GA','BAD-1')+one+[1,2,3].map(i=>one.replaceAll('RN-GA','RN-X'+i)).join('')+'</Jobs>'),modified='v1';
+ const fetchImpl=async(_u,o)=>new Response(o.method==='HEAD'?null:archive(xml),{headers:{'last-modified':modified}});
+ const handler=createIngestHandler({getEnv:k=>({INGEST_SECRET:'fixture-secret',JOBG8_FEED_URL:'https://feed.example.test/private-feed.zip',JOBG8_MODE:'qa'})[k],rpc,fetchImpl,zip,context});
+ const ok=await(await handler(request())).json();assert.equal(ok.status,'succeeded',JSON.stringify(ok));assert.equal(ok.inserted,8);
+ assert.deepEqual(ok.skipped,{unknown_state:1,duplicate_reference:1});
+ assert.equal((await db.query("select count(*)::int as n from pre_scraped_jobs where source='jobg8' and closed_at is null")).rows[0].n,0);
+ assert.match((await db.query("select note from ingest_runs order by id desc limit 1")).rows[0].note,/unknown_state=1/);
+ xml=fixture.replaceAll('United States','Canada');modified='v2';await db.exec("update jobg8_feed_state set gets='{}'");
+ const bad=await handler(request());const body=await bad.json();assert.equal(bad.status,502);assert.equal(body.reason,'too_many_skipped');
  }finally{await db.close()}
 });
 

@@ -13,7 +13,12 @@ const rpc=async(name:string,args:unknown)=>{
   method:'POST',headers:{apikey:service,Authorization:'Bearer '+service,'Content-Type':'application/json'},
   body:JSON.stringify(args),signal:AbortSignal.timeout(20_000)
  });
- if(!response.ok) throw new Error('database_write_failed');
+ if(!response.ok){
+  // Surface only our own raise codes (never row data) so failed runs can be diagnosed.
+  const body=await response.json().catch(()=>({}));
+  const code=/^(invalid_job|invalid_batch|lease_lost|snapshot_incomplete|unpublished_jobs)$/.test(body?.message)?body.message:body?.code==='23505'?'duplicate_job':'database_write_failed';
+  throw new Error(code);
+ }
  const text=await response.text();return text ? JSON.parse(text) : null;
 };
 Deno.serve(createIngestHandler({getEnv:(name:string)=>Deno.env.get(name),rpc,

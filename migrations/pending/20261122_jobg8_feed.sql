@@ -5,7 +5,8 @@ alter table public.pre_scraped_jobs
  add column if not exists jobg8_sell_price_currency text,
  add column if not exists jobg8_revenue_type text,
  add column if not exists jobg8_job_type text,
- add column if not exists jobg8_payload_hash text;
+ add column if not exists jobg8_payload_hash text,
+ add column if not exists source_metadata jsonb;
 -- Preserve complete signed Jobg8 links when saved; all other bounds are unchanged.
 alter table public.saved_jobs drop constraint if exists fj_saved_job_data_bounds;
 alter table public.saved_jobs add constraint fj_saved_job_data_bounds check (
@@ -92,18 +93,20 @@ end $$;
 
 create function public.jobg8_publish(p_run bigint,p_token uuid,p_after text default '') returns jsonb
 language plpgsql security definer set search_path='' as $$
-declare rec record; r jsonb; old public.pre_scraped_jobs; ni integer:=0; nu integer:=0; nc integer:=0; last_ref text:=p_after; n integer:=0; stamp timestamptz;
+declare rec record; r jsonb; old public.pre_scraped_jobs; ni integer:=0; nu integer:=0; nc integer:=0; last_ref text:=p_after; n integer:=0; stamp timestamptz; qa boolean;
 begin
  perform public.jobg8_assert(p_run,p_token);
  if not (select ready from public.jobg8_feed_state where singleton) then raise exception 'snapshot_incomplete'; end if;
- select started_at into stamp from public.ingest_runs where id=p_run;
+ -- QA (test) mode: rows are stored but kept closed, so no page, search, alert or count shows them.
+ -- The first live-mode run reopens every row it sees.
+ select started_at, coalesce(mode,'qa')='qa' into stamp, qa from public.ingest_runs where id=p_run;
  for rec in select ref,payload from public.jobg8_staging where run_id=p_run and not published and ref>p_after order by ref limit 500 loop
   r:=rec.payload; last_ref:=rec.ref; n:=n+1;
   select * into old from public.pre_scraped_jobs where source='jobg8' and source_listing_id=rec.ref for update;
   begin
    if found then
     -- Every seen row stays fresh; first-seen posted_at is deliberately unchanged.
-    update public.pre_scraped_jobs set last_seen_at=stamp,fetched_at=stamp,closed_at=null where id=old.id;
+    update public.pre_scraped_jobs set last_seen_at=stamp,fetched_at=stamp,closed_at=case when qa then stamp else null end where id=old.id;
     if old.jobg8_payload_hash is distinct from md5(r::text) then
      update public.pre_scraped_jobs set job_title=r->>'job_title',company=r->>'company',location=r->>'location',state_code=r->>'state_code',
       canonical_role=r->>'canonical_role',category=r->>'category',salary=r->>'salary',apply_url=r->>'apply_url',job_description=r->>'job_description',
@@ -116,10 +119,10 @@ begin
    else
     insert into public.pre_scraped_jobs(source,source_listing_id,country,job_title,company,location,state_code,canonical_role,category,salary,apply_url,job_description,
      employment_type,source_metadata,posted_at,scraped_at,fetched_at,last_seen_at,search_text,jobg8_payload_hash,
-     jobg8_sell_price,jobg8_sell_price_currency,jobg8_revenue_type,jobg8_job_type)
+     jobg8_sell_price,jobg8_sell_price_currency,jobg8_revenue_type,jobg8_job_type,closed_at)
     values('jobg8',rec.ref,'us',r->>'job_title',r->>'company',r->>'location',r->>'state_code',r->>'canonical_role',r->>'category',r->>'salary',r->>'apply_url',r->>'job_description',
      r->>'employment_type',r->'source_metadata',stamp,stamp,stamp,stamp,lower(concat_ws(' ',r->>'job_title',r->>'company',r->>'location')),md5(r::text),
-     (r->>'jobg8_sell_price')::numeric,r->>'jobg8_sell_price_currency',r->>'jobg8_revenue_type',r->>'jobg8_job_type');
+     (r->>'jobg8_sell_price')::numeric,r->>'jobg8_sell_price_currency',r->>'jobg8_revenue_type',r->>'jobg8_job_type',case when qa then stamp else null end);
     ni:=ni+1;
    end if;
   exception when unique_violation then nc:=nc+1; -- Never take over another source's apply URL.
